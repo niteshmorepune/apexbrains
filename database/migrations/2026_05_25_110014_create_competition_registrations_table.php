@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['competition_id', 'student_id']);
-            $table->index(['competition_id', 'student_id', 'student_type']);
+            $table->index(['competition_id', 'student_id', 'student_type'], 'comp_reg_comp_student_type_idx');
         });
     }
 
