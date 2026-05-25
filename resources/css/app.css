@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/forms';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,6 +7,46 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Fonts */
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Admin portal colours */
+    --color-admin:       #1A2332;
+    --color-admin-mid:   #2D3E5A;
+    --color-admin-light: #3D5270;
+
+    /* Franchise portal colours */
+    --color-fran:        #1A73E8;
+    --color-fran-light:  #E8F0FE;
+    --color-fran-dark:   #1052A9;
+
+    /* Student portal colours (internal) */
+    --color-stu:         #2ECC71;
+    --color-stu-light:   #EAFAF1;
+    --color-stu-dark:    #1E9850;
+
+    /* Logo / brand accent */
+    --color-logo-red:    #D42B2B;
+    --color-logo-amber:  #F5A623;
+
+    /* Neutral backgrounds */
+    --color-bg-light:    #F5F7FA;
+    --color-bg-mid:      #EDF0F5;
+    --color-border:      #D0D7E2;
+
+    /* Level badge colours L1–L14 */
+    --color-level-1:     #87CEEB;
+    --color-level-2:     #2ECC71;
+    --color-level-3:     #00BCD4;
+    --color-level-4:     #FFD54F;
+    --color-level-5:     #F5A623;
+    --color-level-6:     #FF69B4;
+    --color-level-7:     #D42B2B;
+    --color-level-8:     #9C27B0;
+    --color-level-9:     #1A73E8;
+    --color-level-10:    #00897B;
+    --color-level-11:    #FF6F00;
+    --color-level-12:    #AD1457;
+    --color-level-13:    #283593;
+    --color-level-14:    #212121;
 }
