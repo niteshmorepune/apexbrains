@@ -71,6 +71,8 @@
                     <a href="{{ route('admin.audit-log') }}"
                        class="text-gray-400 hover:text-white text-sm transition-colors">Audit Log</a>
                 @endif
+                <a href="{{ route('admin.help') }}"
+                   class="text-gray-400 hover:text-white text-sm transition-colors {{ request()->routeIs('admin.help') ? 'text-white' : '' }}">Help</a>
                 <div class="w-8 h-8 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold">
                     {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                 </div>

@@ -36,6 +36,7 @@
             <x-franchise-nav-item route="franchise.reports.index" icon="bar-chart-2" label="Reports" />
             <x-franchise-nav-item route="franchise.parents.index" icon="phone" label="Parent Directory" />
             <x-franchise-nav-item route="franchise.notifications.index" icon="bell" label="Notifications" />
+            <x-franchise-nav-item route="franchise.help" icon="help-circle" label="Help Guide" />
         </nav>
 
         {{-- User info --}}

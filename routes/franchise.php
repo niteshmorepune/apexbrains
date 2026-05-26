@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('franchise')->name('franchise.')->middleware(['auth', 'franchise'])->group(function () {
     Route::get('/', [\App\Http\Controllers\Franchise\DashboardController::class, 'index'])->name('dashboard');
 
+    // Help Guide
+    Route::get('help', fn() => view('franchise.help'))->name('help');
+
     // Student management
     Route::resource('students', \App\Http\Controllers\Franchise\StudentController::class);
     Route::post('students/import', [\App\Http\Controllers\Franchise\StudentController::class, 'import'])->name('students.import');

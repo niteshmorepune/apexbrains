@@ -64,6 +64,7 @@
             <x-bottom-nav-item route="student.exams.index" icon="file-text" label="Exams" />
             <x-bottom-nav-item route="student.competitions.index" icon="trophy" label="Compete" />
             <x-bottom-nav-item route="student.certificates.index" icon="award" label="Certs" />
+            <x-bottom-nav-item route="student.help" icon="help-circle" label="Help" />
         </div>
     </nav>
 </div>

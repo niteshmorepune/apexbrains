@@ -60,6 +60,7 @@
             <x-bottom-nav-item route="external.practice.index" icon="zap" label="Practice" color="fran" />
             <x-bottom-nav-item route="external.competitions.index" icon="trophy" label="Compete" color="fran" />
             <x-bottom-nav-item route="external.profile" icon="user" label="Profile" color="fran" />
+            <x-bottom-nav-item route="external.help" icon="help-circle" label="Help" color="fran" />
         </div>
     </nav>
 </div>

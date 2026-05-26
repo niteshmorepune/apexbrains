@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('external')->name('external.')->middleware(['auth', 'external.student'])->group(function () {
     Route::get('/', [\App\Http\Controllers\External\HomeController::class, 'index'])->name('home');
 
+    // Help Guide
+    Route::get('help', fn() => view('external.help'))->name('help');
+
     // Competition Practice Papers (all 50 papers)
     Route::get('practice', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'index'])->name('practice.index');
     Route::post('practice/{paper}/start', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'start'])->name('practice.start');
