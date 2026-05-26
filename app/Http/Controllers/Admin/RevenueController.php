@@ -44,16 +44,9 @@ class RevenueController extends Controller
             ->limit(8)
             ->get();
 
-        // Commission breakdown
-        $commissions = Franchise::with('commissions')
-            ->whereHas('commissions', fn($q) => $q->whereMonth('created_at', now()->month))
-            ->withSum(['commissions as total_commission' => fn($q) => $q->whereMonth('created_at', now()->month)], 'amount')
-            ->orderByDesc('total_commission')
-            ->get();
-
         return view('admin.revenue', compact(
             'from', 'to', 'totalRevenue', 'monthRevenue', 'perFranchiseAvg',
-            'monthlyTrend', 'branchRevenue', 'commissions'
+            'monthlyTrend', 'branchRevenue'
         ));
     }
 }

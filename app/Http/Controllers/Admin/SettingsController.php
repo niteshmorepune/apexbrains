@@ -34,6 +34,7 @@ class SettingsController extends Controller
             'notify_new_student'     => ['nullable', 'boolean'],
             'notify_payment_due'     => ['nullable', 'boolean'],
             'notify_commission'      => ['nullable', 'boolean'],
+            'logo'                   => ['nullable', 'image', 'mimes:png,jpg,jpeg,svg', 'max:1024'],
         ]);
 
         $data['notify_new_franchise'] = $request->boolean('notify_new_franchise');
@@ -41,6 +42,17 @@ class SettingsController extends Controller
         $data['notify_payment_due']   = $request->boolean('notify_payment_due');
         $data['notify_commission']    = $request->boolean('notify_commission');
 
+        $existing = $this->loadSettings();
+        $data['logo_path'] = $existing['logo_path'] ?? null;
+
+        if ($request->hasFile('logo')) {
+            if (!empty($existing['logo_path'])) {
+                Storage::disk('public')->delete($existing['logo_path']);
+            }
+            $data['logo_path'] = $request->file('logo')->store('logos', 'public');
+        }
+
+        unset($data['logo']);
         $this->saveSettings($data);
         AuditLogger::log('settings_updated', 'Settings');
 
@@ -76,6 +88,7 @@ class SettingsController extends Controller
             'notify_new_student'   => true,
             'notify_payment_due'   => true,
             'notify_commission'    => true,
+            'logo_path'            => null,
         ];
     }
 }

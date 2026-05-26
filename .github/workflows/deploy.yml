@@ -73,5 +73,6 @@ jobs:
             php artisan event:cache
 
             php artisan queue:restart
+            php artisan storage:link --force
 
             chmod -R 755 storage bootstrap/cache

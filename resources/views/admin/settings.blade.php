@@ -17,7 +17,7 @@
         @endforeach
     </div>
 
-    <form method="POST" action="{{ route('admin.settings.update') }}">
+    <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="_tab" :value="tab">
 
@@ -74,12 +74,31 @@
             </div>
 
             <div class="space-y-4">
-                <div class="bg-white rounded-2xl border border-border p-5">
+                <div class="bg-white rounded-2xl border border-border p-5" x-data="{ preview: null }">
                     <h3 class="text-sm font-bold text-admin mb-3">Logo &amp; Branding</h3>
-                    <div class="flex items-center justify-center h-20 rounded-xl border-2 border-dashed border-border mb-3 bg-bg-light">
-                        <p class="text-xs text-gray-400">Logo upload coming soon</p>
+                    <div class="flex items-center justify-center h-20 rounded-xl border-2 border-dashed border-border mb-3 bg-bg-light overflow-hidden cursor-pointer relative"
+                         @click="$refs.logoInput.click()">
+                        <template x-if="preview">
+                            <img :src="preview" class="max-h-16 max-w-full object-contain">
+                        </template>
+                        <template x-if="!preview">
+                            @if(!empty($settings['logo_path']))
+                                <img src="{{ Storage::url($settings['logo_path']) }}" class="max-h-16 max-w-full object-contain">
+                            @else
+                                <div class="text-center">
+                                    <svg class="w-6 h-6 text-gray-300 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <p class="text-xs text-gray-400">Click to upload logo</p>
+                                </div>
+                            @endif
+                        </template>
                     </div>
+                    <input type="file" name="logo" accept="image/png,image/jpeg,image/svg+xml"
+                           x-ref="logoInput" class="hidden"
+                           @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null">
                     <p class="text-xs text-gray-400">Recommended: 200×60px PNG with transparent background</p>
+                    @if(!empty($settings['logo_path']))
+                        <p class="text-xs text-green-600 mt-1">Logo uploaded. Click above to replace.</p>
+                    @endif
                 </div>
 
                 <div class="bg-admin rounded-2xl p-5">
