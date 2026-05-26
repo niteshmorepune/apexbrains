@@ -11,6 +11,6 @@ class CompetitionPaperController extends Controller
 {
     public function index(): View
     {
-        return view('admin.competitionpaper');
+        return view('admin.competitions.index');
     }
 }

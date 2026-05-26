@@ -112,6 +112,14 @@ Student portal header is **GREEN** (`bg-stu`). Never dark navy.
 - `simplesoftwareio/simple-qrcode` — QR codes for certificates
 - `maatwebsite/excel` — Excel exports
 
+## Figma Access
+- File: **Apex Brains** | ID: `3PzTEmLL3RjRXiTioCSTLP` | Page: `0:1`
+- Token stored in project memory (`project_overview.md`) — use PowerShell `Invoke-RestMethod` with header `X-Figma-Token`
+- Admin screens: Section `18:7062`, frames Admin 20 (`18:7063`) → Admin 38 (`18:9408`)
+- Franchise screens: Section `18:10075`
+- Student screens: Section `15:1883`
+- Fetch a screen: `GET https://api.figma.com/v1/files/{fileId}/nodes?ids={nodeId}`
+
 ## Git
 - Branch: `main`
 - Remote: `origin` → `https://github.com/niteshmorepune/apexbrains.git`

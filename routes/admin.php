@@ -20,12 +20,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Level management
         Route::resource('levels', \App\Http\Controllers\Admin\LevelController::class);
 
-        // Question Bank
+        // Question Bank — audio/generate must come BEFORE resource to avoid {question} param conflict
+        Route::get('questions/audio/generate', [\App\Http\Controllers\Admin\AudioQuestionController::class, 'index'])->name('questions.audio');
+        Route::post('questions/audio/generate', [\App\Http\Controllers\Admin\AudioQuestionController::class, 'generate'])->name('questions.audio.generate');
         Route::resource('questions', \App\Http\Controllers\Admin\QuestionBankController::class);
         Route::post('questions/{question}/approve', [\App\Http\Controllers\Admin\QuestionBankController::class, 'approve'])->name('questions.approve');
         Route::post('questions/{question}/reject', [\App\Http\Controllers\Admin\QuestionBankController::class, 'reject'])->name('questions.reject');
-        Route::get('questions/audio/generate', [\App\Http\Controllers\Admin\AudioQuestionController::class, 'index'])->name('questions.audio');
-        Route::post('questions/audio/generate', [\App\Http\Controllers\Admin\AudioQuestionController::class, 'generate'])->name('questions.audio.generate');
 
         // PDF Upload & OCR
         Route::get('pdf-uploads', [\App\Http\Controllers\Admin\PdfUploadController::class, 'index'])->name('pdf-uploads.index');
