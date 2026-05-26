@@ -42,6 +42,16 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
+      - name: Transfer built assets to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USERNAME }}
+          key: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "public/build"
+          target: ${{ secrets.DEPLOY_PATH }}
+
       - name: Deploy to Hostinger via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -53,26 +63,17 @@ jobs:
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
 
-            # Pull latest code
             git pull origin main
 
-            # Install production dependencies
             composer install --no-dev --optimize-autoloader --no-interaction
 
-            # Copy built assets
-            # (assets are built on CI and transferred; or rebuild on server if node is available)
-
-            # Run migrations
             php artisan migrate --force
 
-            # Clear and rebuild caches
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan event:cache
 
-            # Restart queue
             php artisan queue:restart
 
-            # Set permissions
             chmod -R 755 storage bootstrap/cache
