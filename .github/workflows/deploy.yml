@@ -42,15 +42,13 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
-      - name: Transfer built assets to server
+      - name: Commit compiled assets
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          rsync -avz --delete \
-            -e "ssh -p ${{ secrets.HOSTINGER_SSH_PORT }} -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            public/build/ \
-            ${{ secrets.HOSTINGER_SSH_USERNAME }}@${{ secrets.HOSTINGER_SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/public/build/
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add public/build/
+          git diff --staged --quiet || git commit -m "chore: update compiled assets [skip ci]"
+          git push || true
 
       - name: Deploy to Hostinger via SSH
         uses: appleboy/ssh-action@v1.0.3
