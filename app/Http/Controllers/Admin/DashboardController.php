@@ -19,14 +19,12 @@ class DashboardController extends Controller
         $activeFranchises = Franchise::where('status', 'active')->count();
         $pendingFranchises = Franchise::where('status', 'pending')->count();
 
-        $monthlyRevenue = Payment::whereMonth('paid_at', now()->month)
-            ->whereYear('paid_at', now()->year)
-            ->where('status', 'paid')
+        $monthlyRevenue = Payment::whereMonth('payment_date', now()->month)
+            ->whereYear('payment_date', now()->year)
             ->sum('amount');
 
-        $prevRevenue = Payment::whereMonth('paid_at', now()->subMonth()->month)
-            ->whereYear('paid_at', now()->subMonth()->year)
-            ->where('status', 'paid')
+        $prevRevenue = Payment::whereMonth('payment_date', now()->subMonth()->month)
+            ->whereYear('payment_date', now()->subMonth()->year)
             ->sum('amount');
 
         $revenueGrowth = $prevRevenue > 0
@@ -36,9 +34,8 @@ class DashboardController extends Controller
         $avgScore = ExamAttempt::whereNotNull('score')->avg('score') ?? 0;
 
         // Monthly revenue for last 12 months
-        $monthlyTrend = Payment::where('status', 'paid')
-            ->where('paid_at', '>=', now()->subMonths(11)->startOfMonth())
-            ->selectRaw('YEAR(paid_at) as year, MONTH(paid_at) as month, SUM(amount) as total')
+        $monthlyTrend = Payment::where('payment_date', '>=', now()->subMonths(11)->startOfMonth())
+            ->selectRaw('YEAR(payment_date) as year, MONTH(payment_date) as month, SUM(amount) as total')
             ->groupBy('year', 'month')
             ->orderBy('year')->orderBy('month')
             ->get()
@@ -64,8 +61,7 @@ class DashboardController extends Controller
             ->select('franchises.*')
             ->selectSub(
                 Payment::whereColumn('franchise_id', 'franchises.id')
-                    ->whereMonth('paid_at', now()->month)
-                    ->where('status', 'paid')
+                    ->whereMonth('payment_date', now()->month)
                     ->selectRaw('COALESCE(SUM(amount), 0)'),
                 'monthly_revenue'
             )

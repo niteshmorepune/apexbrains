@@ -16,21 +16,18 @@ class RevenueController extends Controller
         $from = $request->filled('from') ? $request->from : now()->startOfYear()->toDateString();
         $to   = $request->filled('to')   ? $request->to   : now()->toDateString();
 
-        $baseQuery = Payment::where('status', 'paid')
-            ->whereBetween('paid_at', [$from, $to]);
+        $baseQuery = Payment::whereBetween('payment_date', [$from, $to]);
 
         $totalRevenue   = (clone $baseQuery)->sum('amount');
-        $monthRevenue   = Payment::where('status', 'paid')
-            ->whereMonth('paid_at', now()->month)
-            ->whereYear('paid_at', now()->year)
+        $monthRevenue   = Payment::whereMonth('payment_date', now()->month)
+            ->whereYear('payment_date', now()->year)
             ->sum('amount');
         $franchiseCount = Franchise::where('status', 'active')->count();
         $perFranchiseAvg = $franchiseCount > 0 ? $monthRevenue / $franchiseCount : 0;
 
         // Monthly trend (last 12 months)
-        $monthlyTrend = Payment::where('status', 'paid')
-            ->where('paid_at', '>=', now()->subMonths(11)->startOfMonth())
-            ->selectRaw('YEAR(paid_at) as yr, MONTH(paid_at) as mo, SUM(amount) as total')
+        $monthlyTrend = Payment::where('payment_date', '>=', now()->subMonths(11)->startOfMonth())
+            ->selectRaw('YEAR(payment_date) as yr, MONTH(payment_date) as mo, SUM(amount) as total')
             ->groupBy('yr', 'mo')
             ->orderBy('yr')->orderBy('mo')
             ->get()
@@ -41,7 +38,7 @@ class RevenueController extends Controller
 
         // Branch revenue share
         $branchRevenue = Franchise::withSum(['payments as revenue' => function ($q) use ($from, $to) {
-            $q->where('status', 'paid')->whereBetween('paid_at', [$from, $to]);
+            $q->whereBetween('payment_date', [$from, $to]);
         }], 'amount')
             ->orderByDesc('revenue')
             ->limit(8)
