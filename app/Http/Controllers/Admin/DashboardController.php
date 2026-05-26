@@ -46,7 +46,6 @@ class DashboardController extends Controller
 
         // Student count by level
         $levelDistribution = StudentLevel::select('level_id', DB::raw('count(*) as total'))
-            ->where('status', 'active')
             ->with('level:id,title,sort_order')
             ->groupBy('level_id')
             ->orderBy('level_id')
