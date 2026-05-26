@@ -58,12 +58,22 @@
 
     {{-- Main content --}}
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header class="h-14 bg-white border-b border-border flex items-center px-6 gap-4 flex-shrink-0">
-            <x-breadcrumb />
+        <header class="h-14 bg-fran border-b border-fran flex items-center px-6 gap-4 flex-shrink-0">
+            <div class="flex items-center gap-1 text-sm">
+                <span class="font-semibold text-white">{{ auth()->user()->franchise->name ?? 'Branch' }}</span>
+                <span class="text-blue-200 ml-2">{{ now()->format('d M Y') }}</span>
+            </div>
             <div class="ml-auto flex items-center gap-3">
-                <span class="text-sm text-gray-500">{{ now()->format('d M Y') }}</span>
+                @yield('page-actions')
             </div>
         </header>
+
+        {{-- Page title bar --}}
+        @hasSection('page-title')
+        <div class="bg-white border-b border-border px-6 py-3 flex items-center justify-between flex-shrink-0">
+            <h1 class="text-lg font-bold text-fran">@yield('page-title')</h1>
+        </div>
+        @endif
 
         <main class="flex-1 overflow-y-auto p-6">
             @if(session('success'))
