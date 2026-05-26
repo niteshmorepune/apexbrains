@@ -1,0 +1,1 @@
+<polyline points="15 21 12 17 9 21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline><path d="M8 5H6a2 2 0 0 0-2 2v3a6 6 0 0 0 6 6 6 6 0 0 0 6-6V7a2 2 0 0 0-2-2h-2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1" stroke-width="2"></rect>
