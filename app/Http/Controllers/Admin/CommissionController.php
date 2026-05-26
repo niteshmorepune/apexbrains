@@ -20,9 +20,8 @@ class CommissionController extends Controller
 
         $franchises = Franchise::where('status', 'active')
             ->withSum(['payments as gross_revenue' => function ($q) use ($year, $mo) {
-                $q->where('status', 'paid')
-                  ->whereYear('paid_at', $year)
-                  ->whereMonth('paid_at', $mo);
+                $q->whereYear('payment_date', $year)
+                  ->whereMonth('payment_date', $mo);
             }], 'amount')
             ->withSum(['commissions as commission_paid' => function ($q) use ($year, $mo) {
                 $q->whereYear('created_at', $year)
@@ -56,9 +55,8 @@ class CommissionController extends Controller
 
         foreach ($franchises as $franchise) {
             $revenue = Payment::where('franchise_id', $franchise->id)
-                ->where('status', 'paid')
-                ->whereYear('paid_at', $year)
-                ->whereMonth('paid_at', $mo)
+                ->whereYear('payment_date', $year)
+                ->whereMonth('payment_date', $mo)
                 ->sum('amount');
 
             if ($revenue > 0) {
@@ -77,7 +75,7 @@ class CommissionController extends Controller
             }
         }
 
-        AuditLogger::log('commissions_calculated', "Commissions calculated for {$data['month']} ({$created} franchises)");
+        AuditLogger::log('commissions_calculated', 'Commission', null, null, ['month' => $data['month'], 'count' => $created]);
 
         return redirect()->route('admin.commissions.index', ['month' => $data['month']])
             ->with('success', "Commissions calculated for {$created} franchises.");
@@ -90,7 +88,7 @@ class CommissionController extends Controller
             'paid_at' => now(),
             'paid_by' => auth()->id(),
         ]);
-        AuditLogger::log('commission_paid', "Commission marked paid for franchise #{$commission->franchise_id}");
+        AuditLogger::log('commission_paid', 'Commission', $commission->id);
 
         return back()->with('success', 'Commission marked as paid.');
     }
