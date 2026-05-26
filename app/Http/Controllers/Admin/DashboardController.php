@@ -56,8 +56,11 @@ class DashboardController extends Controller
             ]);
 
         // Franchise overview table
-        $franchises = Franchise::withCount(['students'])
-            ->select('franchises.*')
+        $franchises = Franchise::select('franchises.*')
+            ->selectSub(
+                Student::whereColumn('franchise_id', 'franchises.id')->selectRaw('COUNT(*)'),
+                'students_count'
+            )
             ->selectSub(
                 Payment::whereColumn('franchise_id', 'franchises.id')
                     ->whereMonth('payment_date', now()->month)
