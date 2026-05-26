@@ -14,6 +14,10 @@
             <option value="best_score" @selected(request('sort') === 'best_score')>Sort by Best Score</option>
         </select>
         <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Filter</button>
+        <a href="{{ route('franchise.reports.export', request()->only('search', 'level')) }}"
+           class="px-4 py-2 border border-border text-gray-600 rounded-xl text-sm hover:bg-bg-light flex-shrink-0">
+            ↓ Export
+        </a>
     </form>
 </div>
 

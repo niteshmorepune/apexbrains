@@ -31,6 +31,7 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth', 'franchise']
 
     // Progress & Reports
     Route::get('reports', [\App\Http\Controllers\Franchise\ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export', [\App\Http\Controllers\Franchise\ReportController::class, 'export'])->name('reports.export');
     Route::get('reports/{student}', [\App\Http\Controllers\Franchise\ReportController::class, 'show'])->name('reports.show');
 
     // Notifications

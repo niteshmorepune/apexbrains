@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
+use App\Models\ApexNotification;
 use App\Models\Level;
 use App\Models\Student;
 use App\Services\AuditLogger;
@@ -16,9 +16,10 @@ class NotificationController extends Controller
 {
     public function index(): View
     {
-        $history = AuditLog::where('franchise_id', Auth::user()->franchise_id)
-            ->where('action', 'like', '%notification%')
-            ->latest('created_at')
+        $franchiseId = Auth::user()->franchise_id;
+
+        $history = ApexNotification::where('franchise_id', $franchiseId)
+            ->latest()
             ->paginate(20);
 
         $levels   = Level::orderBy('number')->get();
@@ -30,22 +31,39 @@ class NotificationController extends Controller
     public function send(Request $request): RedirectResponse
     {
         $data = $request->validate([
+            'title'      => ['required', 'string', 'max:150'],
             'message'    => ['required', 'string', 'max:500'],
-            'channel'    => ['required', 'in:whatsapp,sms,both'],
+            'channel'    => ['required', 'in:app,whatsapp,sms,email'],
             'target'     => ['required', 'in:all,level,student'],
             'level_id'   => ['nullable', 'exists:levels,id'],
             'student_id' => ['nullable', 'exists:students,id'],
         ]);
 
-        // Real delivery in Phase 6 — log the intent
-        $targetDesc = match($data['target']) {
-            'level'   => 'Level ' . Level::find($data['level_id'])?->number . ' students',
-            'student' => Student::find($data['student_id'])?->full_name,
-            default   => 'All students',
+        $franchiseId = Auth::user()->franchise_id;
+
+        $targetStudents = match($data['target']) {
+            'level'   => Student::where('current_level_id', $data['level_id'])->where('is_active', true)->get(),
+            'student' => Student::where('id', $data['student_id'])->get(),
+            default   => Student::where('is_active', true)->get(),
         };
 
-        AuditLogger::log('notification_sent', "Notification sent via {$data['channel']} to {$targetDesc}");
+        foreach ($targetStudents as $student) {
+            ApexNotification::create([
+                'franchise_id' => $franchiseId,
+                'student_id'   => $student->id,
+                'user_id'      => Auth::id(),
+                'type'         => 'franchise_message',
+                'title'        => $data['title'],
+                'message'      => $data['message'],
+                'channel'      => $data['channel'],
+                'sent_at'      => now(),
+            ]);
+        }
 
-        return back()->with('success', "Notification queued for {$targetDesc} via {$data['channel']}.");
+        AuditLogger::log('notification_sent', 'ApexNotification');
+
+        $count = $targetStudents->count();
+
+        return back()->with('success', "Notification sent to {$count} student(s).");
     }
 }

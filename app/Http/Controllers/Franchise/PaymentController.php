@@ -35,6 +35,9 @@ class PaymentController extends Controller
         $receiptNumber = strtoupper(substr($franchise->franchise_code ?? 'REC', 0, 2))
                        . '-' . now()->year . '-' . str_pad($receiptSeq, 4, '0', STR_PAD_LEFT);
 
+        // Capture existing paid total BEFORE inserting the new payment to avoid double-counting
+        $existingPaid = $fee->payments()->sum('amount');
+
         $payment = Payment::create([
             'franchise_id'          => $franchiseId,
             'student_id'            => $fee->student_id,
@@ -48,8 +51,7 @@ class PaymentController extends Controller
             'recorded_by'           => Auth::id(),
         ]);
 
-        // Update fee status
-        $totalPaid = $fee->payments()->sum('amount') + $data['amount'];
+        $totalPaid = $existingPaid + $data['amount'];
         $fee->update([
             'paid_amount' => $totalPaid,
             'status'      => $totalPaid >= $fee->amount ? 'paid' : 'partial',

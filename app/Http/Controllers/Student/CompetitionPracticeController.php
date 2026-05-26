@@ -116,7 +116,7 @@ class CompetitionPracticeController extends Controller
 
     private function doSubmit(CompetitionPracticeAttempt $attempt, CompetitionPracticePaper $paper, $questions): RedirectResponse
     {
-        if ($attempt->status === 'completed') {
+        if ($attempt->status === 'submitted') {
             return redirect()->route('student.competitions.practice.result', $paper);
         }
 
@@ -138,7 +138,7 @@ class CompetitionPracticeController extends Controller
         $attempt->update([
             'score'        => $correct,
             'percentage'   => $pct,
-            'status'       => 'completed',
+            'status'       => 'submitted',
             'submitted_at' => now(),
         ]);
 
@@ -153,7 +153,7 @@ class CompetitionPracticeController extends Controller
 
         $attempt = CompetitionPracticeAttempt::where('paper_id', $paper->id)
             ->where('student_id', $student->id)
-            ->where('status', 'completed')
+            ->where('status', 'submitted')
             ->latest('submitted_at')
             ->firstOrFail();
 

@@ -48,7 +48,7 @@
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     {{-- Tabs --}}
     <div class="flex border-b border-border">
-        @foreach(['all' => 'All', 'paid' => 'Paid', 'due' => 'Due', 'partial' => 'Partial', 'overdue' => 'Overdue'] as $key => $label)
+        @foreach(['all' => 'All', 'paid' => 'Paid', 'pending' => 'Due', 'partial' => 'Partial', 'overdue' => 'Overdue'] as $key => $label)
             <a href="{{ route('franchise.fees.index', array_merge(request()->except('tab', 'page'), ['tab' => $key])) }}"
                class="px-5 py-3 text-sm font-medium border-b-2 transition-colors
                       {{ $tab === $key ? 'border-fran text-fran' : 'border-transparent text-gray-500 hover:text-gray-700' }}">

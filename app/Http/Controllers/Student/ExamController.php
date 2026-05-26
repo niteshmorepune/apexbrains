@@ -197,7 +197,7 @@ class ExamController extends Controller
             'score'        => $score,
             'percentage'   => $pct,
             'is_passed'    => $passed,
-            'status'       => 'completed',
+            'status'       => 'submitted',
             'submitted_at' => now(),
         ]);
 
@@ -210,7 +210,7 @@ class ExamController extends Controller
 
         $attempt = ExamAttempt::where('exam_id', $exam->id)
             ->where('student_id', $student->id)
-            ->where('status', 'completed')
+            ->where('status', 'submitted')
             ->latest('submitted_at')
             ->with('answers.question')
             ->firstOrFail();

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Franchise;
 
+use App\Exports\StudentReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReportController extends Controller
 {
@@ -48,5 +51,15 @@ class ReportController extends Controller
         ])->values();
 
         return view('franchise.reports.show', compact('student', 'attempts', 'chartData'));
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        $filename = 'student-report-' . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(
+            new StudentReportExport($request->search, $request->level),
+            $filename
+        );
     }
 }

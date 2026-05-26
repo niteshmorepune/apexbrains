@@ -30,7 +30,7 @@ class FeeController extends Controller
 
         match ($tab) {
             'paid'    => $query->where('status', 'paid'),
-            'due'     => $query->where('status', 'due'),
+            'pending' => $query->where('status', 'pending'),
             'partial' => $query->where('status', 'partial'),
             'overdue' => $query->where('status', 'overdue'),
             default   => null,
@@ -42,13 +42,13 @@ class FeeController extends Controller
         $allFees = Fee::whereYear('month', $year)->whereMonth('month', $mo);
         $stats = [
             'collected'      => (clone $allFees)->where('status', 'paid')->sum('paid_amount'),
-            'outstanding'    => (clone $allFees)->whereIn('status', ['due', 'partial', 'overdue'])->sum('amount'),
+            'outstanding'    => (clone $allFees)->whereIn('status', ['pending', 'partial', 'overdue'])->sum('amount'),
             'overdue'        => (clone $allFees)->where('status', 'overdue')->sum('amount'),
             'collection_rate'=> (clone $allFees)->count() > 0
                 ? round(((clone $allFees)->where('status', 'paid')->count() / (clone $allFees)->count()) * 100, 1)
                 : 0,
             'paid_count'     => (clone $allFees)->where('status', 'paid')->count(),
-            'pending_count'  => (clone $allFees)->whereIn('status', ['due', 'partial', 'overdue'])->count(),
+            'pending_count'  => (clone $allFees)->whereIn('status', ['pending', 'partial', 'overdue'])->count(),
             'overdue_count'  => (clone $allFees)->where('status', 'overdue')->count(),
         ];
 
