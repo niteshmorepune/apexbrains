@@ -11,7 +11,7 @@ GitHub: https://github.com/niteshmorepune/apexbrains | Deploy: Hostinger via Git
 - [x] Phase 3 — Franchise Panel
 - [x] Phase 4 — Student Portal
 - [x] Phase 5 — External Portal
-- [ ] Phase 6 — Polish & Deploy
+- [x] Phase 6 — Polish & Deploy
 
 ## Windows Dev Environment
 PHP and Composer require PATH to be set each PowerShell session:

@@ -42,7 +42,7 @@ class LevelController extends Controller
         $data['is_active'] = $request->boolean('is_active', true);
 
         $level = Level::create($data);
-        AuditLogger::log('level_created', "Level {$level->number} '{$level->title}' created", $level->id, 'level');
+        AuditLogger::log('level_created', 'Level', $level->id);
 
         return redirect()->route('admin.levels.index')
             ->with('success', "Level {$level->number} created successfully.");
@@ -73,7 +73,7 @@ class LevelController extends Controller
         $data['is_active'] = $request->boolean('is_active');
 
         $level->update($data);
-        AuditLogger::log('level_updated', "Level {$level->number} '{$level->title}' updated", $level->id, 'level');
+        AuditLogger::log('level_updated', 'Level', $level->id);
 
         return redirect()->route('admin.levels.index')
             ->with('success', "Level {$level->number} updated.");

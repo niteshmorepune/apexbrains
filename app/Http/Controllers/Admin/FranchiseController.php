@@ -65,7 +65,7 @@ class FranchiseController extends Controller
         $franchise = Franchise::create($data);
         FranchiseSetting::create(['franchise_id' => $franchise->id]);
 
-        AuditLogger::log('franchise_created', "Franchise '{$franchise->name}' created", $franchise->id, 'franchise');
+        AuditLogger::log('franchise_created', 'Franchise', $franchise->id);
 
         return redirect()->route('admin.franchises.show', $franchise)
             ->with('success', "Franchise '{$franchise->name}' created successfully.");
@@ -75,8 +75,8 @@ class FranchiseController extends Controller
     {
         $franchise->loadCount(['students', 'batches']);
 
-        $recentActivity = \App\Models\AuditLog::where('subject_type', 'franchise')
-            ->where('subject_id', $franchise->id)
+        $recentActivity = \App\Models\AuditLog::where('entity_type', 'Franchise')
+            ->where('entity_id', $franchise->id)
             ->latest()
             ->limit(5)
             ->get();
@@ -106,7 +106,7 @@ class FranchiseController extends Controller
         ]);
 
         $franchise->update($data);
-        AuditLogger::log('franchise_updated', "Franchise '{$franchise->name}' updated", $franchise->id, 'franchise');
+        AuditLogger::log('franchise_updated', 'Franchise', $franchise->id);
 
         return redirect()->route('admin.franchises.show', $franchise)
             ->with('success', 'Franchise updated successfully.');
@@ -115,7 +115,7 @@ class FranchiseController extends Controller
     public function approve(Franchise $franchise): RedirectResponse
     {
         $franchise->update(['status' => 'active']);
-        AuditLogger::log('franchise_approved', "Franchise '{$franchise->name}' approved", $franchise->id, 'franchise');
+        AuditLogger::log('franchise_approved', 'Franchise', $franchise->id);
 
         return back()->with('success', "Franchise '{$franchise->name}' approved.");
     }
@@ -123,7 +123,7 @@ class FranchiseController extends Controller
     public function suspend(Franchise $franchise): RedirectResponse
     {
         $franchise->update(['status' => 'suspended']);
-        AuditLogger::log('franchise_suspended', "Franchise '{$franchise->name}' suspended", $franchise->id, 'franchise');
+        AuditLogger::log('franchise_suspended', 'Franchise', $franchise->id);
 
         return back()->with('success', "Franchise '{$franchise->name}' suspended.");
     }
@@ -132,7 +132,7 @@ class FranchiseController extends Controller
     {
         $name = $franchise->name;
         $franchise->delete();
-        AuditLogger::log('franchise_deleted', "Franchise '{$name}' deleted", null, 'franchise');
+        AuditLogger::log('franchise_deleted', 'Franchise', null);
 
         return redirect()->route('admin.franchises.index')
             ->with('success', "Franchise '{$name}' deleted.");
