@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\AuditLog;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class NotificationController extends Controller
 {
     public function index(): View
     {
-        return view('student.notification');
+        $student = Auth::user()->student()->firstOrFail();
+
+        $notifications = AuditLog::where('franchise_id', $student->franchise_id)
+            ->where('action', 'like', '%notification%')
+            ->latest('created_at')
+            ->paginate(20);
+
+        return view('student.notifications.index', compact('notifications'));
     }
 }

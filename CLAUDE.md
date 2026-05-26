@@ -9,7 +9,7 @@ GitHub: https://github.com/niteshmorepune/apexbrains | Deploy: Hostinger via Git
 - [x] Phase 1 — Foundation (migrations, models, routes, layouts, seeders, CI/CD)
 - [x] Phase 2 — Admin Panel (19 screens)
 - [x] Phase 3 — Franchise Panel
-- [ ] Phase 4 — Student Portal
+- [x] Phase 4 — Student Portal
 - [ ] Phase 5 — External Portal
 - [ ] Phase 6 — Polish & Deploy
 
