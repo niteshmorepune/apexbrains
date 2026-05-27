@@ -27,9 +27,11 @@
             <x-admin-nav-item route="admin.dashboard"          label="Dashboard"     icon="grid" />
             <x-admin-nav-item route="admin.franchises.index" label="Franchises"    icon="building" />
             <x-admin-nav-item route="admin.questions.index"  label="Question Bank" icon="help-circle" />
-            <x-admin-nav-item route="admin.levels.index"     label="Curriculum"    icon="layers" />
-            <x-admin-nav-item route="admin.leaderboard"      label="Leaderboard"   icon="trophy" />
-            <x-admin-nav-item route="admin.competitions.index" label="Competitions" icon="award" />
+            <x-admin-nav-item route="admin.levels.index"       label="Curriculum"      icon="layers" />
+            <x-admin-nav-item route="admin.resources.index"   label="Resources"       icon="file-text" />
+            <x-admin-nav-item route="admin.leaderboard"       label="Leaderboard"     icon="trophy" />
+            <x-admin-nav-item route="admin.competitions.index" label="Competitions"   icon="award" />
+            <x-admin-nav-item route="admin.competition-papers.index" label="Prac. Papers" icon="layers" />
             <x-admin-nav-item route="admin.settings"         label="Settings"      icon="settings" />
             <x-admin-nav-item route="admin.revenue"          label="Finance"       icon="bar-chart" />
         </nav>

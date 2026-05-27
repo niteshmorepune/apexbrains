@@ -40,10 +40,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Analytics & reports
         Route::get('revenue', [\App\Http\Controllers\Admin\RevenueController::class, 'index'])->name('revenue');
+        Route::get('revenue/export-pdf', [\App\Http\Controllers\Admin\RevenueController::class, 'exportPdf'])->name('revenue.export-pdf');
         Route::get('leaderboard', [\App\Http\Controllers\Admin\LeaderboardController::class, 'index'])->name('leaderboard');
         Route::get('commissions', [\App\Http\Controllers\Admin\CommissionController::class, 'index'])->name('commissions.index');
         Route::post('commissions/calculate', [\App\Http\Controllers\Admin\CommissionController::class, 'calculate'])->name('commissions.calculate');
+        Route::get('commissions/export-pdf', [\App\Http\Controllers\Admin\CommissionController::class, 'exportPdf'])->name('commissions.export-pdf');
         Route::post('commissions/{commission}/mark-paid', [\App\Http\Controllers\Admin\CommissionController::class, 'markPaid'])->name('commissions.mark-paid');
+
+        // Resource Library
+        Route::get('resources', [\App\Http\Controllers\Admin\ResourceFileController::class, 'index'])->name('resources.index');
+        Route::post('resources', [\App\Http\Controllers\Admin\ResourceFileController::class, 'store'])->name('resources.store');
+        Route::get('resources/{resource}/download', [\App\Http\Controllers\Admin\ResourceFileController::class, 'download'])->name('resources.download');
+        Route::delete('resources/{resource}', [\App\Http\Controllers\Admin\ResourceFileController::class, 'destroy'])->name('resources.destroy');
 
         // Settings & Audit
         Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');

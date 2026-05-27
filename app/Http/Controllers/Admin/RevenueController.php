@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Franchise;
 use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -48,5 +50,26 @@ class RevenueController extends Controller
             'from', 'to', 'totalRevenue', 'monthRevenue', 'perFranchiseAvg',
             'monthlyTrend', 'branchRevenue'
         ));
+    }
+
+    public function exportPdf(Request $request): Response
+    {
+        $from = $request->filled('from') ? $request->from : now()->startOfYear()->toDateString();
+        $to   = $request->filled('to')   ? $request->to   : now()->toDateString();
+
+        $totalRevenue = Payment::whereBetween('payment_date', [$from, $to])->sum('amount');
+
+        $branchRevenue = Franchise::withSum(['payments as revenue' => function ($q) use ($from, $to) {
+            $q->whereBetween('payment_date', [$from, $to]);
+        }], 'amount')
+            ->orderByDesc('revenue')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.pdf.revenue', compact('from', 'to', 'totalRevenue', 'branchRevenue'))
+            ->setPaper('a4', 'portrait');
+
+        $filename = 'revenue-report-' . $from . '-to-' . $to . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

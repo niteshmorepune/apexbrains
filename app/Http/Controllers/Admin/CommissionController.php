@@ -7,8 +7,10 @@ use App\Models\Commission;
 use App\Models\Franchise;
 use App\Models\Payment;
 use App\Services\AuditLogger;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class CommissionController extends Controller
@@ -84,6 +86,34 @@ class CommissionController extends Controller
 
         return redirect()->route('admin.commissions.index', ['month' => $data['month']])
             ->with('success', "Commissions calculated for {$created} franchises.");
+    }
+
+    public function exportPdf(Request $request): Response
+    {
+        $month = $request->filled('month') ? $request->month : now()->format('Y-m');
+        [$year, $mo] = explode('-', $month);
+        $monthDate = $year . '-' . str_pad($mo, 2, '0', STR_PAD_LEFT) . '-01';
+
+        $commissionRecords = Commission::where('month', $monthDate)->get()->keyBy('franchise_id');
+
+        $franchises = Franchise::where('status', 'active')
+            ->withSum(['payments as gross_revenue' => function ($q) use ($year, $mo) {
+                $q->whereYear('payment_date', $year)->whereMonth('payment_date', $mo);
+            }], 'amount')
+            ->get()
+            ->map(function ($f) use ($commissionRecords) {
+                $f->commission_due    = ($f->gross_revenue ?? 0) * ($f->commission_rate / 100);
+                $f->commission_record = $commissionRecords->get($f->id);
+                return $f;
+            });
+
+        $totalGross      = $franchises->sum('gross_revenue');
+        $totalCommission = $franchises->sum('commission_due');
+
+        $pdf = Pdf::loadView('admin.pdf.commissions', compact('franchises', 'month', 'totalGross', 'totalCommission'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('commissions-' . $month . '.pdf');
     }
 
     public function markPaid(Commission $commission): RedirectResponse

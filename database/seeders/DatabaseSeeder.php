@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             LevelSeeder::class,
             DemoDataSeeder::class,
             CompetitionPracticeSeeder::class,
+            CompetitionPracticePapersSeeder::class,
         ]);
     }
 }
