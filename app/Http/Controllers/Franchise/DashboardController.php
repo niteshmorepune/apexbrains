@@ -24,7 +24,7 @@ class DashboardController extends Controller
             ->sum('amount');
         $pendingFees    = Fee::where('status', '!=', 'paid')->count();
         $upcomingExams  = Exam::where('franchise_id', $franchiseId)
-            ->where('status', 'active')
+            ->where('is_active', true)
             ->count();
 
         // Students by level group (pairs L1-2, L3-4, ...)
