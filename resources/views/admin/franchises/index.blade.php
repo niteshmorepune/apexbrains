@@ -80,6 +80,11 @@
                                         @csrf
                                         <button class="text-stu text-xs font-medium hover:underline">Approve</button>
                                     </form>
+                                    <form method="POST" action="{{ route('admin.franchises.reject', $f) }}" class="inline"
+                                          onsubmit="return confirm('Reject this franchise application?')">
+                                        @csrf
+                                        <button class="text-red-500 text-xs hover:underline">Reject</button>
+                                    </form>
                                 @elseif($f->status === 'active')
                                     <form method="POST" action="{{ route('admin.franchises.suspend', $f) }}" class="inline">
                                         @csrf

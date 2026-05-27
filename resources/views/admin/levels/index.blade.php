@@ -25,10 +25,13 @@ $levelColors = [
 <div class="grid grid-cols-4 gap-4">
     @forelse($levels as $level)
         @php $color = $levelColors[$level->number] ?? '#1A73E8'; @endphp
-        <div class="bg-white rounded-2xl border border-border p-5 hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-2xl border border-border p-5 hover:shadow-md transition-shadow overflow-hidden relative">
+            {{-- Coloured top stripe --}}
+            <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
+                 style="background-color: {{ $color }}"></div>
 
             {{-- Level badge --}}
-            <div class="flex items-start justify-between mb-3">
+            <div class="flex items-start justify-between mb-3 mt-1">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm"
                      style="background-color: {{ $color }}">
                     L{{ $level->number }}

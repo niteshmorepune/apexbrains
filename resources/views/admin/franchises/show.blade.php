@@ -10,6 +10,19 @@
                 Approve
             </button>
         </form>
+        <form method="POST" action="{{ route('admin.franchises.reject', $franchise) }}" class="inline"
+              x-data="{}" @submit.prevent="
+                  const reason = prompt('Rejection reason (optional):');
+                  document.getElementById('reject-reason-{{ $franchise->id }}').value = reason ?? '';
+                  $el.submit()
+              ">
+            @csrf
+            <input type="hidden" id="reject-reason-{{ $franchise->id }}" name="reason">
+            <button type="submit"
+                    class="px-4 py-2 border border-red-300 text-red-500 text-sm font-semibold rounded-xl hover:bg-red-50 transition-colors">
+                Reject
+            </button>
+        </form>
     @elseif($franchise->status === 'active')
         <form method="POST" action="{{ route('admin.franchises.suspend', $franchise) }}" class="inline">
             @csrf

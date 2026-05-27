@@ -13,7 +13,7 @@ class Franchise extends Model
     protected $fillable = [
         'name', 'slug', 'owner_name', 'email', 'phone', 'whatsapp',
         'address', 'city', 'pincode', 'state', 'gst_number', 'pan_number',
-        'status', 'franchise_code', 'commission_rate', 'fee_per_student',
+        'status', 'rejection_reason', 'franchise_code', 'commission_rate', 'fee_per_student',
         'logo', 'agreed_at',
     ];
 

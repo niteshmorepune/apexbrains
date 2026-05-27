@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Franchise;
-use App\Models\FranchiseSetting;
 use App\Services\AuditLogger;
 use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
@@ -63,7 +62,6 @@ class FranchiseController extends Controller
             . '-' . str_pad(Franchise::count() + 1, 3, '0', STR_PAD_LEFT);
 
         $franchise = Franchise::create($data);
-        FranchiseSetting::create(['franchise_id' => $franchise->id]);
 
         AuditLogger::log('franchise_created', 'Franchise', $franchise->id);
 
@@ -126,6 +124,17 @@ class FranchiseController extends Controller
         AuditLogger::log('franchise_suspended', 'Franchise', $franchise->id);
 
         return back()->with('success', "Franchise '{$franchise->name}' suspended.");
+    }
+
+    public function reject(Request $request, Franchise $franchise): RedirectResponse
+    {
+        $franchise->update([
+            'status'          => 'rejected',
+            'rejection_reason' => $request->input('reason'),
+        ]);
+        AuditLogger::log('franchise_rejected', 'Franchise', $franchise->id);
+
+        return back()->with('success', "Franchise '{$franchise->name}' rejected.");
     }
 
     public function destroy(Franchise $franchise): RedirectResponse

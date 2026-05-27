@@ -11,11 +11,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // All authenticated admin routes
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('export', [\App\Http\Controllers\Admin\DashboardController::class, 'export'])->name('dashboard.export');
 
         // Franchise management
         Route::resource('franchises', \App\Http\Controllers\Admin\FranchiseController::class);
         Route::post('franchises/{franchise}/approve', [\App\Http\Controllers\Admin\FranchiseController::class, 'approve'])->name('franchises.approve');
         Route::post('franchises/{franchise}/suspend', [\App\Http\Controllers\Admin\FranchiseController::class, 'suspend'])->name('franchises.suspend');
+        Route::post('franchises/{franchise}/reject', [\App\Http\Controllers\Admin\FranchiseController::class, 'reject'])->name('franchises.reject');
 
         // Level management
         Route::resource('levels', \App\Http\Controllers\Admin\LevelController::class);
@@ -47,8 +49,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
         Route::post('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
         Route::get('audit-log', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-log');
+        Route::get('audit-log/export', [\App\Http\Controllers\Admin\AuditLogController::class, 'export'])->name('audit-log.export');
 
-        // Help Guide
-        Route::get('help', fn() => view('admin.help'))->name('help');
+        // Help Guide — use Route::view so route:cache works (no Closure)
+        Route::view('help', 'admin.help')->name('help');
     });
 });

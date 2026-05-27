@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\StudentLevel;
 use App\Models\ExamAttempt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -82,5 +83,41 @@ class DashboardController extends Controller
             'monthlyRevenue', 'revenueGrowth', 'avgScore',
             'monthlyTrend', 'levelDistribution', 'franchises'
         ));
+    }
+
+    public function export(): Response
+    {
+        $franchises = Franchise::select('franchises.*')
+            ->selectSub(
+                Student::whereColumn('franchise_id', 'franchises.id')->selectRaw('COUNT(*)'),
+                'students_count'
+            )
+            ->selectSub(
+                Payment::whereColumn('franchise_id', 'franchises.id')
+                    ->whereMonth('payment_date', now()->month)
+                    ->selectRaw('COALESCE(SUM(amount), 0)'),
+                'monthly_revenue'
+            )
+            ->orderByDesc('students_count')
+            ->get();
+
+        $csv  = "Franchise,City,Status,Students,Monthly Revenue (₹),Commission Rate\n";
+        foreach ($franchises as $f) {
+            $csv .= implode(',', [
+                '"' . str_replace('"', '""', $f->name) . '"',
+                '"' . $f->city . '"',
+                $f->status,
+                $f->students_count,
+                number_format($f->monthly_revenue, 2, '.', ''),
+                $f->commission_rate,
+            ]) . "\n";
+        }
+
+        $filename = 'apex-brains-dashboard-' . now()->format('Y-m-d') . '.csv';
+
+        return response($csv, 200, [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 }

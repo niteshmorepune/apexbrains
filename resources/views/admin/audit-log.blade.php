@@ -3,7 +3,7 @@
 @section('page-title', 'Audit Log')
 
 @section('page-actions')
-    <a href="{{ route('admin.audit-log', array_merge(request()->all(), ['export' => 'csv'])) }}"
+    <a href="{{ route('admin.audit-log.export', request()->except('page')) }}"
        class="px-4 py-2 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
         Export CSV
     </a>

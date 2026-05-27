@@ -49,32 +49,41 @@
                 </div>
             </div>
 
-            {{-- Learning Objectives --}}
+            {{-- Topics / Learning Objectives --}}
             <div class="bg-white rounded-2xl border border-border p-6 mb-6"
                  x-data="{ objectives: {{ json_encode(old('learning_objectives', $level->learning_objectives ?? [])) }} }">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-bold text-admin">Learning Objectives</h2>
+                    <div>
+                        <h2 class="text-sm font-bold text-admin">Topics / Learning Objectives</h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Key skills students learn in this level.</p>
+                    </div>
                     <button type="button" @click="objectives.push('')"
-                            class="text-xs text-fran hover:underline font-medium">+ Add</button>
+                            class="inline-flex items-center gap-1 text-xs bg-fran text-white px-3 py-1.5 rounded-lg hover:bg-fran-dark transition-colors font-medium">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Topic
+                    </button>
+                </div>
+
+                <div x-show="objectives.length === 0" class="text-sm text-gray-400 text-center py-4 border-2 border-dashed border-border rounded-xl">
+                    No topics yet. Click <strong>Add Topic</strong> to start.
                 </div>
 
                 <template x-for="(obj, idx) in objectives" :key="idx">
                     <div class="flex items-center gap-2 mb-2">
-                        <span class="text-xs text-gray-400 w-5 text-right flex-shrink-0" x-text="idx + 1 + '.'"></span>
+                        <span class="text-xs text-gray-400 w-5 text-right flex-shrink-0" x-text="(idx + 1) + '.'"></span>
                         <input type="text" :name="'learning_objectives[' + idx + ']'"
                                x-model="objectives[idx]" placeholder="e.g. Master 2-digit addition in under 10 seconds"
                                class="flex-1 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                         <button type="button" @click="objectives.splice(idx, 1)"
-                                class="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0">
+                                class="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                                title="Remove topic">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     </div>
-                </template>
-
-                <template x-if="objectives.length === 0">
-                    <p class="text-sm text-gray-400 text-center py-4">No objectives yet. Click + Add to start.</p>
                 </template>
             </div>
 

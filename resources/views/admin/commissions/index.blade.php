@@ -52,6 +52,7 @@
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Commission Due</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Paid</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Action</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-border">
@@ -64,21 +65,38 @@
                         ₹{{ number_format($f->commission_due) }}
                     </td>
                     <td class="px-4 py-3 text-right text-stu">
-                        ₹{{ number_format($f->commission_paid ?? 0) }}
+                        @php $paidAmount = $f->commission_record?->status === 'paid' ? $f->commission_due : 0; @endphp
+                        ₹{{ number_format($paidAmount) }}
                     </td>
                     <td class="px-4 py-3 text-center">
-                        @if(($f->commission_paid ?? 0) >= $f->commission_due && $f->commission_due > 0)
+                        @if($f->commission_record?->status === 'paid')
                             <span class="text-xs bg-stu-light text-stu-dark px-2 py-0.5 rounded-full font-medium">Paid</span>
-                        @elseif($f->gross_revenue > 0)
+                        @elseif($f->commission_due > 0)
                             <span class="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium">Pending</span>
                         @else
                             <span class="text-xs bg-bg-mid text-gray-400 px-2 py-0.5 rounded-full">No Revenue</span>
                         @endif
                     </td>
+                    <td class="px-4 py-3 text-center">
+                        @if($f->commission_record && $f->commission_record->status !== 'paid')
+                            <form method="POST"
+                                  action="{{ route('admin.commissions.mark-paid', $f->commission_record) }}">
+                                @csrf
+                                <button type="submit"
+                                        class="text-xs bg-stu text-white px-3 py-1 rounded-lg hover:bg-stu-dark transition-colors font-medium">
+                                    Mark Paid
+                                </button>
+                            </form>
+                        @elseif($f->commission_record?->status === 'paid')
+                            <span class="text-xs text-gray-400">✓ Done</span>
+                        @else
+                            <span class="text-xs text-gray-300">—</span>
+                        @endif
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="px-5 py-8 text-center text-gray-400">
+                    <td colspan="7" class="px-5 py-8 text-center text-gray-400">
                         No active franchises. Click Calculate All to generate commissions.
                     </td>
                 </tr>

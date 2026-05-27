@@ -18,22 +18,27 @@ class CommissionController extends Controller
         $month = $request->filled('month') ? $request->month : now()->format('Y-m');
         [$year, $mo] = explode('-', $month);
 
+        $monthDate = $year . '-' . str_pad($mo, 2, '0', STR_PAD_LEFT) . '-01';
+
+        // Load all commission records for this month keyed by franchise_id
+        $commissionRecords = Commission::where('month', $monthDate)
+            ->get()
+            ->keyBy('franchise_id');
+
         $franchises = Franchise::where('status', 'active')
             ->withSum(['payments as gross_revenue' => function ($q) use ($year, $mo) {
                 $q->whereYear('payment_date', $year)
                   ->whereMonth('payment_date', $mo);
             }], 'amount')
-            ->withSum(['commissions as commission_paid' => function ($q) use ($year, $mo) {
-                $q->whereYear('created_at', $year)
-                  ->whereMonth('created_at', $mo);
-            }], 'commission_amount')
             ->get()
-            ->map(function ($f) {
-                $f->commission_due = ($f->gross_revenue ?? 0) * ($f->commission_rate / 100);
+            ->map(function ($f) use ($commissionRecords) {
+                $f->commission_due    = ($f->gross_revenue ?? 0) * ($f->commission_rate / 100);
+                $f->commission_record = $commissionRecords->get($f->id);
+                $f->commission_paid   = $f->commission_record?->commission_amount ?? 0;
                 return $f;
             });
 
-        $totalGross = $franchises->sum('gross_revenue');
+        $totalGross      = $franchises->sum('gross_revenue');
         $totalCommission = $franchises->sum('commission_due');
 
         return view('admin.commissions.index', compact(
