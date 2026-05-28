@@ -2,17 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Root redirect based on role
-Route::get('/', function () {
-    if (auth()->check()) {
-        $user = auth()->user();
-        if ($user->hasRole('super_admin')) return redirect()->route('admin.dashboard');
-        if ($user->hasRole('franchise_admin')) return redirect()->route('franchise.dashboard');
-        if ($user->hasRole('student') && $user->student_type === 'external') return redirect()->route('external.home');
-        if ($user->hasRole('student')) return redirect()->route('student.home');
-    }
-    return redirect()->route('login');
-});
+// Root redirect based on role (controller — closures break route:cache)
+Route::get('/', [\App\Http\Controllers\HomeController::class, 'index']);
 
 // Student login (internal + external)
 Route::get('/login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');

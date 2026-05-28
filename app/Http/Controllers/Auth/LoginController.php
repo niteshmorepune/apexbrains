@@ -32,6 +32,16 @@ class LoginController extends Controller
 
         $user = Auth::user();
 
+        if ($user->hasRole('super_admin')) {
+            Auth::logout();
+            return back()->withErrors(['email' => 'Admin accounts must sign in at /admin/login.'])->onlyInput('email');
+        }
+
+        if ($user->hasRole('franchise_admin')) {
+            Auth::logout();
+            return back()->withErrors(['email' => 'Franchise accounts must sign in at /franchise/login.'])->onlyInput('email');
+        }
+
         if (! $user->is_active) {
             Auth::logout();
             return back()->withErrors(['email' => 'Your account has been deactivated.']);
