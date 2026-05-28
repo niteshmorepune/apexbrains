@@ -14,6 +14,7 @@
     {{-- Left branding panel --}}
     <div class="relative flex flex-col justify-center px-12 py-16 bg-[#F5F8FE] overflow-hidden">
 
+        {{-- Decorative blob --}}
         <div class="absolute top-[-80px] right-[-60px] w-72 h-72 rounded-full bg-fran/[0.07] pointer-events-none"></div>
         <div class="absolute bottom-[-60px] left-[-40px] w-56 h-56 rounded-full bg-fran/[0.05] pointer-events-none"></div>
 
@@ -29,11 +30,14 @@
             </div>
         </div>
 
+        {{-- Taglines --}}
         <h2 class="text-[16px] font-normal text-gray-700 mb-1">International Abacus Programme</h2>
         <p class="text-[13px] text-gray-500 mb-8">"Explore your Potential"</p>
 
+        {{-- Certification --}}
         <p class="text-[11px] text-gray-400 mb-6">ISO 9001:2015 Certified | Aundh, Pune</p>
 
+        {{-- Stats --}}
         <div class="flex items-center gap-10">
             <div>
                 <div class="text-[36px] font-bold text-fran leading-none">38</div>
@@ -54,19 +58,21 @@
     <div class="flex items-center justify-center px-8 py-16 bg-white">
         <div class="w-full max-w-sm">
 
+            {{-- Card --}}
             <div class="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-gray-100 px-8 py-8">
 
                 <p class="text-[11px] text-gray-400 mb-2 tracking-wide">Admin Portal</p>
                 <h1 class="text-[22px] font-bold text-gray-900 mb-1">Admin Sign In</h1>
                 <p class="text-[13px] text-gray-400 mb-6">Super Admin Access</p>
 
+                {{-- Error --}}
                 @if($errors->any())
                     <div class="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
                         <p class="text-[12px] text-red-600 font-medium">{{ $errors->first() }}</p>
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('admin.login.post') }}" class="space-y-4">
+                <form method="POST" action="{{ route('admin.login') }}" class="space-y-4">
                     @csrf
 
                     <div>

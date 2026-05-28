@@ -14,7 +14,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Unified login (redirects to role-specific areas after auth)
+// Student login (internal + external)
 Route::get('/login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware('throttle:6,1');
 Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');

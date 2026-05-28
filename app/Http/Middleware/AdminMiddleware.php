@@ -10,7 +10,11 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! $request->user()->hasRole('super_admin')) {
+        if (! $request->user()) {
+            return redirect()->route('admin.login');
+        }
+
+        if (! $request->user()->hasRole('super_admin')) {
             abort(403, 'Admin access required.');
         }
 

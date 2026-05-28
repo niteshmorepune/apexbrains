@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Admin Sign In — Apex Brains Academy</title>
+    <title>Branch Sign In — Apex Brains Academy</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-full bg-[#F5F8FE] font-sans">
@@ -14,6 +14,7 @@
     {{-- Left branding panel --}}
     <div class="relative flex flex-col justify-center px-12 py-16 bg-[#F5F8FE] overflow-hidden">
 
+        {{-- Decorative blobs --}}
         <div class="absolute top-[-80px] right-[-60px] w-72 h-72 rounded-full bg-fran/[0.07] pointer-events-none"></div>
         <div class="absolute bottom-[-60px] left-[-40px] w-56 h-56 rounded-full bg-fran/[0.05] pointer-events-none"></div>
 
@@ -29,50 +30,39 @@
             </div>
         </div>
 
+        {{-- Taglines --}}
         <h2 class="text-[16px] font-normal text-gray-700 mb-1">International Abacus Programme</h2>
         <p class="text-[13px] text-gray-500 mb-8">"Explore your Potential"</p>
 
-        <p class="text-[11px] text-gray-400 mb-6">ISO 9001:2015 Certified | Aundh, Pune</p>
-
-        <div class="flex items-center gap-10">
-            <div>
-                <div class="text-[36px] font-bold text-fran leading-none">38</div>
-                <div class="text-[12px] text-gray-500 mt-1">Screens</div>
-            </div>
-            <div>
-                <div class="text-[36px] font-bold text-fran leading-none">3</div>
-                <div class="text-[12px] text-gray-500 mt-1">Panels</div>
-            </div>
-            <div>
-                <div class="text-[36px] font-bold text-fran leading-none">14</div>
-                <div class="text-[12px] text-gray-500 mt-1">Levels</div>
-            </div>
-        </div>
+        {{-- Portal description --}}
+        <p class="text-[13px] text-gray-600 font-medium mb-2">Franchise Owner and Branch Manager Portal</p>
+        <p class="text-[11px] text-gray-400">Manage students, attendance, fees and progress</p>
     </div>
 
     {{-- Right form panel --}}
     <div class="flex items-center justify-center px-8 py-16 bg-white">
         <div class="w-full max-w-sm">
 
+            {{-- Card --}}
             <div class="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-gray-100 px-8 py-8">
 
-                <p class="text-[11px] text-gray-400 mb-2 tracking-wide">Admin Portal</p>
-                <h1 class="text-[22px] font-bold text-gray-900 mb-1">Admin Sign In</h1>
-                <p class="text-[13px] text-gray-400 mb-6">Super Admin Access</p>
+                <h1 class="text-[22px] font-bold text-gray-900 mb-1">Branch Sign In</h1>
+                <p class="text-[13px] text-gray-400 mb-6">Franchise Owner or Manager Access</p>
 
+                {{-- Error --}}
                 @if($errors->any())
                     <div class="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
                         <p class="text-[12px] text-red-600 font-medium">{{ $errors->first() }}</p>
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('admin.login.post') }}" class="space-y-4">
+                <form method="POST" action="{{ route('franchise.login.post') }}" class="space-y-4">
                     @csrf
 
                     <div>
                         <label class="block text-[11px] font-medium text-gray-600 mb-1.5">Email Address</label>
                         <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                               placeholder="admin@apexbrains.in"
+                               placeholder="branch@apexbrains.in"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent placeholder:text-gray-300 transition">
                     </div>
 
@@ -87,7 +77,7 @@
 
                     <button type="submit"
                             class="w-full bg-fran text-white rounded-full py-3 text-[12px] font-bold hover:bg-fran-dark transition-colors shadow-sm mt-2">
-                        Sign In to Admin Portal
+                        Sign In to Branch Portal
                     </button>
                 </form>
 

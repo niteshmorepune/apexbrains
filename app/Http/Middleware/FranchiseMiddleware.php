@@ -12,7 +12,11 @@ class FranchiseMiddleware
     {
         $user = $request->user();
 
-        if (! $user || ! $user->hasRole('franchise_admin')) {
+        if (! $user) {
+            return redirect()->route('franchise.login');
+        }
+
+        if (! $user->hasRole('franchise_admin')) {
             abort(403, 'Franchise access required.');
         }
 
