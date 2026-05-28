@@ -6,7 +6,7 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'internal.studen
     Route::get('/', [\App\Http\Controllers\Student\HomeController::class, 'index'])->name('home');
 
     // Help Guide
-    Route::get('help', fn() => view('student.help'))->name('help');
+    Route::view('help', 'student.help')->name('help');
 
     // Learning Path
     Route::get('learning-path', [\App\Http\Controllers\Student\LearningPathController::class, 'index'])->name('learning-path');

@@ -6,7 +6,7 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth', 'franchise']
     Route::get('/', [\App\Http\Controllers\Franchise\DashboardController::class, 'index'])->name('dashboard');
 
     // Help Guide
-    Route::get('help', fn() => view('franchise.help'))->name('help');
+    Route::view('help', 'franchise.help')->name('help');
 
     // Student management
     Route::resource('students', \App\Http\Controllers\Franchise\StudentController::class);

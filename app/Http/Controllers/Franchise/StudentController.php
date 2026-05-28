@@ -74,6 +74,7 @@ class StudentController extends Controller
             'gender'        => ['required', 'in:male,female,other'],
             'enrollment_date' => ['required', 'date'],
             'email'         => ['required', 'email', 'unique:users,email'],
+            'password'      => ['required', 'string', 'min:8', 'confirmed'],
             'phone'         => ['nullable', 'string', 'max:15'],
             'address'       => ['nullable', 'string', 'max:300'],
             'city'          => ['nullable', 'string', 'max:100'],
@@ -99,7 +100,7 @@ class StudentController extends Controller
             $user = User::create([
                 'name'         => $data['first_name'] . ' ' . $data['last_name'],
                 'email'        => $data['email'],
-                'password'     => Hash::make(Str::random(12)),
+                'password'     => Hash::make($data['password']),
                 'franchise_id' => $franchiseId,
                 'student_type' => $isInternal ? 'internal' : 'external',
             ]);

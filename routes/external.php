@@ -6,7 +6,7 @@ Route::prefix('external')->name('external.')->middleware(['auth', 'external.stud
     Route::get('/', [\App\Http\Controllers\External\HomeController::class, 'index'])->name('home');
 
     // Help Guide
-    Route::get('help', fn() => view('external.help'))->name('help');
+    Route::view('help', 'external.help')->name('help');
 
     // Competition Practice Papers (all 50 papers)
     Route::get('practice', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'index'])->name('practice.index');
