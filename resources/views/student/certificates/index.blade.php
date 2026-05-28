@@ -49,5 +49,34 @@
         </div>
     @endforelse
 
+    {{-- Locked / future certificates --}}
+    @if($lockedLevels->isNotEmpty())
+        @if($certificates->isNotEmpty())
+            <p class="text-xs text-gray-400 font-medium pt-2">Upcoming Levels</p>
+        @endif
+        @foreach($lockedLevels as $level)
+            <div class="relative bg-white rounded-2xl border-2 border-dashed border-border p-4 opacity-50 select-none pointer-events-none" aria-hidden="true">
+                <div class="absolute inset-0 rounded-2xl backdrop-blur-[1px] flex items-center justify-center z-10">
+                    <div class="bg-white/80 rounded-xl px-4 py-2 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-xs font-semibold text-gray-500">Locked</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 blur-[2px]">
+                    <div class="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center flex-shrink-0">
+                        <span class="text-gray-400 font-black text-sm">L{{ $level->number }}</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-400 text-sm">Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif</p>
+                        <p class="text-xs text-gray-300 mt-0.5">Level Completion Certificate</p>
+                    </div>
+                </div>
+                <div class="mt-3 h-8 bg-gray-100 rounded-xl blur-[2px]"></div>
+            </div>
+        @endforeach
+    @endif
+
 </div>
 @endsection

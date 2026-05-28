@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\PracticeSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -38,11 +39,38 @@ class HomeController extends Controller
                 ->first()
             : null;
 
+        // Daily streak: count consecutive days with any practice session
+        $streak = 0;
+        if ($student) {
+            $day = now()->startOfDay();
+            while (true) {
+                $hasActivity = PracticeSession::where('student_id', $student->id)
+                    ->whereDate('created_at', $day)
+                    ->exists();
+                if (!$hasActivity) break;
+                $streak++;
+                $day = $day->copy()->subDay();
+                if ($streak >= 365) break;
+            }
+        }
+
+        // Level progress: average exam score at current level (0–100)
+        $levelProgress = 0;
+        if ($student?->current_level_id) {
+            $avg = ExamAttempt::where('student_id', $student->id)
+                ->whereHas('exam', fn($q) => $q->where('level_id', $student->current_level_id))
+                ->where('status', 'submitted')
+                ->avg('percentage');
+            $levelProgress = $avg ? (int) round($avg) : 0;
+        }
+
         return view('student.home', compact(
             'student',
             'recentAttempts',
             'practiceThisWeek',
-            'upcomingExam'
+            'upcomingExam',
+            'streak',
+            'levelProgress'
         ));
     }
 }

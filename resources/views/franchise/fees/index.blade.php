@@ -38,6 +38,11 @@
         <input type="hidden" name="tab" value="{{ $tab }}">
         <input type="month" name="month" value="{{ $month }}"
                class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+        <select name="student_type" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+            <option value="">All Types</option>
+            <option value="internal" @selected(request('student_type') === 'internal')>Internal</option>
+            <option value="external" @selected(request('student_type') === 'external')>External</option>
+        </select>
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search student..."
                class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1 min-w-40">
         <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Filter</button>
@@ -67,6 +72,7 @@
         <thead>
             <tr class="bg-fran">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Type</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Amount</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Paid</th>
@@ -82,6 +88,13 @@
                         <a href="{{ route('franchise.students.show', $fee->student) }}" class="hover:text-fran hover:underline">
                             {{ $fee->student?->full_name ?? '—' }}
                         </a>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        @if($fee->student_type === 'external')
+                            <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">External</span>
+                        @else
+                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full">Internal</span>
+                        @endif
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($fee->student?->currentLevel)
@@ -120,7 +133,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="px-5 py-10 text-center text-gray-400">No fees for this month.</td>
+                    <td colspan="8" class="px-5 py-10 text-center text-gray-400">No fees for this month.</td>
                 </tr>
             @endforelse
         </tbody>

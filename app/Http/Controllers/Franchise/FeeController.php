@@ -28,6 +28,10 @@ class FeeController extends Controller
                 ->orWhere('last_name', 'like', '%' . $request->search . '%'));
         }
 
+        if (in_array($request->get('student_type'), ['internal', 'external'])) {
+            $query->where('student_type', $request->student_type);
+        }
+
         match ($tab) {
             'paid'    => $query->where('status', 'paid'),
             'pending' => $query->where('status', 'pending'),

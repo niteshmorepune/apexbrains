@@ -8,7 +8,25 @@
 
     {{-- Compose --}}
     <div class="space-y-4">
-        <div class="bg-white rounded-2xl border border-border p-6" x-data="{ target: '{{ old('target', 'all') }}' }">
+        <div class="bg-white rounded-2xl border border-border p-6" x-data="{
+            target: @json(old('target', 'all')),
+            title: @json(old('title', '')),
+            message: @json(old('message', '')),
+            tpl: '',
+            templates: {
+                exam_result:       { title: 'Exam Results Published',            message: 'Dear Parent, your child\'s exam results are now available. Please log in to the student portal to view the detailed results and performance report.' },
+                fee_reminder:      { title: 'Fee Payment Reminder',              message: 'This is a friendly reminder that the monthly fee for your child is due. Please make the payment at the earliest to avoid any inconvenience.' },
+                competition_reg:   { title: 'Competition Registration Open',     message: 'Registrations are now open for the upcoming Apex Brains Abacus Competition. Log in to register your child before the deadline.' },
+                holiday_notice:    { title: 'Holiday Notice',                    message: 'Please note that the academy will remain closed on account of the upcoming holiday. Regular classes will resume from the next scheduled day.' },
+                level_completion:  { title: 'Congratulations on Level Completion', message: 'We are pleased to inform you that your child has successfully completed their current level. Please visit the academy to collect the certificate.' },
+            },
+            applyTemplate() {
+                if (this.tpl && this.templates[this.tpl]) {
+                    this.title   = this.templates[this.tpl].title;
+                    this.message = this.templates[this.tpl].message;
+                }
+            }
+        }">
             <h2 class="text-sm font-bold text-fran mb-4">Send Notification</h2>
 
             @if($errors->any())
@@ -21,16 +39,28 @@
                 @csrf
                 <div class="space-y-4">
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Template</label>
+                        <select x-model="tpl" @change="applyTemplate()"
+                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                            <option value="">— Select a template —</option>
+                            <option value="exam_result">Exam Result</option>
+                            <option value="fee_reminder">Fee Reminder</option>
+                            <option value="competition_reg">Competition Registration</option>
+                            <option value="holiday_notice">Holiday Notice</option>
+                            <option value="level_completion">Level Completion</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" value="{{ old('title') }}" required maxlength="150"
+                        <input type="text" name="title" x-model="title" required maxlength="150"
                                placeholder="e.g. Fee Reminder — June"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Message <span class="text-red-500">*</span></label>
-                        <textarea name="message" rows="4" required maxlength="500"
+                        <textarea name="message" rows="4" x-model="message" required maxlength="500"
                                   placeholder="Type your message here..."
-                                  class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran resize-none">{{ old('message') }}</textarea>
+                                  class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran resize-none"></textarea>
                         <p class="text-xs text-gray-400 text-right mt-0.5">Max 500 characters</p>
                     </div>
                     <div>

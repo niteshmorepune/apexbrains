@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use App\Models\Student;
 use App\Services\AuditLogger;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -30,7 +32,7 @@ class CertificateController extends Controller
     {
         $data = $request->validate([
             'student_id' => ['required', 'exists:students,id'],
-            'type'       => ['required', 'in:level_completion,participation,merit'],
+            'type'       => ['required', 'in:level_completion,merit,excellence,participation'],
         ]);
 
         $student    = Student::with('currentLevel')->findOrFail($data['student_id']);
@@ -62,7 +64,16 @@ class CertificateController extends Controller
     {
         $certificate->load('student.currentLevel', 'level', 'issuedBy');
 
-        // Return the certificate view (PDF generation via DomPDF in Phase 6)
         return view('franchise.certificates.show', compact('certificate'));
+    }
+
+    public function downloadPdf(Certificate $certificate): Response
+    {
+        $certificate->load('student.currentLevel', 'level', 'issuedBy');
+
+        $pdf = Pdf::loadView('franchise.certificates.show', compact('certificate'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('certificate-' . $certificate->certificate_number . '.pdf');
     }
 }

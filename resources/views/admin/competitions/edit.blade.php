@@ -6,7 +6,7 @@
 
 <div class="grid grid-cols-3 gap-6">
     <div class="col-span-2">
-        <form method="POST" action="{{ route('admin.competitions.update', $competition) }}">
+        <form id="competition-edit-form" method="POST" action="{{ route('admin.competitions.update', $competition) }}">
             @csrf @method('PUT')
 
             {{-- Basic Info --}}
@@ -95,22 +95,23 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
-                <a href="{{ route('admin.competitions.index') }}"
-                   class="px-5 py-2.5 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
-                    Cancel
-                </a>
-                <button type="submit"
-                        class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
-                    Save Changes
-                </button>
-                <form method="POST" action="{{ route('admin.competitions.destroy', $competition) }}" class="ml-auto"
-                      onsubmit="return confirm('Delete this competition permanently?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="px-4 py-2.5 text-red-500 text-sm hover:underline">Delete</button>
-                </form>
-            </div>
         </form>
+
+        <div class="flex items-center gap-3 mt-6">
+            <a href="{{ route('admin.competitions.index') }}"
+               class="px-5 py-2.5 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
+                Cancel
+            </a>
+            <button type="submit" form="competition-edit-form"
+                    class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+                Save Changes
+            </button>
+            <form method="POST" action="{{ route('admin.competitions.destroy', $competition) }}" class="ml-auto"
+                  onsubmit="return confirm('Delete this competition permanently?')">
+                @csrf @method('DELETE')
+                <button type="submit" class="px-4 py-2.5 text-red-500 text-sm hover:underline">Delete</button>
+            </form>
+        </div>
     </div>
 
     {{-- Sidebar --}}

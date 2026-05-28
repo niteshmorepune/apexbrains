@@ -15,20 +15,39 @@
 
 @section('content')
 
+{{-- Tabs: Internal / External --}}
+<div class="flex gap-1 mb-4">
+    <a href="{{ route('franchise.students.index', array_merge(request()->except('tab','page'), ['tab' => 'internal'])) }}"
+       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors
+              {{ $tab === 'internal' ? 'bg-fran text-white' : 'bg-white border border-border text-gray-600 hover:bg-bg-light' }}">
+        Internal Students
+        <span class="ml-1.5 text-xs {{ $tab === 'internal' ? 'bg-white/20' : 'bg-bg-mid' }} px-1.5 py-0.5 rounded-full">{{ $internalCount }}</span>
+    </a>
+    <a href="{{ route('franchise.students.index', array_merge(request()->except('tab','page'), ['tab' => 'external'])) }}"
+       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors
+              {{ $tab === 'external' ? 'bg-fran text-white' : 'bg-white border border-border text-gray-600 hover:bg-bg-light' }}">
+        External Students
+        <span class="ml-1.5 text-xs {{ $tab === 'external' ? 'bg-white/20' : 'bg-bg-mid' }} px-1.5 py-0.5 rounded-full">{{ $externalCount }}</span>
+    </a>
+</div>
+
 {{-- Filters --}}
 <div class="bg-white rounded-2xl border border-border p-4 mb-4">
     <form method="GET" action="{{ route('franchise.students.index') }}" class="flex items-center gap-3 flex-wrap">
+        <input type="hidden" name="tab" value="{{ $tab }}">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name or code..."
                class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1 min-w-48">
-        <select name="level" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-            <option value="">All Levels</option>
-            @foreach($levels as $level)
-                <option value="{{ $level->id }}" @selected(request('level') == $level->id)>Level {{ $level->number }}</option>
-            @endforeach
-        </select>
+        @if($tab === 'internal')
+            <select name="level" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                <option value="">All Levels</option>
+                @foreach($levels as $level)
+                    <option value="{{ $level->id }}" @selected(request('level') == $level->id)>Level {{ $level->number }}</option>
+                @endforeach
+            </select>
+        @endif
         <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Filter</button>
         @if(request('search') || request('level'))
-            <a href="{{ route('franchise.students.index') }}" class="text-sm text-gray-500 hover:text-gray-700">Clear</a>
+            <a href="{{ route('franchise.students.index', ['tab' => $tab]) }}" class="text-sm text-gray-500 hover:text-gray-700">Clear</a>
         @endif
 
         {{-- CSV import --}}
@@ -47,7 +66,9 @@
 {{-- Student table --}}
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="px-5 py-4 border-b border-border flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-fran">All Students</h2>
+        <h2 class="text-sm font-semibold text-fran">
+            {{ $tab === 'external' ? 'External Students' : 'Internal Students' }}
+        </h2>
         <span class="text-xs text-gray-400">{{ $students->total() }} students</span>
     </div>
     <table class="w-full text-sm">
@@ -55,7 +76,11 @@
             <tr class="bg-fran">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Code</th>
-                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
+                @if($tab === 'internal')
+                    <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
+                @else
+                    <th class="text-center px-4 py-3 text-xs font-semibold text-white">Competition</th>
+                @endif
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Gender</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Enrolled</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Actions</th>
@@ -76,13 +101,19 @@
                         </div>
                     </td>
                     <td class="px-4 py-3 text-center font-mono text-xs text-gray-500">{{ $s->student_code }}</td>
-                    <td class="px-4 py-3 text-center">
-                        @if($s->currentLevel)
-                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">L{{ $s->currentLevel->number }}</span>
-                        @else
-                            <span class="text-xs text-gray-400">—</span>
-                        @endif
-                    </td>
+                    @if($tab === 'internal')
+                        <td class="px-4 py-3 text-center">
+                            @if($s->currentLevel)
+                                <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">L{{ $s->currentLevel->number }}</span>
+                            @else
+                                <span class="text-xs text-gray-400">—</span>
+                            @endif
+                        </td>
+                    @else
+                        <td class="px-4 py-3 text-center">
+                            <span class="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium">External</span>
+                        </td>
+                    @endif
                     <td class="px-4 py-3 text-center text-xs text-gray-500 capitalize">{{ $s->gender }}</td>
                     <td class="px-4 py-3 text-center text-xs text-gray-500">
                         {{ $s->enrollment_date?->format('d M Y') ?? '—' }}

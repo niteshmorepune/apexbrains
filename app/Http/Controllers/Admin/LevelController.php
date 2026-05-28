@@ -71,6 +71,9 @@ class LevelController extends Controller
         ]);
 
         $data['is_active'] = $request->boolean('is_active');
+        $data['learning_objectives'] = array_values(
+            array_filter($data['learning_objectives'] ?? [], fn($o) => trim($o) !== '')
+        );
 
         $level->update($data);
         AuditLogger::log('level_updated', 'Level', $level->id);

@@ -42,6 +42,7 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'internal.studen
     // Certificates
     Route::get('certificates', [\App\Http\Controllers\Student\CertificateController::class, 'index'])->name('certificates.index');
     Route::get('certificates/{certificate}/download', [\App\Http\Controllers\Student\CertificateController::class, 'download'])->name('certificates.download');
+    Route::get('certificates/{certificate}/pdf', [\App\Http\Controllers\Student\CertificateController::class, 'downloadPdf'])->name('certificates.pdf');
 
     // Profile & Notifications
     Route::get('profile', [\App\Http\Controllers\Student\ProfileController::class, 'index'])->name('profile');

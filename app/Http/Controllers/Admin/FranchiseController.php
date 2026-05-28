@@ -30,7 +30,15 @@ class FranchiseController extends Controller
 
         $franchises = $query->orderByDesc('created_at')->paginate(15)->withQueryString();
 
-        return view('admin.franchises.index', compact('franchises'));
+        $topFranchises = Franchise::withCount('students')
+            ->where('status', 'active')
+            ->orderByDesc('students_count')
+            ->limit(6)
+            ->get(['id', 'name', 'city']);
+
+        $maxStudents = $topFranchises->max('students_count') ?: 1;
+
+        return view('admin.franchises.index', compact('franchises', 'topFranchises', 'maxStudents'));
     }
 
     public function create(): View
@@ -65,8 +73,14 @@ class FranchiseController extends Controller
 
         AuditLogger::log('franchise_created', 'Franchise', $franchise->id);
 
+        if ($request->has('draft')) {
+            return redirect()->route('admin.franchises.show', $franchise)
+                ->with('success', "Franchise '{$franchise->name}' saved as draft.");
+        }
+
         return redirect()->route('admin.franchises.show', $franchise)
-            ->with('success', "Franchise '{$franchise->name}' created successfully.");
+            ->with('openTab', 'documents')
+            ->with('success', "Step 1 complete. Now upload the required documents for '{$franchise->name}'.");
     }
 
     public function show(Franchise $franchise): View
@@ -79,7 +93,14 @@ class FranchiseController extends Controller
             ->limit(5)
             ->get();
 
-        return view('admin.franchises.show', compact('franchise', 'recentActivity'));
+        $franchiseStudents = \App\Models\Student::withoutGlobalScopes()
+            ->where('franchise_id', $franchise->id)
+            ->where('is_active', true)
+            ->with('currentLevel')
+            ->orderBy('first_name')
+            ->get();
+
+        return view('admin.franchises.show', compact('franchise', 'recentActivity', 'franchiseStudents'));
     }
 
     public function edit(Franchise $franchise): View

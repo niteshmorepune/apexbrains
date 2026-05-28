@@ -3,6 +3,10 @@
 @section('page-title', $student->full_name . ' — Progress Report')
 
 @section('page-actions')
+    <a href="{{ route('franchise.reports.pdf', $student) }}"
+       class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50">
+        Export PDF
+    </a>
     <a href="{{ route('franchise.reports.index') }}"
        class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">← Reports</a>
 @endsection
@@ -14,7 +18,7 @@
 
         {{-- Score history chart --}}
         <div class="bg-white rounded-2xl border border-border p-5">
-            <h2 class="text-sm font-semibold text-fran mb-4">Exam Score History</h2>
+            <h2 class="text-sm font-semibold text-fran mb-4">Exam Score Trend</h2>
             @if($attempts->count() >= 2)
                 <div class="h-40">
                     <canvas id="scoreChart"></canvas>
@@ -23,6 +27,18 @@
                 <p class="text-sm text-gray-400 text-center py-6">Only 1 exam taken — chart appears after 2+ exams.</p>
             @else
                 <p class="text-sm text-gray-400 text-center py-6">No exams taken yet.</p>
+            @endif
+        </div>
+
+        {{-- Radar / Performance breakdown chart --}}
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <h2 class="text-sm font-semibold text-fran mb-4">Performance Breakdown</h2>
+            @if($attempts->count() > 0)
+                <div class="h-52 flex items-center justify-center">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            @else
+                <p class="text-sm text-gray-400 text-center py-6">No data available yet.</p>
             @endif
         </div>
 
@@ -105,6 +121,36 @@ new Chart(document.getElementById('scoreChart'), {
         scales: {
             y: { min: 0, max: 100, ticks: { callback: v => v + '%', font: { size: 10 } } },
             x: { ticks: { font: { size: 10 } } }
+        }
+    }
+});
+</script>
+@endif
+@if($attempts->count() > 0)
+<script>
+const radarData = @json($radarData);
+new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+        labels: radarData.labels,
+        datasets: [{
+            data: radarData.values,
+            borderColor: '#1A73E8',
+            backgroundColor: 'rgba(26,115,232,0.15)',
+            borderWidth: 2,
+            pointBackgroundColor: '#1A73E8',
+            pointRadius: 4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            r: {
+                min: 0, max: 100,
+                ticks: { stepSize: 25, font: { size: 9 }, callback: v => v + '%' },
+                pointLabels: { font: { size: 10 } }
+            }
         }
     }
 });

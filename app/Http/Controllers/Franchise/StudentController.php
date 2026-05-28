@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
+use App\Models\Competition;
+use App\Models\CompetitionRegistration;
+use App\Models\Fee;
 use App\Models\Level;
 use App\Models\Student;
 use App\Models\StudentParent;
@@ -22,8 +25,11 @@ class StudentController extends Controller
 {
     public function index(Request $request): View
     {
+        $tab = $request->get('tab', 'internal');
+
         $query = Student::with('currentLevel')
-            ->where('is_active', true);
+            ->where('is_active', true)
+            ->where('student_type', in_array($tab, ['internal', 'external']) ? $tab : 'internal');
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -32,71 +38,89 @@ class StudentController extends Controller
                   ->orWhere('student_code', 'like', '%' . $request->search . '%');
             });
         }
-        if ($request->filled('level')) {
+        if ($request->filled('level') && $tab === 'internal') {
             $query->where('current_level_id', $request->level);
         }
 
         $students = $query->orderBy('first_name')->paginate(20)->withQueryString();
         $levels   = Level::orderBy('number')->get();
 
-        return view('franchise.students.index', compact('students', 'levels'));
+        $internalCount = Student::where('is_active', true)->where('student_type', 'internal')->count();
+        $externalCount = Student::where('is_active', true)->where('student_type', 'external')->count();
+
+        return view('franchise.students.index', compact('students', 'levels', 'tab', 'internalCount', 'externalCount'));
     }
 
     public function create(): View
     {
-        $levels = Level::where('is_active', true)->orderBy('number')->get();
-        return view('franchise.students.create', compact('levels'));
+        $levels       = Level::where('is_active', true)->orderBy('number')->get();
+        $competitions = Competition::where('is_active', true)
+            ->where('is_open_to_external', true)
+            ->orderByDesc('start_date')
+            ->get();
+        return view('franchise.students.create', compact('levels', 'competitions'));
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'first_name'       => ['required', 'string', 'max:100'],
-            'last_name'        => ['required', 'string', 'max:100'],
-            'date_of_birth'    => ['required', 'date', 'before:today'],
-            'gender'           => ['required', 'in:male,female,other'],
-            'current_level_id' => ['required', 'exists:levels,id'],
-            'enrollment_date'  => ['required', 'date'],
-            'email'            => ['required', 'email', 'unique:users,email'],
-            'phone'            => ['nullable', 'string', 'max:15'],
-            'address'          => ['nullable', 'string', 'max:300'],
-            'city'             => ['nullable', 'string', 'max:100'],
-            'pincode'          => ['nullable', 'string', 'max:10'],
-            // Parent info
-            'parent_name'      => ['required', 'string', 'max:100'],
-            'parent_phone'     => ['required', 'string', 'max:15'],
-            'parent_whatsapp'  => ['nullable', 'string', 'max:15'],
-            'parent_email'     => ['nullable', 'email', 'max:150'],
-        ]);
+        $studentType = $request->input('student_type', 'internal');
+        $isInternal  = $studentType === 'internal';
+
+        $rules = [
+            'student_type'  => ['required', 'in:internal,external'],
+            'first_name'    => ['required', 'string', 'max:100'],
+            'last_name'     => ['required', 'string', 'max:100'],
+            'date_of_birth' => ['required', 'date', 'before:today'],
+            'gender'        => ['required', 'in:male,female,other'],
+            'enrollment_date' => ['required', 'date'],
+            'email'         => ['required', 'email', 'unique:users,email'],
+            'phone'         => ['nullable', 'string', 'max:15'],
+            'address'       => ['nullable', 'string', 'max:300'],
+            'city'          => ['nullable', 'string', 'max:100'],
+            'pincode'       => ['nullable', 'string', 'max:10'],
+            'parent_name'   => ['required', 'string', 'max:100'],
+            'parent_phone'  => ['required', 'string', 'max:15'],
+            'parent_whatsapp' => ['nullable', 'string', 'max:15'],
+            'parent_email'  => ['nullable', 'email', 'max:150'],
+        ];
+
+        if ($isInternal) {
+            $rules['current_level_id'] = ['required', 'exists:levels,id'];
+        } else {
+            $rules['competition_id']    = ['nullable', 'exists:competitions,id'];
+            $rules['registration_fee']  = ['nullable', 'numeric', 'min:0'];
+        }
+
+        $data = $request->validate($rules);
 
         $franchiseId = Auth::user()->franchise_id;
 
-        DB::transaction(function () use ($data, $franchiseId, &$student) {
-            // Create user account
+        DB::transaction(function () use ($data, $franchiseId, $isInternal, &$student) {
             $user = User::create([
-                'name'     => $data['first_name'] . ' ' . $data['last_name'],
-                'email'    => $data['email'],
-                'password' => Hash::make(Str::random(12)),
+                'name'         => $data['first_name'] . ' ' . $data['last_name'],
+                'email'        => $data['email'],
+                'password'     => Hash::make(Str::random(12)),
                 'franchise_id' => $franchiseId,
+                'student_type' => $isInternal ? 'internal' : 'external',
             ]);
             $user->assignRole('student');
 
-            // Generate student code: FranchiseCode-Year-Seq
-            $franchise    = Auth::user()->franchise;
-            $seq          = Student::withoutGlobalScopes()->where('franchise_id', $franchiseId)->count() + 1;
-            $studentCode  = strtoupper(substr($franchise->franchise_code ?? 'ST', 0, 2))
-                          . '-' . now()->year . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+            $franchise   = Auth::user()->franchise;
+            $prefix      = $isInternal ? 'INT' : 'EXT';
+            $seq         = Student::withoutGlobalScopes()->where('franchise_id', $franchiseId)->count() + 1;
+            $studentCode = strtoupper(substr($franchise->franchise_code ?? 'ST', 0, 2))
+                         . '-' . $prefix . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
             $student = Student::create([
                 'franchise_id'     => $franchiseId,
                 'user_id'          => $user->id,
                 'student_code'     => $studentCode,
-                'student_type'     => 'internal',
+                'student_type'     => $isInternal ? 'internal' : 'external',
                 'first_name'       => $data['first_name'],
                 'last_name'        => $data['last_name'],
                 'date_of_birth'    => $data['date_of_birth'],
                 'gender'           => $data['gender'],
-                'current_level_id' => $data['current_level_id'],
+                'current_level_id' => $isInternal ? ($data['current_level_id'] ?? null) : null,
                 'enrollment_date'  => $data['enrollment_date'],
                 'address'          => $data['address'] ?? null,
                 'city'             => $data['city'] ?? null,
@@ -113,17 +137,32 @@ class StudentController extends Controller
                 'email'        => $data['parent_email'] ?? null,
                 'is_primary'   => true,
             ]);
+
+            // External: link to competition and create registration fee
+            if (!$isInternal && !empty($data['competition_id'])) {
+                CompetitionRegistration::create([
+                    'competition_id'    => $data['competition_id'],
+                    'student_id'        => $student->id,
+                    'franchise_id'      => $franchiseId,
+                    'registered_by'     => Auth::id(),
+                    'registration_date' => now()->toDateString(),
+                    'student_type'      => 'external',
+                    'status'            => 'registered',
+                ]);
+            }
         });
 
         AuditLogger::log('student_registered', 'Student', $student->id);
 
-        return redirect()->route('franchise.students.index')
+        $tab = $isInternal ? 'internal' : 'external';
+        return redirect()->route('franchise.students.index', ['tab' => $tab])
             ->with('success', "Student {$data['first_name']} {$data['last_name']} registered successfully.");
     }
 
     public function show(Student $student): View
     {
-        $student->load('currentLevel', 'parents', 'examAttempts', 'payments');
+        $student->load('currentLevel', 'parents', 'examAttempts', 'payments',
+            'competitionRegistrations.competition');
         return view('franchise.students.show', compact('student'));
     }
 

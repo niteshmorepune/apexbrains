@@ -13,8 +13,32 @@
 
 <div class="grid grid-cols-3 gap-6">
     <div class="col-span-2">
-        <form method="POST" action="{{ route('franchise.students.store') }}">
+        <form method="POST" action="{{ route('franchise.students.store') }}"
+              x-data="{ studentType: '{{ old('student_type', 'internal') }}' }">
             @csrf
+
+            {{-- Student Type Selector --}}
+            <div class="bg-white rounded-2xl border border-border p-6 mb-4">
+                <h2 class="text-sm font-bold text-fran mb-3">Student Type</h2>
+                <div class="flex gap-3">
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="student_type" value="internal" x-model="studentType" class="sr-only peer"
+                               {{ old('student_type', 'internal') === 'internal' ? 'checked' : '' }}>
+                        <div class="rounded-xl border-2 p-4 transition-colors peer-checked:border-fran peer-checked:bg-blue-50 border-border">
+                            <p class="font-semibold text-sm text-gray-700">Internal Student</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Enrolled in regular abacus classes. Has a level, schedule, and monthly fees.</p>
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="student_type" value="external" x-model="studentType" class="sr-only peer"
+                               {{ old('student_type') === 'external' ? 'checked' : '' }}>
+                        <div class="rounded-xl border-2 p-4 transition-colors peer-checked:border-fran peer-checked:bg-blue-50 border-border">
+                            <p class="font-semibold text-sm text-gray-700">External Student</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Competition-only participant. No level or schedule. Can register for external competitions.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
 
             {{-- Student Details --}}
             <div class="bg-white rounded-2xl border border-border p-6 mb-4">
@@ -46,15 +70,34 @@
                             <option value="other" @selected(old('gender') === 'other')>Other</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Starting Level <span class="text-red-500">*</span></label>
-                        <select name="current_level_id" required class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                            <option value="">Select Level</option>
-                            @foreach($levels as $level)
-                                <option value="{{ $level->id }}" @selected(old('current_level_id') == $level->id)>Level {{ $level->number }} — {{ $level->title }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+
+                    {{-- Internal-only fields --}}
+                    <template x-if="studentType === 'internal'">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Starting Level <span class="text-red-500">*</span></label>
+                            <select name="current_level_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                                <option value="">Select Level</option>
+                                @foreach($levels as $level)
+                                    <option value="{{ $level->id }}" @selected(old('current_level_id') == $level->id)>Level {{ $level->number }} — {{ $level->title }}</option>
+                                @endforeach
+                            </select>
+                            @error('current_level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                    </template>
+
+                    {{-- External-only fields --}}
+                    <template x-if="studentType === 'external'">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Competition (optional)</label>
+                            <select name="competition_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                                <option value="">No competition selected</option>
+                                @foreach($competitions as $comp)
+                                    <option value="{{ $comp->id }}" @selected(old('competition_id') == $comp->id)>{{ $comp->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </template>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Enrollment Date <span class="text-red-500">*</span></label>
                         <input type="date" name="enrollment_date" value="{{ old('enrollment_date', now()->toDateString()) }}" required

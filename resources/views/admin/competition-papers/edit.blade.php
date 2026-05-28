@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-2xl">
-    <form method="POST" action="{{ route('admin.competition-papers.update', $paper) }}">
+    <form id="paper-edit-form" method="POST" action="{{ route('admin.competition-papers.update', $paper) }}">
         @csrf @method('PUT')
 
         <div class="bg-white rounded-2xl border border-border p-6 mb-4">
@@ -57,21 +57,22 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-3">
-            <a href="{{ route('admin.competition-papers.index') }}"
-               class="px-5 py-2.5 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
-                Cancel
-            </a>
-            <button type="submit"
-                    class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
-                Save Changes
-            </button>
-            <form method="POST" action="{{ route('admin.competition-papers.destroy', $paper) }}" class="ml-auto"
-                  onsubmit="return confirm('Delete Paper #{{ $paper->paper_number }} permanently?')">
-                @csrf @method('DELETE')
-                <button type="submit" class="px-4 py-2.5 text-red-500 text-sm hover:underline">Delete</button>
-            </form>
-        </div>
     </form>
+
+    <div class="flex items-center gap-3 mt-4">
+        <a href="{{ route('admin.competition-papers.index') }}"
+           class="px-5 py-2.5 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
+            Cancel
+        </a>
+        <button type="submit" form="paper-edit-form"
+                class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+            Save Changes
+        </button>
+        <form method="POST" action="{{ route('admin.competition-papers.destroy', $paper) }}" class="ml-auto"
+              onsubmit="return confirm('Delete Paper #{{ $paper->paper_number }} permanently?')">
+            @csrf @method('DELETE')
+            <button type="submit" class="px-4 py-2.5 text-red-500 text-sm hover:underline">Delete</button>
+        </form>
+    </div>
 </div>
 @endsection

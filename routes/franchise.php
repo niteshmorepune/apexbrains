@@ -27,6 +27,7 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth', 'franchise']
     Route::get('certificates', [\App\Http\Controllers\Franchise\CertificateController::class, 'index'])->name('certificates.index');
     Route::post('certificates', [\App\Http\Controllers\Franchise\CertificateController::class, 'generate'])->name('certificates.generate');
     Route::get('certificates/{certificate}/download', [\App\Http\Controllers\Franchise\CertificateController::class, 'download'])->name('certificates.download');
+    Route::get('certificates/{certificate}/pdf', [\App\Http\Controllers\Franchise\CertificateController::class, 'downloadPdf'])->name('certificates.pdf');
 
     // Promotions
     Route::get('promotions', [\App\Http\Controllers\Franchise\PromotionController::class, 'index'])->name('promotions.index');
@@ -36,6 +37,7 @@ Route::prefix('franchise')->name('franchise.')->middleware(['auth', 'franchise']
     Route::get('reports', [\App\Http\Controllers\Franchise\ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/export', [\App\Http\Controllers\Franchise\ReportController::class, 'export'])->name('reports.export');
     Route::get('reports/{student}', [\App\Http\Controllers\Franchise\ReportController::class, 'show'])->name('reports.show');
+    Route::get('reports/{student}/pdf', [\App\Http\Controllers\Franchise\ReportController::class, 'downloadPdf'])->name('reports.pdf');
 
     // Notifications
     Route::get('notifications', [\App\Http\Controllers\Franchise\NotificationController::class, 'index'])->name('notifications.index');

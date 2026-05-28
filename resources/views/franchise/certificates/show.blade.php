@@ -3,8 +3,20 @@
 @section('page-title', 'Certificate')
 
 @section('page-actions')
-    <button onclick="window.print()" class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50">Print / Download</button>
-    <a href="{{ route('franchise.certificates.index') }}" class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">← Certificates</a>
+    @if(request()->routeIs('student.*'))
+        <a href="{{ route('student.certificates.pdf', $certificate) }}"
+           class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50">
+            Download PDF
+        </a>
+        <a href="{{ route('student.certificates.index') }}" class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">← Certificates</a>
+    @else
+        <a href="{{ route('franchise.certificates.pdf', $certificate) }}"
+           class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50">
+            Download PDF
+        </a>
+        <button onclick="window.print()" class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">Print</button>
+        <a href="{{ route('franchise.certificates.index') }}" class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">← Certificates</a>
+    @endif
 @endsection
 
 @section('content')
@@ -36,8 +48,8 @@
                     <p class="text-xs text-gray-300">Authorized Signatory</p>
                 </div>
                 <div class="text-center">
-                    <div class="w-14 h-14 bg-bg-mid rounded-lg flex items-center justify-center mx-auto mb-1">
-                        <span class="text-xs text-gray-400">QR</span>
+                    <div class="w-14 h-14 mx-auto mb-1">
+                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(56)->generate(route('certificate.verify', $certificate->verification_code)) !!}
                     </div>
                     <p class="text-xs text-gray-300">Scan to verify</p>
                 </div>

@@ -18,9 +18,21 @@
                         <select name="student_id" required
                                 class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="">Select Student</option>
-                            @foreach($students as $s)
-                                <option value="{{ $s->id }}">{{ $s->full_name }} (L{{ $s->currentLevel?->number }})</option>
-                            @endforeach
+                            @php $grouped = $students->groupBy('student_type'); @endphp
+                            @if($grouped->has('internal'))
+                                <optgroup label="Internal Students">
+                                    @foreach($grouped['internal'] as $s)
+                                        <option value="{{ $s->id }}">{{ $s->full_name }} (L{{ $s->currentLevel?->number ?? '—' }})</option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                            @if($grouped->has('external'))
+                                <optgroup label="External Students">
+                                    @foreach($grouped['external'] as $s)
+                                        <option value="{{ $s->id }}">{{ $s->full_name }} (External)</option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                     </div>
                     <div>
@@ -28,8 +40,9 @@
                         <select name="type" required
                                 class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="level_completion">Level Completion</option>
-                            <option value="participation">Participation</option>
                             <option value="merit">Merit</option>
+                            <option value="excellence">Excellence</option>
+                            <option value="participation">Participation</option>
                         </select>
                     </div>
                     <button type="submit"

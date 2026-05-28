@@ -161,11 +161,58 @@
 
 {{-- Students tab (hidden) --}}
 <div id="content-students" class="hidden">
-    <div class="bg-white rounded-2xl border border-border p-6 text-center text-gray-400">
-        <p class="text-sm">Student list for this franchise.</p>
-        <a href="{{ route('admin.franchises.index') }}" class="text-fran text-sm hover:underline mt-2 block">
-            Manage from franchise panel →
-        </a>
+    <div class="bg-white rounded-2xl border border-border overflow-hidden">
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-admin">Students — {{ $franchise->name }}</h3>
+            <span class="text-xs text-gray-400">{{ $franchiseStudents->count() }} total</span>
+        </div>
+        @if($franchiseStudents->isEmpty())
+            <div class="px-5 py-10 text-center text-gray-400 text-sm">No students enrolled yet.</div>
+        @else
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-admin">
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-white">Code</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-white">Type</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-white">Enrolled</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    @foreach($franchiseStudents as $s)
+                        <tr class="hover:bg-bg-light">
+                            <td class="px-5 py-2.5">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                        {{ strtoupper(substr($s->first_name, 0, 1)) }}
+                                    </div>
+                                    <span class="font-medium text-gray-800">{{ $s->full_name }}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2.5 text-center font-mono text-xs text-gray-500">{{ $s->student_code }}</td>
+                            <td class="px-4 py-2.5 text-center">
+                                @if($s->student_type === 'internal')
+                                    <span class="text-xs bg-fran-light text-fran px-2 py-0.5 rounded-full">Internal</span>
+                                @else
+                                    <span class="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full">External</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-2.5 text-center">
+                                @if($s->currentLevel)
+                                    <span class="text-xs bg-bg-mid text-gray-600 px-2 py-0.5 rounded-full font-medium">L{{ $s->currentLevel->number }}</span>
+                                @else
+                                    <span class="text-xs text-gray-400">—</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-2.5 text-center text-xs text-gray-500">
+                                {{ $s->enrollment_date?->format('d M Y') ?? '—' }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
     </div>
 </div>
 
@@ -181,8 +228,49 @@
 
 {{-- Documents tab (hidden) --}}
 <div id="content-documents" class="hidden">
-    <div class="bg-white rounded-2xl border border-border p-6 text-center text-gray-400">
-        <p class="text-sm">Franchise documents (GST, PAN, Agreement, etc.)</p>
+    <div class="bg-white rounded-2xl border border-border overflow-hidden">
+        <div class="px-5 py-4 border-b border-border">
+            <h3 class="text-sm font-semibold text-admin">Franchise Documents</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Upload verification documents for this franchise.</p>
+        </div>
+        <div class="p-6">
+            <form method="POST" action="{{ route('admin.franchises.update', $franchise) }}" enctype="multipart/form-data">
+                @csrf @method('PUT')
+                <div class="grid grid-cols-2 gap-5">
+                    @foreach([
+                        'doc_gst'       => 'GST Certificate',
+                        'doc_pan'       => 'PAN Card Copy',
+                        'doc_aadhaar'   => 'Aadhaar Card',
+                        'doc_address'   => 'Address Proof',
+                        'doc_agreement' => 'Franchise Agreement',
+                        'doc_bank'      => 'Bank Details / Cancelled Cheque',
+                    ] as $field => $label)
+                    <div class="border border-border rounded-xl p-4">
+                        <label class="block text-xs font-medium text-gray-700 mb-2">{{ $label }}</label>
+                        @if($franchise->$field ?? null)
+                            <p class="text-xs text-stu mb-2">✓ Uploaded</p>
+                        @else
+                            <p class="text-xs text-gray-400 mb-2">Not yet uploaded</p>
+                        @endif
+                        <input type="file" name="{{ $field }}" accept=".pdf,.jpg,.jpeg,.png"
+                               class="w-full text-xs text-gray-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-fran-light file:text-fran hover:file:bg-fran hover:file:text-white file:cursor-pointer">
+                        <p class="text-xs text-gray-300 mt-1">PDF, JPG or PNG — max 5 MB</p>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="mt-5 flex items-center gap-3">
+                    <button type="submit"
+                            class="px-5 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+                        Save Documents
+                    </button>
+                    <a href="{{ route('admin.franchises.approve', $franchise) }}"
+                       onclick="return confirm('Approve this franchise?')"
+                       class="{{ $franchise->status === 'pending' ? '' : 'hidden' }} px-5 py-2.5 bg-stu text-white rounded-xl text-sm font-semibold hover:bg-stu-dark transition-colors">
+                        Approve &amp; Activate
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -199,5 +287,8 @@ function showTab(tab) {
         btn.classList.toggle('text-gray-500', t !== tab);
     });
 }
+@if(session('openTab'))
+document.addEventListener('DOMContentLoaded', () => showTab('{{ session('openTab') }}'));
+@endif
 </script>
 @endpush

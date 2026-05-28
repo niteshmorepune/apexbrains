@@ -14,6 +14,27 @@
 
 @section('content')
 
+{{-- Performance Panel --}}
+@if($topFranchises->isNotEmpty())
+<div class="bg-white rounded-2xl border border-border p-5 mb-4">
+    <h3 class="text-sm font-semibold text-admin mb-4">Top Performing Franchises — Student Enrollment</h3>
+    <div class="space-y-2.5">
+        @foreach($topFranchises as $tf)
+        <div class="flex items-center gap-3">
+            <div class="w-28 text-xs text-gray-600 truncate flex-shrink-0" title="{{ $tf->name }}">{{ $tf->name }}</div>
+            <div class="flex-1 bg-bg-light rounded-full h-5 overflow-hidden">
+                <div class="h-full bg-fran rounded-full flex items-center justify-end pr-2 transition-all"
+                     style="width: {{ round($tf->students_count / $maxStudents * 100) }}%; min-width: 2rem;">
+                    <span class="text-xs font-bold text-white">{{ $tf->students_count }}</span>
+                </div>
+            </div>
+            <div class="w-12 text-right text-xs text-gray-400 flex-shrink-0">{{ $tf->city }}</div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- Search + Filter tabs --}}
 <div class="bg-white rounded-2xl border border-border p-4 mb-4 flex flex-wrap items-center gap-3">
     <form method="GET" action="{{ route('admin.franchises.index') }}" class="flex items-center gap-3 flex-1">

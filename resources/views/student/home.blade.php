@@ -5,6 +5,14 @@
 <div class="p-4 space-y-4">
 
     {{-- Greeting --}}
+    @php
+        $levelColors = [
+            1=>'#87CEEB', 2=>'#2ECC71', 3=>'#00BCD4', 4=>'#FFD54F', 5=>'#F5A623',
+            6=>'#FF69B4', 7=>'#D42B2B', 8=>'#9C27B0', 9=>'#1A73E8', 10=>'#00897B',
+            11=>'#FF6F00', 12=>'#AD1457', 13=>'#283593', 14=>'#212121',
+        ];
+        $lvlColor = $student?->currentLevel ? ($levelColors[$student->currentLevel->number] ?? '#2ECC71') : '#2ECC71';
+    @endphp
     <div class="bg-stu rounded-2xl p-5 text-white">
         <p class="text-white/70 text-sm">
             @php
@@ -15,15 +23,40 @@
         <p class="text-xl font-bold mt-0.5">{{ auth()->user()->name }}</p>
         @if($student?->currentLevel)
             <div class="mt-3 flex items-center gap-2">
-                <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">
+                <span class="text-xs font-bold px-3 py-1 rounded-full"
+                      style="background-color: {{ $lvlColor }}; color: white;">
                     Level {{ $student->currentLevel->number }}
                 </span>
                 @if($student->currentLevel->title)
                     <span class="text-white/70 text-xs">{{ $student->currentLevel->title }}</span>
                 @endif
             </div>
+            {{-- Level progress bar --}}
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-white/60 text-xs">Level Progress</span>
+                    <span class="text-white/80 text-xs font-semibold">{{ $levelProgress }}%</span>
+                </div>
+                <div class="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full bg-white rounded-full transition-all"
+                         style="width: {{ max(5, $levelProgress) }}%"></div>
+                </div>
+            </div>
         @endif
     </div>
+
+    {{-- Daily Streak --}}
+    @if($streak > 0)
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3">
+            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <span class="text-xl">🔥</span>
+            </div>
+            <div>
+                <p class="text-lg font-black text-orange-500">{{ $streak }} day{{ $streak !== 1 ? 's' : '' }}</p>
+                <p class="text-xs text-gray-500">Practice streak — keep it up!</p>
+            </div>
+        </div>
+    @endif
 
     {{-- Quick Stats --}}
     <div class="grid grid-cols-2 gap-3">
