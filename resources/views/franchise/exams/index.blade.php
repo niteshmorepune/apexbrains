@@ -27,7 +27,7 @@
                         · {{ $exam->total_questions }}Q
                         · {{ $exam->duration_minutes }}min
                         · Pass {{ number_format($exam->pass_percentage, 0) }}%
-                        @if($exam->max_attempts) · Max {{ $exam->max_attempts }} attempts@endif
+                        @if($exam->max_attempts) · Max {{ $exam->max_attempts }} attempts @endif
                     </p>
                     @if($exam->scheduled_at)
                         <p class="text-xs text-fran mt-0.5">{{ $exam->scheduled_at->format('d M Y, H:i') }}</p>
