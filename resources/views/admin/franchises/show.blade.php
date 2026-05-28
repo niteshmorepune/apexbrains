@@ -127,6 +127,18 @@
                     <span class="text-gray-500">Address</span>
                     <span class="text-gray-700 text-right max-w-xs">{{ $franchise->address }}</span>
                 </div>
+                @if($franchise->city || $franchise->state)
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">City / State</span>
+                        <span class="text-gray-700">{{ implode(', ', array_filter([$franchise->city, $franchise->state])) ?: '—' }}</span>
+                    </div>
+                @endif
+                @if($franchise->pincode)
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Pincode</span>
+                        <span class="text-gray-700 font-mono">{{ $franchise->pincode }}</span>
+                    </div>
+                @endif
                 @if($franchise->gst_number)
                     <div class="flex justify-between">
                         <span class="text-gray-500">GST</span>
