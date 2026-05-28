@@ -43,7 +43,7 @@
                 </div>
 
                 <div class="text-xs text-gray-400 min-w-[80px] text-right">
-                    {{ $exam->created_at->format('d M Y') }}
+                    {{ $exam->created_at?->format('d M Y') ?? '—' }}
                 </div>
 
                 <div class="flex items-center gap-2">
