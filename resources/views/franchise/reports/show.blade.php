@@ -2,6 +2,10 @@
 @section('title', $student->full_name . ' — Report')
 @section('page-title', $student->full_name . ' — Progress Report')
 
+@push('head')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+@endpush
+
 @section('page-actions')
     <a href="{{ route('franchise.reports.pdf', $student) }}"
        class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50">
