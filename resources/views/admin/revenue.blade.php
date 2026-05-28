@@ -2,6 +2,10 @@
 @section('title', 'Revenue Analytics')
 @section('page-title', 'Revenue Analytics')
 
+@push('head')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+@endpush
+
 @section('content')
 
 {{-- Date range filter --}}
@@ -61,15 +65,35 @@
 <div class="grid grid-cols-3 gap-4 mb-6">
     <div class="col-span-2 bg-white rounded-2xl border border-border p-5">
         <h2 class="text-sm font-semibold text-admin mb-4">Monthly Revenue Trend — {{ now()->format('Y') }}</h2>
-        <div class="h-52">
-            <canvas id="trendChart"></canvas>
-        </div>
+        @if($monthlyTrend->isNotEmpty())
+            <div class="h-52">
+                <canvas id="trendChart"></canvas>
+            </div>
+        @else
+            <div class="h-52 flex flex-col items-center justify-center text-gray-400">
+                <svg class="w-8 h-8 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <p class="text-sm font-medium">No revenue recorded yet</p>
+                <p class="text-xs mt-1">Chart will appear once payments are collected</p>
+            </div>
+        @endif
     </div>
     <div class="bg-white rounded-2xl border border-border p-5">
         <h2 class="text-sm font-semibold text-admin mb-4">Branch Revenue Share</h2>
-        <div class="h-52">
-            <canvas id="shareChart"></canvas>
-        </div>
+        @if($branchRevenue->sum('revenue') > 0)
+            <div class="h-52">
+                <canvas id="shareChart"></canvas>
+            </div>
+        @else
+            <div class="h-52 flex flex-col items-center justify-center text-gray-400">
+                <svg class="w-8 h-8 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                </svg>
+                <p class="text-sm font-medium">No branch revenue yet</p>
+                <p class="text-xs mt-1">Chart will appear once branches collect payments</p>
+            </div>
+        @endif
     </div>
 </div>
 
@@ -120,41 +144,44 @@
 
 @push('scripts')
 <script>
-const trend = @json($monthlyTrend);
-const branches = @json($branchRevenue->map(fn($f) => ['name' => explode(' ', $f->name)[0], 'rev' => (float)($f->revenue ?? 0)]));
-
-new Chart(document.getElementById('trendChart'), {
-    type: 'line',
-    data: {
-        labels: trend.map(r => r.label),
-        datasets: [{
-            data: trend.map(r => r.total),
-            borderColor: '#1A73E8', backgroundColor: 'rgba(26,115,232,0.08)',
-            borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#1A73E8'
-        }]
-    },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#A0AEC0' } },
-            y: { grid: { color: '#D0D7E2' }, ticks: { font: { size: 10 }, color: '#A0AEC0',
-                callback: v => '₹' + (v >= 100000 ? (v/100000).toFixed(1)+'L' : v) } }
+if (document.getElementById('trendChart')) {
+    const trend = @json($monthlyTrend);
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: trend.map(r => r.label),
+            datasets: [{
+                data: trend.map(r => r.total),
+                borderColor: '#1A73E8', backgroundColor: 'rgba(26,115,232,0.08)',
+                borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#1A73E8'
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#A0AEC0' } },
+                y: { grid: { color: '#D0D7E2' }, ticks: { font: { size: 10 }, color: '#A0AEC0',
+                    callback: v => '₹' + (v >= 100000 ? (v/100000).toFixed(1)+'L' : v) } }
+            }
         }
-    }
-});
+    });
+}
 
-const colors = ['#1A73E8','#2ECC71','#F5A623','#D42B2B','#9C27B0','#00BCD4','#FF6F00','#283593'];
-new Chart(document.getElementById('shareChart'), {
-    type: 'doughnut',
-    data: {
-        labels: branches.map(b => b.name),
-        datasets: [{ data: branches.map(b => b.rev), backgroundColor: colors, borderWidth: 1 }]
-    },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 8 } } }
-    }
-});
+if (document.getElementById('shareChart')) {
+    const branches = @json($branchRevenue->map(fn($f) => ['name' => explode(' ', $f->name)[0], 'rev' => (float)($f->revenue ?? 0)]));
+    const colors = ['#1A73E8','#2ECC71','#F5A623','#D42B2B','#9C27B0','#00BCD4','#FF6F00','#283593'];
+    new Chart(document.getElementById('shareChart'), {
+        type: 'doughnut',
+        data: {
+            labels: branches.map(b => b.name),
+            datasets: [{ data: branches.map(b => b.rev), backgroundColor: colors, borderWidth: 1 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 8 } } }
+        }
+    });
+}
 </script>
 @endpush
