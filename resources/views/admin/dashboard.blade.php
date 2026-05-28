@@ -2,6 +2,10 @@
 @section('title', 'Dashboard')
 @section('page-title', 'Global Dashboard — ' . now()->format('M Y'))
 
+@push('head')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+@endpush
+
 @section('page-actions')
     <a href="{{ route('admin.dashboard.export') }}"
        class="inline-flex items-center gap-2 bg-fran text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-fran-dark transition-colors">
