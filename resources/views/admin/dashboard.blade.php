@@ -100,17 +100,37 @@
     {{-- Monthly Revenue Trend --}}
     <div class="col-span-2 bg-white rounded-2xl border border-border p-5">
         <h2 class="text-sm font-semibold text-admin mb-4">Monthly Revenue Trend</h2>
-        <div class="h-48">
-            <canvas id="revenueChart"></canvas>
-        </div>
+        @if($monthlyTrend->isNotEmpty())
+            <div class="h-48">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        @else
+            <div class="h-48 flex flex-col items-center justify-center text-gray-400">
+                <svg class="w-8 h-8 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <p class="text-sm font-medium">No revenue recorded yet</p>
+                <p class="text-xs mt-1">Chart will appear once payments are collected</p>
+            </div>
+        @endif
     </div>
 
     {{-- Level Distribution --}}
     <div class="bg-white rounded-2xl border border-border p-5">
         <h2 class="text-sm font-semibold text-admin mb-3">Students by Level</h2>
-        <div class="h-48">
-            <canvas id="levelChart"></canvas>
-        </div>
+        @if($levelDistribution->isNotEmpty())
+            <div class="h-48">
+                <canvas id="levelChart"></canvas>
+            </div>
+        @else
+            <div class="h-48 flex flex-col items-center justify-center text-gray-400">
+                <svg class="w-8 h-8 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <p class="text-sm font-medium">No students enrolled yet</p>
+                <p class="text-xs mt-1">Chart will appear once students are assigned to levels</p>
+            </div>
+        @endif
     </div>
 
 </div>
@@ -121,9 +141,19 @@
     {{-- Branch Performance bar chart --}}
     <div class="bg-white rounded-2xl border border-border p-5">
         <h2 class="text-sm font-semibold text-admin mb-4">Branch Performance</h2>
-        <div class="h-48">
-            <canvas id="branchChart"></canvas>
-        </div>
+        @if($franchises->sum('students_count') > 0)
+            <div class="h-48">
+                <canvas id="branchChart"></canvas>
+            </div>
+        @else
+            <div class="h-48 flex flex-col items-center justify-center text-gray-400">
+                <svg class="w-8 h-8 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <p class="text-sm font-medium">No student enrollments yet</p>
+                <p class="text-xs mt-1">Chart will appear once branches enroll students</p>
+            </div>
+        @endif
     </div>
 
     {{-- Franchise Overview Table --}}
@@ -189,77 +219,79 @@
 
 @push('scripts')
 <script>
-const trendData  = @json($monthlyTrend);
-const levelData  = @json($levelDistribution);
-const franchises = @json($franchises->take(6)->map(fn($f) => ['name' => $f->name, 'students' => $f->students_count]));
-
 const BLUE   = '#1A73E8';
-const GREEN  = '#2ECC71';
-const AMBER  = '#F5A623';
-const NAVY   = '#1A2332';
 const BORDER = '#D0D7E2';
 
 // Monthly Revenue Trend
-new Chart(document.getElementById('revenueChart'), {
-    type: 'line',
-    data: {
-        labels: trendData.map(r => r.label),
-        datasets: [{
-            data: trendData.map(r => r.total),
-            borderColor: BLUE,
-            backgroundColor: 'rgba(26,115,232,0.08)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 3,
-            pointBackgroundColor: BLUE,
-        }]
-    },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#A0AEC0' } },
-            y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#A0AEC0',
-                callback: v => '₹' + (v >= 100000 ? (v/100000).toFixed(1) + 'L' : v.toLocaleString('en-IN')) } }
+if (document.getElementById('revenueChart')) {
+    const trendData = @json($monthlyTrend);
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: trendData.map(r => r.label),
+            datasets: [{
+                data: trendData.map(r => r.total),
+                borderColor: BLUE,
+                backgroundColor: 'rgba(26,115,232,0.08)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: BLUE,
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#A0AEC0' } },
+                y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#A0AEC0',
+                    callback: v => '₹' + (v >= 100000 ? (v/100000).toFixed(1) + 'L' : v.toLocaleString('en-IN')) } }
+            }
         }
-    }
-});
+    });
+}
 
 // Level Distribution Donut
-const levelColors = ['#87CEEB','#2ECC71','#00BCD4','#FFD54F','#F5A623','#FF69B4',
-                     '#D42B2B','#9C27B0','#1A73E8','#00897B','#FF6F00','#AD1457','#283593','#212121'];
-new Chart(document.getElementById('levelChart'), {
-    type: 'doughnut',
-    data: {
-        labels: levelData.map(r => r.label),
-        datasets: [{ data: levelData.map(r => r.total), backgroundColor: levelColors, borderWidth: 1 }]
-    },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'right', labels: { font: { size: 10 }, boxWidth: 12, padding: 6 } } }
-    }
-});
+if (document.getElementById('levelChart')) {
+    const levelData   = @json($levelDistribution);
+    const levelColors = ['#87CEEB','#2ECC71','#00BCD4','#FFD54F','#F5A623','#FF69B4',
+                         '#D42B2B','#9C27B0','#1A73E8','#00897B','#FF6F00','#AD1457','#283593','#212121'];
+    new Chart(document.getElementById('levelChart'), {
+        type: 'doughnut',
+        data: {
+            labels: levelData.map(r => r.label),
+            datasets: [{ data: levelData.map(r => r.total), backgroundColor: levelColors, borderWidth: 1 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { font: { size: 10 }, boxWidth: 12, padding: 6 } } }
+        }
+    });
+}
 
 // Branch Performance Bar
-new Chart(document.getElementById('branchChart'), {
-    type: 'bar',
-    data: {
-        labels: franchises.map(f => f.name.split(' ')[0]),
-        datasets: [{
-            data: franchises.map(f => f.students),
-            backgroundColor: BLUE,
-            borderRadius: 4,
-        }]
-    },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#A0AEC0' } },
-            y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#A0AEC0' } }
+if (document.getElementById('branchChart')) {
+    const branchData = @json($franchises->take(6)->map(fn($f) => ['name' => $f->name, 'students' => $f->students_count]));
+    new Chart(document.getElementById('branchChart'), {
+        type: 'bar',
+        data: {
+            labels: branchData.map(f => f.name.split(' ')[0]),
+            datasets: [{
+                data: branchData.map(f => f.students),
+                backgroundColor: BLUE,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#A0AEC0' } },
+                y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#A0AEC0' } }
+            }
         }
-    }
-});
+    });
+}
 </script>
 @endpush
