@@ -13,10 +13,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
         Route::get('export', [\App\Http\Controllers\Admin\DashboardController::class, 'export'])->name('dashboard.export');
 
-        // Franchise management
-        Route::resource('franchises', \App\Http\Controllers\Admin\FranchiseController::class);
+        // Franchise management — static routes BEFORE resource so {franchise} doesn't capture them
         Route::get('franchises/performance', [\App\Http\Controllers\Admin\FranchiseController::class, 'performance'])->name('franchises.performance');
         Route::get('franchises/approval-queue', [\App\Http\Controllers\Admin\FranchiseController::class, 'approvalQueue'])->name('franchises.approval-queue');
+        Route::resource('franchises', \App\Http\Controllers\Admin\FranchiseController::class);
         Route::post('franchises/{franchise}/approve', [\App\Http\Controllers\Admin\FranchiseController::class, 'approve'])->name('franchises.approve');
         Route::post('franchises/{franchise}/suspend', [\App\Http\Controllers\Admin\FranchiseController::class, 'suspend'])->name('franchises.suspend');
         Route::post('franchises/{franchise}/reject', [\App\Http\Controllers\Admin\FranchiseController::class, 'reject'])->name('franchises.reject');

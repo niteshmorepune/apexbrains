@@ -123,8 +123,8 @@ class FranchiseController extends Controller
 
         // Level distribution
         $levelDist = \App\Models\Student::withoutGlobalScopes()
-            ->where('franchise_id', $franchise->id)
-            ->where('is_active', true)
+            ->where('students.franchise_id', $franchise->id)
+            ->where('students.is_active', true)
             ->join('levels', 'students.current_level_id', '=', 'levels.id')
             ->selectRaw('levels.number, levels.title, COUNT(*) as cnt')
             ->groupBy('levels.number', 'levels.title')
