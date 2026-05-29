@@ -1,4 +1,4 @@
-@extends('layouts.external')
+@extends('layouts.student')
 @section('title', $competition->title)
 
 @section('content')
@@ -13,11 +13,10 @@
             <div class="flex-1">
                 <p class="font-bold text-gray-800">{{ $competition->title }}</p>
                 @if($competition->description)
-                    <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">{{ $competition->description }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ $competition->description }}</p>
                 @endif
             </div>
         </div>
-
         {{-- Info grid --}}
         <div class="grid grid-cols-2 gap-2 text-sm">
             <div class="bg-bg-light rounded-xl p-3 text-center">
@@ -33,15 +32,13 @@
                 <p class="text-xs text-gray-400">Pass Marks</p>
             </div>
             <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-admin">
-                    @if($competition->start_date){{ $competition->start_date->format('d M') }}@else TBA @endif
-                </p>
-                <p class="text-xs text-gray-400">Exam Date</p>
+                <p class="font-bold text-admin">{{ $myAttempts->count() }} of 3</p>
+                <p class="text-xs text-gray-400">Attempts</p>
             </div>
         </div>
     </div>
 
-    {{-- Rules and Instructions --}}
+    {{-- Rules --}}
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Rules and Instructions</p>
         <ol class="space-y-2 text-sm text-gray-600">
@@ -51,10 +48,10 @@
                 'Each question must be answered within the time limit',
                 'Once submitted, answers cannot be changed',
                 'Results will be available immediately after submission',
-                'In case of technical issues, contact your franchise',
+                'In case of technical issues, contact your branch',
             ] as $i => $rule)
                 <li class="flex items-start gap-2">
-                    <span class="w-5 h-5 rounded-full bg-fran/10 text-fran text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{{ $i + 1 }}</span>
+                    <span class="w-5 h-5 rounded-full bg-fran-light text-fran text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{{ $i + 1 }}</span>
                     <span>{{ $rule }}</span>
                 </li>
             @endforeach
@@ -62,32 +59,30 @@
     </div>
 
     {{-- CTA --}}
-    @if($myRegistration)
-        @php
-            $examOpen = $competition->start_date
-                ? now()->gte($competition->start_date) && (!$competition->end_date || now()->lte($competition->end_date))
-                : true;
-        @endphp
-        @if($examOpen)
-            <a href="{{ route('external.practice.index') }}"
-               class="block w-full py-4 bg-fran text-white rounded-2xl text-sm font-bold text-center hover:bg-fran-dark transition-colors">
-                I am Ready — Start Exam
-            </a>
-            <p class="text-center text-xs text-gray-400">Exam will open in fullscreen mode</p>
+    @if($registration)
+        @if($myAttempts->isEmpty())
+            <form method="POST" action="{{ route('student.competitions.start', $competition) }}">
+                @csrf
+                <button type="submit"
+                        class="w-full py-4 bg-fran text-white rounded-2xl text-sm font-bold hover:bg-fran-dark transition-colors">
+                    I am Ready — Start Exam
+                </button>
+            </form>
         @else
-            <div class="bg-fran/5 border border-fran/20 rounded-2xl p-4 text-center">
-                <p class="text-fran font-semibold text-sm">✓ You are registered</p>
-                <p class="text-gray-500 text-xs mt-1">Exam opens on {{ $competition->start_date?->format('d M Y') }}</p>
-            </div>
+            <a href="{{ route('student.competitions.result', $competition) }}"
+               class="block w-full py-4 bg-stu text-white rounded-2xl text-sm font-bold text-center hover:bg-stu-dark transition-colors">
+                View My Result
+            </a>
         @endif
+        <p class="text-center text-xs text-gray-400">Exam will open in fullscreen mode</p>
     @else
-        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-            <p class="text-amber-700 text-sm font-medium">Not registered</p>
-            <p class="text-amber-600 text-xs mt-1">Contact your franchise to register for this competition.</p>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 text-center">
+            <p class="text-sm text-yellow-700 font-medium">You are not registered for this competition</p>
+            <p class="text-xs text-yellow-600 mt-1">Contact your branch to register</p>
         </div>
     @endif
 
-    <a href="{{ route('external.competitions.index') }}"
+    <a href="{{ route('student.competitions.index') }}"
        class="block text-center text-sm text-gray-400 hover:text-gray-600 py-2">
         ← Back to Competitions
     </a>

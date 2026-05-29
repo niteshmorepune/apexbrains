@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Home') — Apex Brains</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        body { -webkit-tap-highlight-color: transparent; }
+        body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0.5rem); }
     </style>
 </head>
-<body class="bg-bg-light font-sans min-h-screen flex flex-col">
+<body class="bg-bg-light min-h-screen flex flex-col">
 
 {{-- Mobile wrapper --}}
 <div class="max-w-sm mx-auto w-full flex flex-col min-h-screen md:max-w-full relative">
@@ -62,9 +65,8 @@
             <x-bottom-nav-item route="student.home" icon="home" label="Home" />
             <x-bottom-nav-item route="student.practice.index" icon="zap" label="Practice" />
             <x-bottom-nav-item route="student.exams.index" icon="file-text" label="Exams" />
-            <x-bottom-nav-item route="student.competitions.index" icon="trophy" label="Compete" />
-            <x-bottom-nav-item route="student.certificates.index" icon="award" label="Certs" />
-            <x-bottom-nav-item route="student.help" icon="help-circle" label="Help" />
+            <x-bottom-nav-item route="student.results" icon="bar-chart-2" label="Results" />
+            <x-bottom-nav-item route="student.profile" icon="user" label="Profile" />
         </div>
     </nav>
 </div>

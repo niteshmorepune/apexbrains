@@ -4,10 +4,16 @@
 @section('content')
 <div class="p-4 space-y-4" x-data="{ selected: null, submitting: false }">
 
+    {{-- Inline tab-switch warning --}}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 flex items-center gap-2">
+        <span class="text-yellow-500 text-xs">⚠</span>
+        <p class="text-xs text-yellow-700 font-medium">Do not switch tabs — session will be flagged</p>
+    </div>
+
     {{-- Progress bar --}}
     <div>
         <div class="flex justify-between text-xs text-gray-500 mb-1.5">
-            <span>Question {{ $index + 1 }} of {{ $totalCount }}</span>
+            <span>Q{{ $index + 1 }} of {{ $totalCount }}</span>
             <span>{{ count($answered) }} answered</span>
         </div>
         <div class="w-full h-2 bg-bg-mid rounded-full overflow-hidden">
@@ -16,12 +22,21 @@
         </div>
     </div>
 
-    {{-- Question card --}}
-    <div class="bg-white rounded-2xl border border-border p-5">
-        <p class="text-sm font-bold text-gray-800 leading-relaxed">
-            {{ $question['question_text'] }}
-        </p>
-    </div>
+    {{-- Question card — Flash Anzan for audio/numeric, standard for MCQ --}}
+    @php $isAnzan = isset($question['question_type']) && in_array($question['question_type'], ['audio', 'anzan']); @endphp
+    @if($isAnzan)
+        <div class="bg-white rounded-2xl border border-border p-8 text-center">
+            <p class="font-black leading-none text-gray-900" style="font-size: 100px; line-height: 1;">
+                {{ $question['question_text'] }}
+            </p>
+        </div>
+    @else
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <p class="text-base font-bold text-gray-800 leading-relaxed">
+                {{ $question['question_text'] }}
+            </p>
+        </div>
+    @endif
 
     {{-- Answer options --}}
     <form method="POST" action="{{ route('student.practice.answer', $session) }}" id="answerForm">

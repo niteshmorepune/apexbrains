@@ -29,7 +29,15 @@ class CompetitionController extends Controller
 
         $registeredIds = $myRegistrations->pluck('competition_id')->toArray();
 
-        return view('external.competitions.index', compact('myRegistrations', 'openCompetitions', 'registeredIds'));
+        $pastCompetitions = Competition::where('is_open_to_external', true)
+            ->where('end_date', '<', now()->toDateString())
+            ->orderByDesc('end_date')
+            ->limit(5)
+            ->get();
+
+        return view('external.competitions.index', compact(
+            'myRegistrations', 'openCompetitions', 'registeredIds', 'pastCompetitions'
+        ));
     }
 
     public function show(Competition $competition): View

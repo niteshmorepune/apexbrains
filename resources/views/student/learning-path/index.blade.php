@@ -1,19 +1,25 @@
 @extends('layouts.student')
-@section('title', 'My Learning Path')
-
-@section('subheader')
-    <p class="text-white/80 text-xs">
-        @if($student?->currentLevel)
-            Currently on Level {{ $student->currentLevel->number }}
-            @if($student->currentLevel->title) — {{ $student->currentLevel->title }}@endif
-        @else
-            Start your journey
-        @endif
-    </p>
-@endsection
+@section('title', 'My Learning')
 
 @section('content')
-<div class="p-4 space-y-2">
+<div class="p-4 space-y-3">
+
+    {{-- Overall progress header --}}
+    @if($student?->currentLevel)
+    <div class="bg-stu rounded-2xl p-4 text-white">
+        <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-bold">L{{ $student->currentLevel->number }} / L{{ $levels->count() }}</p>
+            <p class="text-white/70 text-xs">{{ round(count($completedLevelIds) / max($levels->count(), 1) * 100) }}% complete</p>
+        </div>
+        <p class="text-white/70 text-xs mb-2">Level {{ $student->currentLevel->number }} of {{ $levels->count() }} total levels</p>
+        <div class="h-1.5 bg-white/20 rounded-full overflow-hidden">
+            <div class="h-full bg-white rounded-full"
+                 style="width: {{ max(3, round(count($completedLevelIds) / max($levels->count(), 1) * 100)) }}%"></div>
+        </div>
+    </div>
+    @endif
+
+    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide px-1">Your Level Journey</p>
 
     @foreach($levels as $level)
         @php
@@ -43,7 +49,7 @@
                         @if($isCurrent)
                             <span class="text-xs bg-stu text-white px-2 py-0.5 rounded-full">Current</span>
                         @elseif($isCompleted)
-                            <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">Completed</span>
+                            <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">✓ Cert</span>
                         @elseif($isLocked)
                             <span class="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">Locked</span>
                         @endif
@@ -68,6 +74,14 @@
             </div>
         </a>
     @endforeach
+
+    {{-- Continue CTA --}}
+    @if($student?->currentLevel)
+        <a href="{{ route('student.levels.show', $student->currentLevel) }}"
+           class="block bg-stu text-white text-center font-bold py-3.5 rounded-2xl text-sm hover:bg-stu-dark transition-colors">
+            Continue Level {{ $student->currentLevel->number }}
+        </a>
+    @endif
 
 </div>
 @endsection

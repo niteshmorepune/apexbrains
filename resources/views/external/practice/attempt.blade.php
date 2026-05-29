@@ -37,13 +37,28 @@
              :style="`width: ${(currentIndex / questions.length) * 100}%`"></div>
     </div>
 
+    {{-- Inline warning --}}
+    <div class="bg-yellow-50 border-b border-yellow-200 px-4 py-2 flex items-center gap-2">
+        <span class="text-yellow-500 text-xs">⚠</span>
+        <p class="text-xs text-yellow-700 font-medium">Do not switch tabs — session will be flagged</p>
+    </div>
+
     <div class="max-w-lg mx-auto px-4 py-6 space-y-4">
         <template x-if="questions.length > 0">
             <div>
-                <div class="bg-white rounded-2xl border border-border p-5 mb-4">
-                    <p class="text-sm font-bold text-gray-800 leading-relaxed"
-                       x-text="questions[currentIndex]?.question?.question_text"></p>
-                </div>
+                {{-- Flash Anzan: show large number for audio/anzan type questions --}}
+                <template x-if="questions[currentIndex]?.question?.question_type === 'audio' || questions[currentIndex]?.question?.question_type === 'anzan'">
+                    <div class="bg-white rounded-2xl border border-border p-8 text-center mb-4">
+                        <p class="font-black text-gray-900 leading-none" style="font-size:100px;line-height:1"
+                           x-text="questions[currentIndex]?.question?.question_text"></p>
+                    </div>
+                </template>
+                <template x-if="!(questions[currentIndex]?.question?.question_type === 'audio' || questions[currentIndex]?.question?.question_type === 'anzan')">
+                    <div class="bg-white rounded-2xl border border-border p-5 mb-4">
+                        <p class="text-base font-bold text-gray-800 leading-relaxed"
+                           x-text="questions[currentIndex]?.question?.question_text"></p>
+                    </div>
+                </template>
 
                 <div class="space-y-3">
                     <template x-for="opt in ['a','b','c','d']" :key="opt">

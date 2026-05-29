@@ -38,15 +38,49 @@
         @endif
     </div>
 
-    {{-- Learning Objectives --}}
+    {{-- Level Progress --}}
     @if($level->learning_objectives && count($level->learning_objectives) > 0)
+        @php
+            $totalTopics    = count($level->learning_objectives);
+            $passedCount    = $myAttempts->where('is_passed', true)->count();
+            $doneTopics     = min($passedCount, $totalTopics);
+            $pct            = $totalTopics > 0 ? round($doneTopics / $totalTopics * 100) : 0;
+            $examUnlocked   = $doneTopics >= (int) ceil($totalTopics * 0.8);
+            $neededForExam  = (int) ceil($totalTopics * 0.8);
+        @endphp
         <div class="bg-white rounded-2xl border border-border p-5">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Learning Objectives</p>
-            <ul class="space-y-2">
-                @foreach($level->learning_objectives as $obj)
-                    <li class="flex items-start gap-2 text-sm text-gray-700">
-                        <span class="text-stu mt-0.5 flex-shrink-0">✓</span>
-                        <span>{{ $obj }}</span>
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-bold text-gray-700">Level Progress</p>
+                <span class="text-sm font-bold text-stu">{{ $pct }}%</span>
+            </div>
+            <div class="h-2 bg-bg-mid rounded-full mb-2">
+                <div class="h-full bg-stu rounded-full transition-all" style="width: {{ max(3, $pct) }}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-500">{{ $doneTopics }} of {{ $totalTopics }} topics</span>
+                @if($examUnlocked)
+                    <span class="text-stu font-medium">Exam: Unlocked ✓</span>
+                @else
+                    <span class="text-logo-amber font-medium">Exam: Locked (need {{ $neededForExam }}/{{ $totalTopics }})</span>
+                @endif
+            </div>
+        </div>
+
+        {{-- Topic Checklist --}}
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Syllabus Topics</p>
+            <ul class="space-y-2.5">
+                @foreach($level->learning_objectives as $i => $obj)
+                    @php
+                        $done   = $i < $doneTopics;
+                        $locked = !$done && $i > $doneTopics;
+                    @endphp
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs mt-0.5
+                            {{ $done ? 'bg-stu text-white' : ($locked ? 'bg-bg-mid text-gray-300' : 'border-2 border-stu text-transparent') }}">
+                            {{ $done ? '✓' : ($locked ? '🔒' : '○') }}
+                        </span>
+                        <span class="text-sm {{ $locked ? 'text-gray-300' : 'text-gray-700' }}">{{ $obj }}</span>
                     </li>
                 @endforeach
             </ul>
@@ -116,9 +150,16 @@
         </div>
     @endif
 
+    @if($student?->current_level_id === $level->id)
+        <a href="{{ route('student.practice.index') }}"
+           class="block bg-stu text-white text-center font-bold py-3.5 rounded-2xl text-sm hover:bg-stu-dark transition-colors">
+            Continue Practice
+        </a>
+    @endif
+
     <a href="{{ route('student.learning-path') }}"
        class="block text-center text-sm text-gray-400 hover:text-gray-600 py-2">
-        ← Back to Learning Path
+        ← Back to My Learning
     </a>
 
 </div>

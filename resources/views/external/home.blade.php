@@ -13,50 +13,31 @@
             @endphp
         </p>
         <p class="text-xl font-bold mt-0.5">{{ auth()->user()->name }}</p>
-        <span class="mt-2 inline-block bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium">
-            Competition Participant
-        </span>
+        <p class="text-white/60 text-xs mt-1">Practice, Improve, Achieve</p>
     </div>
 
-    {{-- Stats --}}
+    {{-- Quick Actions (4 tiles) --}}
     <div class="grid grid-cols-2 gap-3">
-        <div class="bg-white rounded-2xl border border-border p-4 text-center">
-            <p class="text-2xl font-black text-fran">{{ $totalPapers }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Practice papers</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-border p-4 text-center">
-            <p class="text-2xl font-black text-fran">{{ $attemptedCount }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Papers attempted</p>
-        </div>
+        @foreach([
+            ['route' => 'external.practice.hub',         'emoji' => '🎯', 'label' => 'Practice'],
+            ['route' => 'external.practice.index',       'emoji' => '📄', 'label' => 'Practice Papers'],
+            ['route' => 'external.competitions.index',   'emoji' => '🏆', 'label' => 'Competitions'],
+            ['route' => 'external.certificates.index',   'emoji' => '🎓', 'label' => 'Results & Certificate'],
+        ] as $action)
+            <a href="{{ route($action['route']) }}"
+               class="bg-white rounded-2xl border border-border p-4 flex flex-col items-center gap-2 hover:border-fran transition-colors">
+                <span class="text-2xl">{{ $action['emoji'] }}</span>
+                <span class="text-sm font-semibold text-gray-700 text-center">{{ $action['label'] }}</span>
+            </a>
+        @endforeach
     </div>
 
-    {{-- Quick Actions --}}
-    <div class="grid grid-cols-2 gap-3">
-        <a href="{{ route('external.practice.index') }}"
-           class="bg-fran rounded-2xl p-4 text-white flex flex-col items-center gap-2">
-            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
-            </div>
-            <span class="text-sm font-semibold">Practice</span>
-        </a>
-        <a href="{{ route('external.competitions.index') }}"
-           class="bg-white border border-border rounded-2xl p-4 flex flex-col items-center gap-2 hover:border-fran transition-colors">
-            <div class="w-10 h-10 bg-fran/10 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-fran" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 21H5a2 2 0 01-2-2v-1a5 5 0 015-5h8a5 5 0 015 5v1a2 2 0 01-2 2h-3M12 3a4 4 0 100 8 4 4 0 000-8z"/>
-                </svg>
-            </div>
-            <span class="text-sm font-semibold text-gray-700">Competitions</span>
-        </a>
-    </div>
-
-    {{-- Recent attempts --}}
+    {{-- Recent activity --}}
     @if($recentAttempts->isNotEmpty())
         <div class="bg-white rounded-2xl border border-border overflow-hidden">
-            <div class="px-4 py-3 border-b border-border">
-                <p class="text-sm font-semibold text-gray-700">Recent Practice</p>
+            <div class="px-4 py-3 border-b border-border flex items-center justify-between">
+                <p class="text-sm font-semibold text-gray-700">Recent Activity</p>
+                <a href="{{ route('external.results') }}" class="text-xs text-fran">View All</a>
             </div>
             <div class="divide-y divide-border">
                 @foreach($recentAttempts as $attempt)
@@ -74,7 +55,7 @@
                 @endforeach
             </div>
             <div class="px-4 py-3 border-t border-border">
-                <a href="{{ route('external.practice.index') }}" class="text-xs text-fran font-medium">All papers →</a>
+                <a href="{{ route('external.results') }}" class="text-xs text-fran font-medium">View All →</a>
             </div>
         </div>
     @endif

@@ -7,67 +7,62 @@
     {{-- Result banner --}}
     <div class="rounded-2xl p-6 text-white text-center
         {{ $attempt->is_passed ? 'bg-stu' : 'bg-red-500' }}">
-        <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
-            <span class="text-2xl">{{ $attempt->is_passed ? '🎉' : '😔' }}</span>
-        </div>
-        <p class="text-white/80 text-sm mb-1">{{ $attempt->is_passed ? 'Congratulations! You passed!' : 'Better luck next time' }}</p>
-        <p class="text-4xl font-black mb-1">{{ number_format($attempt->percentage, 0) }}%</p>
-        <p class="text-white/70 text-sm">{{ $attempt->score }} correct out of {{ count($attempt->question_ids ?? []) }}</p>
+        <p class="text-white/80 text-sm">{{ $exam->title }}</p>
+        @if($classAvg)
+            <p class="text-white/60 text-xs mt-0.5">Class Avg: {{ number_format($classAvg, 0) }}%</p>
+        @endif
+        <p class="text-5xl font-black my-2">{{ number_format($attempt->percentage, 0) }}%</p>
+        <span class="inline-block font-bold text-sm px-4 py-1 rounded-full
+            {{ $attempt->is_passed ? 'bg-white/20 text-white' : 'bg-white text-red-500' }}">
+            {{ $attempt->is_passed ? 'PASSED' : 'FAILED' }}
+        </span>
+    </div>
 
-        <div class="mt-4 flex items-center justify-center gap-4 text-sm">
-            <div class="text-center">
-                <p class="font-bold">{{ number_format($exam->pass_percentage, 0) }}%</p>
-                <p class="text-white/60 text-xs">Pass mark</p>
-            </div>
-            @if($attempt->tab_switch_count > 0)
-                <div class="w-px h-8 bg-white/20"></div>
-                <div class="text-center">
-                    <p class="font-bold text-red-200">{{ $attempt->tab_switch_count }}</p>
-                    <p class="text-white/60 text-xs">Violations</p>
-                </div>
-            @endif
+    {{-- 4-stat grid --}}
+    @php
+        $timeMins = $timeTaken > 0 ? floor($timeTaken/60).':'.str_pad($timeTaken%60, 2, '0', STR_PAD_LEFT) : '—';
+        $wrongCount = $attempt->answers->where('is_correct', false)->count();
+    @endphp
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-green-50 rounded-2xl p-4 text-center">
+            <p class="text-2xl font-black text-green-600">{{ $attempt->score }}</p>
+            <p class="text-xs text-green-600 mt-0.5">Correct</p>
+        </div>
+        <div class="bg-red-50 rounded-2xl p-4 text-center">
+            <p class="text-2xl font-black text-red-500">{{ $wrongCount }}</p>
+            <p class="text-xs text-red-500 mt-0.5">Wrong</p>
+        </div>
+        <div class="bg-yellow-50 rounded-2xl p-4 text-center">
+            <p class="text-2xl font-black text-logo-amber">{{ $skipped }}</p>
+            <p class="text-xs text-logo-amber mt-0.5">Skipped</p>
+        </div>
+        <div class="bg-bg-mid rounded-2xl p-4 text-center">
+            <p class="text-2xl font-black text-gray-600">{{ $timeMins }}</p>
+            <p class="text-xs text-gray-500 mt-0.5">Time Taken</p>
         </div>
     </div>
 
-    {{-- Answer review --}}
+    {{-- Review Incorrect --}}
+    @if($wrongCount > 0)
     <div class="bg-white rounded-2xl border border-border overflow-hidden">
         <div class="px-4 py-3 border-b border-border">
-            <p class="text-sm font-semibold text-gray-700">Answer Review</p>
+            <p class="text-sm font-semibold text-gray-700">Review Incorrect ({{ $wrongCount }})</p>
         </div>
         <div class="divide-y divide-border">
-            @foreach($attempt->answers->sortBy(fn($a) => array_search($a->question_id, $attempt->question_ids ?? [])) as $i => $answer)
+            @foreach($attempt->answers->where('is_correct', false) as $i => $answer)
                 <div class="px-4 py-3">
-                    <div class="flex items-start gap-2 mb-2">
-                        <span class="text-xs text-gray-400 flex-shrink-0 mt-0.5">{{ $i + 1 }}.</span>
-                        <p class="text-sm text-gray-800">{{ $answer->question?->question_text }}</p>
-                        <span class="flex-shrink-0 ml-auto">
-                            @if($answer->is_correct)
-                                <span class="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-medium">✓</span>
-                            @else
-                                <span class="text-xs bg-red-100 text-red-500 px-2 py-0.5 rounded-full font-medium">✗</span>
-                            @endif
-                        </span>
-                    </div>
-                    <div class="ml-4 text-xs space-y-0.5">
-                        <p class="text-gray-500">
-                            Your answer: <span class="font-medium {{ $answer->is_correct ? 'text-green-600' : 'text-red-500' }}">
-                                {{ strtoupper($answer->selected_answer) }})
-                                {{ $answer->question?->{'option_' . $answer->selected_answer} }}
-                            </span>
-                        </p>
-                        @if(!$answer->is_correct)
-                            <p class="text-gray-500">
-                                Correct: <span class="font-medium text-green-600">
-                                    {{ strtoupper($answer->question?->correct_answer) }})
-                                    {{ $answer->question?->{'option_' . $answer->question?->correct_answer} }}
-                                </span>
-                            </p>
-                        @endif
-                    </div>
+                    <p class="text-sm text-gray-800 mb-2 leading-snug">{{ $answer->question?->question_text }}</p>
+                    <p class="text-xs text-red-500">
+                        ✗ Your answer: {{ strtoupper($answer->selected_answer) }}) {{ $answer->question?->{'option_' . $answer->selected_answer} }}
+                    </p>
+                    <p class="text-xs text-green-600 font-medium mt-0.5">
+                        ✓ Correct: {{ strtoupper($answer->question?->correct_answer) }}) {{ $answer->question?->{'option_' . $answer->question?->correct_answer} }}
+                    </p>
                 </div>
             @endforeach
         </div>
     </div>
+    @endif
 
     {{-- Actions --}}
     <div class="space-y-3">

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\External;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
+use App\Models\ApexNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -13,8 +13,11 @@ class NotificationController extends Controller
     {
         $student = Auth::user()->student()->firstOrFail();
 
-        $notifications = AuditLog::where('franchise_id', $student->franchise_id)
-            ->where('action', 'like', '%notification%')
+        $notifications = ApexNotification::where('franchise_id', $student->franchise_id)
+            ->where(function ($q) use ($student) {
+                $q->whereNull('student_id')
+                  ->orWhere('student_id', $student->id);
+            })
             ->latest('created_at')
             ->paginate(20);
 

@@ -14,7 +14,7 @@ class HomeController extends Controller
     public function index(): View
     {
         $user    = Auth::user();
-        $student = $user->student()->with('currentLevel')->first();
+        $student = $user->student()->with(['currentLevel', 'franchise'])->first();
 
         $recentAttempts = $student
             ? $student->examAttempts()
@@ -64,12 +64,36 @@ class HomeController extends Controller
             $levelProgress = $avg ? (int) round($avg) : 0;
         }
 
+        // Best streak ever
+        $bestStreak = $student
+            ? PracticeSession::where('student_id', $student->id)
+                ->selectRaw('DATE(created_at) as practice_date')
+                ->distinct()
+                ->orderBy('practice_date')
+                ->pluck('practice_date')
+                ->pipe(function ($dates) {
+                    $best = $current = 0;
+                    $prev = null;
+                    foreach ($dates as $date) {
+                        if ($prev && \Carbon\Carbon::parse($date)->diffInDays(\Carbon\Carbon::parse($prev)) === 1) {
+                            $current++;
+                        } else {
+                            $current = 1;
+                        }
+                        $best = max($best, $current);
+                        $prev = $date;
+                    }
+                    return $best;
+                })
+            : 0;
+
         return view('student.home', compact(
             'student',
             'recentAttempts',
             'practiceThisWeek',
             'upcomingExam',
             'streak',
+            'bestStreak',
             'levelProgress'
         ));
     }

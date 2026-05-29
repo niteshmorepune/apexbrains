@@ -50,6 +50,11 @@ class Student extends Model
         return $this->hasMany(StudentParent::class);
     }
 
+    public function primaryParent(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(StudentParent::class)->where('is_primary', true);
+    }
+
     public function levels(): HasMany
     {
         return $this->hasMany(StudentLevel::class);

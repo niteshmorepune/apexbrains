@@ -40,6 +40,53 @@ class CompetitionController extends Controller
         ));
     }
 
+    public function show(Competition $competition): View
+    {
+        $student = Auth::user()->student()->firstOrFail();
+        $registration = CompetitionRegistration::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
+            ->first();
+        // Competition exams run through the practice-paper engine — track via paper attempts
+        $myAttempts = \App\Models\CompetitionPracticeAttempt::where('student_id', $student->id)
+            ->where('status', 'submitted')
+            ->get();
+
+        return view('student.competitions.show', compact('competition', 'registration', 'myAttempts'));
+    }
+
+    public function startExam(Request $request, Competition $competition): RedirectResponse
+    {
+        // Competition exams are delivered through the competition practice papers
+        return redirect()->route('student.competitions.practice');
+    }
+
+    public function attempt(Competition $competition): RedirectResponse
+    {
+        return redirect()->route('student.competitions.practice');
+    }
+
+    public function saveAnswer(Request $request, Competition $competition): \Illuminate\Http\JsonResponse
+    {
+        return response()->json(['ok' => true]);
+    }
+
+    public function submitExam(Request $request, Competition $competition): RedirectResponse
+    {
+        return redirect()->route('student.competitions.result', $competition);
+    }
+
+    public function result(Competition $competition): View
+    {
+        $student = Auth::user()->student()->firstOrFail();
+        $attempt = \App\Models\CompetitionPracticeAttempt::where('student_id', $student->id)
+            ->where('status', 'submitted')
+            ->with('paper')
+            ->latest('submitted_at')
+            ->first();
+
+        return view('student.competitions.result', compact('competition', 'attempt'));
+    }
+
     public function register(Request $request, Competition $competition): RedirectResponse
     {
         $student = Auth::user()->student()->firstOrFail();

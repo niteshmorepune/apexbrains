@@ -4,9 +4,9 @@
 @section('content')
 <div class="p-4 space-y-4">
 
-    {{-- My Registrations --}}
+    {{-- Upcoming Exams (registered) --}}
     <div>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">My Registrations</p>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Upcoming Exams</p>
         @forelse($myRegistrations as $reg)
             <a href="{{ route('external.competitions.show', $reg->competition) }}"
                class="block bg-white rounded-2xl border border-border p-4 mb-3 hover:border-fran transition-colors">
@@ -66,6 +66,36 @@
                     </div>
                 </a>
             @endforeach
+        </div>
+    @endif
+
+    {{-- Past Exams --}}
+    @if($pastCompetitions->isNotEmpty())
+        <div>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Past Exams</p>
+            <div class="bg-white rounded-2xl border border-border overflow-hidden">
+                <div class="divide-y divide-border">
+                    @foreach($pastCompetitions as $comp)
+                        @php $participated = in_array($comp->id, $registeredIds); @endphp
+                        <div class="px-4 py-3 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-yellow-50 flex items-center justify-center flex-shrink-0">
+                                <span class="text-sm">🏆</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-700 truncate">{{ $comp->title }}</p>
+                                <p class="text-xs text-gray-400">
+                                    {{ $comp->end_date?->format('d M Y') }}
+                                    @if($participated)· <span class="text-stu font-medium">Participated</span>@endif
+                                </p>
+                            </div>
+                            @if($participated)
+                                <a href="{{ route('external.competitions.show', $comp) }}"
+                                   class="text-xs text-fran hover:underline font-medium flex-shrink-0">View Report</a>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
         </div>
     @endif
 

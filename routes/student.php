@@ -20,6 +20,9 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'internal.studen
     Route::post('practice/{session}/submit', [\App\Http\Controllers\Student\PracticeController::class, 'submit'])->name('practice.submit');
     Route::get('practice/{session}/results', [\App\Http\Controllers\Student\PracticeController::class, 'results'])->name('practice.results');
 
+    // Results (past exam + competition attempt history)
+    Route::get('results', [\App\Http\Controllers\Student\ExamController::class, 'results'])->name('results');
+
     // Exams
     Route::get('exams', [\App\Http\Controllers\Student\ExamController::class, 'index'])->name('exams.index');
     Route::get('exams/{exam}', [\App\Http\Controllers\Student\ExamController::class, 'show'])->name('exams.show');
@@ -32,6 +35,12 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'internal.studen
     // Competitions
     Route::get('competitions', [\App\Http\Controllers\Student\CompetitionController::class, 'index'])->name('competitions.index');
     Route::post('competitions/{competition}/register', [\App\Http\Controllers\Student\CompetitionController::class, 'register'])->name('competitions.register');
+    Route::get('competitions/{competition}/show', [\App\Http\Controllers\Student\CompetitionController::class, 'show'])->name('competitions.show');
+    Route::post('competitions/{competition}/start', [\App\Http\Controllers\Student\CompetitionController::class, 'startExam'])->name('competitions.start');
+    Route::get('competitions/{competition}/attempt', [\App\Http\Controllers\Student\CompetitionController::class, 'attempt'])->name('competitions.attempt');
+    Route::post('competitions/{competition}/answer', [\App\Http\Controllers\Student\CompetitionController::class, 'saveAnswer'])->name('competitions.answer')->middleware('throttle:120,1');
+    Route::post('competitions/{competition}/submit', [\App\Http\Controllers\Student\CompetitionController::class, 'submitExam'])->name('competitions.submit');
+    Route::get('competitions/{competition}/result', [\App\Http\Controllers\Student\CompetitionController::class, 'result'])->name('competitions.result');
     Route::get('competitions/practice', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'index'])->name('competitions.practice');
     Route::post('competitions/practice/{paper}/start', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'start'])->name('competitions.practice.start');
     Route::get('competitions/practice/{paper}/attempt', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'attempt'])->name('competitions.practice.attempt');
@@ -41,6 +50,7 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'internal.studen
 
     // Certificates
     Route::get('certificates', [\App\Http\Controllers\Student\CertificateController::class, 'index'])->name('certificates.index');
+    Route::get('certificates/{certificate}', [\App\Http\Controllers\Student\CertificateController::class, 'show'])->name('certificates.show');
     Route::get('certificates/{certificate}/download', [\App\Http\Controllers\Student\CertificateController::class, 'download'])->name('certificates.download');
     Route::get('certificates/{certificate}/pdf', [\App\Http\Controllers\Student\CertificateController::class, 'downloadPdf'])->name('certificates.pdf');
 

@@ -21,11 +21,14 @@
             @endphp
         </p>
         <p class="text-xl font-bold mt-0.5">{{ auth()->user()->name }}</p>
+        @if($student?->franchise)
+            <p class="text-white/60 text-xs mt-0.5">{{ $student->franchise->name }}, {{ $student->franchise->city }}</p>
+        @endif
         @if($student?->currentLevel)
             <div class="mt-3 flex items-center gap-2">
                 <span class="text-xs font-bold px-3 py-1 rounded-full"
                       style="background-color: {{ $lvlColor }}; color: white;">
-                    Level {{ $student->currentLevel->number }}
+                    L{{ $student->currentLevel->number }}
                 </span>
                 @if($student->currentLevel->title)
                     <span class="text-white/70 text-xs">{{ $student->currentLevel->title }}</span>
@@ -33,8 +36,12 @@
             </div>
             {{-- Level progress bar --}}
             <div class="mt-3">
+                @php
+                    $totalTopics = count($student->currentLevel->learning_objectives ?? []);
+                    $doneTopics  = $totalTopics > 0 ? (int) round($levelProgress / 100 * $totalTopics) : 0;
+                @endphp
                 <div class="flex items-center justify-between mb-1">
-                    <span class="text-white/60 text-xs">Level Progress</span>
+                    <span class="text-white/60 text-xs">{{ $doneTopics }} of {{ $totalTopics }} topics completed</span>
                     <span class="text-white/80 text-xs font-semibold">{{ $levelProgress }}%</span>
                 </div>
                 <div class="h-1.5 bg-white/20 rounded-full overflow-hidden">
@@ -51,9 +58,9 @@
             <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0">
                 <span class="text-xl">🔥</span>
             </div>
-            <div>
-                <p class="text-lg font-black text-orange-500">{{ $streak }} day{{ $streak !== 1 ? 's' : '' }}</p>
-                <p class="text-xs text-gray-500">Practice streak — keep it up!</p>
+            <div class="flex-1">
+                <p class="text-sm font-bold text-orange-500">Fire {{ $streak }}-Day Streak</p>
+                <p class="text-xs text-gray-400">Best: {{ $bestStreak }} days</p>
             </div>
         </div>
     @endif
@@ -87,49 +94,29 @@
 
     {{-- Quick Actions --}}
     <div class="grid grid-cols-2 gap-3">
-        <a href="{{ route('student.practice.index') }}"
-           class="bg-white rounded-2xl border border-border p-4 flex flex-col items-center gap-2 hover:border-stu transition-colors">
-            <div class="w-10 h-10 bg-stu/10 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-stu" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
-            </div>
-            <span class="text-sm font-semibold text-gray-700">Practice</span>
-        </a>
-        <a href="{{ route('student.exams.index') }}"
-           class="bg-white rounded-2xl border border-border p-4 flex flex-col items-center gap-2 hover:border-fran transition-colors">
-            <div class="w-10 h-10 bg-fran/10 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-fran" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-            </div>
-            <span class="text-sm font-semibold text-gray-700">Exams</span>
-        </a>
-        <a href="{{ route('student.learning-path') }}"
-           class="bg-white rounded-2xl border border-border p-4 flex flex-col items-center gap-2 hover:border-stu transition-colors">
-            <div class="w-10 h-10 bg-stu/10 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-stu" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                </svg>
-            </div>
-            <span class="text-sm font-semibold text-gray-700">My Path</span>
-        </a>
-        <a href="{{ route('student.competitions.index') }}"
-           class="bg-white rounded-2xl border border-border p-4 flex flex-col items-center gap-2 hover:border-yellow-400 transition-colors">
-            <div class="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 21H5a2 2 0 01-2-2v-1a5 5 0 015-5h8a5 5 0 015 5v1a2 2 0 01-2 2h-3M12 3a4 4 0 100 8 4 4 0 000-8z"/>
-                </svg>
-            </div>
-            <span class="text-sm font-semibold text-gray-700">Compete</span>
-        </a>
+        @foreach([
+            ['route' => 'student.practice.index', 'emoji' => '🎯', 'label' => 'Practice', 'sub' => 'Tap to open', 'color' => 'stu'],
+            ['route' => 'student.exams.index',    'emoji' => '📝', 'label' => 'My Exams',  'sub' => 'Tap to open', 'color' => 'fran'],
+            ['route' => 'student.results',         'emoji' => '🏆', 'label' => 'Results',   'sub' => 'Tap to open', 'color' => 'logo-amber'],
+            ['route' => 'student.certificates.index', 'emoji' => '🎓', 'label' => 'Certs', 'sub' => 'Tap to open', 'color' => 'stu'],
+        ] as $action)
+            <a href="{{ route($action['route']) }}"
+               class="bg-white rounded-2xl border border-border p-4 flex flex-col items-center gap-2 hover:border-{{ $action['color'] }} transition-colors">
+                <span class="text-2xl">{{ $action['emoji'] }}</span>
+                <div class="text-center">
+                    <p class="text-sm font-semibold text-gray-700">{{ $action['label'] }}</p>
+                    <p class="text-xs text-gray-400">{{ $action['sub'] }}</p>
+                </div>
+            </a>
+        @endforeach
     </div>
 
-    {{-- Recent Exams --}}
+    {{-- Recent Activity --}}
     @if($recentAttempts->isNotEmpty())
         <div class="bg-white rounded-2xl border border-border overflow-hidden">
-            <div class="px-4 py-3 border-b border-border">
-                <p class="text-sm font-semibold text-gray-700">Recent Exams</p>
+            <div class="px-4 py-3 border-b border-border flex items-center justify-between">
+                <p class="text-sm font-semibold text-gray-700">Recent Activity</p>
+                <a href="{{ route('student.results') }}" class="text-xs text-fran">View All</a>
             </div>
             <div class="divide-y divide-border">
                 @foreach($recentAttempts as $attempt)
@@ -149,7 +136,7 @@
                 @endforeach
             </div>
             <div class="px-4 py-3 border-t border-border">
-                <a href="{{ route('student.exams.index') }}" class="text-xs text-fran font-medium">View all exams →</a>
+                <a href="{{ route('student.results') }}" class="text-xs text-fran font-medium">View All →</a>
             </div>
         </div>
     @endif

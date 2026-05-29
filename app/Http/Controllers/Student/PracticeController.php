@@ -175,6 +175,30 @@ class PracticeController extends Controller
 
         $session->load('level');
 
-        return view('student.practice.results', compact('session'));
+        // Avg speed per question (session duration / questions)
+        $durationSec    = $session->created_at && $session->completed_at
+            ? $session->completed_at->diffInSeconds($session->created_at) : 0;
+        $avgSpeed       = $session->total_questions > 0 ? round($durationSec / $session->total_questions, 1) : null;
+
+        // Last 7 days accuracy for chart
+        $weekChart = PracticeSession::where('student_id', $student->id)
+            ->whereNotNull('completed_at')
+            ->where('completed_at', '>=', now()->subDays(6)->startOfDay())
+            ->orderBy('completed_at')
+            ->get()
+            ->groupBy(fn($s) => $s->completed_at->format('D'))
+            ->map(fn($g) => round($g->avg('accuracy'), 0));
+
+        $chartLabels = collect(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])
+            ->map(fn($d) => ['label' => $d, 'value' => $weekChart->get($d, 0)])
+            ->values();
+
+        // Yesterday's accuracy for comparison
+        $yesterdayAvg = PracticeSession::where('student_id', $student->id)
+            ->whereDate('completed_at', now()->subDay())
+            ->avg('accuracy') ?? 0;
+        $vsYesterday  = round($session->accuracy - $yesterdayAvg);
+
+        return view('student.practice.results', compact('session', 'avgSpeed', 'chartLabels', 'vsYesterday'));
     }
 }

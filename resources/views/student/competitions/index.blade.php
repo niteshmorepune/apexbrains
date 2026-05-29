@@ -4,26 +4,9 @@
 @section('content')
 <div class="p-4 space-y-4">
 
-    {{-- Practice Papers shortcut --}}
-    <a href="{{ route('student.competitions.practice') }}"
-       class="block bg-fran rounded-2xl p-4 text-white flex items-center gap-3">
-        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-        </div>
-        <div class="flex-1">
-            <p class="font-semibold text-sm">Practice Papers</p>
-            <p class="text-white/70 text-xs">Prepare with past competition papers</p>
-        </div>
-        <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-    </a>
-
-    {{-- Open Competitions --}}
+    {{-- Upcoming Exams --}}
     <div>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Open Competitions</p>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Upcoming Exams</p>
 
         @if(session('success'))
             <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
@@ -81,20 +64,32 @@
         @endforelse
     </div>
 
-    {{-- Past Competitions --}}
+    {{-- Past Exams --}}
     @if($pastCompetitions->isNotEmpty())
         <div>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Past Competitions</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Past Exams</p>
             <div class="bg-white rounded-2xl border border-border overflow-hidden">
                 <div class="divide-y divide-border">
                     @foreach($pastCompetitions as $comp)
+                        @php
+                            $registered = in_array($comp->id, $myRegistrationIds);
+                        @endphp
                         <div class="px-4 py-3 flex items-center gap-3">
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-700">{{ $comp->title }}</p>
-                                <p class="text-xs text-gray-400">{{ $comp->end_date?->format('d M Y') }}</p>
+                            <div class="w-8 h-8 rounded-full bg-yellow-50 flex items-center justify-center flex-shrink-0">
+                                <span class="text-sm">🏆</span>
                             </div>
-                            @if(in_array($comp->id, $myRegistrationIds))
-                                <span class="text-xs text-gray-400">Participated</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-700 truncate">{{ $comp->title }}</p>
+                                <p class="text-xs text-gray-400">
+                                    {{ $comp->end_date?->format('d M Y') }}
+                                    @if($registered)· <span class="text-stu font-medium">Participated</span>@endif
+                                </p>
+                            </div>
+                            @if($registered)
+                                <a href="{{ route('student.competitions.index') }}"
+                                   class="text-xs text-fran hover:underline font-medium flex-shrink-0">
+                                    View Report
+                                </a>
                             @endif
                         </div>
                     @endforeach

@@ -33,6 +33,29 @@ class CompetitionPracticeController extends Controller
         return view('external.practice.index', compact('papers', 'attemptMap'));
     }
 
+    public function hub(): View
+    {
+        $student     = Auth::user()->student()->firstOrFail();
+        $totalPapers = CompetitionPracticePaper::where('is_active', true)->count();
+        $doneCount   = CompetitionPracticeAttempt::where('student_id', $student->id)
+            ->where('status', 'submitted')
+            ->distinct('paper_id')->count('paper_id');
+        $pct         = $totalPapers > 0 ? round($doneCount / $totalPapers * 100) : 0;
+
+        // Milestone checklist
+        $registered = \App\Models\CompetitionRegistration::where('student_id', $student->id)->exists();
+        $milestones = [
+            ['label' => 'First practice paper completed', 'done' => $doneCount >= 1],
+            ['label' => '10 practice papers completed',   'done' => $doneCount >= 10],
+            ['label' => '25 practice papers completed',   'done' => $doneCount >= 25],
+            ['label' => 'All 50 papers unlocked',          'done' => $totalPapers > 0 && $doneCount >= $totalPapers],
+            ['label' => 'Competition registration submitted', 'done' => $registered],
+            ['label' => 'Competition participation eligible',  'done' => $doneCount >= 5],
+        ];
+
+        return view('external.practice.hub', compact('totalPapers', 'doneCount', 'pct', 'milestones'));
+    }
+
     public function start(Request $request, CompetitionPracticePaper $paper): RedirectResponse
     {
         $student = Auth::user()->student()->firstOrFail();
@@ -143,6 +166,23 @@ class CompetitionPracticeController extends Controller
         Cache::forget("ext_cp_{$attempt->id}_answers");
 
         return redirect()->route('external.practice.result', $paper);
+    }
+
+    public function resultHistory(): View
+    {
+        $student = Auth::user()->student()->firstOrFail();
+
+        $attempts = CompetitionPracticeAttempt::where('student_id', $student->id)
+            ->where('status', 'submitted')
+            ->with('paper')
+            ->latest('submitted_at')
+            ->paginate(20);
+
+        $avgScore   = $attempts->avg('percentage') ?? 0;
+        $totalDone  = CompetitionPracticeAttempt::where('student_id', $student->id)->where('status', 'submitted')->count();
+        $totalPapers = \App\Models\CompetitionPracticePaper::count();
+
+        return view('external.results', compact('student', 'attempts', 'avgScore', 'totalDone', 'totalPapers'));
     }
 
     public function result(CompetitionPracticePaper $paper): View

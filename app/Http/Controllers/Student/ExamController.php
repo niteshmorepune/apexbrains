@@ -44,6 +44,23 @@ class ExamController extends Controller
         return view('student.exams.index', compact('student', 'upcomingExams', 'pastAttempts'));
     }
 
+    public function results(): View
+    {
+        $student = Auth::user()->student()->with('currentLevel')->firstOrFail();
+
+        $attempts = $student->examAttempts()
+            ->with('exam.level')
+            ->whereNotNull('submitted_at')
+            ->latest('submitted_at')
+            ->paginate(20);
+
+        $avgScore = $student->examAttempts()->whereNotNull('score')->avg('percentage') ?? 0;
+        $totalExams = $student->examAttempts()->whereNotNull('submitted_at')->count();
+        $passed = $student->examAttempts()->where('is_passed', true)->count();
+
+        return view('student.results', compact('student', 'attempts', 'avgScore', 'totalExams', 'passed'));
+    }
+
     public function show(Exam $exam): View
     {
         $student = Auth::user()->student()->firstOrFail();
@@ -215,6 +232,21 @@ class ExamController extends Controller
             ->with('answers.question')
             ->firstOrFail();
 
-        return view('student.exams.result', compact('exam', 'attempt'));
+        // Class average for this exam
+        $classAvg = ExamAttempt::where('exam_id', $exam->id)
+            ->where('status', 'submitted')
+            ->whereNotNull('percentage')
+            ->avg('percentage');
+
+        // Time taken
+        $timeTaken = $attempt->started_at && $attempt->submitted_at
+            ? $attempt->submitted_at->diffInSeconds($attempt->started_at) : 0;
+
+        // Skipped = questions with no answer submitted
+        $answeredCount = $attempt->answers->count();
+        $totalQ        = count($attempt->question_ids ?? []);
+        $skipped       = max(0, $totalQ - $answeredCount);
+
+        return view('student.exams.result', compact('exam', 'attempt', 'classAvg', 'timeTaken', 'skipped'));
     }
 }
