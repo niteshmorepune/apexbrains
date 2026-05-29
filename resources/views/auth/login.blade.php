@@ -70,7 +70,12 @@
                            class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent transition">
                 </div>
 
-                <p class="text-[11px] text-fran -mt-1 cursor-default">Forgot password? Contact your branch</p>
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" class="text-[11px] text-fran hover:underline -mt-1">Forgot password?</button>
+                    <p x-show="open" x-transition class="text-[11px] text-gray-500 mt-1 bg-blue-50 rounded-lg px-3 py-2">
+                        Please contact your branch administrator to reset your password.
+                    </p>
+                </div>
 
                 <button type="submit"
                         class="w-full bg-fran text-white rounded-full py-3 text-[12px] font-bold hover:bg-fran-dark transition-colors shadow-sm">
@@ -82,10 +87,6 @@
         {{-- Footer --}}
         <p class="text-[10px] text-gray-400 mt-4">SSL Encrypted | Apex Brains Academy</p>
 
-        <p class="text-[12px] text-gray-400 mt-3">
-            Certificate verification?
-            <a href="{{ route('certificate.verify', 'lookup') }}" class="text-fran hover:underline">Verify here</a>
-        </p>
     </div>
 
 </body>

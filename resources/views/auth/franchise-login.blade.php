@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Branch Sign In — Apex Brains Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-full bg-[#F5F8FE] font-sans">
+<body class="min-h-full bg-[#F5F8FE]" style="font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;">
 
-<div class="min-h-screen grid lg:grid-cols-2">
+<div class="min-h-screen grid lg:grid-cols-[3fr_5fr]">
 
     {{-- Left branding panel --}}
     <div class="relative flex flex-col justify-center px-12 py-16 bg-[#F5F8FE] overflow-hidden">
@@ -56,6 +59,7 @@
                     </div>
                 @endif
 
+                <div x-data="{ showForgot: false }">
                 <form method="POST" action="{{ route('franchise.login.post') }}" class="space-y-4">
                     @csrf
 
@@ -69,17 +73,22 @@
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="text-[11px] font-medium text-gray-600">Password</label>
-                            <span class="text-[12px] text-fran cursor-default">Forgot password?</span>
+                            <button type="button" @click="showForgot = !showForgot" class="text-[12px] text-fran hover:underline">Forgot password?</button>
                         </div>
                         <input type="password" name="password" required
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent transition">
                     </div>
+
+                    <p x-show="showForgot" x-transition class="text-[11px] text-gray-500 bg-blue-50 rounded-lg px-3 py-2 -mt-2">
+                        To reset your password, contact the system administrator.
+                    </p>
 
                     <button type="submit"
                             class="w-full bg-fran text-white rounded-full py-3 text-[12px] font-bold hover:bg-fran-dark transition-colors shadow-sm mt-2">
                         Sign In to Branch Portal
                     </button>
                 </form>
+                </div>
 
                 <p class="text-center text-[11px] text-gray-400 mt-5">SSL Encrypted | ISO 9001:2015</p>
             </div>
