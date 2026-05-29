@@ -3,64 +3,51 @@
 @section('page-title', 'Student List')
 
 @section('page-actions')
-    <a href="{{ route('franchise.students.import.template') }}"
+    <a href="{{ route('franchise.students.import.page') }}"
        class="px-3 py-2 border border-white text-white rounded-xl text-xs font-medium hover:bg-blue-600 transition-colors">
-        CSV Template
+        Bulk Import
     </a>
     <a href="{{ route('franchise.students.create') }}"
        class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
-        + Register Student
+        + Register
     </a>
 @endsection
 
 @section('content')
 
-{{-- Tabs: Internal / External --}}
-<div class="flex gap-1 mb-4">
-    <a href="{{ route('franchise.students.index', array_merge(request()->except('tab','page'), ['tab' => 'internal'])) }}"
-       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors
-              {{ $tab === 'internal' ? 'bg-fran text-white' : 'bg-white border border-border text-gray-600 hover:bg-bg-light' }}">
-        Internal Students
-        <span class="ml-1.5 text-xs {{ $tab === 'internal' ? 'bg-white/20' : 'bg-bg-mid' }} px-1.5 py-0.5 rounded-full">{{ $internalCount }}</span>
-    </a>
-    <a href="{{ route('franchise.students.index', array_merge(request()->except('tab','page'), ['tab' => 'external'])) }}"
-       class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors
-              {{ $tab === 'external' ? 'bg-fran text-white' : 'bg-white border border-border text-gray-600 hover:bg-bg-light' }}">
-        External Students
-        <span class="ml-1.5 text-xs {{ $tab === 'external' ? 'bg-white/20' : 'bg-bg-mid' }} px-1.5 py-0.5 rounded-full">{{ $externalCount }}</span>
-    </a>
-</div>
-
-{{-- Filters --}}
-<div class="bg-white rounded-2xl border border-border p-4 mb-4">
-    <form method="GET" action="{{ route('franchise.students.index') }}" class="flex items-center gap-3 flex-wrap">
+{{-- Filters (combined: search + type pills + level pills) --}}
+<div class="bg-white rounded-2xl border border-border p-4 mb-4 space-y-3">
+    <form method="GET" action="{{ route('franchise.students.index') }}" id="studentFilter" class="flex items-center gap-3">
+        <input type="hidden" name="level_group" value="{{ request('level_group') }}">
         <input type="hidden" name="tab" value="{{ $tab }}">
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name or code..."
-               class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1 min-w-48">
-        @if($tab === 'internal')
-            <select name="level" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                <option value="">All Levels</option>
-                @foreach($levels as $level)
-                    <option value="{{ $level->id }}" @selected(request('level') == $level->id)>Level {{ $level->number }}</option>
-                @endforeach
-            </select>
-        @endif
-        <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Filter</button>
-        @if(request('search') || request('level'))
-            <a href="{{ route('franchise.students.index', ['tab' => $tab]) }}" class="text-sm text-gray-500 hover:text-gray-700">Clear</a>
-        @endif
-
-        {{-- CSV import --}}
-        <form method="POST" action="{{ route('franchise.students.import') }}" enctype="multipart/form-data" class="flex items-center gap-2 ml-auto">
-            @csrf
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="file" name="csv_file" accept=".csv" class="hidden" onchange="this.form.submit()">
-                <span class="px-3 py-2 border border-border rounded-xl text-xs text-gray-600 hover:bg-bg-light transition-colors">
-                    Bulk Import CSV
-                </span>
-            </label>
-        </form>
+        <div class="relative flex-1">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+            </svg>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name or code..."
+                   class="w-full pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+        </div>
+        <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Search</button>
     </form>
+    <div class="flex items-center gap-2 flex-wrap">
+        {{-- Type pills --}}
+        @foreach(['internal' => "Internal ({$internalCount})", 'external' => "External ({$externalCount})"] as $type => $label)
+            <a href="{{ route('franchise.students.index', array_merge(request()->except('tab','page'), ['tab' => $type])) }}"
+               class="px-3 py-1 rounded-full text-xs font-medium border transition-colors
+                      {{ $tab === $type ? 'bg-fran text-white border-fran' : 'border-border text-gray-600 hover:border-fran' }}">
+                {{ $label }}
+            </a>
+        @endforeach
+        <span class="text-gray-300 text-xs">|</span>
+        {{-- Level pills --}}
+        @foreach(['' => 'All', '1-3' => 'L1-3', '4-6' => 'L4-6', '7-9' => 'L7-9', '10' => 'L10+'] as $group => $label)
+            <a href="{{ route('franchise.students.index', array_merge(request()->except('level_group','page'), $group ? ['level_group' => $group] : [])) }}"
+               class="px-3 py-1 rounded-full text-xs font-medium border transition-colors
+                      {{ request('level_group', '') === $group ? 'bg-fran text-white border-fran' : 'border-border text-gray-600 hover:border-fran' }}">
+                {{ $label }}
+            </a>
+        @endforeach
+    </div>
 </div>
 
 {{-- Student table --}}
@@ -81,7 +68,6 @@
                 @else
                     <th class="text-center px-4 py-3 text-xs font-semibold text-white">Competition</th>
                 @endif
-                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Gender</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Enrolled</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Actions</th>
             </tr>
@@ -94,10 +80,7 @@
                             <div class="w-8 h-8 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                 {{ strtoupper(substr($s->first_name, 0, 1)) }}
                             </div>
-                            <div>
-                                <p class="font-medium text-gray-800">{{ $s->full_name }}</p>
-                                <p class="text-xs text-gray-400">{{ $s->date_of_birth?->format('d M Y') }}</p>
-                            </div>
+                            <p class="font-medium text-gray-800">{{ $s->full_name }}</p>
                         </div>
                     </td>
                     <td class="px-4 py-3 text-center font-mono text-xs text-gray-500">{{ $s->student_code }}</td>
@@ -114,7 +97,6 @@
                             <span class="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium">External</span>
                         </td>
                     @endif
-                    <td class="px-4 py-3 text-center text-xs text-gray-500 capitalize">{{ $s->gender }}</td>
                     <td class="px-4 py-3 text-center text-xs text-gray-500">
                         {{ $s->enrollment_date?->format('d M Y') ?? '—' }}
                     </td>
@@ -127,7 +109,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="px-5 py-10 text-center text-gray-400">
+                    <td colspan="5" class="px-5 py-10 text-center text-gray-400">
                         No students found. <a href="{{ route('franchise.students.create') }}" class="text-fran underline">Register your first student</a>
                     </td>
                 </tr>

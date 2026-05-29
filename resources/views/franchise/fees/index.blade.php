@@ -3,7 +3,14 @@
 @section('page-title', 'Fee Collection — ' . \Carbon\Carbon::parse($month . '-01')->format('M Y'))
 
 @section('page-actions')
-    <a href="{{ route('franchise.fees.reminder', 0) }}" style="display:none"></a>{{-- preload route --}}
+    <a href="{{ route('franchise.fees.reminders') }}"
+       class="px-4 py-2 border border-white text-white rounded-xl text-sm font-medium hover:bg-blue-600 transition-colors">
+        Fee Reminders
+    </a>
+    <a href="{{ route('franchise.fees.record') }}"
+       class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
+        + Record
+    </a>
 @endsection
 
 @section('content')
@@ -28,7 +35,7 @@
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Collection Rate</p>
         <p class="text-2xl font-bold text-fran">{{ $stats['collection_rate'] }}%</p>
-        <p class="text-xs text-gray-400 mt-1">This month</p>
+        <p class="text-xs text-gray-400 mt-1">vs {{ $stats['prev_rate'] ?? '—' }}% last month</p>
     </div>
 </div>
 
@@ -48,6 +55,10 @@
         <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Filter</button>
     </form>
 </div>
+
+<div class="grid grid-cols-[1fr_280px] gap-5 items-start">
+
+<div>{{-- Main table column --}}
 
 {{-- Fee table with tabs --}}
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
@@ -145,6 +156,55 @@
         </div>
     @endif
 </div>
+
+</div>{{-- end main table column --}}
+
+{{-- Quick Record Payment Sidebar --}}
+<div class="bg-white rounded-2xl border border-border p-5 sticky top-5">
+    <h3 class="text-sm font-bold text-fran mb-1">Quick Record Payment</h3>
+    <p class="text-xs text-gray-400 mb-4">Fast entry for walk-in payments</p>
+    <form method="POST" action="{{ route('franchise.payments.store') }}" class="space-y-3">
+        @csrf
+        <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Student</label>
+            <select name="fee_id" required class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                <option value="">Select student...</option>
+                @foreach($fees->filter(fn($f) => $f->status !== 'paid') as $f)
+                    <option value="{{ $f->id }}">{{ $f->student?->full_name }} — ₹{{ number_format($f->amount - ($f->paid_amount ?? 0)) }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Amount (₹)</label>
+            <input type="number" name="amount" step="0.01" required placeholder="0.00"
+                   class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Date</label>
+            <input type="date" name="payment_date" value="{{ now()->toDateString() }}" required
+                   class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Mode</label>
+            <select name="payment_mode" required class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                <option value="cash">Cash</option>
+                <option value="upi">UPI / GPay</option>
+                <option value="card">Card</option>
+                <option value="cheque">Cheque</option>
+            </select>
+        </div>
+        <button type="submit"
+                class="w-full py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+            Record &amp; Receipt
+        </button>
+        <a href="{{ route('franchise.fees.record') }}"
+           class="block text-center text-xs text-fran hover:underline mt-1">
+            Full record form →
+        </a>
+    </form>
+</div>
+
+</div>{{-- end grid --}}
 
 {{-- Quick Record Payment Modal --}}
 <div id="paymentModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">

@@ -203,30 +203,61 @@ class StudentController extends Controller
             ->with('success', 'Student deactivated.');
     }
 
+    public function importPage(): \Illuminate\View\View
+    {
+        return view('franchise.students.bulk-import', ['preview' => session('import_preview')]);
+    }
+
     public function import(Request $request): RedirectResponse
     {
         $request->validate([
             'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:5120'],
         ]);
 
-        // Store file, process in a real job in Phase 4 — for now validate and count
-        $file       = $request->file('csv_file');
-        $rows       = array_filter(array_map('str_getcsv', file($file->getRealPath())));
-        $header     = array_shift($rows);
-        $required   = ['Name', 'DOB', 'Gender', 'Parent Name', 'Mobile', 'Level'];
-        $valid      = 0;
-        $errors     = 0;
+        $file     = $request->file('csv_file');
+        $rows     = array_filter(array_map('str_getcsv', file($file->getRealPath())));
+        $header   = array_shift($rows);
+        $required = ['Name', 'DOB', 'Gender', 'Parent Name', 'Mobile', 'Level'];
+        $preview  = [];
 
-        foreach ($rows as $row) {
-            if (count($row) >= count($required) && !empty($row[0])) {
-                $valid++;
+        $existingMobiles = \App\Models\Student::withoutGlobalScopes()
+            ->pluck('parent_mobile')->toArray();
+
+        foreach ($rows as $i => $row) {
+            $row = array_values($row);
+            $name   = $row[0] ?? '';
+            $mobile = $row[4] ?? '';
+            $level  = $row[5] ?? '';
+
+            if (count($row) < count($required) || empty($name)) {
+                $status = 'error';
+                $issue  = 'Missing required fields';
+            } elseif (in_array($mobile, $existingMobiles)) {
+                $status = 'duplicate';
+                $issue  = 'Duplicate mobile number';
             } else {
-                $errors++;
+                $status = 'valid';
+                $issue  = '';
             }
+
+            $preview[] = [
+                'row'    => $i + 1,
+                'name'   => $name,
+                'level'  => $level,
+                'mobile' => $mobile,
+                'status' => $status,
+                'issue'  => $issue,
+            ];
         }
 
-        return redirect()->route('franchise.students.index')
-            ->with('success', "CSV parsed: {$valid} valid rows, {$errors} errors. Full import processing coming soon.");
+        $counts = [
+            'valid'     => collect($preview)->where('status', 'valid')->count(),
+            'errors'    => collect($preview)->where('status', 'error')->count(),
+            'duplicate' => collect($preview)->where('status', 'duplicate')->count(),
+        ];
+
+        return redirect()->route('franchise.students.import.page')
+            ->with('import_preview', ['rows' => $preview, 'counts' => $counts]);
     }
 
     public function importTemplate(): Response

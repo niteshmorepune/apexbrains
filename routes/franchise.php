@@ -18,15 +18,19 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
 
         // Student management
         Route::resource('students', \App\Http\Controllers\Franchise\StudentController::class);
+        Route::get('students/bulk-import', [\App\Http\Controllers\Franchise\StudentController::class, 'importPage'])->name('students.import.page');
         Route::post('students/import', [\App\Http\Controllers\Franchise\StudentController::class, 'import'])->name('students.import');
         Route::get('students/import/template', [\App\Http\Controllers\Franchise\StudentController::class, 'importTemplate'])->name('students.import.template');
 
         // Fees & Payments
         Route::get('fees', [\App\Http\Controllers\Franchise\FeeController::class, 'index'])->name('fees.index');
         Route::get('fees/{fee}', [\App\Http\Controllers\Franchise\FeeController::class, 'show'])->name('fees.show');
+        Route::get('fees/reminders', [\App\Http\Controllers\Franchise\FeeController::class, 'reminders'])->name('fees.reminders');
         Route::get('fees/{fee}/reminder', [\App\Http\Controllers\Franchise\FeeController::class, 'reminder'])->name('fees.reminder');
+        Route::get('fees/record', [\App\Http\Controllers\Franchise\PaymentController::class, 'recordPage'])->name('fees.record');
         Route::post('payments', [\App\Http\Controllers\Franchise\PaymentController::class, 'store'])->name('payments.store');
         Route::get('payments/{payment}/receipt', [\App\Http\Controllers\Franchise\PaymentController::class, 'receipt'])->name('payments.receipt');
+        Route::get('payments/{payment}/receipt-pdf', [\App\Http\Controllers\Franchise\PaymentController::class, 'receiptPdf'])->name('payments.receipt.pdf');
 
         // Exams
         Route::resource('exams', \App\Http\Controllers\Franchise\ExamController::class);
@@ -36,6 +40,7 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
         Route::post('certificates', [\App\Http\Controllers\Franchise\CertificateController::class, 'generate'])->name('certificates.generate');
         Route::get('certificates/{certificate}/download', [\App\Http\Controllers\Franchise\CertificateController::class, 'download'])->name('certificates.download');
         Route::get('certificates/{certificate}/pdf', [\App\Http\Controllers\Franchise\CertificateController::class, 'downloadPdf'])->name('certificates.pdf');
+        Route::patch('certificates/{certificate}/revoke', [\App\Http\Controllers\Franchise\CertificateController::class, 'revoke'])->name('certificates.revoke');
 
         // Promotions
         Route::get('promotions', [\App\Http\Controllers\Franchise\PromotionController::class, 'index'])->name('promotions.index');

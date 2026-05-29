@@ -17,12 +17,20 @@ class PromotionController extends Controller
 {
     public function index(): View
     {
-        // Students eligible for promotion: passed latest exam attempt with is_passed = true
-        $eligible = Student::with('currentLevel')
+        $eligible = Student::with(['currentLevel',
+            'examAttempts' => fn($q) => $q->where('status', 'submitted')->latest()->limit(1)])
             ->where('is_active', true)
             ->whereHas('examAttempts', fn($q) => $q->where('is_passed', true)->where('status', 'submitted'))
             ->get()
-            ->filter(fn($s) => $s->currentLevel && $s->currentLevel->number < 14);
+            ->filter(fn($s) => $s->currentLevel && $s->currentLevel->number < 14)
+            ->map(function ($s) {
+                $latest = $s->examAttempts->first();
+                $s->exam_score    = $latest?->percentage ?? 0;
+                $s->exam_speed    = $latest ? round($latest->submitted_at?->diffInSeconds($latest->started_at) ?? 0) : null;
+                $s->exam_accuracy = $latest?->percentage ?? 0;
+                $s->exam_attempts = ExamAttempt::where('student_id', $s->id)->where('status', 'submitted')->count();
+                return $s;
+            });
 
         $levels = Level::orderBy('number')->get();
 

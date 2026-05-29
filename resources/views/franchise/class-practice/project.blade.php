@@ -20,10 +20,31 @@
                 <p class="text-white/50 text-xs">Level {{ $session->level?->number }} · Code: <span class="font-mono font-bold text-white">{{ $session->session_code }}</span></p>
             </div>
         </div>
-        <div class="flex items-center gap-3 text-sm text-white/50">
-            <span x-text="state.current_index > 0 ? `Q${state.current_index} of ${state.total}` : 'Ready'"></span>
-            <span class="w-px h-4 bg-white/20"></span>
-            <span x-text="`${state.time_per_question}s timer`"></span>
+        <div class="flex items-center gap-3">
+            <span class="text-sm text-white/50" x-text="state.status === 'active' ? `Question ${state.current_index} of ${state.total}` : 'Ready'"></span>
+            <span x-show="state.status === 'active'" class="w-px h-4 bg-white/20"></span>
+            {{-- Restart Question (top bar) --}}
+            <form x-show="state.status === 'active'" method="POST" action="{{ route('franchise.class-practice.reveal', $session) }}">
+                @csrf
+                <button type="submit" class="px-3 py-1.5 border border-white/30 text-white/70 rounded-lg text-xs font-medium hover:bg-white/10">
+                    Restart Question
+                </button>
+            </form>
+            {{-- Next Question --}}
+            <form x-show="state.status === 'active'" method="POST" action="{{ route('franchise.class-practice.next', $session) }}">
+                @csrf
+                <button type="submit" class="px-3 py-1.5 bg-fran text-white rounded-lg text-xs font-semibold hover:bg-blue-700">
+                    Next Question
+                </button>
+            </form>
+            {{-- End Practice (top bar) --}}
+            <form x-show="state.status === 'active'" method="POST" action="{{ route('franchise.class-practice.end', $session) }}"
+                  onsubmit="return confirm('End this session now?')">
+                @csrf
+                <button type="submit" class="px-3 py-1.5 border border-red-400/50 text-red-400 rounded-lg text-xs font-medium hover:bg-red-400/10">
+                    End Practice
+                </button>
+            </form>
         </div>
     </div>
 
@@ -101,12 +122,31 @@
         {{-- Ended --}}
         <template x-if="state.status === 'ended'">
             <div class="text-center">
-                <p class="text-white text-4xl font-black mb-4">Session Complete!</p>
-                <p class="text-white/50 text-lg mb-8" x-text="`${state.current_index} of ${state.total} questions covered`"></p>
-                <a href="{{ route('franchise.class-practice.results', $session) }}"
-                   class="px-8 py-3 bg-fran text-white rounded-xl font-semibold hover:bg-blue-700">
-                    View Results
-                </a>
+                <div class="text-8xl font-black text-fran mb-2" x-text="state.current_index * 10"></div>
+                <p class="text-white/60 text-xl mb-1">Points</p>
+                <p class="text-white text-[44px] font-semibold mt-4 mb-2">Practice Completed</p>
+                <p class="text-white/50 mb-2">You have successfully completed the session.</p>
+                <div class="flex items-center justify-center gap-8 my-6">
+                    <div>
+                        <p class="text-4xl font-bold text-white" x-text="state.total"></p>
+                        <p class="text-white/40 text-sm">TOTAL QUESTIONS</p>
+                    </div>
+                    <div>
+                        <p class="text-4xl font-bold text-fran">L{{ $session->level?->number ?? '?' }}</p>
+                        <p class="text-white/40 text-sm">LEVEL</p>
+                    </div>
+                </div>
+                <p class="text-white/30 mb-6" x-text="`Progress: ${state.current_index}/${state.total}`"></p>
+                <div class="flex items-center justify-center gap-3">
+                    <a href="{{ route('franchise.class-practice.create') }}"
+                       class="px-6 py-3 border border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">
+                        Return to Setup
+                    </a>
+                    <a href="{{ route('franchise.class-practice.results', $session) }}"
+                       class="px-8 py-3 bg-fran text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+                        View Results
+                    </a>
+                </div>
             </div>
         </template>
 

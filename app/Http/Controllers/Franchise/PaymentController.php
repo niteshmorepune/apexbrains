@@ -63,9 +63,30 @@ class PaymentController extends Controller
             ->with('success', "Payment recorded. Receipt #{$receiptNumber} generated.");
     }
 
+    public function recordPage(Request $request): View
+    {
+        $students = \App\Models\Student::with(['currentLevel', 'fees' => fn($q) => $q->where('status', '!=', 'paid')->latest()->limit(1)])
+            ->where('is_active', true)->orderBy('first_name')->get();
+
+        $selectedStudent = $request->filled('student_id')
+            ? $students->firstWhere('id', $request->student_id)
+            : null;
+
+        return view('franchise.payments.record', compact('students', 'selectedStudent'));
+    }
+
     public function receipt(Payment $payment): View
     {
         $payment->load('student.currentLevel', 'fee', 'recordedBy');
         return view('franchise.payments.receipt', compact('payment'));
+    }
+
+    public function receiptPdf(Payment $payment): \Illuminate\Http\Response
+    {
+        $payment->load('student.currentLevel', 'fee', 'recordedBy');
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('franchise.payments.receipt-print', compact('payment'))
+            ->setPaper('a5', 'portrait');
+
+        return $pdf->download('receipt-' . $payment->receipt_number . '.pdf');
     }
 }

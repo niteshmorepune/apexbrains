@@ -22,10 +22,11 @@ class NotificationController extends Controller
             ->latest()
             ->paginate(20);
 
-        $levels   = Level::orderBy('number')->get();
-        $students = Student::where('is_active', true)->orderBy('first_name')->get();
+        $levels        = Level::orderBy('number')->get();
+        $students      = Student::where('is_active', true)->orderBy('first_name')->get();
+        $totalStudents = $students->count();
 
-        return view('franchise.notifications.index', compact('history', 'levels', 'students'));
+        return view('franchise.notifications.index', compact('history', 'levels', 'students', 'totalStudents'));
     }
 
     public function send(Request $request): RedirectResponse

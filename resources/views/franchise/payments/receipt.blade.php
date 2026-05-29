@@ -1,12 +1,20 @@
 @extends('layouts.franchise')
 @section('title', 'Receipt ' . $payment->receipt_number)
-@section('page-title', 'Payment Receipt')
+@section('page-title', 'Payment Receipt — {{ $payment->receipt_number }}')
 
 @section('page-actions')
-    <button onclick="window.print()"
-            class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50">
-        Print
-    </button>
+    <a href="{{ route('franchise.payments.receipt.pdf', $payment) }}"
+       class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
+        Download PDF
+    </a>
+    @if($payment->student?->primaryParent?->whatsapp ?? $payment->student?->parent_whatsapp)
+        @php $wa = $payment->student->primaryParent?->whatsapp ?? $payment->student->parent_whatsapp; @endphp
+        <a href="https://wa.me/91{{ preg_replace('/\D/', '', $wa) }}?text={{ urlencode('Receipt #' . $payment->receipt_number . ' for ₹' . number_format($payment->amount) . ' — ' . $payment->student?->full_name . '. View: ' . route('franchise.payments.receipt', $payment)) }}"
+           target="_blank"
+           class="px-4 py-2 bg-stu text-white rounded-xl text-sm font-semibold hover:bg-stu-dark transition-colors">
+            Share WhatsApp
+        </a>
+    @endif
     <a href="{{ route('franchise.fees.index') }}"
        class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">
         ← Fees
@@ -43,6 +51,11 @@
         </p>
 
         {{-- Receipt details --}}
+        @php
+        $academicYear = now()->month >= 6
+            ? now()->year . '–' . (now()->year + 1)
+            : (now()->year - 1) . '–' . now()->year;
+        @endphp
         <div class="grid grid-cols-2 gap-x-8 gap-y-3 mb-6">
             @foreach([
                 'Receipt Number' => $payment->receipt_number,
@@ -50,6 +63,7 @@
                 'Student Name'   => $payment->student?->full_name,
                 'Student ID'     => $payment->student?->student_code,
                 'Level'          => $payment->student?->currentLevel ? 'Level ' . $payment->student->currentLevel->number : '—',
+                'Academic Year'  => $academicYear,
                 'Month'          => $payment->fee?->month?->format('M Y'),
                 'Amount Paid'    => '₹' . number_format($payment->amount),
                 'Payment Mode'   => match($payment->payment_mode) {
@@ -74,9 +88,23 @@
         </div>
 
         {{-- Amount in words --}}
+        @php
+        function numberToWords(int $num): string {
+            $ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+                     'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
+                     'Seventeen','Eighteen','Nineteen'];
+            $tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+            if ($num === 0) return 'Zero';
+            if ($num < 20) return $ones[$num];
+            if ($num < 100) return $tens[intdiv($num,10)] . ($num%10 ? ' '.$ones[$num%10] : '');
+            if ($num < 1000) return $ones[intdiv($num,100)] . ' Hundred' . ($num%100 ? ' '.numberToWords($num%100) : '');
+            if ($num < 100000) return numberToWords(intdiv($num,1000)) . ' Thousand' . ($num%1000 ? ' '.numberToWords($num%1000) : '');
+            return numberToWords(intdiv($num,100000)) . ' Lakh' . ($num%100000 ? ' '.numberToWords($num%100000) : '');
+        }
+        @endphp
         <div class="bg-bg-light rounded-xl p-3 mb-6">
             <p class="text-xs text-gray-500">Amount in Words:</p>
-            <p class="text-sm font-medium text-gray-800">₹{{ number_format($payment->amount) }} — Paid</p>
+            <p class="text-sm font-medium text-gray-800">{{ numberToWords((int)$payment->amount) }} Rupees Only</p>
         </div>
 
         {{-- Footer --}}
@@ -86,8 +114,8 @@
                 <p class="text-xs text-gray-400 mt-1">Signature: ___________________</p>
             </div>
             <div class="text-right">
-                <div class="w-16 h-16 bg-bg-mid rounded-lg flex items-center justify-center">
-                    <span class="text-xs text-gray-400">QR</span>
+                <div class="w-16 h-16">
+                    {!! QrCode::size(64)->generate(route('franchise.payments.receipt', $payment)) !!}
                 </div>
                 <p class="text-xs text-gray-400 mt-1">Scan to verify</p>
             </div>
@@ -100,11 +128,15 @@
     <div class="flex gap-3 mt-4 print:hidden">
         <a href="{{ route('franchise.fees.index') }}"
            class="flex-1 py-2.5 border border-border rounded-xl text-sm text-center text-gray-600 hover:bg-bg-light">
-            Back to Fees
+            ← Back to Fees
+        </a>
+        <a href="{{ route('franchise.payments.receipt.pdf', $payment) }}"
+           class="flex-1 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold text-center">
+            Download PDF
         </a>
         <button onclick="window.print()"
-                class="flex-1 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold">
-            Download / Print
+                class="flex-1 py-2.5 border border-fran text-fran rounded-xl text-sm font-semibold">
+            Print Receipt
         </button>
     </div>
 </div>

@@ -31,70 +31,74 @@
                        class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
-                    <select name="level_id" required
-                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                        <option value="">Select Level</option>
-                        @foreach($levels as $level)
-                            <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
-                                Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
+                <select name="level_id" required
+                        class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                    <option value="">Select Level</option>
+                    @foreach($levels as $level)
+                        <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
+                            Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Batch (optional)</label>
-                    <select name="batch_id"
-                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                        <option value="">No specific batch</option>
-                        @foreach($batches as $batch)
-                            <option value="{{ $batch->id }}" @selected(old('batch_id') == $batch->id)>
-                                {{ $batch->name }}
-                            </option>
-                        @endforeach
-                    </select>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Time Per Step <span class="text-red-500">*</span></label>
+                <div class="flex gap-3">
+                    @foreach(['2' => '2s', '3' => '3s', '5' => '5s', '10' => '10s', '30' => '30s'] as $val => $lbl)
+                        <label class="cursor-pointer flex-1">
+                            <input type="radio" name="time_per_question_seconds" value="{{ $val }}"
+                                   {{ old('time_per_question_seconds', '5') === $val ? 'checked' : '' }} class="sr-only peer">
+                            <span class="block text-center py-2 rounded-xl border text-sm font-medium transition-colors
+                                         peer-checked:bg-fran peer-checked:text-white peer-checked:border-fran
+                                         border-border text-gray-600 hover:border-fran">{{ $lbl }}</span>
+                        </label>
+                    @endforeach
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Question Category <span class="text-red-500">*</span></label>
-                <select name="question_category" required
-                        class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    <option value="mcq"         @selected(old('question_category') === 'mcq')>MCQ</option>
-                    <option value="abacus"       @selected(old('question_category') === 'abacus')>Abacus</option>
-                    <option value="mental_math"  @selected(old('question_category') === 'mental_math')>Mental Math</option>
-                    <option value="mixed"        @selected(old('question_category') === 'mixed')>Mixed (all types)</option>
-                </select>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Number of Questions</label>
+                <input type="number" name="total_questions" value="{{ old('total_questions', 150) }}"
+                       min="1" max="300" required
+                       class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            {{-- Audio Dictation toggle --}}
+            <div class="flex items-center justify-between bg-bg-light rounded-xl p-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Number of Questions <span class="text-red-500">*</span></label>
-                    <input type="number" name="total_questions" value="{{ old('total_questions', 10) }}"
-                           min="1" max="50" required
-                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    <p class="text-xs text-gray-400 mt-1">Max 50</p>
+                    <p class="text-sm font-medium text-gray-700">Audio Dictation</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Play voice for each number automatically</p>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Time Per Question (seconds) <span class="text-red-500">*</span></label>
-                    <input type="number" name="time_per_question_seconds" value="{{ old('time_per_question_seconds', 30) }}"
-                           min="5" max="300" required
-                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    <p class="text-xs text-gray-400 mt-1">5–300 seconds</p>
-                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="hidden" name="audio_dictation" value="0">
+                    <input type="checkbox" name="audio_dictation" value="1" class="sr-only peer"
+                           {{ old('audio_dictation') ? 'checked' : '' }}>
+                    <div class="w-10 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-fran rounded-full peer peer-checked:after:translate-x-5 peer-checked:bg-fran after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                </label>
             </div>
 
-            <div class="bg-blue-50 rounded-xl p-4 text-sm text-fran">
-                Questions will be randomly selected from the approved question bank for the chosen level and category.
+            {{-- Session Length --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Session Length</label>
+                <div class="flex gap-3">
+                    @foreach(['8' => '8 min', '10' => '10 min', '15' => '15 min', '20' => '20 min', '0' => 'Unlimited'] as $val => $lbl)
+                        <label class="cursor-pointer flex-1">
+                            <input type="radio" name="session_length_minutes" value="{{ $val }}"
+                                   {{ old('session_length_minutes', '10') === $val ? 'checked' : '' }} class="sr-only peer">
+                            <span class="block text-center py-2 rounded-xl border text-xs font-medium transition-colors
+                                         peer-checked:bg-fran peer-checked:text-white peer-checked:border-fran
+                                         border-border text-gray-600 hover:border-fran">{{ $lbl }}</span>
+                        </label>
+                    @endforeach
+                </div>
             </div>
 
             <button type="submit"
                     class="w-full py-3 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark">
-                Create Session
+                Next Question →
             </button>
         </form>
     </div>

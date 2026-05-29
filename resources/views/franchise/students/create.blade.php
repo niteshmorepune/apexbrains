@@ -2,10 +2,16 @@
 @section('title', 'Register Student')
 @section('page-title', 'Register New Student')
 
+@section('breadcrumb')
+    <a href="{{ route('franchise.students.index') }}" class="text-fran hover:underline">Students</a>
+    <span class="mx-1 text-gray-400">/</span>
+    <span>Register</span>
+@endsection
+
 @section('page-actions')
-    <a href="{{ route('franchise.students.index') }}"
+    <a href="{{ route('franchise.students.import.page') }}"
        class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">
-        ← Back
+        Bulk Import
     </a>
 @endsection
 
@@ -13,36 +19,50 @@
 
 <div class="grid grid-cols-3 gap-6">
     <div class="col-span-2">
-        <form method="POST" action="{{ route('franchise.students.store') }}"
-              x-data="{ studentType: '{{ old('student_type', 'internal') }}' }">
+        <form method="POST" action="{{ route('franchise.students.store') }}" enctype="multipart/form-data"
+              x-data="{ studentType: '{{ old('student_type', 'internal') }}', levelFee: 0 }">
             @csrf
 
-            {{-- Student Type Selector --}}
-            <div class="bg-white rounded-2xl border border-border p-6 mb-4">
-                <h2 class="text-sm font-bold text-fran mb-3">Student Type</h2>
-                <div class="flex gap-3">
-                    <label class="flex-1 cursor-pointer">
+            {{-- Photo upload --}}
+            <div class="flex items-center gap-5 bg-white rounded-2xl border border-border p-5 mb-4">
+                <label class="cursor-pointer" x-data="{ preview: null }">
+                    <div class="w-20 h-20 rounded-full bg-fran-light border-2 border-dashed border-fran flex items-center justify-center overflow-hidden"
+                         :class="preview ? '' : ''">
+                        <template x-if="preview">
+                            <img :src="preview" class="w-full h-full object-cover rounded-full">
+                        </template>
+                        <template x-if="!preview">
+                            <div class="text-center">
+                                <div class="text-2xl">📷</div>
+                                <p class="text-xs text-fran mt-0.5">Upload</p>
+                            </div>
+                        </template>
+                    </div>
+                    <input type="file" name="photo" accept="image/*" class="hidden"
+                           @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null">
+                </label>
+                <div>
+                    <p class="text-sm font-semibold text-admin">Student Photo</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Optional. JPG or PNG, max 2 MB.</p>
+                </div>
+                {{-- Student type toggle --}}
+                <div class="ml-auto flex rounded-xl border border-border overflow-hidden">
+                    <label class="cursor-pointer">
                         <input type="radio" name="student_type" value="internal" x-model="studentType" class="sr-only peer"
                                {{ old('student_type', 'internal') === 'internal' ? 'checked' : '' }}>
-                        <div class="rounded-xl border-2 p-4 transition-colors peer-checked:border-fran peer-checked:bg-blue-50 border-border">
-                            <p class="font-semibold text-sm text-gray-700">Internal Student</p>
-                            <p class="text-xs text-gray-400 mt-0.5">Enrolled in regular abacus classes. Has a level, schedule, and monthly fees.</p>
-                        </div>
+                        <span class="block px-4 py-2 text-sm font-medium transition-colors peer-checked:bg-fran peer-checked:text-white text-gray-500 hover:text-gray-700">Internal</span>
                     </label>
-                    <label class="flex-1 cursor-pointer">
+                    <label class="cursor-pointer border-l border-border">
                         <input type="radio" name="student_type" value="external" x-model="studentType" class="sr-only peer"
                                {{ old('student_type') === 'external' ? 'checked' : '' }}>
-                        <div class="rounded-xl border-2 p-4 transition-colors peer-checked:border-fran peer-checked:bg-blue-50 border-border">
-                            <p class="font-semibold text-sm text-gray-700">External Student</p>
-                            <p class="text-xs text-gray-400 mt-0.5">Competition-only participant. No level or schedule. Can register for external competitions.</p>
-                        </div>
+                        <span class="block px-4 py-2 text-sm font-medium transition-colors peer-checked:bg-fran peer-checked:text-white text-gray-500 hover:text-gray-700">External</span>
                     </label>
                 </div>
             </div>
 
-            {{-- Student Details --}}
+            {{-- Personal Information --}}
             <div class="bg-white rounded-2xl border border-border p-6 mb-4">
-                <h2 class="text-sm font-bold text-fran mb-4">Student Information</h2>
+                <h2 class="text-sm font-bold text-fran mb-4">Personal Information</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">First Name <span class="text-red-500">*</span></label>
@@ -70,89 +90,32 @@
                             <option value="other" @selected(old('gender') === 'other')>Other</option>
                         </select>
                     </div>
-
-                    {{-- Internal-only fields --}}
-                    <template x-if="studentType === 'internal'">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Starting Level <span class="text-red-500">*</span></label>
-                            <select name="current_level_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                                <option value="">Select Level</option>
-                                @foreach($levels as $level)
-                                    <option value="{{ $level->id }}" @selected(old('current_level_id') == $level->id)>Level {{ $level->number }} — {{ $level->title }}</option>
-                                @endforeach
-                            </select>
-                            @error('current_level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                        </div>
-                    </template>
-
-                    {{-- External-only fields --}}
-                    <template x-if="studentType === 'external'">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Competition (optional)</label>
-                            <select name="competition_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                                <option value="">No competition selected</option>
-                                @foreach($competitions as $comp)
-                                    <option value="{{ $comp->id }}" @selected(old('competition_id') == $comp->id)>{{ $comp->title }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </template>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Enrollment Date <span class="text-red-500">*</span></label>
-                        <input type="date" name="enrollment_date" value="{{ old('enrollment_date', now()->toDateString()) }}" required
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Login Email <span class="text-red-500">*</span></label>
-                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="student@example.com"
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('email') border-red-400 @enderror">
-                        @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Password <span class="text-red-500">*</span></label>
-                        <input type="password" name="password" required autocomplete="new-password"
-                               placeholder="Min 8 characters"
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('password') border-red-400 @enderror">
-                        @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password <span class="text-red-500">*</span></label>
-                        <input type="password" name="password_confirmation" required autocomplete="new-password"
-                               placeholder="Re-enter password"
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
-                        <input type="text" name="phone" value="{{ old('phone') }}"
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Home Address</label>
                         <input type="text" name="address" value="{{ old('address') }}"
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">City</label>
-                        <input type="text" name="city" value="{{ old('city') }}"
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Pincode</label>
-                        <input type="text" name="pincode" value="{{ old('pincode') }}"
+                               placeholder="Area, City, Pincode"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     </div>
                 </div>
             </div>
 
-            {{-- Parent/Guardian --}}
+            {{-- Parent Contact --}}
             <div class="bg-white rounded-2xl border border-border p-6 mb-4">
-                <h2 class="text-sm font-bold text-fran mb-4">Parent / Guardian</h2>
+                <h2 class="text-sm font-bold text-fran mb-4">Parent Contact</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Parent Name <span class="text-red-500">*</span></label>
                         <input type="text" name="parent_name" value="{{ old('parent_name') }}" required
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Relationship</label>
+                        <select name="parent_relationship" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                            <option value="">Select</option>
+                            <option value="father" @selected(old('parent_relationship') === 'father')>Father</option>
+                            <option value="mother" @selected(old('parent_relationship') === 'mother')>Mother</option>
+                            <option value="guardian" @selected(old('parent_relationship') === 'guardian')>Guardian</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Mobile <span class="text-red-500">*</span></label>
@@ -164,9 +127,99 @@
                         <input type="text" name="parent_whatsapp" value="{{ old('parent_whatsapp') }}"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     </div>
-                    <div>
+                    <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Parent Email</label>
                         <input type="email" name="parent_email" value="{{ old('parent_email') }}"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Course Enrollment (internal only) --}}
+            <div x-show="studentType === 'internal'" class="bg-white rounded-2xl border border-border p-6 mb-4">
+                <h2 class="text-sm font-bold text-fran mb-4">Course Enrollment</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign Level <span class="text-red-500">*</span></label>
+                        <select name="current_level_id"
+                                x-on:change="levelFee = $event.target.options[$event.target.selectedIndex].dataset.fee || 0"
+                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                            <option value="">Select Level</option>
+                            @foreach($levels as $level)
+                                <option value="{{ $level->id }}" data-fee="{{ $level->fee_per_month }}"
+                                        @selected(old('current_level_id') == $level->id)>
+                                    Level {{ $level->number }} — {{ $level->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('current_level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Class Schedule</label>
+                        <input type="text" name="class_schedule" value="{{ old('class_schedule') }}"
+                               placeholder="e.g. Mon/Wed/Fri 4:00 PM"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Start Date</label>
+                        <input type="date" name="enrollment_date" value="{{ old('enrollment_date', now()->toDateString()) }}"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Monthly Fee (₹)</label>
+                        <input type="text" readonly :value="levelFee > 0 ? '₹' + Number(levelFee).toLocaleString('en-IN') : '— Select level —'"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-bg-light text-gray-500 cursor-default">
+                    </div>
+                </div>
+            </div>
+
+            {{-- External competition (external only) --}}
+            <div x-show="studentType === 'external'" class="bg-white rounded-2xl border border-border p-6 mb-4">
+                <h2 class="text-sm font-bold text-fran mb-4">Competition Enrollment</h2>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Competition (optional)</label>
+                    <select name="competition_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        <option value="">No competition selected</option>
+                        @foreach($competitions as $comp)
+                            <option value="{{ $comp->id }}" @selected(old('competition_id') == $comp->id)>{{ $comp->title }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            {{-- Special Notes --}}
+            <div class="bg-white rounded-2xl border border-border p-6 mb-4">
+                <h2 class="text-sm font-bold text-fran mb-4">Special Notes</h2>
+                <textarea name="notes" rows="3" placeholder="Allergies, learning difficulties, parent preferences..."
+                          class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran resize-none">{{ old('notes') }}</textarea>
+            </div>
+
+            {{-- Login credentials (collapsed section) --}}
+            <div class="bg-white rounded-2xl border border-border p-6 mb-6" x-data="{ open: false }">
+                <button type="button" @click="open = !open"
+                        class="flex items-center justify-between w-full text-sm font-bold text-fran">
+                    Login Credentials (Portal Access)
+                    <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open" x-transition class="mt-4 grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Login Email <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="student@example.com"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('email') border-red-400 @enderror">
+                        @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div></div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Password <span class="text-red-500">*</span></label>
+                        <input type="password" name="password" autocomplete="new-password" placeholder="Min 8 characters"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('password') border-red-400 @enderror">
+                        @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password <span class="text-red-500">*</span></label>
+                        <input type="password" name="password_confirmation" autocomplete="new-password" placeholder="Re-enter password"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     </div>
                 </div>
@@ -175,42 +228,39 @@
             <div class="flex items-center gap-3">
                 <a href="{{ route('franchise.students.index') }}"
                    class="px-5 py-2.5 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light">Cancel</a>
+                <button type="submit" name="draft" value="1"
+                        class="px-5 py-2.5 border border-fran text-fran rounded-xl text-sm font-semibold hover:bg-fran-light transition-colors">
+                    Save Draft
+                </button>
                 <button type="submit"
-                        class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark">
+                        class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
                     Register Student
                 </button>
             </div>
         </form>
     </div>
 
-    {{-- Sidebar --}}
-    <div class="space-y-4">
-        <div class="bg-white rounded-2xl border border-border p-5">
-            <h3 class="text-sm font-bold text-fran mb-3">Bulk Import</h3>
-            <p class="text-xs text-gray-500 mb-3">Register multiple students at once using a CSV file.</p>
-            <a href="{{ route('franchise.students.import.template') }}"
-               class="block text-center py-2 border border-fran text-fran rounded-xl text-sm font-medium hover:bg-fran hover:text-white transition-colors mb-2">
-                Download Template
-            </a>
-            <form method="POST" action="{{ route('franchise.students.import') }}" enctype="multipart/form-data">
-                @csrf
-                <label class="block w-full text-center py-2 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light cursor-pointer transition-colors">
-                    Upload CSV
-                    <input type="file" name="csv_file" accept=".csv" class="hidden" onchange="this.form.submit()">
-                </label>
-            </form>
-        </div>
-
-        <div class="bg-blue-50 rounded-2xl border border-blue-100 p-5">
-            <h3 class="text-sm font-bold text-fran mb-2">Required CSV Fields</h3>
-            <ul class="text-xs text-gray-600 space-y-1">
-                <li>• Name (full name)</li>
-                <li>• DOB (YYYY-MM-DD)</li>
-                <li>• Gender (male/female/other)</li>
-                <li>• Parent Name</li>
-                <li>• Mobile (10 digits)</li>
-                <li>• Level (1–14)</li>
-            </ul>
+    {{-- After Registration sidebar --}}
+    <div class="bg-white rounded-2xl border border-border p-5 h-fit">
+        <h3 class="text-sm font-bold text-fran mb-3">After Registration</h3>
+        <p class="text-xs text-gray-400 mb-4">The following will happen automatically:</p>
+        <div class="space-y-3">
+            @foreach([
+                'Student ID auto-generated',
+                'Parent SMS notification sent',
+                'Fee schedule created',
+                'Level materials assigned',
+                'First class scheduled',
+            ] as $item)
+                <div class="flex items-center gap-2.5">
+                    <div class="w-5 h-5 rounded-full bg-stu-light flex items-center justify-center flex-shrink-0">
+                        <svg class="w-3 h-3 text-stu" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-sm text-gray-700">{{ $item }}</span>
+                </div>
+            @endforeach
         </div>
     </div>
 </div>

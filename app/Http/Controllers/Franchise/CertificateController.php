@@ -23,9 +23,10 @@ class CertificateController extends Controller
             ->latest('issued_at')
             ->paginate(20);
 
-        $students = Student::where('is_active', true)->orderBy('first_name')->get();
+        $students = Student::with('currentLevel')->where('is_active', true)->orderBy('first_name')->get();
+        $levels   = \App\Models\Level::orderBy('number')->get();
 
-        return view('franchise.certificates.index', compact('certificates', 'students'));
+        return view('franchise.certificates.index', compact('certificates', 'students', 'levels'));
     }
 
     public function generate(Request $request): RedirectResponse
@@ -65,6 +66,14 @@ class CertificateController extends Controller
         $certificate->load('student.currentLevel', 'level', 'issuedBy');
 
         return view('franchise.certificates.show', compact('certificate'));
+    }
+
+    public function revoke(Certificate $certificate): RedirectResponse
+    {
+        $certificate->update(['is_revoked' => true]);
+        AuditLogger::log('certificate_revoked', 'Certificate', $certificate->id);
+
+        return back()->with('success', "Certificate {$certificate->certificate_number} revoked.");
     }
 
     public function downloadPdf(Certificate $certificate): Response

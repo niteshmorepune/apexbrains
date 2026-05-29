@@ -15,40 +15,67 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Student <span class="text-red-500">*</span></label>
+                        <input type="text" name="student_search" placeholder="Search student name or ID..."
+                               list="studentList"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran mb-1">
+                        <datalist id="studentList">
+                            @foreach($students as $s)
+                                <option value="{{ $s->full_name }} — L{{ $s->currentLevel?->number ?? '?' }} ({{ $s->student_code }})">
+                            @endforeach
+                        </datalist>
                         <select name="student_id" required
                                 class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="">Select Student</option>
-                            @php $grouped = $students->groupBy('student_type'); @endphp
-                            @if($grouped->has('internal'))
-                                <optgroup label="Internal Students">
-                                    @foreach($grouped['internal'] as $s)
-                                        <option value="{{ $s->id }}">{{ $s->full_name }} (L{{ $s->currentLevel?->number ?? '—' }})</option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
-                            @if($grouped->has('external'))
-                                <optgroup label="External Students">
-                                    @foreach($grouped['external'] as $s)
-                                        <option value="{{ $s->id }}">{{ $s->full_name }} (External)</option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
+                            @foreach($students as $s)
+                                <option value="{{ $s->id }}">{{ $s->full_name }} — L{{ $s->currentLevel?->number ?? '—' }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Certificate Type <span class="text-red-500">*</span></label>
-                        <select name="type" required
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Certificate Level</label>
+                        <select name="level_id"
                                 class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                            <option value="level_completion">Level Completion</option>
-                            <option value="merit">Merit</option>
-                            <option value="excellence">Excellence</option>
-                            <option value="participation">Participation</option>
+                            <option value="">Auto (student's current level)</option>
+                            @foreach($levels ?? [] as $level)
+                                <option value="{{ $level->id }}">Level {{ $level->number }} — {{ $level->title }}</option>
+                            @endforeach
                         </select>
                     </div>
-                    <button type="submit"
-                            class="w-full py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark">
-                        Generate &amp; Download
-                    </button>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Issue Date</label>
+                            <input type="date" name="issued_at" value="{{ now()->toDateString() }}"
+                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Certificate Series</label>
+                            <input type="text" name="series" value="{{ now()->year }}-A"
+                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Certificate Type <span class="text-red-500">*</span></label>
+                        <div class="space-y-2">
+                            @foreach(['level_completion' => 'Level Completion', 'merit' => 'Merit Award', 'excellence' => 'Excellence Award', 'participation' => 'Participation'] as $val => $lbl)
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="type" value="{{ $val }}"
+                                           {{ $val === 'level_completion' ? 'checked' : '' }}
+                                           class="accent-fran">
+                                    <span class="text-sm text-gray-700">{{ $lbl }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="submit" name="action" value="preview"
+                                class="py-2.5 border border-fran text-fran rounded-xl text-sm font-semibold hover:bg-fran-light transition-colors">
+                            Preview
+                        </button>
+                        <button type="submit" name="action" value="generate"
+                                class="py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+                            Generate &amp; Send
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -78,6 +105,8 @@
                     <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
                     <th class="text-center px-4 py-3 text-xs font-semibold text-white">Type</th>
                     <th class="text-center px-4 py-3 text-xs font-semibold text-white">Issued</th>
+                    <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
+                    <th class="text-center px-4 py-3 text-xs font-semibold text-white">QR</th>
                     <th class="text-center px-4 py-3 text-xs font-semibold text-white">Actions</th>
                 </tr>
             </thead>
@@ -96,13 +125,38 @@
                         </td>
                         <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $cert->issued_at?->format('d M Y') }}</td>
                         <td class="px-4 py-3 text-center">
-                            <a href="{{ route('franchise.certificates.download', $cert) }}"
-                               class="text-xs text-fran hover:underline">Download</a>
+                            @if($cert->is_revoked)
+                                <span class="text-xs bg-red-50 text-red-500 px-2 py-0.5 rounded-full">Revoked</span>
+                            @else
+                                <span class="text-xs bg-stu-light text-stu-dark px-2 py-0.5 rounded-full font-medium">Generated</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-center text-stu font-bold text-xs">
+                            @if($cert->qr_code ?? false) ✓ @else — @endif
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{{ route('franchise.certificates.download', $cert) }}"
+                                   class="text-xs text-fran hover:underline">Download</a>
+                                @if($cert->student?->parent?->whatsapp ?? false)
+                                    <a href="https://wa.me/91{{ preg_replace('/\D/', '', $cert->student->parent->whatsapp) }}?text=Certificate+ready+for+{{ urlencode($cert->student->full_name) }}"
+                                       target="_blank" class="text-xs text-stu hover:underline">WhatsApp</a>
+                                @endif
+                                <a href="{{ route('franchise.certificates.download', $cert) }}" target="_blank"
+                                   onclick="window.print(); return false;" class="text-xs text-gray-500 hover:underline">Print</a>
+                                @if(!$cert->is_revoked)
+                                    <form method="POST" action="{{ route('franchise.certificates.revoke', $cert) }}"
+                                          onsubmit="return confirm('Revoke this certificate?')">
+                                        @csrf @method('PATCH')
+                                        <button type="submit" class="text-xs text-red-500 hover:underline">Revoke</button>
+                                    </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-5 py-10 text-center text-gray-400">No certificates issued yet.</td>
+                        <td colspan="8" class="px-5 py-10 text-center text-gray-400">No certificates issued yet.</td>
                     </tr>
                 @endforelse
             </tbody>

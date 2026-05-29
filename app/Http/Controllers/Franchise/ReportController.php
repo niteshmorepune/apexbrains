@@ -27,15 +27,26 @@ class ReportController extends Controller
             $query->where('current_level_id', $request->level);
         }
 
-        $sort = $request->get('sort', 'name');
+        $sort = $request->get('sort', 'best_score');
         $students = $query->get()->map(function ($s) {
-            $s->avg_score   = $s->examAttempts->avg('percentage') ?? 0;
-            $s->exam_count  = $s->examAttempts->count();
-            $s->last_score  = $s->examAttempts->sortByDesc('submitted_at')->first()?->percentage ?? 0;
+            $lastAttempt         = $s->examAttempts->sortByDesc('submitted_at')->first();
+            $s->avg_score        = $s->examAttempts->avg('percentage') ?? 0;
+            $s->exam_count       = $s->examAttempts->count();
+            $s->last_score       = $lastAttempt?->percentage ?? 0;
+            $s->last_exam_date   = $lastAttempt?->submitted_at;
+            $s->avg_speed        = $s->examAttempts->filter(fn($a) => $a->submitted_at && $a->started_at)
+                ->avg(fn($a) => $a->submitted_at->diffInSeconds($a->started_at));
+            $s->eligible         = $s->avg_score >= 80 && $s->currentLevel && $s->currentLevel->number < 14;
             return $s;
         })->sortByDesc($sort === 'best_score' ? 'avg_score' : 'first_name');
 
-        return view('franchise.reports.index', compact('students'));
+        // Top student for radar preview
+        $topStudent = $students->first();
+        [$topAttempts, $topChartData, $topRadarData] = $topStudent
+            ? $this->buildReportData($topStudent)
+            : [collect(), [], []];
+
+        return view('franchise.reports.index', compact('students', 'topStudent', 'topRadarData'));
     }
 
     public function show(Student $student): View
