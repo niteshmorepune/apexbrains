@@ -31,7 +31,7 @@
             <div>
                 <p class="text-sm text-gray-500 mb-1">Total Students</p>
                 <p class="text-2xl font-bold text-fran">{{ number_format($totalStudents) }}</p>
-                <p class="text-xs text-fran mt-1">Across all franchises</p>
+                <p class="text-xs text-stu mt-1">+{{ $studentGrowth ?? 0 }}% this month</p>
             </div>
             <div class="w-10 h-10 rounded-xl bg-fran-light flex items-center justify-center flex-shrink-0">
                 <svg class="w-5 h-5 text-fran" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +50,7 @@
                 @if($pendingFranchises > 0)
                     <p class="text-xs text-logo-amber mt-1">{{ $pendingFranchises }} pending approval</p>
                 @else
-                    <p class="text-xs text-gray-400 mt-1">All approved</p>
+                    <p class="text-xs text-stu mt-1">+{{ $franchiseGrowth ?? 0 }} this month</p>
                 @endif
             </div>
             <div class="w-10 h-10 rounded-xl bg-bg-mid flex items-center justify-center flex-shrink-0">
@@ -66,7 +66,7 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm text-gray-500 mb-1">Monthly Revenue</p>
-                <p class="text-2xl font-bold text-stu">₹{{ number_format($monthlyRevenue) }}</p>
+                <p class="text-2xl font-bold text-fran">₹{{ number_format($monthlyRevenue) }}</p>
                 <p class="text-xs mt-1 {{ $revenueGrowth >= 0 ? 'text-stu' : 'text-red-500' }}">
                     {{ $revenueGrowth >= 0 ? '+' : '' }}{{ $revenueGrowth }}% vs last month
                 </p>

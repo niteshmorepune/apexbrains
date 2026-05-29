@@ -153,6 +153,12 @@
                         <input type="date" name="agreed_at" value="{{ old('agreed_at') }}"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent">
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Expected Launch Date</label>
+                        <input type="date" name="expected_launch_date" value="{{ old('expected_launch_date') }}"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent">
+                    </div>
                 </div>
             </div>
 

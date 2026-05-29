@@ -1,6 +1,6 @@
 @extends('layouts.admin')
-@section('title', 'Audit Log')
-@section('page-title', 'Audit Log')
+@section('title', 'System Audit Log')
+@section('page-title', 'System Audit Log')
 
 @section('page-actions')
     <a href="{{ route('admin.audit-log.export', request()->except('page')) }}"
@@ -50,7 +50,7 @@
                 <th class="text-left px-4 py-3 text-xs font-semibold text-white">User</th>
                 <th class="text-left px-4 py-3 text-xs font-semibold text-white">Action</th>
                 <th class="text-left px-4 py-3 text-xs font-semibold text-white">Entity</th>
-                <th class="text-left px-4 py-3 text-xs font-semibold text-white">Branch</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-white">Details</th>
                 <th class="text-left px-4 py-3 text-xs font-semibold text-white">IP Address</th>
             </tr>
         </thead>
@@ -91,8 +91,8 @@
                             <span class="text-gray-400">—</span>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-xs text-gray-500">
-                        {{ $log->franchise?->name ?? '—' }}
+                    <td class="px-4 py-3 text-xs text-gray-500 max-w-xs">
+                        {{ $log->description ?? str_replace('_', ' ', ucfirst($log->action)) }}
                     </td>
                     <td class="px-4 py-3 text-xs font-mono text-gray-400">
                         {{ $log->ip_address ?? '—' }}

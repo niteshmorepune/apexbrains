@@ -1,6 +1,6 @@
 @extends('layouts.admin')
-@section('title', 'Audio Question Generator')
-@section('page-title', 'Audio Question Generator')
+@section('title', 'Audio Mental Math Question Generator')
+@section('page-title', 'Audio Mental Math Question Generator')
 
 @section('page-actions')
     <a href="{{ route('admin.questions.index') }}"
@@ -14,7 +14,7 @@
 <div class="grid grid-cols-3 gap-6">
 
     {{-- Generator panel --}}
-    <div class="col-span-2 space-y-4">
+    <div class="space-y-4">
         <div class="bg-white rounded-2xl border border-border p-6">
             <h2 class="text-sm font-bold text-admin mb-5">Generate New Audio Question</h2>
 
@@ -28,36 +28,51 @@
                     @error('question_text')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
-                        <select name="level_id" required
-                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                            <option value="">Select Level</option>
-                            @foreach($levels as $level)
-                                <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>Level {{ $level->number }} — {{ $level->title }}</option>
-                            @endforeach
-                        </select>
-                        @error('level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Difficulty</label>
-                        <select name="difficulty" required
-                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                            <option value="easy" @selected(old('difficulty') === 'easy')>Easy</option>
-                            <option value="medium" @selected(old('difficulty', 'medium') === 'medium')>Medium</option>
-                            <option value="hard" @selected(old('difficulty') === 'hard')>Hard</option>
-                        </select>
-                    </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign to Level <span class="text-red-500">*</span></label>
+                    <select name="level_id" required
+                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        <option value="">Select Level</option>
+                        @foreach($levels as $level)
+                            <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>Level {{ $level->number }} — {{ $level->title }}</option>
+                        @endforeach
+                    </select>
+                    @error('level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 {{-- Voice settings --}}
-                <div class="bg-bg-light rounded-xl p-4 mb-4">
+                <div class="bg-bg-light rounded-xl p-4 mb-5">
                     <p class="text-xs font-semibold text-gray-600 mb-3">Voice Settings</p>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs text-gray-600 mb-1.5">Voice</label>
-                            <div class="flex gap-3">
+                            <label class="block text-xs text-gray-600 mb-2">Speed</label>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach(['0.75' => '0.75x', '1' => '1x', '1.5' => '1.5x', '2' => '2x'] as $val => $lbl)
+                                    <label class="flex items-center gap-1.5 cursor-pointer">
+                                        <input type="radio" name="speed" value="{{ $val }}"
+                                               {{ old('speed', '1') === $val ? 'checked' : '' }}
+                                               class="accent-fran">
+                                        <span class="text-sm">{{ $lbl }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-2">Pause Between Numbers</label>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach(['none' => 'None', 'short' => 'Short', 'medium' => 'Medium', 'long' => 'Long'] as $val => $lbl)
+                                    <label class="flex items-center gap-1.5 cursor-pointer">
+                                        <input type="radio" name="pause" value="{{ $val }}"
+                                               {{ old('pause', 'short') === $val ? 'checked' : '' }}
+                                               class="accent-fran">
+                                        <span class="text-sm">{{ $lbl }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs text-gray-600 mb-2">Voice</label>
+                            <div class="flex gap-4">
                                 <label class="flex items-center gap-1.5 cursor-pointer">
                                     <input type="radio" name="voice" value="female" checked class="accent-fran">
                                     <span class="text-sm">Female</span>
@@ -68,22 +83,7 @@
                                 </label>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 mb-1.5">Speed</label>
-                            <select name="speed" class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-fran">
-                                <option value="slow">Slow (Learning)</option>
-                                <option value="normal" selected>Normal</option>
-                                <option value="fast">Fast (Competition)</option>
-                            </select>
-                        </div>
                     </div>
-                </div>
-
-                <div class="mb-5">
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
-                    <input type="text" name="question_category" value="{{ old('question_category') }}"
-                           placeholder="e.g. Addition, Subtraction, Mixed"
-                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                 </div>
 
                 <button type="submit"
@@ -93,78 +93,58 @@
             </form>
         </div>
 
-        {{-- Generated list --}}
-        <div class="bg-white rounded-2xl border border-border overflow-hidden">
-            <div class="px-5 py-4 border-b border-border flex items-center justify-between">
-                <h2 class="text-sm font-semibold text-admin">Generated Audio Questions ({{ $audioQuestions->total() }})</h2>
-            </div>
-
-            @forelse($audioQuestions as $q)
-                <div class="px-5 py-4 border-b border-border last:border-b-0 hover:bg-bg-light flex items-start gap-4">
-                    <div class="w-9 h-9 rounded-full bg-stu-light flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-stu" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 3.5a.5.5 0 01.5.5v2a.5.5 0 01-1 0V4a.5.5 0 01.5-.5zM7 7.5A.5.5 0 017.5 7h5a.5.5 0 010 1h-5A.5.5 0 017 7.5zM4 11a.5.5 0 01.5-.5h11a.5.5 0 010 1H4.5A.5.5 0 014 11z"/>
-                        </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm text-gray-800 line-clamp-2">{{ $q->question_text }}</p>
-                        <div class="flex items-center gap-3 mt-1">
-                            @if($q->level)
-                                <span class="text-xs text-fran">L{{ $q->level->number }}</span>
-                            @endif
-                            <span class="text-xs text-gray-400 capitalize">{{ $q->difficulty }}</span>
-                            <span class="text-xs text-gray-400">{{ $q->created_at->diffForHumans() }}</span>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 flex-shrink-0">
-                        <a href="{{ route('admin.questions.edit', $q) }}" class="text-xs text-fran hover:underline">Edit</a>
-                        <form method="POST" action="{{ route('admin.questions.destroy', $q) }}"
-                              onsubmit="return confirm('Delete this question?')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
-                        </form>
-                    </div>
-                </div>
-            @empty
-                <div class="px-5 py-10 text-center text-gray-400 text-sm">
-                    No audio questions yet. Generate your first one above.
-                </div>
-            @endforelse
-
-            @if($audioQuestions->hasPages())
-                <div class="px-5 py-4 border-t border-border">
-                    {{ $audioQuestions->links('pagination::tailwind') }}
-                </div>
-            @endif
-        </div>
     </div>
 
-    {{-- Info sidebar --}}
-    <div class="space-y-4">
-        <div class="bg-white rounded-2xl border border-border p-5">
-            <h3 class="text-sm font-bold text-admin mb-3">About Audio Questions</h3>
-            <p class="text-xs text-gray-500 mb-3">Audio questions are spoken aloud during exams — students hear numbers and answer without seeing them written.</p>
-            <ul class="space-y-2 text-xs text-gray-500">
-                <li class="flex gap-2"><span class="text-stu font-bold">•</span> Use numbers and simple operators</li>
-                <li class="flex gap-2"><span class="text-stu font-bold">•</span> Keep questions under 30 seconds</li>
-                <li class="flex gap-2"><span class="text-stu font-bold">•</span> Slow speed recommended for beginners</li>
-                <li class="flex gap-2"><span class="text-stu font-bold">•</span> Fast speed suits competition mode</li>
-            </ul>
+    {{-- Generated questions list --}}
+    <div class="col-span-2 bg-white rounded-2xl border border-border overflow-hidden h-fit">
+        <div class="px-5 py-4 border-b border-border">
+            <h2 class="text-sm font-semibold text-admin">Generated Audio Questions ({{ $audioQuestions->total() }})</h2>
         </div>
-
-        <div class="bg-admin rounded-2xl p-5 text-white">
-            <h3 class="text-sm font-bold mb-3">Quick Stats</h3>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-admin-mid rounded-xl p-3 text-center">
-                    <p class="text-xl font-bold text-stu">{{ $audioQuestions->total() }}</p>
-                    <p class="text-xs text-gray-400 mt-0.5">Audio Q's</p>
+        @forelse($audioQuestions as $q)
+            <div class="px-5 py-4 border-b border-border last:border-b-0 hover:bg-bg-light flex items-start gap-4">
+                <button type="button"
+                        class="w-9 h-9 rounded-full bg-fran flex items-center justify-center flex-shrink-0 hover:bg-fran-dark transition-colors"
+                        title="Play audio">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                    </svg>
+                </button>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <span class="text-xs font-mono text-gray-400 flex-shrink-0">Q-{{ str_pad($q->id, 4, '0', STR_PAD_LEFT) }}</span>
+                        @if($q->level)
+                            <span class="text-xs bg-fran-light text-fran px-1.5 py-0.5 rounded-full font-medium">L{{ $q->level->number }}</span>
+                        @endif
+                    </div>
+                    <p class="text-sm text-gray-800 line-clamp-2">{{ $q->question_text }}</p>
+                    <div class="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                        <span>{{ $q->speed ?? '1' }}x speed</span>
+                        <span>·</span>
+                        <span>{{ $q->created_at->diffForHumans() }}</span>
+                    </div>
                 </div>
-                <div class="bg-admin-mid rounded-xl p-3 text-center">
-                    <p class="text-xl font-bold text-logo-amber">{{ $levels->count() }}</p>
-                    <p class="text-xs text-gray-400 mt-0.5">Levels</p>
+                <div class="flex gap-2 flex-shrink-0 items-center">
+                    <a href="{{ route('admin.questions.edit', $q) }}"
+                       class="text-xs border border-border text-gray-500 px-2.5 py-1 rounded-lg hover:bg-bg-light transition-colors">
+                        Save
+                    </a>
+                    <form method="POST" action="{{ route('admin.questions.destroy', $q) }}"
+                          onsubmit="return confirm('Delete this question?')">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
+                    </form>
                 </div>
             </div>
-        </div>
+        @empty
+            <div class="px-5 py-10 text-center text-gray-400 text-sm">
+                No audio questions yet. Generate your first one above.
+            </div>
+        @endforelse
+        @if($audioQuestions->hasPages())
+            <div class="px-5 py-4 border-t border-border">
+                {{ $audioQuestions->links('pagination::tailwind') }}
+            </div>
+        @endif
     </div>
 </div>
 

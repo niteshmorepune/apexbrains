@@ -1,6 +1,6 @@
 @extends('layouts.admin')
-@section('title', 'Resource Library')
-@section('page-title', 'Resource Library')
+@section('title', 'Book and Resource Library')
+@section('page-title', 'Book and Resource Library')
 
 @section('content')
 
@@ -90,27 +90,30 @@
     {{-- File List --}}
     <div class="col-span-2">
 
-        {{-- Filters --}}
-        <div class="bg-white rounded-2xl border border-border p-4 mb-4">
-            <form method="GET" action="{{ route('admin.resources.index') }}" class="flex items-center gap-3 flex-wrap">
+        {{-- Search + pill-tab level filter --}}
+        <div class="bg-white rounded-2xl border border-border p-4 mb-4 space-y-3">
+            <form method="GET" action="{{ route('admin.resources.index') }}" class="flex items-center gap-3">
+                <input type="hidden" name="level_group" value="{{ request('level_group') }}">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search files..."
-                       class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1 min-w-32">
-                <select name="level" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    <option value="">All Levels</option>
-                    @foreach($levels as $level)
-                        <option value="{{ $level->id }}" @selected(request('level') == $level->id)>L{{ $level->number }}</option>
-                    @endforeach
-                </select>
+                       class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1">
                 <select name="type" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     <option value="">All Types</option>
                     <option value="pdf" @selected(request('type') === 'pdf')>PDF</option>
                     <option value="image" @selected(request('type') === 'image')>Image</option>
                 </select>
-                <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Filter</button>
-                @if(request('search') || request('level') || request('type'))
-                    <a href="{{ route('admin.resources.index') }}" class="text-sm text-gray-500 hover:text-gray-700">Clear</a>
-                @endif
+                <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Search</button>
             </form>
+            <div class="flex gap-2 flex-wrap">
+                @foreach(['' => 'All', '1-3' => 'L1–3', '4-6' => 'L4–6', '7-10' => 'L7–10', '11-14' => 'L11–14'] as $group => $label)
+                    <a href="{{ route('admin.resources.index', array_merge(request()->except('level_group', 'page'), $group ? ['level_group' => $group] : [])) }}"
+                       class="px-3 py-1 rounded-full text-xs font-medium border transition-colors
+                              {{ request('level_group', '') === $group
+                                 ? 'bg-fran text-white border-fran'
+                                 : 'border-border text-gray-600 hover:border-fran' }}">
+                        {{ $label }}
+                    </a>
+                @endforeach
+            </div>
         </div>
 
         {{-- Table --}}
@@ -127,6 +130,7 @@
                         <th class="text-center px-4 py-3 text-xs font-semibold text-white">Type</th>
                         <th class="text-right px-4 py-3 text-xs font-semibold text-white">Size</th>
                         <th class="text-center px-4 py-3 text-xs font-semibold text-white">Uploaded</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-white">By</th>
                         <th class="text-center px-4 py-3 text-xs font-semibold text-white">Actions</th>
                     </tr>
                 </thead>
@@ -172,10 +176,17 @@
                             <td class="px-4 py-3 text-center text-xs text-gray-500">
                                 {{ $file->created_at->format('d M Y') }}
                             </td>
+                            <td class="px-4 py-3 text-center text-xs text-gray-500">
+                                {{ $file->uploadedBy?->name ?? 'Admin' }}
+                            </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center justify-center gap-3">
                                     <a href="{{ route('admin.resources.download', $file) }}"
                                        class="text-xs text-fran hover:underline font-medium">Download</a>
+                                    @if($file->file_type === 'pdf' || $file->file_type === 'image')
+                                        <a href="{{ Storage::url($file->file_path) }}" target="_blank"
+                                           class="text-xs text-gray-500 hover:underline">Preview</a>
+                                    @endif
                                     <form method="POST" action="{{ route('admin.resources.destroy', $file) }}"
                                           onsubmit="return confirm('Delete this file permanently?')">
                                         @csrf @method('DELETE')
@@ -186,7 +197,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-10 text-center text-gray-400">
+                            <td colspan="7" class="px-5 py-10 text-center text-gray-400">
                                 No files uploaded yet. Use the form on the left to upload your first resource.
                             </td>
                         </tr>

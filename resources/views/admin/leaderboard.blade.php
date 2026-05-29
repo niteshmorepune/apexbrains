@@ -8,13 +8,24 @@
 <div class="bg-white rounded-2xl border border-border p-4 mb-6">
     <form method="GET" action="{{ route('admin.leaderboard') }}" class="flex items-center gap-3 flex-wrap">
         <select name="franchise" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-            <option value="">All Branches</option>
+            <option value="">All Cities</option>
             @foreach($franchises as $f)
                 <option value="{{ $f->id }}" @selected($franchiseFilter == $f->id)>{{ $f->name }}</option>
             @endforeach
         </select>
+        <select name="level" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+            <option value="">All Levels</option>
+            @foreach($levels as $l)
+                <option value="{{ $l->id }}" @selected($levelFilter == $l->id)>{{ $l->title }}</option>
+            @endforeach
+        </select>
+        <select name="period" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+            <option value="all" @selected($periodFilter === 'all')>All Time</option>
+            <option value="month" @selected($periodFilter === 'month')>This Month</option>
+            <option value="week" @selected($periodFilter === 'week')>This Week</option>
+        </select>
         <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Filter</button>
-        @if($franchiseFilter || $levelFilter)
+        @if($franchiseFilter || $levelFilter || $periodFilter !== 'all')
             <a href="{{ route('admin.leaderboard') }}" class="text-sm text-gray-500 hover:text-gray-700">Clear</a>
         @endif
     </form>
@@ -80,9 +91,12 @@
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
                 <th class="text-left px-4 py-3 text-xs font-semibold text-white">Branch</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-white">City</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Avg Score</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Speed</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Exams</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Badge</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Profile</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-border">
@@ -124,19 +138,37 @@
                     <td class="px-4 py-3 text-gray-600 text-xs">
                         {{ $row->student?->franchise?->name ?? '—' }}
                     </td>
+                    <td class="px-4 py-3 text-gray-500 text-xs">
+                        {{ $row->student?->franchise?->city ?? '—' }}
+                    </td>
                     <td class="px-4 py-3 text-right">
                         <span class="font-bold {{ $row->avg_score >= 90 ? 'text-stu' : ($row->avg_score >= 75 ? 'text-fran' : 'text-gray-600') }}">
                             {{ number_format($row->avg_score, 1) }}%
                         </span>
                     </td>
+                    <td class="px-4 py-3 text-right text-gray-500 text-xs">
+                        @if($row->avg_seconds)
+                            @php $s = (int) $row->avg_seconds; @endphp
+                            {{ $s >= 60 ? floor($s/60).'m '.($s%60).'s' : $s.'s' }}
+                        @else
+                            —
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-right text-gray-600">{{ $row->exam_count }}</td>
                     <td class="px-4 py-3 text-center">
                         <span class="text-xs px-2 py-0.5 rounded-full {{ $badge[1] }}">{{ $badge[0] }}</span>
                     </td>
+                    <td class="px-4 py-3 text-center">
+                        @if($row->student)
+                            <a href="{{ route('admin.students.show', $row->student_id) }}" class="text-xs text-fran hover:underline">View Profile</a>
+                        @else
+                            <span class="text-xs text-gray-400">—</span>
+                        @endif
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="px-5 py-12 text-center text-gray-400">
+                    <td colspan="10" class="px-5 py-12 text-center text-gray-400">
                         No exam data yet. Leaderboard will populate as students complete exams.
                     </td>
                 </tr>

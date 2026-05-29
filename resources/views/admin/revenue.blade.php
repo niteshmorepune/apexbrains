@@ -55,9 +55,16 @@
         <p class="text-xs text-gray-400 mt-1">Monthly</p>
     </div>
     <div class="bg-white rounded-2xl border border-border p-5">
-        <p class="text-xs text-gray-500 mb-1">Active Franchises</p>
-        <p class="text-2xl font-bold text-logo-amber">{{ $branchRevenue->count() }}</p>
-        <p class="text-xs text-gray-400 mt-1">Generating revenue</p>
+        <p class="text-xs text-gray-500 mb-1">Growth Rate</p>
+        @if($growthRate !== null)
+            <p class="text-2xl font-bold {{ $growthRate >= 0 ? 'text-stu' : 'text-red-500' }}">
+                {{ $growthRate >= 0 ? '+' : '' }}{{ $growthRate }}%
+            </p>
+            <p class="text-xs text-gray-400 mt-1">vs same month last year</p>
+        @else
+            <p class="text-2xl font-bold text-gray-400">—</p>
+            <p class="text-xs text-gray-400 mt-1">No prior year data</p>
+        @endif
     </div>
 </div>
 
@@ -97,43 +104,50 @@
     </div>
 </div>
 
-{{-- Franchise revenue table --}}
+{{-- Commission breakdown table --}}
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="px-5 py-4 border-b border-border">
-        <h2 class="text-sm font-semibold text-admin">Revenue by Franchise</h2>
+        <h2 class="text-sm font-semibold text-admin">Commission Breakdown by Franchise</h2>
     </div>
     <table class="w-full text-sm">
         <thead>
             <tr class="bg-admin">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Franchise</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Revenue (Period)</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Commission Rate</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Commission Due</th>
-                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Share</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-white">City</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Students</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Fee/Student</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Gross Revenue</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Commission %</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Net Commission</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-border">
             @forelse($branchRevenue as $f)
-                @php $share = $totalRevenue > 0 ? round(($f->revenue / $totalRevenue) * 100, 1) : 0; @endphp
+                @php
+                    $gross = $f->revenue ?? ($f->students_count * $f->fee_per_student);
+                    $commissionDue = $gross * ($f->commission_rate / 100);
+                    $isPaid = ($f->revenue ?? 0) > 0;
+                @endphp
                 <tr class="hover:bg-bg-light">
                     <td class="px-5 py-3 font-medium text-admin">{{ $f->name }}</td>
-                    <td class="px-4 py-3 text-right">₹{{ number_format($f->revenue ?? 0) }}</td>
+                    <td class="px-4 py-3 text-gray-500">{{ $f->city }}</td>
+                    <td class="px-4 py-3 text-right text-gray-700">{{ number_format($f->students_count) }}</td>
+                    <td class="px-4 py-3 text-right text-gray-500">₹{{ number_format($f->fee_per_student) }}</td>
+                    <td class="px-4 py-3 text-right">₹{{ number_format($gross) }}</td>
                     <td class="px-4 py-3 text-right text-gray-500">{{ $f->commission_rate }}%</td>
-                    <td class="px-4 py-3 text-right font-medium text-stu">
-                        ₹{{ number_format(($f->revenue ?? 0) * ($f->commission_rate / 100)) }}
-                    </td>
-                    <td class="px-4 py-3">
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 h-1.5 bg-bg-mid rounded-full">
-                                <div class="h-1.5 bg-fran rounded-full" style="width:{{ $share }}%"></div>
-                            </div>
-                            <span class="text-xs text-gray-400 w-8 text-right">{{ $share }}%</span>
-                        </div>
+                    <td class="px-4 py-3 text-right font-medium text-fran">₹{{ number_format($commissionDue) }}</td>
+                    <td class="px-4 py-3 text-center">
+                        @if($isPaid)
+                            <span class="text-xs bg-green-100 text-green-700 font-medium px-2 py-0.5 rounded-full">Paid</span>
+                        @else
+                            <span class="text-xs bg-yellow-100 text-yellow-700 font-medium px-2 py-0.5 rounded-full">Pending</span>
+                        @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="px-5 py-8 text-center text-gray-400">No revenue data for this period.</td>
+                    <td colspan="8" class="px-5 py-8 text-center text-gray-400">No revenue data for this period.</td>
                 </tr>
             @endforelse
         </tbody>

@@ -48,18 +48,6 @@ $levelColors = [
                 <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{ $level->description }}</p>
             @endif
 
-            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                <span>₹{{ number_format($level->fee_per_month) }}/mo</span>
-            </div>
-
-            {{-- Progress bar: students relative to max --}}
-            @php $maxStudents = $levels->max('students_count') ?: 1; @endphp
-            <div class="h-1.5 bg-bg-mid rounded-full mb-4">
-                <div class="h-1.5 rounded-full transition-all"
-                     style="width: {{ ($level->students_count / $maxStudents) * 100 }}%; background-color: {{ $color }}">
-                </div>
-            </div>
-
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.levels.edit', $level) }}"
                    class="flex-1 text-center text-xs font-medium text-fran border border-fran rounded-lg py-1.5 hover:bg-fran-light transition-colors">

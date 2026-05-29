@@ -153,39 +153,77 @@
         </div>
     </div>
 
-    {{-- Info sidebar --}}
-    <div class="space-y-4">
-        <div class="bg-white rounded-2xl border border-border p-5">
-            <h3 class="text-sm font-bold text-admin mb-3">How It Works</h3>
-            <ol class="space-y-3 text-xs text-gray-500">
-                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-fran text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>Upload a question bank PDF</li>
-                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-fran text-white flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>OCR extracts all text</li>
-                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-fran text-white flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>NLP identifies question patterns</li>
-                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-fran text-white flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>MCQ options auto-tagged</li>
-                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-fran text-white flex items-center justify-center text-xs font-bold flex-shrink-0">5</span>Review and approve to add to bank</li>
-            </ol>
-        </div>
 
-        <div class="bg-white rounded-2xl border border-border p-5">
-            <h3 class="text-sm font-bold text-admin mb-2">Supported Formats</h3>
-            <ul class="text-xs text-gray-500 space-y-1">
-                <li>• PDF (text-based)</li>
-                <li>• PDF (scanned + OCR)</li>
-                <li>• Max 20 MB per file</li>
-            </ul>
-        </div>
+</div>
 
-        @if($stats['pending'] > 0)
-            <div class="bg-yellow-50 rounded-2xl border border-yellow-200 p-5">
-                <h3 class="text-sm font-bold text-yellow-800 mb-2">{{ $stats['pending'] }} Pending Review</h3>
-                <p class="text-xs text-yellow-700 mb-3">Questions extracted from PDFs need your approval before they go live.</p>
-                <a href="{{ route('admin.questions.index', ['tab' => 'pending']) }}"
-                   class="block text-center py-2 bg-yellow-600 text-white rounded-xl text-sm font-medium hover:bg-yellow-700 transition-colors">
-                    Review Now
-                </a>
-            </div>
-        @endif
+{{-- Extracted Questions — Review and Approve --}}
+<div class="bg-white rounded-2xl border border-border overflow-hidden mt-6">
+    <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-admin">Extracted Questions — Review and Approve</h2>
+        <span class="text-xs text-gray-400">{{ $reviewQuestions->total() }} questions</span>
     </div>
+
+    {{-- Review tabs --}}
+    <div class="px-5 pt-4 flex gap-1 border-b border-border">
+        @foreach(['all' => 'All', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'] as $tab => $label)
+            <a href="{{ route('admin.pdf-uploads.index', array_merge(request()->except('rpage'), ['review_tab' => $tab])) }}"
+               class="px-4 py-2 rounded-t-xl text-sm font-medium transition-colors border-b-2 -mb-px
+                      {{ $reviewTab === $tab ? 'border-fran text-fran' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
+                {{ $label }}
+                @if($tab === 'pending' && $stats['pending'] > 0)
+                    <span class="ml-1 bg-logo-amber text-white text-xs px-1.5 py-0.5 rounded-full">{{ $stats['pending'] }}</span>
+                @endif
+            </a>
+        @endforeach
+    </div>
+
+    @forelse($reviewQuestions as $q)
+        <div class="px-5 py-4 border-b border-border last:border-b-0 hover:bg-bg-light flex items-start gap-4">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-mono text-gray-400">Q-{{ str_pad($q->id, 4, '0', STR_PAD_LEFT) }}</span>
+                    @if($q->level)
+                        <span class="text-xs bg-fran-light text-fran px-1.5 py-0.5 rounded-full font-medium">L{{ $q->level->number }}</span>
+                    @endif
+                    <span class="text-xs text-gray-400 capitalize">{{ $q->question_type }}</span>
+                </div>
+                <p class="text-sm text-gray-800">{{ $q->question_text }}</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                @if($q->status !== 'approved')
+                    <form method="POST" action="{{ route('admin.questions.approve', $q) }}">
+                        @csrf
+                        <button type="submit" class="text-xs bg-stu text-white px-3 py-1.5 rounded-lg hover:bg-stu-dark transition-colors font-medium">
+                            Approve
+                        </button>
+                    </form>
+                @endif
+                @if($q->status !== 'rejected')
+                    <form method="POST" action="{{ route('admin.questions.reject', $q) }}">
+                        @csrf
+                        <button type="submit" class="text-xs border border-red-200 text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                            Reject
+                        </button>
+                    </form>
+                @endif
+                @if($q->status === 'approved')
+                    <span class="text-xs bg-stu-light text-stu-dark px-2 py-0.5 rounded-full font-medium">✓ Approved</span>
+                @elseif($q->status === 'rejected')
+                    <span class="text-xs bg-red-50 text-red-500 px-2 py-0.5 rounded-full">✗ Rejected</span>
+                @endif
+            </div>
+        </div>
+    @empty
+        <div class="px-5 py-10 text-center text-gray-400 text-sm">
+            No extracted questions to review.
+        </div>
+    @endforelse
+
+    @if($reviewQuestions->hasPages())
+        <div class="px-5 py-4 border-t border-border">
+            {{ $reviewQuestions->links('pagination::tailwind') }}
+        </div>
+    @endif
 </div>
 
 @endsection

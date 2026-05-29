@@ -16,8 +16,15 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        $totalStudents   = Student::count();
-        $activeFranchises = Franchise::where('status', 'active')->count();
+        $totalStudents     = Student::count();
+        $lastMonthStudents = Student::whereMonth('enrollment_date', now()->subMonth()->month)
+            ->whereYear('enrollment_date', now()->subMonth()->year)->count();
+        $studentGrowth     = $lastMonthStudents > 0
+            ? round((Student::whereMonth('enrollment_date', now()->month)->whereYear('enrollment_date', now()->year)->count() - $lastMonthStudents) / $lastMonthStudents * 100)
+            : 0;
+        $activeFranchises  = Franchise::where('status', 'active')->count();
+        $franchiseGrowth   = Franchise::where('status', 'active')
+            ->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count();
         $pendingFranchises = Franchise::where('status', 'pending')->count();
 
         $monthlyRevenue = Payment::whereMonth('payment_date', now()->month)
@@ -80,6 +87,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'totalStudents', 'activeFranchises', 'pendingFranchises',
+            'studentGrowth', 'franchiseGrowth',
             'monthlyRevenue', 'revenueGrowth', 'avgScore',
             'monthlyTrend', 'levelDistribution', 'franchises'
         ));

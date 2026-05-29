@@ -24,7 +24,13 @@ class RevenueController extends Controller
         $monthRevenue   = Payment::whereMonth('payment_date', now()->month)
             ->whereYear('payment_date', now()->year)
             ->sum('amount');
-        $franchiseCount = Franchise::where('status', 'active')->count();
+        $lastYearMonth  = Payment::whereMonth('payment_date', now()->month)
+            ->whereYear('payment_date', now()->subYear()->year)
+            ->sum('amount');
+        $growthRate     = $lastYearMonth > 0
+            ? round((($monthRevenue - $lastYearMonth) / $lastYearMonth) * 100, 1)
+            : null;
+        $franchiseCount  = Franchise::where('status', 'active')->count();
         $perFranchiseAvg = $franchiseCount > 0 ? $monthRevenue / $franchiseCount : 0;
 
         // Monthly trend (last 12 months)
@@ -38,16 +44,17 @@ class RevenueController extends Controller
                 'total' => (float) $r->total,
             ]);
 
-        // Branch revenue share
+        // Branch revenue share with student count
         $branchRevenue = Franchise::withSum(['payments as revenue' => function ($q) use ($from, $to) {
             $q->whereBetween('payment_date', [$from, $to]);
         }], 'amount')
+            ->withCount('students')
             ->orderByDesc('revenue')
             ->limit(8)
             ->get();
 
         return view('admin.revenue', compact(
-            'from', 'to', 'totalRevenue', 'monthRevenue', 'perFranchiseAvg',
+            'from', 'to', 'totalRevenue', 'monthRevenue', 'perFranchiseAvg', 'growthRate',
             'monthlyTrend', 'branchRevenue'
         ));
     }

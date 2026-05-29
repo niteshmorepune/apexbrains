@@ -13,11 +13,11 @@ use Illuminate\View\View;
 
 class PdfUploadController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $uploads = PdfUpload::with('uploadedBy')
             ->latest()
-            ->paginate(15);
+            ->paginate(10);
 
         $stats = [
             'total'         => PdfUpload::count(),
@@ -26,7 +26,14 @@ class PdfUploadController extends Controller
             'bank_ready'    => QuestionBank::where('status', 'approved')->whereNotNull('source_pdf')->count(),
         ];
 
-        return view('admin.pdf-uploads.index', compact('uploads', 'stats'));
+        $reviewTab = $request->get('review_tab', 'all');
+        $reviewQuery = QuestionBank::with('level')->whereNotNull('source_pdf');
+        if ($reviewTab !== 'all') {
+            $reviewQuery->where('status', $reviewTab);
+        }
+        $reviewQuestions = $reviewQuery->latest()->paginate(10, ['*'], 'rpage');
+
+        return view('admin.pdf-uploads.index', compact('uploads', 'stats', 'reviewQuestions', 'reviewTab'));
     }
 
     public function store(Request $request): RedirectResponse

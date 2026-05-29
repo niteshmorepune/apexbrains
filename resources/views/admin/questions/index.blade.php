@@ -45,24 +45,64 @@
     </div>
 </div>
 
-{{-- Filters --}}
-<div class="bg-white rounded-2xl border border-border p-4 mb-4">
-    <form method="GET" action="{{ route('admin.questions.index') }}" class="flex items-center gap-3 flex-wrap">
+<div class="grid grid-cols-[240px_1fr] gap-5 items-start">
+
+{{-- Left Filter Panel --}}
+<div class="bg-white rounded-2xl border border-border p-5 sticky top-5">
+    <form method="GET" action="{{ route('admin.questions.index') }}" id="filterForm">
         <input type="hidden" name="tab" value="{{ $tab }}">
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search questions..."
-               class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1 min-w-48">
-        <select name="level" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-            <option value="">All Levels</option>
+
+        <div class="mb-4">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search questions..."
+                   class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+        </div>
+
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">By Level</p>
+        <div class="flex flex-wrap gap-1.5 mb-4">
+            <label class="cursor-pointer">
+                <input type="radio" name="level" value="" class="sr-only peer"
+                       {{ !request('level') ? 'checked' : '' }}
+                       onchange="document.getElementById('filterForm').submit()">
+                <span class="inline-block px-2.5 py-1 rounded-full text-xs font-medium border transition-colors
+                             peer-checked:bg-fran peer-checked:text-white peer-checked:border-fran
+                             border-border text-gray-600 hover:border-fran">All</span>
+            </label>
             @foreach($levels as $level)
-                <option value="{{ $level->id }}" @selected(request('level') == $level->id)>Level {{ $level->number }}</option>
+                <label class="cursor-pointer">
+                    <input type="radio" name="level" value="{{ $level->id }}" class="sr-only peer"
+                           {{ request('level') == $level->id ? 'checked' : '' }}
+                           onchange="document.getElementById('filterForm').submit()">
+                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-medium border transition-colors
+                                 peer-checked:bg-fran peer-checked:text-white peer-checked:border-fran
+                                 border-border text-gray-600 hover:border-fran">L{{ $level->number }}</span>
+                </label>
             @endforeach
-        </select>
-        <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold">Filter</button>
-        @if(request('search') || request('level'))
-            <a href="{{ route('admin.questions.index', ['tab' => $tab]) }}" class="text-sm text-gray-500 hover:text-gray-700">Clear</a>
+        </div>
+
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">By Type</p>
+        <div class="space-y-1.5 mb-4">
+            @foreach(['' => 'Both', 'mcq' => 'MCQ', 'audio' => 'Audio'] as $val => $lbl)
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="type" value="{{ $val }}" class="accent-fran"
+                           {{ request('type', '') === $val ? 'checked' : '' }}
+                           onchange="document.getElementById('filterForm').submit()">
+                    <span class="text-sm text-gray-700">{{ $lbl }}</span>
+                </label>
+            @endforeach
+        </div>
+
+        <button type="submit" class="w-full py-2 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+            Apply Filters
+        </button>
+        @if(request('search') || request('level') || request('type'))
+            <a href="{{ route('admin.questions.index', ['tab' => $tab]) }}"
+               class="block text-center text-xs text-gray-400 hover:text-gray-600 mt-2">Clear all</a>
         @endif
     </form>
 </div>
+
+{{-- Right: tabs + table --}}
+<div>
 
 {{-- Tab filters --}}
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
@@ -82,10 +122,10 @@
     <table class="w-full text-sm">
         <thead>
             <tr class="bg-admin">
+                <th class="text-left px-4 py-3 text-xs font-semibold text-white w-20">ID</th>
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Question</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Type</th>
-                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Difficulty</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Actions</th>
             </tr>
@@ -93,11 +133,11 @@
         <tbody class="divide-y divide-border">
             @forelse($questions as $q)
                 <tr class="hover:bg-bg-light {{ $q->status === 'pending' ? 'bg-yellow-50' : '' }}">
+                    <td class="px-4 py-3">
+                        <span class="text-xs font-mono text-gray-400">Q-{{ str_pad($q->id, 4, '0', STR_PAD_LEFT) }}</span>
+                    </td>
                     <td class="px-5 py-3">
-                        <p class="text-gray-800 line-clamp-2 max-w-xl">{{ $q->question_text }}</p>
-                        @if($q->question_category)
-                            <span class="text-xs text-gray-400">{{ $q->question_category }}</span>
-                        @endif
+                        <p class="text-gray-800 line-clamp-2 max-w-lg">{{ $q->question_text }}</p>
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($q->level)
@@ -112,12 +152,6 @@
                         @else
                             <span class="text-xs bg-bg-mid text-gray-600 px-2 py-0.5 rounded-full">MCQ</span>
                         @endif
-                    </td>
-                    <td class="px-4 py-3 text-center">
-                        <span class="text-xs capitalize
-                            {{ $q->difficulty === 'easy' ? 'text-stu' : ($q->difficulty === 'hard' ? 'text-red-500' : 'text-logo-amber') }}">
-                            {{ $q->difficulty }}
-                        </span>
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($q->status === 'approved')
@@ -141,6 +175,9 @@
                                 </form>
                             @else
                                 <a href="{{ route('admin.questions.edit', $q) }}" class="text-xs text-fran hover:underline">Edit</a>
+                                @if($q->type === 'audio' || $q->question_type === 'audio')
+                                    <a href="{{ route('admin.questions.audio') }}" class="text-xs text-stu hover:underline">Audio</a>
+                                @endif
                                 <form method="POST" action="{{ route('admin.questions.destroy', $q) }}"
                                       onsubmit="return confirm('Delete this question?')">
                                     @csrf @method('DELETE')
@@ -169,5 +206,8 @@
         </div>
     @endif
 </div>
+
+</div>{{-- end right col --}}
+</div>{{-- end grid --}}
 
 @endsection

@@ -87,6 +87,37 @@
                 </template>
             </div>
 
+            {{-- Assigned Book --}}
+            <div class="bg-white rounded-2xl border border-border p-6 mb-4">
+                <h2 class="text-sm font-bold text-admin mb-4">Assigned Book</h2>
+                <div class="flex items-center gap-3 p-4 bg-bg-light rounded-xl mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                        <span class="text-xs font-bold text-red-600">PDF</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        @if($level->book_resource_id ?? null)
+                            <p class="text-sm font-medium text-admin">{{ $level->book?->title ?? 'Assigned Book' }}</p>
+                            <p class="text-xs text-stu">PDF Available</p>
+                        @else
+                            <p class="text-sm text-gray-400">No book assigned yet</p>
+                            <p class="text-xs text-gray-300">Assign a resource file below</p>
+                        @endif
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign from Resource Library</label>
+                    <select name="book_resource_id"
+                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        <option value="">None</option>
+                        @foreach($resourceFiles ?? [] as $rf)
+                            <option value="{{ $rf->id }}" @selected(($level->book_resource_id ?? null) == $rf->id)>
+                                {{ $rf->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
             <div class="flex items-center gap-3">
                 <a href="{{ route('admin.levels.index') }}"
                    class="px-5 py-2.5 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
@@ -95,6 +126,10 @@
                 <button type="submit"
                         class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
                     Save Changes
+                </button>
+                <button type="submit" name="publish" value="1"
+                        class="px-6 py-2.5 bg-stu text-white rounded-xl text-sm font-semibold hover:bg-stu-dark transition-colors">
+                    Publish
                 </button>
             </div>
         </form>
@@ -122,16 +157,47 @@
                     <span>{{ $level->number }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-gray-400">Sort order</span>
-                    <span>{{ $level->sort_order }}</span>
-                </div>
-                <div class="flex justify-between">
                     <span class="text-gray-400">Status</span>
                     <span class="{{ $level->is_active ? 'text-stu' : 'text-gray-400' }} font-medium">
                         {{ $level->is_active ? 'Active' : 'Inactive' }}
                     </span>
                 </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Last updated</span>
+                    <span class="text-xs">{{ $level->updated_at->format('d M Y') }}</span>
+                </div>
             </div>
+        </div>
+
+        {{-- Version History --}}
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <h3 class="text-sm font-bold text-admin mb-3">Version History</h3>
+            @php
+                $versions = \App\Models\AuditLog::where('entity_type', 'Level')
+                    ->where('entity_id', $level->id)
+                    ->where('action', 'like', '%level%')
+                    ->latest()
+                    ->limit(5)
+                    ->get();
+            @endphp
+            @if($versions->isEmpty())
+                <p class="text-xs text-gray-400">No version history yet.</p>
+            @else
+                <div class="space-y-3">
+                    @foreach($versions as $i => $v)
+                        <div class="flex items-start gap-2">
+                            <span class="text-xs {{ $i === 0 ? 'bg-fran text-white' : 'bg-bg-mid text-gray-500' }} px-2 py-0.5 rounded-full font-mono flex-shrink-0">
+                                v1.{{ $versions->count() - $i }}
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-gray-700 capitalize">{{ str_replace('_', ' ', $v->action) }}</p>
+                                <p class="text-xs text-gray-400">{{ $v->created_at->format('d M Y') }} · {{ $v->user?->name ?? 'Admin' }}</p>
+                            </div>
+                            @if($i === 0)<span class="text-xs text-fran font-medium flex-shrink-0">Current</span>@endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 

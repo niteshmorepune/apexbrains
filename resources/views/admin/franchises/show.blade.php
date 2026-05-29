@@ -74,7 +74,7 @@
 
 {{-- Tab navigation --}}
 <div class="flex gap-1 mb-4 bg-white rounded-2xl border border-border p-1 w-fit">
-    @foreach(['overview' => 'Overview', 'students' => "Students ({$franchise->students_count})", 'revenue' => 'Revenue', 'documents' => 'Documents'] as $tab => $label)
+    @foreach(['overview' => 'Overview', 'students' => "Students ({$franchise->students_count})", 'revenue' => 'Revenue', 'documents' => 'Documents', 'settings' => 'Settings'] as $tab => $label)
         <button onclick="showTab('{{ $tab }}')" id="tab-{{ $tab }}"
                 class="px-4 py-2 rounded-xl text-sm font-medium transition-colors tab-btn
                        {{ $tab === 'overview' ? 'bg-fran text-white' : 'text-gray-500 hover:text-gray-700' }}">
@@ -91,16 +91,28 @@
             <p class="text-2xl font-bold text-fran">{{ number_format($franchise->students_count) }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-border p-4">
-            <p class="text-xs text-gray-500 mb-1">Active Batches</p>
-            <p class="text-2xl font-bold text-admin">{{ number_format($franchise->batches_count) }}</p>
+            <p class="text-xs text-gray-500 mb-1">Monthly Revenue</p>
+            <p class="text-2xl font-bold text-fran">₹{{ number_format($monthlyRevenue) }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-border p-4">
-            <p class="text-xs text-gray-500 mb-1">Commission Rate</p>
-            <p class="text-2xl font-bold text-logo-amber">{{ $franchise->commission_rate }}%</p>
+            <p class="text-xs text-gray-500 mb-1">Avg Score</p>
+            <p class="text-2xl font-bold text-logo-amber">{{ $avgScore ? $avgScore . '%' : '—' }}</p>
         </div>
         <div class="bg-white rounded-2xl border border-border p-4">
-            <p class="text-xs text-gray-500 mb-1">Fee / Student</p>
-            <p class="text-2xl font-bold text-stu">₹{{ number_format($franchise->fee_per_student) }}</p>
+            <p class="text-xs text-gray-500 mb-1">Active Students</p>
+            <p class="text-2xl font-bold text-stu">{{ number_format($franchiseStudents->count()) }}</p>
+        </div>
+    </div>
+
+    {{-- Charts row --}}
+    <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <h3 class="text-sm font-semibold text-admin mb-4">Student Growth</h3>
+            <canvas id="growthChart" height="140"></canvas>
+        </div>
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <h3 class="text-sm font-semibold text-admin mb-4">Level Distribution</h3>
+            <canvas id="levelChart" height="140"></canvas>
         </div>
     </div>
 
@@ -230,11 +242,29 @@
 
 {{-- Revenue tab (hidden) --}}
 <div id="content-revenue" class="hidden">
-    <div class="bg-white rounded-2xl border border-border p-6 text-center text-gray-400">
-        <p class="text-sm">Revenue analytics for {{ $franchise->name }}.</p>
-        <a href="{{ route('admin.revenue') }}" class="text-fran text-sm hover:underline mt-2 block">
-            View full revenue report →
-        </a>
+    <div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="bg-white rounded-2xl border border-border p-4">
+            <p class="text-xs text-gray-500 mb-1">Monthly Revenue</p>
+            <p class="text-2xl font-bold text-fran">₹{{ number_format($monthlyRevenue) }}</p>
+            <p class="text-xs text-gray-400 mt-1">{{ $franchise->students_count }} students × ₹{{ number_format($franchise->fee_per_student) }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-border p-4">
+            <p class="text-xs text-gray-500 mb-1">Commission Rate</p>
+            <p class="text-2xl font-bold text-logo-amber">{{ $franchise->commission_rate }}%</p>
+            <p class="text-xs text-gray-400 mt-1">Commission due: ₹{{ number_format($monthlyRevenue * $franchise->commission_rate / 100) }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-border p-4">
+            <p class="text-xs text-gray-500 mb-1">Net Revenue</p>
+            <p class="text-2xl font-bold text-stu">₹{{ number_format($monthlyRevenue - ($monthlyRevenue * $franchise->commission_rate / 100)) }}</p>
+            <p class="text-xs text-gray-400 mt-1">After commission deduction</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-border p-5">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-admin">Revenue Trend</h3>
+            <a href="{{ route('admin.revenue') }}" class="text-xs text-fran hover:underline">Full Revenue Report →</a>
+        </div>
+        <canvas id="revenueChart" height="100"></canvas>
     </div>
 </div>
 
@@ -286,12 +316,64 @@
     </div>
 </div>
 
+{{-- Settings tab (hidden) --}}
+<div id="content-settings" class="hidden">
+    <div class="grid grid-cols-2 gap-5">
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <h3 class="text-sm font-semibold text-admin mb-4">Franchise Settings</h3>
+            <form method="POST" action="{{ route('admin.franchises.update', $franchise) }}" class="space-y-4">
+                @csrf @method('PUT')
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Commission Rate (%)</label>
+                    <input type="number" name="commission_rate" step="0.01" min="0" max="100"
+                           value="{{ $franchise->commission_rate }}"
+                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Fee per Student (₹)</label>
+                    <input type="number" name="fee_per_student" step="0.01" min="0"
+                           value="{{ $franchise->fee_per_student }}"
+                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Franchise Status</label>
+                    <select name="status" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        @foreach(['active' => 'Active', 'pending' => 'Pending', 'suspended' => 'Suspended'] as $val => $lbl)
+                            <option value="{{ $val }}" {{ $franchise->status === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit"
+                        class="w-full bg-fran text-white text-sm font-semibold py-2.5 rounded-xl hover:bg-fran-dark transition-colors">
+                    Save Settings
+                </button>
+            </form>
+        </div>
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <h3 class="text-sm font-semibold text-admin mb-4">Danger Zone</h3>
+            <div class="border border-red-200 rounded-xl p-4 bg-red-50">
+                <p class="text-sm font-medium text-red-700 mb-1">Delete Franchise</p>
+                <p class="text-xs text-red-500 mb-3">This action is irreversible. All students and records will be unlinked.</p>
+                <form method="POST" action="{{ route('admin.franchises.destroy', $franchise) }}"
+                      onsubmit="return confirm('Are you sure? This cannot be undone.')">
+                    @csrf @method('DELETE')
+                    <button type="submit"
+                            class="px-4 py-2 bg-red-500 text-white text-xs font-semibold rounded-lg hover:bg-red-600 transition-colors">
+                        Delete Franchise
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 function showTab(tab) {
-    ['overview','students','revenue','documents'].forEach(t => {
+    ['overview','students','revenue','documents','settings'].forEach(t => {
         document.getElementById('content-' + t).classList.toggle('hidden', t !== tab);
         const btn = document.getElementById('tab-' + t);
         btn.classList.toggle('bg-fran', t === tab);
@@ -302,5 +384,49 @@ function showTab(tab) {
 @if(session('openTab'))
 document.addEventListener('DOMContentLoaded', () => showTab('{{ session('openTab') }}'));
 @endif
+
+document.addEventListener('DOMContentLoaded', function () {
+    const growthLabels = @json($growthLabels);
+    const growthData   = @json($growthData);
+    const levelLabels  = @json($levelDist->pluck('title'));
+    const levelData    = @json($levelDist->pluck('cnt'));
+
+    new Chart(document.getElementById('growthChart'), {
+        type: 'line',
+        data: {
+            labels: growthLabels,
+            datasets: [{ label: 'New Students', data: growthData,
+                borderColor: '#1A73E8', backgroundColor: 'rgba(26,115,232,0.1)',
+                tension: 0.4, fill: true, pointRadius: 4 }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+
+    if (levelLabels.length) {
+        new Chart(document.getElementById('levelChart'), {
+            type: 'bar',
+            data: {
+                labels: levelLabels,
+                datasets: [{ label: 'Students', data: levelData,
+                    backgroundColor: '#1A73E8', borderRadius: 6 }]
+            },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+    }
+
+    // Revenue chart (same growth data as proxy)
+    const revCanvas = document.getElementById('revenueChart');
+    if (revCanvas) {
+        new Chart(revCanvas, {
+            type: 'bar',
+            data: {
+                labels: growthLabels,
+                datasets: [{ label: 'Revenue (₹)', data: growthData.map(d => d * {{ $franchise->fee_per_student }}),
+                    backgroundColor: 'rgba(26,115,232,0.7)', borderRadius: 6 }]
+            },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    }
+});
 </script>
 @endpush

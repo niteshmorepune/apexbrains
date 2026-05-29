@@ -26,9 +26,14 @@
                    class="border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
         </div>
         <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Fee per Student (₹)</label>
+            <input type="number" name="fee_per_student" step="1" min="0" placeholder="Use per-franchise rate"
+                   class="border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran w-44">
+        </div>
+        <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Override Commission Rate (%)</label>
             <input type="number" name="commission_rate" step="0.5" min="0" max="100" placeholder="Use per-franchise rate"
-                   class="border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran w-52">
+                   class="border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran w-44">
         </div>
         <button type="submit"
                 class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
@@ -58,10 +63,12 @@
         <thead>
             <tr class="bg-admin">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Franchise</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-white">City</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Students</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Fee/Student</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Gross Revenue</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Rate</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Commission %</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Commission Due</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Paid</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Action</th>
             </tr>
@@ -70,14 +77,13 @@
             @forelse($franchises as $f)
                 <tr class="hover:bg-bg-light">
                     <td class="px-5 py-3 font-medium text-admin">{{ $f->name }}</td>
+                    <td class="px-4 py-3 text-gray-500">{{ $f->city }}</td>
+                    <td class="px-4 py-3 text-right text-gray-700">{{ number_format($f->students_count ?? 0) }}</td>
+                    <td class="px-4 py-3 text-right text-gray-500">₹{{ number_format($f->fee_per_student) }}</td>
                     <td class="px-4 py-3 text-right">₹{{ number_format($f->gross_revenue ?? 0) }}</td>
                     <td class="px-4 py-3 text-right text-gray-500">{{ $f->commission_rate }}%</td>
                     <td class="px-4 py-3 text-right font-semibold text-fran">
                         ₹{{ number_format($f->commission_due) }}
-                    </td>
-                    <td class="px-4 py-3 text-right text-stu">
-                        @php $paidAmount = $f->commission_record?->status === 'paid' ? $f->commission_due : 0; @endphp
-                        ₹{{ number_format($paidAmount) }}
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($f->commission_record?->status === 'paid')
@@ -89,25 +95,29 @@
                         @endif
                     </td>
                     <td class="px-4 py-3 text-center">
-                        @if($f->commission_record && $f->commission_record->status !== 'paid')
-                            <form method="POST"
-                                  action="{{ route('admin.commissions.mark-paid', $f->commission_record) }}">
-                                @csrf
-                                <button type="submit"
-                                        class="text-xs bg-stu text-white px-3 py-1 rounded-lg hover:bg-stu-dark transition-colors font-medium">
-                                    Mark Paid
-                                </button>
-                            </form>
-                        @elseif($f->commission_record?->status === 'paid')
-                            <span class="text-xs text-gray-400">✓ Done</span>
-                        @else
-                            <span class="text-xs text-gray-300">—</span>
-                        @endif
+                        <div class="flex items-center justify-center gap-2">
+                            @if($f->commission_record && $f->commission_record->status !== 'paid')
+                                <form method="POST"
+                                      action="{{ route('admin.commissions.mark-paid', $f->commission_record) }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="text-xs bg-stu text-white px-2.5 py-1 rounded-lg hover:bg-stu-dark transition-colors font-medium">
+                                        Mark Paid
+                                    </button>
+                                </form>
+                            @elseif($f->commission_record?->status === 'paid')
+                                <span class="text-xs text-gray-400">✓ Paid</span>
+                            @endif
+                            <a href="{{ route('admin.commissions.export-pdf', ['month' => $month]) }}"
+                               class="text-xs border border-border text-gray-500 px-2.5 py-1 rounded-lg hover:bg-bg-light transition-colors">
+                                Download
+                            </a>
+                        </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="px-5 py-8 text-center text-gray-400">
+                    <td colspan="9" class="px-5 py-8 text-center text-gray-400">
                         No active franchises. Click Calculate All to generate commissions.
                     </td>
                 </tr>

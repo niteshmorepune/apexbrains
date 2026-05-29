@@ -15,6 +15,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Franchise management
         Route::resource('franchises', \App\Http\Controllers\Admin\FranchiseController::class);
+        Route::get('franchises/performance', [\App\Http\Controllers\Admin\FranchiseController::class, 'performance'])->name('franchises.performance');
+        Route::get('franchises/approval-queue', [\App\Http\Controllers\Admin\FranchiseController::class, 'approvalQueue'])->name('franchises.approval-queue');
         Route::post('franchises/{franchise}/approve', [\App\Http\Controllers\Admin\FranchiseController::class, 'approve'])->name('franchises.approve');
         Route::post('franchises/{franchise}/suspend', [\App\Http\Controllers\Admin\FranchiseController::class, 'suspend'])->name('franchises.suspend');
         Route::post('franchises/{franchise}/reject', [\App\Http\Controllers\Admin\FranchiseController::class, 'reject'])->name('franchises.reject');

@@ -3,6 +3,14 @@
 @section('page-title', 'Franchise Management')
 
 @section('page-actions')
+    <a href="{{ route('admin.franchises.approval-queue') }}"
+       class="inline-flex items-center gap-2 border border-border text-gray-600 text-sm font-medium px-4 py-2 rounded-xl hover:bg-bg-light transition-colors">
+        Approval Queue
+    </a>
+    <a href="{{ route('admin.franchises.performance') }}"
+       class="inline-flex items-center gap-2 border border-border text-gray-600 text-sm font-medium px-4 py-2 rounded-xl hover:bg-bg-light transition-colors">
+        Performance
+    </a>
     <a href="{{ route('admin.franchises.create') }}"
        class="inline-flex items-center gap-2 bg-fran text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-fran-dark transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,27 +21,6 @@
 @endsection
 
 @section('content')
-
-{{-- Performance Panel --}}
-@if($topFranchises->isNotEmpty())
-<div class="bg-white rounded-2xl border border-border p-5 mb-4">
-    <h3 class="text-sm font-semibold text-admin mb-4">Top Performing Franchises — Student Enrollment</h3>
-    <div class="space-y-2.5">
-        @foreach($topFranchises as $tf)
-        <div class="flex items-center gap-3">
-            <div class="w-28 text-xs text-gray-600 truncate flex-shrink-0" title="{{ $tf->name }}">{{ $tf->name }}</div>
-            <div class="flex-1 bg-bg-light rounded-full h-5 overflow-hidden">
-                <div class="h-full bg-fran rounded-full flex items-center justify-end pr-2 transition-all"
-                     style="width: {{ round($tf->students_count / $maxStudents * 100) }}%; min-width: 2rem;">
-                    <span class="text-xs font-bold text-white">{{ $tf->students_count }}</span>
-                </div>
-            </div>
-            <div class="w-12 text-right text-xs text-gray-400 flex-shrink-0">{{ $tf->city }}</div>
-        </div>
-        @endforeach
-    </div>
-</div>
-@endif
 
 {{-- Search + Filter tabs --}}
 <div class="bg-white rounded-2xl border border-border p-4 mb-4 flex flex-wrap items-center gap-3">
@@ -69,6 +56,8 @@
                     <th class="text-left px-4 py-3 text-xs font-semibold text-white">Owner</th>
                     <th class="text-left px-4 py-3 text-xs font-semibold text-white">City</th>
                     <th class="text-right px-4 py-3 text-xs font-semibold text-white">Students</th>
+                    <th class="text-right px-4 py-3 text-xs font-semibold text-white">Revenue</th>
+                    <th class="text-right px-4 py-3 text-xs font-semibold text-white">Avg Score</th>
                     <th class="text-left px-4 py-3 text-xs font-semibold text-white">Joined</th>
                     <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
                     <th class="text-left px-4 py-3 text-xs font-semibold text-white">Actions</th>
@@ -84,6 +73,8 @@
                         <td class="px-4 py-3 text-gray-600">{{ $f->owner_name }}</td>
                         <td class="px-4 py-3 text-gray-500">{{ $f->city }}</td>
                         <td class="px-4 py-3 text-right font-medium text-admin">{{ number_format($f->students_count) }}</td>
+                        <td class="px-4 py-3 text-right text-fran font-medium text-sm">₹{{ number_format($f->students_count * $f->fee_per_student) }}</td>
+                        <td class="px-4 py-3 text-right text-gray-600 text-sm">—</td>
                         <td class="px-4 py-3 text-gray-500 text-xs">
                             {{ $f->created_at->format('M Y') }}
                         </td>
@@ -122,7 +113,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-5 py-12 text-center text-gray-400">
+                        <td colspan="9" class="px-5 py-12 text-center text-gray-400">
                             No franchises found.
                             <a href="{{ route('admin.franchises.create') }}" class="text-fran hover:underline ml-1">Add the first one →</a>
                         </td>

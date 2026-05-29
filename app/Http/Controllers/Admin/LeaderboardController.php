@@ -43,8 +43,10 @@ class LeaderboardController extends Controller
             $rows = $rows->filter(fn($r) => $r->student?->current_level_id == $levelFilter);
         }
 
-        $franchises = Franchise::where('status', 'active')->orderBy('name')->get();
+        $franchises  = Franchise::where('status', 'active')->orderBy('name')->get();
+        $levels      = \App\Models\Level::orderBy('number')->get();
+        $periodFilter = $request->get('period', 'all');
 
-        return view('admin.leaderboard', compact('rows', 'franchises', 'levelFilter', 'franchiseFilter'));
+        return view('admin.leaderboard', compact('rows', 'franchises', 'levels', 'levelFilter', 'franchiseFilter', 'periodFilter'));
     }
 }

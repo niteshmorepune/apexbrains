@@ -8,7 +8,7 @@
 
     {{-- Tab navigation --}}
     <div class="flex gap-1 mb-6 bg-white rounded-2xl border border-border p-1 w-fit">
-        @foreach(['general' => 'General', 'security' => 'Security', 'notifications' => 'Notifications'] as $key => $label)
+        @foreach(['general' => 'General', 'security' => 'Security', 'notifications' => 'Notifications', 'integrations' => 'Integrations'] as $key => $label)
             <button type="button" @click="tab = '{{ $key }}'"
                     :class="tab === '{{ $key }}' ? 'bg-fran text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'"
                     class="px-5 py-2 rounded-xl text-sm font-medium transition-colors">
@@ -33,13 +33,31 @@
                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Support Email</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Tagline</label>
+                            <input type="text" name="tagline" value="{{ old('tagline', $settings['tagline'] ?? 'Explore your Potential') }}"
+                                   placeholder="Explore your Potential"
+                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Contact Email</label>
                             <input type="email" name="support_email" value="{{ old('support_email', $settings['support_email']) }}" required
                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Support Phone</label>
                             <input type="text" name="support_phone" value="{{ old('support_phone', $settings['support_phone']) }}"
+                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Corporate Address</label>
+                            <input type="text" name="corporate_address" value="{{ old('corporate_address', $settings['corporate_address'] ?? '') }}"
+                                   placeholder="Office address, City, State, Pincode"
+                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">GST Number</label>
+                            <input type="text" name="gst_number" value="{{ old('gst_number', $settings['gst_number'] ?? '') }}"
+                                   placeholder="22AAAAA0000A1Z5"
                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                         </div>
                         <div>
@@ -68,6 +86,14 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Currency Symbol</label>
                             <input type="text" name="currency" value="{{ old('currency', $settings['currency']) }}" maxlength="10"
                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Language</label>
+                            <select name="language" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                                @foreach(['en' => 'English', 'hi' => 'Hindi (हिन्दी)', 'mr' => 'Marathi (मराठी)'] as $code => $lang)
+                                    <option value="{{ $code }}" @selected(($settings['language'] ?? 'en') === $code)>{{ $lang }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -166,6 +192,39 @@
                         </div>
                     @endforeach
                 </div>
+            </div>
+        </div>
+
+        {{-- Integrations --}}
+        <div x-show="tab === 'integrations'" class="max-w-2xl space-y-4">
+            <div class="bg-white rounded-2xl border border-border p-6">
+                <h2 class="text-sm font-bold text-admin mb-1">Payment Gateway</h2>
+                <p class="text-xs text-gray-500 mb-4">Configure Razorpay or PayU for online fee collection.</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Payment Gateway</label>
+                        <select name="payment_gateway" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                            <option value="">Disabled</option>
+                            <option value="razorpay" @selected(($settings['payment_gateway'] ?? '') === 'razorpay')>Razorpay</option>
+                            <option value="payu" @selected(($settings['payment_gateway'] ?? '') === 'payu')>PayU</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">API Key</label>
+                        <input type="text" name="payment_api_key" value="{{ old('payment_api_key', $settings['payment_api_key'] ?? '') }}"
+                               placeholder="rzp_live_xxxxx"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">API Secret</label>
+                        <input type="password" name="payment_api_secret" value="{{ old('payment_api_secret', $settings['payment_api_secret'] ?? '') }}"
+                               placeholder="Leave blank to keep existing secret"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-blue-50 rounded-2xl border border-blue-200 p-4 text-xs text-blue-700">
+                Additional integrations (SMS gateway, email service) can be configured in <code class="bg-white px-1 rounded">.env</code> directly.
             </div>
         </div>
 
