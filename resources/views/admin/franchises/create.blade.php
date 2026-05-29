@@ -64,6 +64,7 @@
                         <input type="email" name="email" value="{{ old('email') }}" required
                                placeholder="owner@academy.in"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent @error('email') border-red-400 @enderror">
+                        <p class="text-xs text-gray-400 mt-1">This is the franchise login username.</p>
                         @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
@@ -157,6 +158,33 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Expected Launch Date</label>
                         <input type="date" name="expected_launch_date" value="{{ old('expected_launch_date') }}"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Login Credentials --}}
+            <div class="bg-white rounded-2xl border border-border p-6 mb-6">
+                <h2 class="text-sm font-bold text-admin mb-1">Login Credentials</h2>
+                <p class="text-xs text-gray-400 mb-4">The franchise owner signs in at <span class="font-mono">/franchise/login</span> using the email above and this password.</p>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                            Password <span class="text-red-500">*</span>
+                        </label>
+                        <input type="password" name="password" required autocomplete="new-password"
+                               placeholder="Min 8 characters"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent @error('password') border-red-400 @enderror">
+                        @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                            Confirm Password <span class="text-red-500">*</span>
+                        </label>
+                        <input type="password" name="password_confirmation" required autocomplete="new-password"
+                               placeholder="Re-enter password"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent">
                     </div>
                 </div>

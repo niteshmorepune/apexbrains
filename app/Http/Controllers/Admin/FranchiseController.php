@@ -51,7 +51,7 @@ class FranchiseController extends Controller
         $data = $request->validate([
             'name'                 => ['required', 'string', 'max:150'],
             'owner_name'           => ['required', 'string', 'max:100'],
-            'email'                => ['required', 'email', 'unique:franchises,email'],
+            'email'                => ['required', 'email', 'unique:franchises,email', 'unique:users,email'],
             'phone'                => ['required', 'string', 'max:15'],
             'whatsapp'             => ['nullable', 'string', 'max:15'],
             'address'              => ['required', 'string', 'max:300'],
@@ -61,7 +61,11 @@ class FranchiseController extends Controller
             'gst_number'  => ['nullable', 'string', 'max:20'],
             'pan_number'  => ['nullable', 'string', 'max:15'],
             'agreed_at'   => ['nullable', 'date'],
+            'password'    => ['required', 'string', 'min:8', 'confirmed'],
         ]);
+
+        $password = $data['password'];
+        unset($data['password']);
 
         $data['status'] = 'pending';
         $data['slug'] = Str::slug($data['name']) . '-' . Str::random(4);
@@ -70,6 +74,17 @@ class FranchiseController extends Controller
             . '-' . str_pad(Franchise::count() + 1, 3, '0', STR_PAD_LEFT);
 
         $franchise = Franchise::create($data);
+
+        // Create the franchise admin login account
+        $franchiseUser = \App\Models\User::create([
+            'name'         => $data['owner_name'],
+            'email'        => $data['email'],
+            'password'     => \Illuminate\Support\Facades\Hash::make($password),
+            'franchise_id' => $franchise->id,
+            'phone'        => $data['phone'],
+            'is_active'    => true,
+        ]);
+        $franchiseUser->assignRole('franchise_admin');
 
         AuditLogger::log('franchise_created', 'Franchise', $franchise->id);
 

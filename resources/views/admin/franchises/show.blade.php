@@ -300,18 +300,24 @@
                     </div>
                     @endforeach
                 </div>
-                <div class="mt-5 flex items-center gap-3">
+                <div class="mt-5">
                     <button type="submit"
                             class="px-5 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
                         Save Documents
                     </button>
-                    <a href="{{ route('admin.franchises.approve', $franchise) }}"
-                       onclick="return confirm('Approve this franchise?')"
-                       class="{{ $franchise->status === 'pending' ? '' : 'hidden' }} px-5 py-2.5 bg-stu text-white rounded-xl text-sm font-semibold hover:bg-stu-dark transition-colors">
-                        Approve &amp; Activate
-                    </a>
                 </div>
             </form>
+
+            @if($franchise->status === 'pending')
+                <form method="POST" action="{{ route('admin.franchises.approve', $franchise) }}" class="mt-3"
+                      onsubmit="return confirm('Approve and activate this franchise?')">
+                    @csrf
+                    <button type="submit"
+                            class="px-5 py-2.5 bg-stu text-white rounded-xl text-sm font-semibold hover:bg-stu-dark transition-colors">
+                        Approve &amp; Activate
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
 </div>
