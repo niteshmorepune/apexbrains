@@ -9,10 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        @media (min-width: 1024px) { .login-grid { grid-template-columns: 3fr 5fr; } }
+    </style>
 </head>
 <body class="min-h-full bg-[#F5F8FE]" style="font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;">
 
-<div class="min-h-screen grid lg:grid-cols-[3fr_5fr]">
+<div class="min-h-screen grid login-grid">
 
     {{-- Left branding panel --}}
     <div class="relative flex flex-col justify-center px-12 py-16 bg-[#F5F8FE] overflow-hidden">
@@ -60,7 +63,7 @@
                     </div>
                 @endif
 
-                <div x-data="{ showForgot: false }" x-on:forgot-admin.window="showForgot = !showForgot">
+                <div x-data="{ showForgot: false }">
                 <form method="POST" action="{{ route('admin.login') }}" class="space-y-4">
                     @csrf
 
@@ -74,7 +77,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="text-[11px] font-medium text-gray-600">Password</label>
-                            <button type="button" x-data x-on:click="$dispatch('forgot-admin')" class="text-[12px] text-fran hover:underline">Forgot password?</button>
+                            <button type="button" @click="showForgot = !showForgot" class="text-[12px] text-fran hover:underline">Forgot password?</button>
                         </div>
                         <input type="password" name="password" required
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent transition">

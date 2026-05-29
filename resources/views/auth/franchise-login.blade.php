@@ -9,10 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        @media (min-width: 1024px) { .login-grid { grid-template-columns: 3fr 5fr; } }
+    </style>
 </head>
 <body class="min-h-full bg-[#F5F8FE]" style="font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;">
 
-<div class="min-h-screen grid lg:grid-cols-[3fr_5fr]">
+<div class="min-h-screen grid login-grid">
 
     {{-- Left branding panel --}}
     <div class="relative flex flex-col justify-center px-12 py-16 bg-[#F5F8FE] overflow-hidden">
