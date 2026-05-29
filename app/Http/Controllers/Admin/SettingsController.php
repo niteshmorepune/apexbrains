@@ -23,17 +23,24 @@ class SettingsController extends Controller
     {
         $data = $request->validate([
             'app_name'               => ['required', 'string', 'max:100'],
+            'tagline'                => ['nullable', 'string', 'max:150'],
             'support_email'          => ['required', 'email', 'max:150'],
             'support_phone'          => ['nullable', 'string', 'max:20'],
+            'corporate_address'      => ['nullable', 'string', 'max:255'],
+            'gst_number'             => ['nullable', 'string', 'max:20'],
             'timezone'               => ['required', 'string', 'max:50'],
             'date_format'            => ['required', 'in:d/m/Y,m/d/Y,Y-m-d'],
             'currency'               => ['required', 'string', 'max:10'],
-            'session_lifetime'       => ['required', 'integer', 'min:15', 'max:1440'],
-            'max_login_attempts'     => ['required', 'integer', 'min:3', 'max:20'],
+            'language'               => ['nullable', 'string', 'max:5'],
+            'session_lifetime'       => ['nullable', 'integer', 'min:15', 'max:1440'],
+            'max_login_attempts'     => ['nullable', 'integer', 'min:3', 'max:20'],
             'notify_new_franchise'   => ['nullable', 'boolean'],
             'notify_new_student'     => ['nullable', 'boolean'],
             'notify_payment_due'     => ['nullable', 'boolean'],
             'notify_commission'      => ['nullable', 'boolean'],
+            'payment_gateway'        => ['nullable', 'string', 'max:30'],
+            'payment_api_key'        => ['nullable', 'string', 'max:255'],
+            'payment_api_secret'     => ['nullable', 'string', 'max:255'],
             'logo'                   => ['nullable', 'image', 'mimes:png,jpg,jpeg,svg', 'max:1024'],
         ]);
 
@@ -53,7 +60,8 @@ class SettingsController extends Controller
         }
 
         unset($data['logo']);
-        $this->saveSettings($data);
+        // Merge so untouched keys (e.g. secrets, prior tabs) are preserved
+        $this->saveSettings(array_merge($existing, $data));
         AuditLogger::log('settings_updated', 'Settings');
 
         return redirect()->route('admin.settings')

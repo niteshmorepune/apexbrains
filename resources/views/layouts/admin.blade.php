@@ -18,9 +18,17 @@
     <aside class="flex-shrink-0 bg-admin flex flex-col" style="width:220px">
         {{-- Logo --}}
         <div class="px-5 py-4 border-b border-admin-mid flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-logo-red flex items-center justify-center text-white font-bold text-sm flex-shrink-0">AB</div>
+            @if(!empty($appSettings['logo_path']))
+                <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <img src="{{ Storage::url($appSettings['logo_path']) }}" alt="Logo" class="max-w-full max-h-full object-contain">
+                </div>
+            @else
+                <div class="w-9 h-9 rounded-xl bg-logo-red flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    {{ strtoupper(substr($appSettings['app_name'] ?? 'AB', 0, 2)) }}
+                </div>
+            @endif
             <div class="min-w-0">
-                <p class="text-white font-bold text-sm leading-tight">Apex Brains</p>
+                <p class="text-white font-bold text-sm leading-tight truncate">{{ $appSettings['app_name'] ?? 'Apex Brains' }}</p>
                 <p class="text-gray-400 text-xs">Management System</p>
             </div>
         </div>
@@ -42,14 +50,16 @@
         {{-- User area --}}
         <div class="px-4 py-3 border-t border-admin-mid">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-gray-400 text-xs">Super Admin</p>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
+                <a href="{{ route('admin.profile') }}" class="flex items-center gap-2 flex-1 min-w-0 group">
+                    <div class="w-8 h-8 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white text-xs font-semibold truncate group-hover:underline">{{ auth()->user()->name }}</p>
+                        <p class="text-gray-400 text-xs">Super Admin</p>
+                    </div>
+                </a>
+                <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
                     <button type="submit" title="Sign out"
                             class="text-gray-400 hover:text-white transition-colors">
@@ -69,7 +79,7 @@
         {{-- Top bar --}}
         <header class="h-14 bg-admin border-b border-admin-mid flex items-center px-6 gap-4 flex-shrink-0">
             <div class="flex items-center gap-1 text-sm text-gray-400">
-                <span class="font-semibold text-white">Apex Brains Admin Portal</span>
+                <span class="font-semibold text-white">{{ $appSettings['app_name'] ?? 'Apex Brains' }} Admin Portal</span>
             </div>
             <div class="ml-auto flex items-center gap-4">
                 @if(request()->routeIs('admin.audit-log'))
@@ -80,9 +90,10 @@
                 @endif
                 <a href="{{ route('admin.help') }}"
                    class="text-gray-400 hover:text-white text-sm transition-colors {{ request()->routeIs('admin.help') ? 'text-white' : '' }}">Help</a>
-                <div class="w-8 h-8 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold">
+                <a href="{{ route('admin.profile') }}" title="My Profile"
+                   class="w-8 h-8 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold hover:ring-2 hover:ring-white/30 transition">
                     {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                </div>
+                </a>
             </div>
         </header>
 

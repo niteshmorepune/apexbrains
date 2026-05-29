@@ -55,6 +55,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('resources/{resource}/download', [\App\Http\Controllers\Admin\ResourceFileController::class, 'download'])->name('resources.download');
         Route::delete('resources/{resource}', [\App\Http\Controllers\Admin\ResourceFileController::class, 'destroy'])->name('resources.destroy');
 
+        // Profile
+        Route::get('profile', [\App\Http\Controllers\Admin\AdminProfileController::class, 'index'])->name('profile');
+        Route::put('profile', [\App\Http\Controllers\Admin\AdminProfileController::class, 'update'])->name('profile.update');
+
         // Settings & Audit
         Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
         Route::post('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
