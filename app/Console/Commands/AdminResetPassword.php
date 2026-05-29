@@ -14,7 +14,7 @@ class AdminResetPassword extends Command
      * Usage:
      *   php artisan admin:reset-password
      *   php artisan admin:reset-password admin@apexbrains.in
-     *   php artisan admin:reset-password admin@apexbrains.in --password="NewSecret123"
+     *   php artisan admin:reset-password admin@apexbrains.in --password=...
      *   php artisan admin:reset-password admin@apexbrains.in --generate
      */
     protected $signature = 'admin:reset-password
