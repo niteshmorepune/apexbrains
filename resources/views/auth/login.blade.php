@@ -16,20 +16,25 @@
 
     <div class="w-full max-w-[340px] text-center">
 
-        {{-- Abacus icon --}}
-        <div class="text-5xl leading-none mb-3">🧮</div>
+        {{-- Logo --}}
+        @if(!empty($appSettings['logo_path']))
+            <img src="{{ Storage::url($appSettings['logo_path']) }}" alt="{{ $appSettings['app_name'] ?? 'Apex Brains' }}" class="h-14 w-auto mx-auto mb-3">
+        @else
+            {{-- Abacus icon --}}
+            <div class="text-5xl leading-none mb-3">🧮</div>
 
-        {{-- Apex Brains logo --}}
-        <div class="flex items-center justify-center gap-2 mb-1">
-            <span class="text-logo-red font-black text-[22px] italic leading-none select-none">A</span>
-            <div class="text-left leading-tight">
-                <div class="text-[17px] font-extrabold tracking-tight">
-                    <span class="text-logo-red">A</span><span class="text-fran">p</span><span class="text-[#34A853]">e</span><span class="text-logo-amber">x</span>
-                    <span class="text-logo-red"> B</span><span class="text-fran">r</span><span class="text-[#34A853]">a</span><span class="text-logo-amber">i</span><span class="text-logo-red">n</span><span class="text-fran">s</span>
+            {{-- Apex Brains logo --}}
+            <div class="flex items-center justify-center gap-2 mb-1">
+                <span class="text-logo-red font-black text-[22px] italic leading-none select-none">A</span>
+                <div class="text-left leading-tight">
+                    <div class="text-[17px] font-extrabold tracking-tight">
+                        <span class="text-logo-red">A</span><span class="text-fran">p</span><span class="text-[#34A853]">e</span><span class="text-logo-amber">x</span>
+                        <span class="text-logo-red"> B</span><span class="text-fran">r</span><span class="text-[#34A853]">a</span><span class="text-logo-amber">i</span><span class="text-logo-red">n</span><span class="text-fran">s</span>
+                    </div>
+                    <div class="text-[11px] font-semibold tracking-[0.18em] text-fran">Abacus</div>
                 </div>
-                <div class="text-[11px] font-semibold tracking-[0.18em] text-fran">Abacus</div>
             </div>
-        </div>
+        @endif
 
         {{-- Taglines --}}
         <p class="text-[12px] text-gray-500 mt-2 leading-snug">International Abacus Programme</p>

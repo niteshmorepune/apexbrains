@@ -24,16 +24,22 @@
         <div class="absolute bottom-[-60px] left-[-40px] w-56 h-56 rounded-full bg-fran/[0.05] pointer-events-none"></div>
 
         {{-- Logo --}}
-        <div class="flex items-center gap-3 mb-8">
-            <span class="text-logo-red font-black text-[26px] italic leading-none select-none">A</span>
-            <div class="leading-tight">
-                <div class="text-[20px] font-extrabold tracking-tight">
-                    <span class="text-logo-red">A</span><span class="text-fran">p</span><span class="text-[#34A853]">e</span><span class="text-logo-amber">x</span>
-                    <span class="text-logo-red"> B</span><span class="text-fran">r</span><span class="text-[#34A853]">a</span><span class="text-logo-amber">i</span><span class="text-logo-red">n</span><span class="text-fran">s</span>
-                </div>
-                <div class="text-[12px] font-semibold tracking-[0.18em] text-fran uppercase">Abacus</div>
+        @if(!empty($appSettings['logo_path']))
+            <div class="mb-8">
+                <img src="{{ Storage::url($appSettings['logo_path']) }}" alt="{{ $appSettings['app_name'] ?? 'Apex Brains' }}" class="h-12 w-auto">
             </div>
-        </div>
+        @else
+            <div class="flex items-center gap-3 mb-8">
+                <span class="text-logo-red font-black text-[26px] italic leading-none select-none">A</span>
+                <div class="leading-tight">
+                    <div class="text-[20px] font-extrabold tracking-tight">
+                        <span class="text-logo-red">A</span><span class="text-fran">p</span><span class="text-[#34A853]">e</span><span class="text-logo-amber">x</span>
+                        <span class="text-logo-red"> B</span><span class="text-fran">r</span><span class="text-[#34A853]">a</span><span class="text-logo-amber">i</span><span class="text-logo-red">n</span><span class="text-fran">s</span>
+                    </div>
+                    <div class="text-[12px] font-semibold tracking-[0.18em] text-fran uppercase">Abacus</div>
+                </div>
+            </div>
+        @endif
 
         <h2 class="text-[16px] font-normal text-gray-700 mb-1">International Abacus Programme</h2>
         <p class="text-[13px] text-gray-500 mb-8">"Explore your Potential"</p>
