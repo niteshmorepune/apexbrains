@@ -24,9 +24,9 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>Tap <strong>Practice</strong> to see all 50 available competition practice papers.</p>
-                <p>Each paper has a set number of questions and a time limit. Start a paper and answer the questions before the timer runs out.</p>
-                <p>Your score is shown immediately after submission. You can re-attempt a paper as many times as you like — your best score is displayed on the list.</p>
+                <p>The <strong>Practice</strong> tile opens your <em>Practice Hub</em> — it shows how many of the 50 papers you've completed and your milestones. Tap <em>Practice Papers</em> to see the full list.</p>
+                <p>Each paper has a set number of questions and a time limit. Start a paper and answer before the timer runs out.</p>
+                <p>After submitting you'll see your accuracy, average speed, and a review of any questions you got wrong. Re-attempt any paper as often as you like — your best score shows on the list.</p>
             </div>
         </div>
 
@@ -43,9 +43,9 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'competitions' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'competitions'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>Tap <strong>Compete</strong> to see upcoming competitions you are registered for.</p>
-                <p>Registrations are handled by your institute/centre. If you don't see a competition, contact your teacher.</p>
-                <p>Use the practice papers to prepare before the actual competition date.</p>
+                <p>Tap <strong>Exams</strong> to see your Upcoming and Past competitions.</p>
+                <p>Open a competition to view its rules, duration, and question count. When it's open and you're registered, use <em>I am Ready — Start Exam</em>.</p>
+                <p>Registrations are handled by your institute/centre. If you don't see a competition, contact your teacher. Use the practice papers to prepare beforehand.</p>
             </div>
         </div>
 
@@ -69,6 +69,24 @@
                     <li>Tap <strong>Submit Paper</strong> when you're done. You cannot change answers after submission.</li>
                     <li>Your score and correct answers are shown on the results page.</li>
                 </ul>
+            </div>
+        </div>
+
+        {{-- Results & Certificates --}}
+        <div class="bg-white rounded-2xl border border-border overflow-hidden">
+            <button @click="open = open === 'results' ? null : 'results'"
+                    class="w-full flex items-center justify-between px-5 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-teal-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.bar-chart-2')</svg>
+                    </div>
+                    <span class="font-semibold text-gray-800">Results &amp; Certificates</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'results' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'results'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
+                <p>Tap <strong>Results</strong> in the bottom menu for your paper attempt history, average score, and overall progress.</p>
+                <p>Your certificates live in the <em>Certificate Vault</em> (open it from the <em>Results &amp; Certificate</em> tile on Home). Each certificate has a QR code and can be downloaded as a PDF.</p>
             </div>
         </div>
 

@@ -24,9 +24,9 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>Tap <strong>Practice</strong> in the bottom menu to start a timed practice session.</p>
-                <p>Questions are randomly selected from your current level. Answer as many as you can before the timer ends.</p>
-                <p>Your results are saved automatically — check your progress on the Home screen.</p>
+                <p>Tap <strong>Practice</strong> in the bottom menu, then pick a type: <em>Exam Practice</em>, <em>Class Practice</em>, or <em>Competition Practice</em>.</p>
+                <p>Set your options — time per step, session length, number of questions, and Audio Dictation — then start. Numbers appear large on screen for mental-math drills.</p>
+                <p>After each session you'll see your accuracy, average speed, and a speed-improvement chart, plus a review of any questions you got wrong.</p>
             </div>
         </div>
 
@@ -63,8 +63,8 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'competitions' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'competitions'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>Tap <strong>Compete</strong> to see competitions your franchise has registered you for.</p>
-                <p>Practice papers are available to help you prepare. You can attempt each practice paper as many times as you like.</p>
+                <p>Tap <strong>Exams</strong> and switch to the <em>Competition</em> tab to see competitions your franchise has registered you for.</p>
+                <p>Practice papers (under Practice → Competition Practice) help you prepare — attempt each one as many times as you like.</p>
                 <p>Your best score for each practice paper is displayed on the practice list.</p>
             </div>
         </div>
@@ -82,9 +82,27 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'certs' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'certs'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>Tap <strong>Certs</strong> to view all certificates issued by your franchise.</p>
-                <p>Each certificate has a QR code that can be scanned to verify authenticity.</p>
-                <p>Download your certificate as a PDF for printing or sharing.</p>
+                <p>Open the <strong>Certs</strong> tile on your Home screen to reach your <em>Certificate Vault</em>, split into Exam and Competition tabs.</p>
+                <p>Tap any certificate to see a full preview with a QR code that verifies its authenticity.</p>
+                <p>From the preview you can Print, Download as PDF, or Share via WhatsApp.</p>
+            </div>
+        </div>
+
+        {{-- Results --}}
+        <div class="bg-white rounded-2xl border border-border overflow-hidden">
+            <button @click="open = open === 'results' ? null : 'results'"
+                    class="w-full flex items-center justify-between px-5 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-teal-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.bar-chart-2')</svg>
+                    </div>
+                    <span class="font-semibold text-gray-800">Results &amp; Profile</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'results' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'results'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
+                <p>Tap <strong>Results</strong> in the bottom menu to see your full exam history with scores and pass/fail status, plus your average score and exams passed.</p>
+                <p>Tap <strong>Profile</strong> to update your details or change your password.</p>
             </div>
         </div>
 

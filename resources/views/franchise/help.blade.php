@@ -25,10 +25,11 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'students' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'students'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-gray-700">Add a student:</span> Students → New Student. Fill in name, date of birth, gender, and contact details. A login account is created automatically.</p>
-                <p><span class="font-semibold text-gray-700">Bulk import:</span> Students → Import. Download the CSV template, fill it in, and upload. Students are created in bulk with auto-generated codes.</p>
-                <p><span class="font-semibold text-gray-700">Edit / deactivate:</span> Click a student's name to open their profile. Use the Edit button to update details or toggle active status.</p>
-                <p><span class="font-semibold text-gray-700">Student login:</span> Students log in at <code class="bg-gray-100 px-1 rounded">/student</code> using their registered email and password.</p>
+                <p><span class="font-semibold text-gray-700">Register a student:</span> Students → Register. Add the photo, personal info, parent contact (with relationship), course enrolment (level, class schedule, auto-filled monthly fee), and any special notes. A login account is created automatically.</p>
+                <p><span class="font-semibold text-gray-700">Bulk import:</span> Students → Bulk Import. Download the CSV template, fill it in, and upload — you get a <em>preview</em> showing valid / error / duplicate rows before confirming the import.</p>
+                <p><span class="font-semibold text-gray-700">Filter the list:</span> Use the Internal/External and level pills to narrow the student list.</p>
+                <p><span class="font-semibold text-gray-700">Edit / deactivate:</span> Click a student's name to open their profile, then Edit to update details or toggle active status.</p>
+                <p><span class="font-semibold text-gray-700">Student login:</span> Internal students log in at <code class="bg-gray-100 px-1 rounded">/login</code> with their registered email and password.</p>
             </div>
         </div>
 
@@ -45,10 +46,10 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'fees' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'fees'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-gray-700">Fee tabs:</span> The Fees page shows <em>Due</em>, <em>Partial</em>, <em>Overdue</em>, and <em>Paid</em> tabs. Click any row to open the fee detail.</p>
-                <p><span class="font-semibold text-gray-700">Record a payment:</span> Open a fee → click <em>Record Payment</em>. Enter the amount, payment mode (cash/UPI/card/cheque/bank transfer), transaction reference, and payment date. A receipt is generated automatically.</p>
-                <p><span class="font-semibold text-gray-700">Partial payment:</span> Enter an amount less than the balance. The fee status changes to <em>Partial</em> automatically.</p>
-                <p><span class="font-semibold text-gray-700">Receipts:</span> Each payment generates a printable receipt accessible from the payment history on the fee detail page.</p>
+                <p><span class="font-semibold text-gray-700">Fee Collection:</span> Shows KPI cards (collected / outstanding / overdue / collection rate) and a status-filtered table (All / Paid / Due / Partial / Overdue). Use the <em>Quick Record</em> side panel for fast walk-in entries, or the <strong>Record</strong> button for the full payment form.</p>
+                <p><span class="font-semibold text-gray-700">Record a payment:</span> Choose the student, amount, date, and payment mode (cash / UPI / card / cheque / bank transfer). A live receipt preview is shown; on save a receipt is generated. Partial amounts set the fee status to <em>Partial</em>.</p>
+                <p><span class="font-semibold text-gray-700">Fee Reminders:</span> Fees → Fee Reminders lists outstanding fees with days overdue and a <em>Priority</em> badge. Send reminders per row via <strong>WhatsApp</strong>, <strong>SMS</strong>, or <strong>Call</strong>.</p>
+                <p><span class="font-semibold text-gray-700">Receipts:</span> Each receipt has a QR code for verification and can be downloaded as a <strong>PDF</strong>, printed, or shared on <strong>WhatsApp</strong>.</p>
             </div>
         </div>
 
@@ -85,9 +86,9 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-gray-700">Start a session:</span> Class Practice → New Session. Select a level and number of questions. A unique session PIN is generated.</p>
-                <p><span class="font-semibold text-gray-700">Students join:</span> Students enter the PIN on their portal to join the live session and answer questions simultaneously.</p>
-                <p><span class="font-semibold text-gray-700">View results:</span> After the session ends, scores and individual student performance are available in the session detail.</p>
+                <p><span class="font-semibold text-gray-700">Set up a session:</span> Class Practice → New Session. Choose the level, time per step, number of questions, session length, and whether to play <em>Audio Dictation</em> automatically. A unique session code is generated.</p>
+                <p><span class="font-semibold text-gray-700">Project to the class:</span> Open the session and use <strong>Project</strong> for the full-screen view. Use Next Question / Restart Question / End Practice from the top bar; the completion screen shows the score and progress.</p>
+                <p><span class="font-semibold text-gray-700">View results:</span> After the session ends, scores and individual performance are available in the session detail.</p>
             </div>
         </div>
 

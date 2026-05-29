@@ -27,9 +27,11 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'franchises' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'franchises'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-admin">Add a franchise:</span> Go to Franchises → New Franchise. Fill in the owner name, email, phone, and franchise code. Set status to <em>Active</em> to grant portal access.</p>
-                <p><span class="font-semibold text-admin">Approve / Suspend:</span> Open any franchise and use the Approve or Suspend button. Suspended franchises cannot log in.</p>
-                <p><span class="font-semibold text-admin">Franchise code:</span> Used as the login identifier for franchise admins. Must be unique across all franchises.</p>
+                <p><span class="font-semibold text-admin">Add a franchise:</span> Franchises → Add New. Fill in the owner details, location, business info, and a <em>Login Password</em>. This creates the franchise owner's login account automatically — they sign in at <span class="font-mono">/franchise/login</span> using their <strong>email address</strong> and that password (the email is the username).</p>
+                <p><span class="font-semibold text-admin">Documents &amp; activation:</span> After Step 1, upload the required documents on the franchise detail page, then click <strong>Approve &amp; Activate</strong>. New franchises start as <em>Pending</em> and cannot use the portal until approved.</p>
+                <p><span class="font-semibold text-admin">Approval Queue:</span> Franchises → Approval Queue lists all pending applications with their document status and quick Approve / Reject actions.</p>
+                <p><span class="font-semibold text-admin">Performance:</span> Franchises → Performance ranks active branches by students, revenue, attendance and scores.</p>
+                <p><span class="font-semibold text-admin">Suspend / Reactivate:</span> Open any franchise and use the Suspend button (or Reactivate for suspended ones). Suspended franchises cannot log in.</p>
             </div>
         </div>
 
@@ -105,6 +107,43 @@
             <div x-show="open === 'finance'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
                 <p><span class="font-semibold text-admin">Revenue dashboard:</span> Finance shows total revenue, monthly trends, and per-franchise breakdowns. Filter by date range.</p>
                 <p><span class="font-semibold text-admin">Commissions:</span> Go to Finance → Commissions. Calculate commissions for a given month and mark them as paid once transferred to the franchise owner.</p>
+            </div>
+        </div>
+
+        {{-- Settings --}}
+        <div class="bg-white rounded-xl border border-border overflow-hidden">
+            <button @click="open = open === 'settings' ? null : 'settings'"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.settings')</svg>
+                    </div>
+                    <span class="font-semibold text-admin">Settings &amp; Branding</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'settings' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'settings'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
+                <p><span class="font-semibold text-admin">Academy name &amp; logo:</span> Settings → General. The <em>Academy Name</em> and uploaded <em>Logo</em> appear in the sidebar, top bar, and on all four login screens (admin, franchise, student, external). Changes apply immediately after saving.</p>
+                <p><span class="font-semibold text-admin">Other tabs:</span> Security (session/login limits), Notifications (toggle alerts), and Integrations (payment gateway keys). All tabs save together with the <strong>Save All Settings</strong> button.</p>
+                <p><span class="font-semibold text-admin">Logo not showing?</span> The logo loads from the storage symlink. If it appears broken, the <span class="font-mono">public/storage</span> symlink needs re-creating on the server.</p>
+            </div>
+        </div>
+
+        {{-- My Profile --}}
+        <div class="bg-white rounded-xl border border-border overflow-hidden">
+            <button @click="open = open === 'profile' ? null : 'profile'"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-fran" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.user')</svg>
+                    </div>
+                    <span class="font-semibold text-admin">My Profile &amp; Sign Out</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'profile' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'profile'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
+                <p><span class="font-semibold text-admin">Open your profile:</span> Click your name/avatar in the sidebar footer or the avatar in the top bar. You can update your name, email, phone, and change your password.</p>
+                <p><span class="font-semibold text-admin">Sign out:</span> Use the sign-out icon next to your name in the sidebar, or the Sign Out button on your profile page. You'll be returned to the admin login screen.</p>
             </div>
         </div>
 
