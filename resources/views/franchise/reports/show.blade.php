@@ -17,7 +17,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="col-span-2 space-y-4">
 
         {{-- Score history chart --}}
@@ -51,7 +51,7 @@
             <div class="px-5 py-4 border-b border-border">
                 <h2 class="text-sm font-semibold text-fran">All Exam Attempts</h2>
             </div>
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
                 <thead>
                     <tr class="bg-fran">
                         <th class="text-left px-5 py-3 text-xs font-semibold text-white">Exam</th>
@@ -81,7 +81,7 @@
                         <tr><td colspan="4" class="px-5 py-8 text-center text-gray-400">No exam attempts yet.</td></tr>
                     @endforelse
                 </tbody>
-            </table>
+            </table></div>
         </div>
     </div>
 

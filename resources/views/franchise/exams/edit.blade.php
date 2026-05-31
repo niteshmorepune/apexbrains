@@ -36,7 +36,7 @@
                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran resize-none">{{ old('description', $exam->description) }}</textarea>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
                     <select name="level_id" required
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Duration (minutes) <span class="text-red-500">*</span></label>
                     <input type="number" name="duration_minutes" value="{{ old('duration_minutes', $exam->duration_minutes) }}"
@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Max Attempts</label>
                     <input type="number" name="max_attempts" value="{{ old('max_attempts', $exam->max_attempts) }}"
@@ -86,7 +86,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Expires At</label>
                     <input type="datetime-local" name="expires_at"

@@ -41,7 +41,7 @@
             </span>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div class="space-y-3">
                 <div class="flex justify-between">
                     <span class="text-gray-500">Month</span>

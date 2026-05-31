@@ -22,7 +22,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-5">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
 
     {{-- Session Info --}}
     <div class="space-y-4">

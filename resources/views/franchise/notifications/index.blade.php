@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Compose --}}
     <div class="space-y-4">
@@ -99,7 +99,7 @@
                     </p>
 
                     {{-- Two send buttons --}}
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <button type="submit" name="channel" value="whatsapp"
                                 class="py-2.5 bg-stu text-white rounded-xl text-sm font-semibold hover:bg-stu-dark transition-colors">
                             Send WhatsApp (<span x-text="recipientCount"></span>)

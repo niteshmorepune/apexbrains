@@ -10,7 +10,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-2 gap-6" x-data="{
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6" x-data="{
     studentId: '{{ $selectedStudent?->id ?? '' }}',
     studentName: '{{ $selectedStudent?->full_name ?? '' }}',
     studentCode: '{{ $selectedStudent?->student_code ?? '' }}',
@@ -107,7 +107,7 @@
             </div>
 
             {{-- UPI fields --}}
-            <div x-show="paymentMode === 'upi'" x-transition class="grid grid-cols-2 gap-3">
+            <div x-show="paymentMode === 'upi'" x-transition class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1.5">Transaction ID</label>
                     <input type="text" name="transaction_reference" placeholder="UTR/Transaction ID"

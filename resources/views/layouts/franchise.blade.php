@@ -12,10 +12,18 @@
     @stack('head')
 </head>
 <body class="h-full bg-bg-light" style="font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;">
-<div class="flex h-full">
+<div class="flex h-full" x-data="{ sidebarOpen: false }">
+
+    {{-- Mobile backdrop --}}
+    <div x-show="sidebarOpen" x-cloak x-transition.opacity
+         @click="sidebarOpen = false"
+         class="fixed inset-0 bg-black/50 z-30 lg:hidden"></div>
 
     {{-- Sidebar --}}
-    <aside class="flex-shrink-0 bg-fran-dark flex flex-col" style="width:220px">
+    <aside :class="{ '!translate-x-0': sidebarOpen }"
+           class="fixed inset-y-0 left-0 z-40 w-[220px] flex-shrink-0 bg-fran-dark flex flex-col
+                  transform -translate-x-full transition-transform duration-200 ease-in-out
+                  lg:static lg:translate-x-0 lg:z-auto">
         {{-- Logo --}}
         <div class="px-6 py-5 border-b border-fran">
             <div class="flex items-center gap-3">
@@ -28,7 +36,7 @@
         </div>
 
         {{-- Navigation --}}
-        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav @click="sidebarOpen = false" class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             <x-franchise-nav-item route="franchise.dashboard" icon="grid" label="Dashboard" />
             <x-franchise-nav-item route="franchise.students.index" icon="users" label="Students" />
             <x-franchise-nav-item route="franchise.fees.index" icon="credit-card" label="Fees" />
@@ -63,24 +71,31 @@
 
     {{-- Main content --}}
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header class="h-14 bg-fran border-b border-fran flex items-center px-6 gap-4 flex-shrink-0">
-            <div class="flex items-center gap-1 text-sm">
-                <span class="font-semibold text-white">{{ auth()->user()->franchise->name ?? 'Branch' }}</span>
-                <span class="text-blue-200 ml-2">{{ now()->format('d M Y') }}</span>
+        <header class="h-14 bg-fran border-b border-fran flex items-center px-4 lg:px-6 gap-3 lg:gap-4 flex-shrink-0">
+            {{-- Mobile hamburger --}}
+            <button type="button" @click="sidebarOpen = true"
+                    class="lg:hidden text-blue-100 hover:text-white flex-shrink-0" aria-label="Open menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <div class="flex items-center gap-1 text-sm min-w-0">
+                <span class="font-semibold text-white truncate">{{ auth()->user()->franchise->name ?? 'Branch' }}</span>
+                <span class="text-blue-200 ml-2 hidden sm:inline">{{ now()->format('d M Y') }}</span>
             </div>
-            <div class="ml-auto flex items-center gap-3">
+            <div class="ml-auto flex items-center gap-2 lg:gap-3 flex-wrap flex-shrink-0">
                 @yield('page-actions')
             </div>
         </header>
 
         {{-- Page title bar --}}
         @hasSection('page-title')
-        <div class="bg-white border-b border-border px-6 py-3 flex items-center justify-between flex-shrink-0">
-            <h1 class="text-lg font-bold text-fran">@yield('page-title')</h1>
+        <div class="bg-white border-b border-border px-4 lg:px-6 py-3 flex items-center justify-between flex-shrink-0">
+            <h1 class="text-base lg:text-lg font-bold text-fran truncate">@yield('page-title')</h1>
         </div>
         @endif
 
-        <main class="flex-1 overflow-y-auto p-6">
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
             @if(session('success'))
                 <x-alert type="success" :message="session('success')" class="mb-4" />
             @endif

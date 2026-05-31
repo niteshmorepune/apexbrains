@@ -13,7 +13,7 @@
 </p>
 
 {{-- KPI Cards --}}
-<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Total Students</p>
         <p class="text-2xl font-bold text-fran">{{ $totalStudents }}</p>
@@ -36,7 +36,7 @@
     </div>
 </div>
 
-<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
     {{-- Attendance This Week --}}
     <div class="bg-white rounded-2xl border border-border p-5">
         <h2 class="text-sm font-semibold text-fran mb-4">Attendance This Week</h2>
@@ -76,7 +76,7 @@
 </div>
 
 {{-- Bottom row: Student Overview + Recent Activity --}}
-<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     {{-- Recent Activity moved here --}}
     <div class="bg-white rounded-2xl border border-border p-5">
         <h2 class="text-sm font-semibold text-fran mb-4">Recent Activity</h2>
@@ -107,7 +107,7 @@
                class="text-xs text-fran hover:underline font-medium">View All →</a>
         </div>
     </div>
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-fran">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
@@ -152,7 +152,7 @@
                 </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
 </div>
 
 @endsection

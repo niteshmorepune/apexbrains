@@ -15,7 +15,7 @@
 
         <div class="bg-white rounded-2xl border border-border p-6 mb-4">
             <h2 class="text-sm font-bold text-fran mb-4">Student Information</h2>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">First Name</label>
                     <input type="text" name="first_name" value="{{ old('first_name', $student->first_name) }}" required

@@ -11,7 +11,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="col-span-2 space-y-4">
 
         {{-- Header card --}}
@@ -42,7 +42,7 @@
         {{-- Details --}}
         <div class="bg-white rounded-2xl border border-border p-6">
             <h3 class="text-sm font-bold text-fran mb-4">Personal Details</h3>
-            <dl class="grid grid-cols-2 gap-4 text-sm">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><dt class="text-xs text-gray-500">Date of Birth</dt><dd class="font-medium">{{ $student->date_of_birth?->format('d M Y') ?? '—' }}</dd></div>
                 <div><dt class="text-xs text-gray-500">Enrollment Date</dt><dd class="font-medium">{{ $student->enrollment_date?->format('d M Y') ?? '—' }}</dd></div>
                 <div><dt class="text-xs text-gray-500">City</dt><dd class="font-medium">{{ $student->city ?? '—' }}</dd></div>

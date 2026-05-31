@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Generate form --}}
     <div class="space-y-4">
@@ -41,7 +41,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Issue Date</label>
                             <input type="date" name="issued_at" value="{{ now()->toDateString() }}"
@@ -97,7 +97,7 @@
         <div class="px-5 py-4 border-b border-border">
             <h2 class="text-sm font-semibold text-fran">Issued Certificates</h2>
         </div>
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
             <thead>
                 <tr class="bg-fran">
                     <th class="text-left px-5 py-3 text-xs font-semibold text-white">Certificate #</th>
@@ -160,7 +160,7 @@
                     </tr>
                 @endforelse
             </tbody>
-        </table>
+        </table></div>
         @if($certificates->hasPages())
             <div class="px-5 py-4 border-t border-border">
                 {{ $certificates->links('pagination::tailwind') }}

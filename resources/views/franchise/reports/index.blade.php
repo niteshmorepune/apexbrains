@@ -10,7 +10,7 @@
 
 {{-- Top student radar preview --}}
 @if($topStudent)
-<div class="grid grid-cols-3 gap-5 mb-5">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
     <div class="bg-white rounded-2xl border border-border p-5">
         <h3 class="text-sm font-semibold text-fran mb-3">
             {{ $topStudent->full_name }} — L{{ $topStudent->currentLevel?->number ?? '?' }} Performance
@@ -42,7 +42,7 @@
 </div>
 
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-fran">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
@@ -113,7 +113,7 @@
                 </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
 </div>
 
 @endsection

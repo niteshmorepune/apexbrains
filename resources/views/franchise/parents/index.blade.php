@@ -37,7 +37,7 @@
     <div class="px-5 py-4 border-b border-border flex items-center justify-between">
         <h2 class="text-sm font-semibold text-fran">Parent Contacts ({{ $parents->total() }})</h2>
     </div>
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-fran">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
@@ -100,7 +100,7 @@
                 </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
     @if($parents->hasPages())
         <div class="px-5 py-4 border-t border-border flex items-center justify-between">
             <span class="text-xs text-gray-500">Showing {{ $parents->firstItem() }}–{{ $parents->lastItem() }} of {{ $parents->total() }}</span>

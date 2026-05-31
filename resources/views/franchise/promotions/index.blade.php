@@ -25,7 +25,7 @@
 
 @if($eligible->count())
     <div class="bg-white rounded-2xl border border-border overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
             <thead>
                 <tr class="bg-fran">
                     <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
@@ -71,7 +71,7 @@
                     </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table></div>
     </div>
 @else
     <div class="bg-white rounded-2xl border border-border p-16 text-center text-gray-400">

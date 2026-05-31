@@ -35,7 +35,7 @@
 </div>
 
 @if(!$preview)
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {{-- Step 1: Download Template --}}
         <div class="bg-white rounded-2xl border border-border p-6">
@@ -89,7 +89,7 @@
     @endphp
 
     {{-- Summary cards --}}
-    <div class="grid grid-cols-3 gap-4 mb-5">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
         <div class="bg-white rounded-2xl border border-stu p-4 text-center">
             <p class="text-3xl font-bold text-stu">{{ $counts['valid'] }}</p>
             <p class="text-sm text-gray-600 mt-1">Valid Rows</p>
@@ -111,7 +111,7 @@
             <a href="{{ route('franchise.students.import.page') }}"
                class="text-xs text-gray-500 hover:underline">Upload a different file</a>
         </div>
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
             <thead>
                 <tr class="bg-admin">
                     <th class="text-left px-4 py-3 text-xs font-semibold text-white w-12">Row</th>
@@ -144,7 +144,7 @@
                     </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table></div>
     </div>
 
     @if($counts['valid'] > 0)
