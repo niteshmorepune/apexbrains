@@ -32,30 +32,36 @@
 </div>
 
 {{-- Top 3 podium --}}
-@if($rows->count() >= 3)
+@if($rows->isNotEmpty())
+@php
+    $podium = $rows->values();
+    $first  = $podium->get(0);
+    $second = $podium->get(1);
+    $third  = $podium->get(2);
+@endphp
 <div class="flex items-end justify-center gap-6 mb-8">
     {{-- 2nd place --}}
-    @php $second = $rows->values()->get(1); @endphp
+    @if($second)
     <div class="text-center w-36">
         <div class="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-600 mx-auto mb-2">
             {{ strtoupper(substr($second->student?->first_name ?? 'S', 0, 1)) }}
         </div>
-        <p class="text-sm font-semibold text-admin truncate">{{ $second->student?->first_name }} {{ $second->student?->last_name }}</p>
+        <p class="text-sm font-semibold text-admin truncate">{{ $second->student?->full_name ?? 'Unknown' }}</p>
         <p class="text-xs text-gray-500 truncate">{{ $second->student?->franchise?->name }}</p>
         <p class="text-lg font-bold text-gray-500 mt-1">{{ number_format($second->avg_score, 1) }}%</p>
         <div class="h-16 bg-gray-300 rounded-t-xl flex items-end justify-center pb-2 mt-2">
             <span class="text-2xl font-black text-gray-500">2</span>
         </div>
     </div>
+    @endif
 
     {{-- 1st place --}}
-    @php $first = $rows->values()->first(); @endphp
     <div class="text-center w-36">
         <div class="w-3 h-3 rounded-full bg-logo-amber mx-auto mb-1"></div>
         <div class="w-16 h-16 rounded-full bg-logo-amber flex items-center justify-center text-2xl font-bold text-white mx-auto mb-2 ring-4 ring-yellow-200">
             {{ strtoupper(substr($first->student?->first_name ?? 'S', 0, 1)) }}
         </div>
-        <p class="text-sm font-bold text-admin truncate">{{ $first->student?->first_name }} {{ $first->student?->last_name }}</p>
+        <p class="text-sm font-bold text-admin truncate">{{ $first->student?->full_name ?? 'Unknown' }}</p>
         <p class="text-xs text-gray-500 truncate">{{ $first->student?->franchise?->name }}</p>
         <p class="text-xl font-black text-logo-amber mt-1">{{ number_format($first->avg_score, 1) }}%</p>
         <div class="h-24 bg-logo-amber rounded-t-xl flex items-end justify-center pb-2 mt-2">
@@ -64,18 +70,19 @@
     </div>
 
     {{-- 3rd place --}}
-    @php $third = $rows->values()->get(2); @endphp
+    @if($third)
     <div class="text-center w-36">
         <div class="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center text-xl font-bold text-orange-600 mx-auto mb-2">
             {{ strtoupper(substr($third->student?->first_name ?? 'S', 0, 1)) }}
         </div>
-        <p class="text-sm font-semibold text-admin truncate">{{ $third->student?->first_name }} {{ $third->student?->last_name }}</p>
+        <p class="text-sm font-semibold text-admin truncate">{{ $third->student?->full_name ?? 'Unknown' }}</p>
         <p class="text-xs text-gray-500 truncate">{{ $third->student?->franchise?->name }}</p>
         <p class="text-lg font-bold text-orange-600 mt-1">{{ number_format($third->avg_score, 1) }}%</p>
         <div class="h-12 bg-orange-300 rounded-t-xl flex items-end justify-center pb-2 mt-2">
             <span class="text-2xl font-black text-orange-700">3</span>
         </div>
     </div>
+    @endif
 </div>
 @endif
 

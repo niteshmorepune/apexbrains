@@ -22,6 +22,10 @@ class ResourceFileController extends Controller
         if ($request->filled('level')) {
             $query->where('level_id', $request->level);
         }
+        if ($request->filled('level_group') && str_contains($request->level_group, '-')) {
+            [$min, $max] = array_map('intval', explode('-', $request->level_group, 2));
+            $query->whereHas('level', fn($q) => $q->whereBetween('number', [$min, $max]));
+        }
         if ($request->filled('type')) {
             $query->where('file_type', $request->type);
         }
