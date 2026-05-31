@@ -11,7 +11,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Generator panel --}}
     <div class="space-y-4">
@@ -43,7 +43,7 @@
                 {{-- Voice settings --}}
                 <div class="bg-bg-light rounded-xl p-4 mb-5">
                     <p class="text-xs font-semibold text-gray-600 mb-3">Voice Settings</p>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs text-gray-600 mb-2">Speed</label>
                             <div class="flex flex-wrap gap-2">

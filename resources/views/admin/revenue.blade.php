@@ -38,7 +38,7 @@
 </div>
 
 {{-- KPI Cards --}}
-<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Total Revenue (Period)</p>
         <p class="text-2xl font-bold text-fran">₹{{ number_format($totalRevenue) }}</p>
@@ -69,7 +69,7 @@
 </div>
 
 {{-- Charts --}}
-<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     <div class="col-span-2 bg-white rounded-2xl border border-border p-5">
         <h2 class="text-sm font-semibold text-admin mb-4">Monthly Revenue Trend — {{ now()->format('Y') }}</h2>
         @if($monthlyTrend->isNotEmpty())
@@ -109,7 +109,7 @@
     <div class="px-5 py-4 border-b border-border">
         <h2 class="text-sm font-semibold text-admin">Commission Breakdown by Franchise</h2>
     </div>
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-admin">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Franchise</th>
@@ -151,7 +151,7 @@
                 </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
 </div>
 
 @endsection

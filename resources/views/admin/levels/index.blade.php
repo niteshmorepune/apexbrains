@@ -22,7 +22,7 @@ $levelColors = [
 ];
 @endphp
 
-<div class="grid grid-cols-4 gap-4">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
     @forelse($levels as $level)
         @php $color = $levelColors[$level->number] ?? '#1A73E8'; @endphp
         <div class="bg-white rounded-2xl border border-border p-5 hover:shadow-md transition-shadow overflow-hidden relative">

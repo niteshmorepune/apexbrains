@@ -12,10 +12,18 @@
     @stack('head')
 </head>
 <body class="h-full bg-bg-light" style="font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;">
-<div class="flex h-full">
+<div class="flex h-full" x-data="{ sidebarOpen: false }">
+
+    {{-- Mobile backdrop --}}
+    <div x-show="sidebarOpen" x-cloak x-transition.opacity
+         @click="sidebarOpen = false"
+         class="fixed inset-0 bg-black/50 z-30 lg:hidden"></div>
 
     {{-- Sidebar --}}
-    <aside class="flex-shrink-0 bg-admin flex flex-col" style="width:220px">
+    <aside :class="{ '!translate-x-0': sidebarOpen }"
+           class="fixed inset-y-0 left-0 z-40 w-[220px] flex-shrink-0 bg-admin flex flex-col
+                  transform -translate-x-full transition-transform duration-200 ease-in-out
+                  lg:static lg:translate-x-0 lg:z-auto">
         {{-- Logo --}}
         <div class="px-5 py-4 border-b border-admin-mid flex items-center gap-3">
             @if(!empty($appSettings['logo_path']))
@@ -34,7 +42,7 @@
         </div>
 
         {{-- Navigation --}}
-        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <nav @click="sidebarOpen = false" class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
             <x-admin-nav-item route="admin.dashboard"          label="Dashboard"     icon="grid" />
             <x-admin-nav-item route="admin.franchises.index" label="Franchises"    icon="building" />
             <x-admin-nav-item route="admin.questions.index"  label="Question Bank" icon="help-circle" />
@@ -77,11 +85,18 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {{-- Top bar --}}
-        <header class="h-14 bg-admin border-b border-admin-mid flex items-center px-6 gap-4 flex-shrink-0">
-            <div class="flex items-center gap-1 text-sm text-gray-400">
-                <span class="font-semibold text-white">{{ $appSettings['app_name'] ?? 'Apex Brains' }} Admin Portal</span>
+        <header class="h-14 bg-admin border-b border-admin-mid flex items-center px-4 lg:px-6 gap-3 lg:gap-4 flex-shrink-0">
+            {{-- Mobile hamburger --}}
+            <button type="button" @click="sidebarOpen = true"
+                    class="lg:hidden text-gray-300 hover:text-white flex-shrink-0" aria-label="Open menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <div class="flex items-center gap-1 text-sm text-gray-400 min-w-0">
+                <span class="font-semibold text-white truncate">{{ $appSettings['app_name'] ?? 'Apex Brains' }} <span class="hidden sm:inline">Admin Portal</span></span>
             </div>
-            <div class="ml-auto flex items-center gap-4">
+            <div class="ml-auto flex items-center gap-3 lg:gap-4 flex-shrink-0">
                 @if(request()->routeIs('admin.audit-log'))
                     <span class="text-fran text-sm font-medium">Audit Log</span>
                 @else
@@ -98,20 +113,20 @@
         </header>
 
         {{-- Breadcrumb + Page header --}}
-        <div class="bg-white border-b border-border px-6 py-3 flex items-center justify-between flex-shrink-0">
-            <div>
+        <div class="bg-white border-b border-border px-4 lg:px-6 py-3 flex items-center justify-between gap-3 flex-wrap flex-shrink-0">
+            <div class="min-w-0">
                 <x-breadcrumb />
                 @hasSection('page-title')
-                    <h1 class="text-lg font-bold text-admin mt-0.5">@yield('page-title')</h1>
+                    <h1 class="text-base lg:text-lg font-bold text-admin mt-0.5 truncate">@yield('page-title')</h1>
                 @endif
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 lg:gap-3 flex-wrap">
                 @yield('page-actions')
             </div>
         </div>
 
         {{-- Content --}}
-        <main class="flex-1 overflow-y-auto p-6">
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
             @if(session('success'))
                 <x-alert type="success" :message="session('success')" class="mb-4" />
             @endif

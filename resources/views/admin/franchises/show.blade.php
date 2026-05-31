@@ -85,7 +85,7 @@
 
 {{-- Overview tab --}}
 <div id="content-overview">
-    <div class="grid grid-cols-4 gap-4 mb-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div class="bg-white rounded-2xl border border-border p-4">
             <p class="text-xs text-gray-500 mb-1">Total Students</p>
             <p class="text-2xl font-bold text-fran">{{ number_format($franchise->students_count) }}</p>
@@ -105,7 +105,7 @@
     </div>
 
     {{-- Charts row --}}
-    <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div class="bg-white rounded-2xl border border-border p-5">
             <h3 class="text-sm font-semibold text-admin mb-4">Student Growth</h3>
             <canvas id="growthChart" height="140"></canvas>
@@ -117,7 +117,7 @@
     </div>
 
     {{-- Info + Recent Activity --}}
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="bg-white rounded-2xl border border-border p-5">
             <h3 class="text-sm font-semibold text-admin mb-3">Contact & Business</h3>
             <div class="space-y-2 text-sm">
@@ -193,7 +193,7 @@
         @if($franchiseStudents->isEmpty())
             <div class="px-5 py-10 text-center text-gray-400 text-sm">No students enrolled yet.</div>
         @else
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
                 <thead>
                     <tr class="bg-admin">
                         <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
@@ -235,14 +235,14 @@
                         </tr>
                     @endforeach
                 </tbody>
-            </table>
+            </table></div>
         @endif
     </div>
 </div>
 
 {{-- Revenue tab (hidden) --}}
 <div id="content-revenue" class="hidden">
-    <div class="grid grid-cols-3 gap-4 mb-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <div class="bg-white rounded-2xl border border-border p-4">
             <p class="text-xs text-gray-500 mb-1">Monthly Revenue</p>
             <p class="text-2xl font-bold text-fran">₹{{ number_format($monthlyRevenue) }}</p>
@@ -278,7 +278,7 @@
         <div class="p-6">
             <form method="POST" action="{{ route('admin.franchises.update', $franchise) }}" enctype="multipart/form-data">
                 @csrf @method('PUT')
-                <div class="grid grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     @foreach([
                         'doc_gst'       => 'GST Certificate',
                         'doc_pan'       => 'PAN Card Copy',
@@ -324,7 +324,7 @@
 
 {{-- Settings tab (hidden) --}}
 <div id="content-settings" class="hidden">
-    <div class="grid grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div class="bg-white rounded-2xl border border-border p-5">
             <h3 class="text-sm font-semibold text-admin mb-4">Franchise Settings</h3>
             <form method="POST" action="{{ route('admin.franchises.update', $franchise) }}" class="space-y-4">

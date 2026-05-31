@@ -34,7 +34,7 @@
 </div>
 
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-admin">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Competition</th>
@@ -105,7 +105,7 @@
                 </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
 
     @if($competitions->hasPages())
         <div class="px-5 py-4 border-t border-border flex items-center justify-between">

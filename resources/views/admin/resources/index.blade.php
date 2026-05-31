@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- KPI Cards --}}
-<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-2xl border border-border p-4 text-center">
         <p class="text-2xl font-bold text-admin">{{ number_format($stats['total']) }}</p>
         <p class="text-xs text-gray-500 mt-1">Total Files</p>
@@ -29,7 +29,7 @@
     </div>
 </div>
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Upload Form --}}
     <div class="col-span-1">
@@ -92,10 +92,10 @@
 
         {{-- Search + pill-tab level filter --}}
         <div class="bg-white rounded-2xl border border-border p-4 mb-4 space-y-3">
-            <form method="GET" action="{{ route('admin.resources.index') }}" class="flex items-center gap-3">
+            <form method="GET" action="{{ route('admin.resources.index') }}" class="flex flex-wrap items-center gap-3">
                 <input type="hidden" name="level_group" value="{{ request('level_group') }}">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search files..."
-                       class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1">
+                       class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1 min-w-[160px]">
                 <select name="type" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     <option value="">All Types</option>
                     <option value="pdf" @selected(request('type') === 'pdf')>PDF</option>
@@ -122,7 +122,7 @@
                 <h2 class="text-sm font-semibold text-admin">Files ({{ number_format($files->total()) }})</h2>
             </div>
 
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
                 <thead>
                     <tr class="bg-admin">
                         <th class="text-left px-5 py-3 text-xs font-semibold text-white">File</th>
@@ -203,7 +203,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </table></div>
 
             @if($files->hasPages())
                 <div class="px-5 py-4 border-t border-border flex items-center justify-between">

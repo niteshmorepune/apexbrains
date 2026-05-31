@@ -12,7 +12,7 @@
 @section('content')
 
 {{-- KPI Row --}}
-<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-2xl border border-border p-4 text-center">
         <p class="text-2xl font-bold text-admin">{{ $stats['total'] }}</p>
         <p class="text-xs text-gray-500 mt-1">PDFs Uploaded</p>
@@ -31,7 +31,7 @@
     </div>
 </div>
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Upload + pipeline --}}
     <div class="col-span-2 space-y-4">
@@ -95,7 +95,7 @@
             <div class="px-5 py-4 border-b border-border">
                 <h2 class="text-sm font-semibold text-admin">Upload History</h2>
             </div>
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
                 <thead>
                     <tr class="bg-admin">
                         <th class="text-left px-5 py-3 text-xs font-semibold text-white">Filename</th>
@@ -144,7 +144,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </table></div>
             @if($uploads->hasPages())
                 <div class="px-5 py-4 border-t border-border">
                     {{ $uploads->links('pagination::tailwind') }}

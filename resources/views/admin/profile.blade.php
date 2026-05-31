@@ -30,7 +30,7 @@
 
         <div class="bg-white rounded-2xl border border-border p-6 mb-4">
             <h2 class="text-sm font-bold text-admin mb-4">Account Details</h2>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
                     <input type="text" name="name" value="{{ old('name', $user->name) }}" required
@@ -53,7 +53,7 @@
         <div class="bg-white rounded-2xl border border-border p-6 mb-4">
             <h2 class="text-sm font-bold text-admin mb-1">Change Password</h2>
             <p class="text-xs text-gray-400 mb-4">Leave blank to keep your current password.</p>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password</label>
                     <input type="password" name="current_password" autocomplete="current-password"

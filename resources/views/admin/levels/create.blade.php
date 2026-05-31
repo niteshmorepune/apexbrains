@@ -9,7 +9,7 @@
         @csrf
 
         <div class="bg-white rounded-2xl border border-border p-6 mb-4">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Level Number <span class="text-red-500">*</span></label>
                     <input type="number" name="number" value="{{ old('number', $nextNumber) }}" required min="1" max="20"

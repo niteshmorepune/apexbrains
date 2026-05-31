@@ -11,7 +11,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-4 mb-4">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Registrations</p>
         <p class="text-2xl font-bold text-fran">{{ $competition->registrations_count }}</p>
@@ -33,7 +33,7 @@
 
 <div class="bg-white rounded-2xl border border-border p-6">
     <h2 class="text-sm font-semibold text-admin mb-4">Details</h2>
-    <dl class="grid grid-cols-2 gap-4 text-sm">
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div><dt class="text-gray-500 mb-0.5">Type</dt><dd class="capitalize font-medium">{{ $competition->competition_type }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Open to External</dt><dd>{{ $competition->is_open_to_external ? 'Yes' : 'No' }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Registration Deadline</dt><dd>{{ $competition->registration_deadline->format('d M Y') }}</dd></div>

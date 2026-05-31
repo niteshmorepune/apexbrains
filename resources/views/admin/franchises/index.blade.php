@@ -24,8 +24,8 @@
 
 {{-- Search + Filter tabs --}}
 <div class="bg-white rounded-2xl border border-border p-4 mb-4 flex flex-wrap items-center gap-3">
-    <form method="GET" action="{{ route('admin.franchises.index') }}" class="flex items-center gap-3 flex-1">
-        <div class="relative flex-1 max-w-xs">
+    <form method="GET" action="{{ route('admin.franchises.index') }}" class="flex flex-wrap items-center gap-2 flex-1">
+        <div class="relative flex-1 min-w-[160px] max-w-xs">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -49,7 +49,7 @@
 {{-- Table --}}
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-full min-w-[640px] text-sm">
             <thead>
                 <tr class="bg-admin">
                     <th class="text-left px-5 py-3 text-xs font-semibold text-white">Franchise</th>

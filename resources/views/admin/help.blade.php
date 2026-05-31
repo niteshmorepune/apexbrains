@@ -160,7 +160,7 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'demo' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'demo'" x-collapse class="border-t border-border px-6 pb-5 pt-4 text-sm text-text-muted">
-                <table class="w-full text-sm">
+                <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
                     <thead><tr class="text-left text-admin font-semibold border-b border-border"><th class="pb-2">Email</th><th class="pb-2">Role</th><th class="pb-2">Password</th></tr></thead>
                     <tbody class="divide-y divide-border">
                         <tr class="py-2"><td class="py-2">admin@apexbrains.in</td><td>Super Admin</td><td class="font-mono">password</td></tr>
@@ -168,7 +168,7 @@
                         <tr class="py-2"><td class="py-2">arjun@student.in</td><td>Internal Student</td><td class="font-mono">password</td></tr>
                         <tr class="py-2"><td class="py-2">external@test.in</td><td>External Student</td><td class="font-mono">password</td></tr>
                     </tbody>
-                </table>
+                </table></div>
             </div>
         </div>
 

@@ -91,7 +91,7 @@
     <div class="px-5 py-4 border-b border-border">
         <h2 class="text-sm font-semibold text-admin">Full Rankings</h2>
     </div>
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-admin">
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white w-12">Rank</th>
@@ -181,7 +181,7 @@
                 </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
 </div>
 
 @endsection

@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Main form --}}
     <div class="col-span-2">
@@ -21,7 +21,7 @@
                     @error('question_text')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="grid grid-cols-3 gap-4 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
                         <select name="level_id" required

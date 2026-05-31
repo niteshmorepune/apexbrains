@@ -24,7 +24,7 @@
 @section('content')
 
 {{-- KPI Cards --}}
-<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
     <div class="bg-white rounded-2xl border border-border p-5">
         <div class="flex items-start justify-between">
@@ -99,7 +99,7 @@
 </div>
 
 {{-- Charts row --}}
-<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
 
     {{-- Monthly Revenue Trend --}}
     <div class="col-span-2 bg-white rounded-2xl border border-border p-5">
@@ -140,7 +140,7 @@
 </div>
 
 {{-- Bottom row: Branch Performance + Franchise Table --}}
-<div class="grid grid-cols-3 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
     {{-- Branch Performance bar chart --}}
     <div class="bg-white rounded-2xl border border-border p-5">
@@ -168,7 +168,7 @@
                class="text-xs text-fran hover:underline font-medium">View all →</a>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[640px] text-sm">
                 <thead>
                     <tr class="bg-admin">
                         <th class="text-left px-4 py-3 text-xs font-semibold text-white">Branch</th>

@@ -20,7 +20,7 @@ $levelColors = [
 $color = $levelColors[$level->number] ?? '#1A73E8';
 @endphp
 
-<div class="grid grid-cols-3 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <div class="col-span-2 space-y-4">
         <div class="bg-white rounded-2xl border border-border p-6">
             <div class="flex items-center gap-4 mb-4">

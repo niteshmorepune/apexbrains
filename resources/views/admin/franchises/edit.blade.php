@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="col-span-2">
         <form method="POST" action="{{ route('admin.franchises.update', $franchise) }}">
             @csrf @method('PUT')
@@ -12,7 +12,7 @@
             <div class="bg-white rounded-2xl border border-border p-6 mb-4">
                 <h2 class="text-sm font-bold text-admin mb-1">Basic Information</h2>
                 <div class="h-px bg-border mb-4"></div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Academy Name <span class="text-red-500">*</span></label>
                         <input type="text" name="name" value="{{ old('name', $franchise->name) }}" required
@@ -45,7 +45,7 @@
             <div class="bg-white rounded-2xl border border-border p-6 mb-4">
                 <h2 class="text-sm font-bold text-admin mb-1">Location</h2>
                 <div class="h-px bg-border mb-4"></div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Address <span class="text-red-500">*</span></label>
                         <input type="text" name="address" value="{{ old('address', $franchise->address) }}" required
@@ -72,7 +72,7 @@
             <div class="bg-white rounded-2xl border border-border p-6 mb-6">
                 <h2 class="text-sm font-bold text-admin mb-1">Business</h2>
                 <div class="h-px bg-border mb-4"></div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">GST Number</label>
                         <input type="text" name="gst_number" value="{{ old('gst_number', $franchise->gst_number) }}"

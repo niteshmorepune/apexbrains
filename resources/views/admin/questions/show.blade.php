@@ -54,7 +54,7 @@
 
     <div class="bg-white rounded-2xl border border-border p-5">
         <h3 class="text-sm font-bold text-admin mb-3">Metadata</h3>
-        <dl class="grid grid-cols-2 gap-3 text-sm">
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div><dt class="text-xs text-gray-500">Category</dt><dd>{{ $question->question_category ?? '—' }}</dd></div>
             <div><dt class="text-xs text-gray-500">Created</dt><dd>{{ $question->created_at->format('d M Y') }}</dd></div>
             @if($question->approved_at)

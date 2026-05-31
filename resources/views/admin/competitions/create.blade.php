@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="col-span-2">
         <form method="POST" action="{{ route('admin.competitions.store') }}">
             @csrf
@@ -30,7 +30,7 @@
                                   placeholder="Brief description of the competition...">{{ old('description') }}</textarea>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">
                                 Type <span class="text-red-500">*</span>
@@ -63,7 +63,7 @@
             {{-- Dates --}}
             <div class="bg-white rounded-2xl border border-border p-6 mb-4">
                 <h2 class="text-sm font-bold text-admin mb-4">Dates</h2>
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
                             Registration Deadline <span class="text-red-500">*</span>

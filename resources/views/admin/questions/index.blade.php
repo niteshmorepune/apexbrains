@@ -22,7 +22,7 @@
 @section('content')
 
 {{-- KPI Cards --}}
-<div class="grid grid-cols-5 gap-4 mb-6">
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
     <div class="bg-white rounded-2xl border border-border p-4 text-center">
         <p class="text-2xl font-bold text-admin">{{ number_format($stats['total']) }}</p>
         <p class="text-xs text-gray-500 mt-1">Total Questions</p>
@@ -119,7 +119,7 @@
         @endforeach
     </div>
 
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-admin">
                 <th class="text-left px-4 py-3 text-xs font-semibold text-white w-20">ID</th>
@@ -195,7 +195,7 @@
                 </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
 
     @if($questions->hasPages())
         <div class="px-5 py-4 border-t border-border flex items-center justify-between">

@@ -22,11 +22,11 @@
         <input type="hidden" name="_tab" :value="tab">
 
         {{-- General Settings --}}
-        <div x-show="tab === 'general'" class="grid grid-cols-3 gap-6">
+        <div x-show="tab === 'general'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="col-span-2 space-y-4">
                 <div class="bg-white rounded-2xl border border-border p-6">
                     <h2 class="text-sm font-bold text-admin mb-4">General Settings</h2>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Academy Name</label>
                             <input type="text" name="app_name" value="{{ old('app_name', $settings['app_name']) }}" required
@@ -73,7 +73,7 @@
 
                 <div class="bg-white rounded-2xl border border-border p-6">
                     <h2 class="text-sm font-bold text-admin mb-4">Display Settings</h2>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Date Format</label>
                             <select name="date_format" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
@@ -139,7 +139,7 @@
         <div x-show="tab === 'security'" class="max-w-2xl space-y-4">
             <div class="bg-white rounded-2xl border border-border p-6">
                 <h2 class="text-sm font-bold text-admin mb-4">Security Settings</h2>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Session Lifetime (minutes)</label>
                         <input type="number" name="session_lifetime" value="{{ old('session_lifetime', $settings['session_lifetime']) }}"
@@ -200,7 +200,7 @@
             <div class="bg-white rounded-2xl border border-border p-6">
                 <h2 class="text-sm font-bold text-admin mb-1">Payment Gateway</h2>
                 <p class="text-xs text-gray-500 mb-4">Configure Razorpay or PayU for online fee collection.</p>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Payment Gateway</label>
                         <select name="payment_gateway" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">

@@ -11,7 +11,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="col-span-2">
         {{-- Extracted questions --}}
         <div class="bg-white rounded-2xl border border-border overflow-hidden">

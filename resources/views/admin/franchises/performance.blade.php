@@ -22,7 +22,7 @@
 @section('content')
 
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
-    <table id="franchise-perf-table" class="w-full text-sm">
+    <div class="overflow-x-auto"><table id="franchise-perf-table" class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-admin text-white text-xs uppercase tracking-wide">
                 <th onclick="sortPerfTable(this,0)" data-sortable data-type="num"  class="px-4 py-3 text-left w-12 cursor-pointer select-none hover:bg-admin-light">Rank <span class="sort-ind opacity-40">↕</span></th>
@@ -90,7 +90,7 @@
                 </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
 </div>
 
 <script>

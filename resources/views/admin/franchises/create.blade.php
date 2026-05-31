@@ -24,7 +24,7 @@
     @endforeach
 </div>
 
-<div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Form --}}
     <div class="col-span-2">
@@ -36,7 +36,7 @@
                 <h2 class="text-sm font-bold text-admin mb-1">Basic Information</h2>
                 <div class="h-px bg-border mb-4"></div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
                             Franchise / Academy Name <span class="text-red-500">*</span>
@@ -92,7 +92,7 @@
                 <h2 class="text-sm font-bold text-admin mb-1">Location Details</h2>
                 <div class="h-px bg-border mb-4"></div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
                             Full Address <span class="text-red-500">*</span>
@@ -134,7 +134,7 @@
                 <h2 class="text-sm font-bold text-admin mb-1">Business Details</h2>
                 <div class="h-px bg-border mb-4"></div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">GST Number</label>
                         <input type="text" name="gst_number" value="{{ old('gst_number') }}"
@@ -168,7 +168,7 @@
                 <h2 class="text-sm font-bold text-admin mb-1">Login Credentials</h2>
                 <p class="text-xs text-gray-400 mb-4">The franchise owner signs in at <span class="font-mono">/franchise/login</span> using the email above and this password.</p>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
                             Password <span class="text-red-500">*</span>
