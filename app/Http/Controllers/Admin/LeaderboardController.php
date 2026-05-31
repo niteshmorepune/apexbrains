@@ -15,6 +15,7 @@ class LeaderboardController extends Controller
     {
         $levelFilter     = $request->get('level');
         $franchiseFilter = $request->get('franchise');
+        $periodFilter    = $request->get('period', 'all');
 
         $query = ExamAttempt::query()
             ->select(
@@ -34,6 +35,12 @@ class LeaderboardController extends Controller
             $query->where('franchise_id', $franchiseFilter);
         }
 
+        if ($periodFilter === 'month') {
+            $query->where('submitted_at', '>=', now()->startOfMonth());
+        } elseif ($periodFilter === 'week') {
+            $query->where('submitted_at', '>=', now()->startOfWeek());
+        }
+
         $rows = $query->with(['student.currentLevel', 'student.franchise'])
             ->limit(50)
             ->get();
@@ -45,7 +52,6 @@ class LeaderboardController extends Controller
 
         $franchises  = Franchise::where('status', 'active')->orderBy('name')->get();
         $levels      = \App\Models\Level::orderBy('number')->get();
-        $periodFilter = $request->get('period', 'all');
 
         return view('admin.leaderboard', compact('rows', 'franchises', 'levels', 'levelFilter', 'franchiseFilter', 'periodFilter'));
     }
