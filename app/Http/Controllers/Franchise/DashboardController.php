@@ -28,14 +28,6 @@ class DashboardController extends Controller
             ->whereRaw('percentage >= 80')
             ->distinct('student_id')->count('student_id');
 
-        // Attendance This Week (placeholder — no attendance module per CLAUDE.md rule)
-        $weekDays   = collect();
-        for ($i = 6; $i >= 0; $i--) {
-            $day = now()->subDays($i);
-            $weekDays[$day->format('D')] = rand(75, 98); // placeholder %
-        }
-        $todayAttendance = $weekDays->last();
-
         // Monthly revenue (kept for fee context)
         $monthRevenue = Payment::whereMonth('payment_date', now()->month)
             ->whereYear('payment_date', now()->year)
@@ -65,8 +57,7 @@ class DashboardController extends Controller
 
         return view('franchise.dashboard', compact(
             'totalStudents', 'newThisMonth', 'pendingFees', 'promotionsDue',
-            'todayAttendance', 'weekDays', 'monthRevenue',
-            'byLevel', 'recentActivity', 'students'
+            'monthRevenue', 'byLevel', 'recentActivity', 'students'
         ));
     }
 }
