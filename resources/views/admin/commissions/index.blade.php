@@ -88,6 +88,7 @@
                     <td class="px-4 py-3 text-center">
                         @if($f->commission_record?->status === 'paid')
                             <span class="text-xs bg-stu-light text-stu-dark px-2 py-0.5 rounded-full font-medium">Paid</span>
+                            <span class="block text-[11px] text-gray-400 mt-0.5">₹{{ number_format($f->commission_paid) }}</span>
                         @elseif($f->commission_due > 0)
                             <span class="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium">Pending</span>
                         @else

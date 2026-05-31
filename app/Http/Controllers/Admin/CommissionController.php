@@ -28,15 +28,33 @@ class CommissionController extends Controller
             ->keyBy('franchise_id');
 
         $franchises = Franchise::where('status', 'active')
-            ->withSum(['payments as gross_revenue' => function ($q) use ($year, $mo) {
+            ->withCount('students')
+            ->withSum(['payments as paid_revenue' => function ($q) use ($year, $mo) {
                 $q->whereYear('payment_date', $year)
                   ->whereMonth('payment_date', $mo);
             }], 'amount')
             ->get()
             ->map(function ($f) use ($commissionRecords) {
-                $f->commission_due    = ($f->gross_revenue ?? 0) * ($f->commission_rate / 100);
-                $f->commission_record = $commissionRecords->get($f->id);
-                $f->commission_paid   = $f->commission_record?->commission_amount ?? 0;
+                $record = $commissionRecords->get($f->id);
+
+                if ($record) {
+                    // Show what was actually calculated/saved for this month.
+                    $f->gross_revenue   = $record->gross_revenue;
+                    $f->commission_due  = $record->commission_amount;
+                    $f->students_count  = $record->students_count ?? $f->students_count;
+                    $f->fee_per_student = $record->fee_per_student ?? $f->fee_per_student;
+                } else {
+                    // Live estimate: actual payments if any, else expected revenue (students × fee).
+                    $f->gross_revenue  = ($f->paid_revenue ?? 0) > 0
+                        ? $f->paid_revenue
+                        : $f->students_count * $f->fee_per_student;
+                    $f->commission_due = $f->gross_revenue * ($f->commission_rate / 100);
+                }
+
+                $f->commission_record = $record;
+                $f->commission_paid   = ($record && $record->status === 'paid')
+                    ? $record->commission_amount
+                    : 0;
                 return $f;
             });
 
@@ -52,6 +70,7 @@ class CommissionController extends Controller
     {
         $data = $request->validate([
             'month'           => ['required', 'date_format:Y-m'],
+            'fee_per_student' => ['nullable', 'numeric', 'min:0'],
             'commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
 
@@ -61,21 +80,27 @@ class CommissionController extends Controller
         $created = 0;
 
         foreach ($franchises as $franchise) {
-            $revenue = Payment::where('franchise_id', $franchise->id)
+            $students = $franchise->students()->count();
+            $fee      = $data['fee_per_student'] ?? $franchise->fee_per_student;
+            $rate     = $data['commission_rate'] ?? $franchise->commission_rate;
+
+            // Prefer actual recorded payments; fall back to expected revenue (students × fee).
+            $paid = Payment::where('franchise_id', $franchise->id)
                 ->whereYear('payment_date', $year)
                 ->whereMonth('payment_date', $mo)
                 ->sum('amount');
 
+            $revenue = $paid > 0 ? $paid : $students * $fee;
+
             if ($revenue > 0) {
-                $rate = $data['commission_rate'] ?? $franchise->commission_rate;
                 Commission::updateOrCreate(
                     ['franchise_id' => $franchise->id, 'month' => $data['month'] . '-01'],
                     [
                         'commission_amount' => $revenue * ($rate / 100),
                         'commission_rate'   => $rate,
                         'gross_revenue'     => $revenue,
-                        'students_count'    => $franchise->students()->count(),
-                        'fee_per_student'   => $franchise->fee_per_student,
+                        'students_count'    => $students,
+                        'fee_per_student'   => $fee,
                     ]
                 );
                 $created++;
@@ -97,13 +122,27 @@ class CommissionController extends Controller
         $commissionRecords = Commission::where('month', $monthDate)->get()->keyBy('franchise_id');
 
         $franchises = Franchise::where('status', 'active')
-            ->withSum(['payments as gross_revenue' => function ($q) use ($year, $mo) {
+            ->withCount('students')
+            ->withSum(['payments as paid_revenue' => function ($q) use ($year, $mo) {
                 $q->whereYear('payment_date', $year)->whereMonth('payment_date', $mo);
             }], 'amount')
             ->get()
             ->map(function ($f) use ($commissionRecords) {
-                $f->commission_due    = ($f->gross_revenue ?? 0) * ($f->commission_rate / 100);
-                $f->commission_record = $commissionRecords->get($f->id);
+                $record = $commissionRecords->get($f->id);
+
+                if ($record) {
+                    $f->gross_revenue   = $record->gross_revenue;
+                    $f->commission_due  = $record->commission_amount;
+                    $f->students_count  = $record->students_count ?? $f->students_count;
+                    $f->fee_per_student = $record->fee_per_student ?? $f->fee_per_student;
+                } else {
+                    $f->gross_revenue  = ($f->paid_revenue ?? 0) > 0
+                        ? $f->paid_revenue
+                        : $f->students_count * $f->fee_per_student;
+                    $f->commission_due = $f->gross_revenue * ($f->commission_rate / 100);
+                }
+
+                $f->commission_record = $record;
                 return $f;
             });
 
