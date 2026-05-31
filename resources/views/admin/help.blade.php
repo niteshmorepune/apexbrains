@@ -30,7 +30,7 @@
                 <p><span class="font-semibold text-admin">Add a franchise:</span> Franchises → Add New. Fill in the owner details, location, business info, and a <em>Login Password</em>. This creates the franchise owner's login account automatically — they sign in at <span class="font-mono">/franchise/login</span> using their <strong>email address</strong> and that password (the email is the username).</p>
                 <p><span class="font-semibold text-admin">Documents &amp; activation:</span> After Step 1, upload the required documents on the franchise detail page, then click <strong>Approve &amp; Activate</strong>. New franchises start as <em>Pending</em> and cannot use the portal until approved.</p>
                 <p><span class="font-semibold text-admin">Approval Queue:</span> Franchises → Approval Queue lists all pending applications with their document status and quick Approve / Reject actions.</p>
-                <p><span class="font-semibold text-admin">Performance:</span> Franchises → Performance ranks active branches by students, revenue, attendance and scores.</p>
+                <p><span class="font-semibold text-admin">Performance:</span> Franchises → Performance ranks active branches by students, revenue and scores.</p>
                 <p><span class="font-semibold text-admin">Suspend / Reactivate:</span> Open any franchise and use the Suspend button (or Reactivate for suspended ones). Suspended franchises cannot log in.</p>
             </div>
         </div>

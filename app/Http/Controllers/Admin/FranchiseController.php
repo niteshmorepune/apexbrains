@@ -222,7 +222,6 @@ class FranchiseController extends Controller
                 $f->monthly_revenue = $monthlyRevenue;
                 $f->avg_score = rand(72, 96); // placeholder until exam scores aggregated
                 $f->pass_rate = rand(85, 99);
-                $f->attendance_rate = rand(80, 98);
                 $f->growth = rand(-5, 25);
                 return $f;
             });

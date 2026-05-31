@@ -48,7 +48,7 @@
 
         {{-- Portal description --}}
         <p class="text-[13px] text-gray-600 font-medium mb-2">Franchise Owner and Branch Manager Portal</p>
-        <p class="text-[11px] text-gray-400">Manage students, attendance, fees and progress</p>
+        <p class="text-[11px] text-gray-400">Manage students, exams, fees and progress</p>
     </div>
 
     {{-- Right form panel --}}

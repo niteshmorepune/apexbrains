@@ -31,9 +31,8 @@
                 <th onclick="sortPerfTable(this,3)" data-sortable data-type="num"  class="px-4 py-3 text-right cursor-pointer select-none hover:bg-admin-light">Students <span class="sort-ind opacity-40">↕</span></th>
                 <th onclick="sortPerfTable(this,4)" data-sortable data-type="num"  class="px-4 py-3 text-right cursor-pointer select-none hover:bg-admin-light">Revenue <span class="sort-ind opacity-40">↕</span></th>
                 <th onclick="sortPerfTable(this,5)" data-sortable data-type="num"  class="px-4 py-3 text-center cursor-pointer select-none hover:bg-admin-light">Growth <span class="sort-ind opacity-40">↕</span></th>
-                <th onclick="sortPerfTable(this,6)" data-sortable data-type="num"  class="px-4 py-3 text-right cursor-pointer select-none hover:bg-admin-light">Attendance % <span class="sort-ind opacity-40">↕</span></th>
-                <th onclick="sortPerfTable(this,7)" data-sortable data-type="num"  class="px-4 py-3 text-right cursor-pointer select-none hover:bg-admin-light">Avg Score <span class="sort-ind opacity-40">↕</span></th>
-                <th onclick="sortPerfTable(this,8)" data-sortable data-type="num"  class="px-4 py-3 text-right cursor-pointer select-none hover:bg-admin-light">Pass Rate <span class="sort-ind opacity-40">↕</span></th>
+                <th onclick="sortPerfTable(this,6)" data-sortable data-type="num"  class="px-4 py-3 text-right cursor-pointer select-none hover:bg-admin-light">Avg Score <span class="sort-ind opacity-40">↕</span></th>
+                <th onclick="sortPerfTable(this,7)" data-sortable data-type="num"  class="px-4 py-3 text-right cursor-pointer select-none hover:bg-admin-light">Pass Rate <span class="sort-ind opacity-40">↕</span></th>
                 <th class="px-4 py-3 text-center">Action</th>
             </tr>
         </thead>
@@ -76,7 +75,6 @@
                             </span>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-right text-gray-700" data-sort="{{ $f->attendance_rate }}">{{ $f->attendance_rate }}%</td>
                     <td class="px-4 py-3 text-right text-gray-700" data-sort="{{ $f->avg_score }}">{{ $f->avg_score }}%</td>
                     <td class="px-4 py-3 text-right text-gray-700" data-sort="{{ $f->pass_rate }}">{{ $f->pass_rate }}%</td>
                     <td class="px-4 py-3 text-center">
@@ -86,7 +84,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="px-4 py-12 text-center text-gray-400">No active franchises found.</td>
+                    <td colspan="9" class="px-4 py-12 text-center text-gray-400">No active franchises found.</td>
                 </tr>
             @endforelse
         </tbody>
