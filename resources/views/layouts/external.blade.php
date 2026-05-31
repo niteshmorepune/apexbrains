@@ -14,9 +14,10 @@
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0.5rem); }
     </style>
 </head>
-<body class="bg-bg-light min-h-screen flex flex-col">
+<body class="bg-bg-light md:bg-slate-200 min-h-screen flex flex-col">
 
-<div class="max-w-sm mx-auto w-full flex flex-col min-h-screen md:max-w-full relative">
+{{-- App column: phone-width on mobile, centered framed column on desktop --}}
+<div class="max-w-sm md:max-w-md mx-auto w-full flex flex-col min-h-screen relative bg-bg-light md:shadow-xl">
 
     {{-- Blue header — EXTERNAL STUDENT (visually distinct from internal green) --}}
     <header class="bg-fran sticky top-0 z-30 flex-shrink-0">
@@ -57,7 +58,7 @@
     </main>
 
     {{-- Bottom Navigation (simpler than internal) --}}
-    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm md:max-w-full bg-white border-t border-border z-30 safe-bottom">
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm md:max-w-md bg-white border-t border-border z-30 safe-bottom">
         <div class="flex justify-around items-center h-14">
             <x-bottom-nav-item route="external.home" icon="home" label="Home" color="fran" />
             <x-bottom-nav-item route="external.practice.index" icon="zap" label="Practice" color="fran" />
