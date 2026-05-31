@@ -9,7 +9,7 @@ Recent polish (2026-05-31):
 When asked for status, report:
 1. Confirm the build is complete (Phases 1–6 + 4-portal Figma audit pass + 2026-05-31 responsive pass for Admin/Franchise).
 2. From `git log`, summarize what was last fixed/changed and whether it's deployed (a push to `main` triggers the Hostinger deploy via GitHub Actions).
-3. Any open follow-ups from `memory/project_overview.md` → "Known remaining QA items".
+3. Any open follow-ups from `memory/project_overview.md` → "Known remaining QA items", plus open client decisions in memory (e.g. `project_commission_rule.md` — whether commission must be strictly payment-based vs the current expected-revenue fallback).
 4. Any uncommitted/unpushed work (`git status`; compare local `main` to `origin/main`).
 
 Active login views (always confirm which blade a route renders before editing):
