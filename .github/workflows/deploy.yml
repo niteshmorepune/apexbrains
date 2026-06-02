@@ -51,37 +51,22 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: update compiled assets [skip ci]"
           git push || true
 
+      # Hostinger SSH intermittently refuses/drops the connection (even a 120s
+      # dial timed out), but a fresh attempt soon after succeeds. So retry the
+      # whole deploy up to 3 times. The on-server commands are idempotent
+      # (reset --hard + composer + migrate + cache), so re-running is safe.
       - name: Deploy to Hostinger via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: nick-fields/retry@v3
         with:
-          host: ${{ secrets.HOSTINGER_SSH_HOST }}
-          username: ${{ secrets.HOSTINGER_SSH_USERNAME }}
-          key: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.HOSTINGER_SSH_PORT }}
-          # Hostinger SSH is sometimes slow to accept the handshake; the default
-          # 30s dial timeout intermittently fails with "dial tcp: i/o timeout".
-          timeout: 120s
-          command_timeout: 15m
-          script: |
-            set -e
-            cd ${{ secrets.DEPLOY_PATH }}
-
-            # Deterministic update — never aborts on local changes / non-fast-forward.
-            # Discards any edits made directly on the server (this is a CI-deployed app);
-            # untracked files such as uploads in storage/ are left untouched.
-            git fetch origin main
-            git reset --hard origin/main
-
-            composer install --no-dev --optimize-autoloader --no-interaction
-
-            php artisan migrate --force
-
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:clear
-            php artisan view:cache
-            php artisan event:cache
-
-            php artisan queue:restart
-
-            chmod -R 755 storage bootstrap/cache
+          timeout_minutes: 12
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            install -m 700 -d ~/.ssh
+            printf '%s\n' "${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            ssh -i ~/.ssh/deploy_key -p "${{ secrets.HOSTINGER_SSH_PORT }}" \
+              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              -o BatchMode=yes -o ConnectTimeout=60 -o ServerAliveInterval=15 \
+              "${{ secrets.HOSTINGER_SSH_USERNAME }}@${{ secrets.HOSTINGER_SSH_HOST }}" \
+              "set -e; cd ${{ secrets.DEPLOY_PATH }} && git fetch origin main && git reset --hard origin/main && composer install --no-dev --optimize-autoloader --no-interaction && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:clear && php artisan view:cache && php artisan event:cache && php artisan queue:restart && chmod -R 755 storage bootstrap/cache"
