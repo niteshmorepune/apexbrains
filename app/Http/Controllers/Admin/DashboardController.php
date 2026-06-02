@@ -54,13 +54,13 @@ class DashboardController extends Controller
         // Student count by level (based on each student's current level)
         $levelDistribution = Student::select('current_level_id', DB::raw('count(*) as total'))
             ->whereNotNull('current_level_id')
-            ->with('level:id,title,sort_order')
+            ->with('currentLevel:id,title,sort_order')
             ->groupBy('current_level_id')
             ->get()
-            ->sortBy(fn($r) => $r->level->sort_order ?? PHP_INT_MAX)
+            ->sortBy(fn($r) => $r->currentLevel->sort_order ?? PHP_INT_MAX)
             ->values()
             ->map(fn($r) => [
-                'label' => $r->level->title ?? "Level {$r->current_level_id}",
+                'label' => $r->currentLevel->title ?? "Level {$r->current_level_id}",
                 'total' => $r->total,
             ]);
 
