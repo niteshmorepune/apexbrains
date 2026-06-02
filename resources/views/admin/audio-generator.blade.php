@@ -103,6 +103,7 @@
         @forelse($audioQuestions as $q)
             <div class="px-5 py-4 border-b border-border last:border-b-0 hover:bg-bg-light flex items-start gap-4">
                 <button type="button"
+                        onclick="speakQuestion(@js($q->question_text), this)"
                         class="w-9 h-9 rounded-full bg-fran flex items-center justify-center flex-shrink-0 hover:bg-fran-dark transition-colors"
                         title="Play audio">
                     <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -147,5 +148,41 @@
         @endif
     </div>
 </div>
+
+<script>
+// Reads a mental-math question aloud using the browser's built-in text-to-speech.
+// No server-side audio file is needed — works offline and is free.
+function speakQuestion(text, btn) {
+    if (!('speechSynthesis' in window)) {
+        alert('Audio playback is not supported in this browser.');
+        return;
+    }
+
+    // Make symbols sound natural (e.g. "2+3=?" → "2 plus 3 equals").
+    const spoken = String(text)
+        .replace(/\+/g, ' plus ')
+        .replace(/[−–-]/g, ' minus ')
+        .replace(/[x×*]/gi, ' times ')
+        .replace(/[÷/]/g, ' divided by ')
+        .replace(/=/g, ' equals ')
+        .replace(/\?/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    window.speechSynthesis.cancel(); // stop anything already playing
+
+    const utter = new SpeechSynthesisUtterance(spoken);
+    utter.rate = 0.9;
+    utter.lang = 'en-IN';
+
+    if (btn) {
+        btn.classList.add('animate-pulse');
+        utter.onend = () => btn.classList.remove('animate-pulse');
+        utter.onerror = () => btn.classList.remove('animate-pulse');
+    }
+
+    window.speechSynthesis.speak(utter);
+}
+</script>
 
 @endsection
