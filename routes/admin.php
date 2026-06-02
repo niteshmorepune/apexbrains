@@ -28,14 +28,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Question Bank — audio/generate must come BEFORE resource to avoid {question} param conflict
         Route::get('questions/audio/generate', [\App\Http\Controllers\Admin\AudioQuestionController::class, 'index'])->name('questions.audio');
         Route::post('questions/audio/generate', [\App\Http\Controllers\Admin\AudioQuestionController::class, 'generate'])->name('questions.audio.generate');
+        Route::get('questions/import', [\App\Http\Controllers\Admin\QuestionImportController::class, 'index'])->name('questions.import');
+        Route::post('questions/import', [\App\Http\Controllers\Admin\QuestionImportController::class, 'store'])->name('questions.import.store');
+        Route::get('questions/import/template', [\App\Http\Controllers\Admin\QuestionImportController::class, 'template'])->name('questions.import.template');
         Route::resource('questions', \App\Http\Controllers\Admin\QuestionBankController::class);
         Route::post('questions/{question}/approve', [\App\Http\Controllers\Admin\QuestionBankController::class, 'approve'])->name('questions.approve');
         Route::post('questions/{question}/reject', [\App\Http\Controllers\Admin\QuestionBankController::class, 'reject'])->name('questions.reject');
-
-        // PDF Upload & OCR
-        Route::get('pdf-uploads', [\App\Http\Controllers\Admin\PdfUploadController::class, 'index'])->name('pdf-uploads.index');
-        Route::post('pdf-uploads', [\App\Http\Controllers\Admin\PdfUploadController::class, 'store'])->name('pdf-uploads.store');
-        Route::get('pdf-uploads/{pdfUpload}', [\App\Http\Controllers\Admin\PdfUploadController::class, 'show'])->name('pdf-uploads.show');
 
         // Competition management
         Route::resource('competitions', \App\Http\Controllers\Admin\CompetitionController::class);

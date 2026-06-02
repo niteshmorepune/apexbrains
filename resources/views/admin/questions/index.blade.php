@@ -8,9 +8,9 @@
            class="px-4 py-2 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
             Audio Generator
         </a>
-        <a href="{{ route('admin.pdf-uploads.index') }}"
+        <a href="{{ route('admin.questions.import') }}"
            class="px-4 py-2 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
-            PDF Upload
+            Bulk Import
         </a>
         <a href="{{ route('admin.questions.create') }}"
            class="px-4 py-2 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
@@ -190,7 +190,7 @@
             @empty
                 <tr>
                     <td colspan="6" class="px-5 py-10 text-center text-gray-400">
-                        No questions found. Add your first question or upload a PDF.
+                        No questions found. Add your first question or bulk import them.
                     </td>
                 </tr>
             @endforelse

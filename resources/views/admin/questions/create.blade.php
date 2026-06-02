@@ -107,10 +107,10 @@
 
         <div class="bg-white rounded-2xl border border-border p-5">
             <h3 class="text-sm font-bold text-admin mb-3">Quick Add</h3>
-            <p class="text-xs text-gray-500 mb-3">For bulk uploads, use the PDF pipeline.</p>
-            <a href="{{ route('admin.pdf-uploads.index') }}"
+            <p class="text-xs text-gray-500 mb-3">Have many questions? Import them all from a CSV or Excel file.</p>
+            <a href="{{ route('admin.questions.import') }}"
                class="block text-center px-4 py-2 border border-fran text-fran rounded-xl text-sm font-medium hover:bg-fran hover:text-white transition-colors">
-                Upload PDF
+                Bulk Import
             </a>
         </div>
     </div>

@@ -68,6 +68,7 @@ class QuestionBankController extends Controller
             'question_category' => ['nullable', 'string', 'max:100'],
         ]);
 
+        $data['correct_answer'] = $data['correct_answer'] ? strtolower($data['correct_answer']) : null;
         $data['status']      = 'approved';
         $data['approved_by'] = Auth::id();
         $data['approved_at'] = now();
@@ -105,6 +106,8 @@ class QuestionBankController extends Controller
             'difficulty'        => ['required', 'in:easy,medium,hard'],
             'question_category' => ['nullable', 'string', 'max:100'],
         ]);
+
+        $data['correct_answer'] = $data['correct_answer'] ? strtolower($data['correct_answer']) : null;
 
         $question->update($data);
         AuditLogger::log('question_updated', 'QuestionBank', $question->id);
