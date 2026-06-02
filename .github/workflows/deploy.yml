@@ -62,7 +62,11 @@ jobs:
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
 
-            git pull origin main
+            # Deterministic update — never aborts on local changes / non-fast-forward.
+            # Discards any edits made directly on the server (this is a CI-deployed app);
+            # untracked files such as uploads in storage/ are left untouched.
+            git fetch origin main
+            git reset --hard origin/main
 
             composer install --no-dev --optimize-autoloader --no-interaction
 
