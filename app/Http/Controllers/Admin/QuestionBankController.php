@@ -29,6 +29,11 @@ class QuestionBankController extends Controller
             default   => null,
         };
 
+        // Sidebar "By Type" filter (separate from the top tabs).
+        if ($request->filled('type') && in_array($request->type, ['mcq', 'audio'], true)) {
+            $query->where('type', $request->type);
+        }
+
         if ($request->filled('search')) {
             $query->where('question_text', 'like', '%' . $request->search . '%');
         }
