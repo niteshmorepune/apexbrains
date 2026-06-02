@@ -30,9 +30,10 @@ class AudioQuestionController extends Controller
         $data = $request->validate([
             'level_id'          => ['required', 'exists:levels,id'],
             'question_text'     => ['required', 'string', 'max:2000'],
-            'voice'             => ['required', 'in:male,female'],
-            'speed'             => ['required', 'in:slow,normal,fast'],
-            'difficulty'        => ['required', 'in:easy,medium,hard'],
+            'voice'             => ['nullable', 'in:male,female'],
+            'speed'             => ['nullable', 'in:0.75,1,1.5,2'],
+            'pause'             => ['nullable', 'in:none,short,medium,long'],
+            'difficulty'        => ['nullable', 'in:easy,medium,hard'],
             'question_category' => ['nullable', 'string', 'max:100'],
         ]);
 
@@ -43,7 +44,7 @@ class AudioQuestionController extends Controller
             'level_id'          => $data['level_id'],
             'question_text'     => $data['question_text'],
             'type'              => 'audio',
-            'difficulty'        => $data['difficulty'],
+            'difficulty'        => $data['difficulty'] ?? 'medium',
             'question_category' => $data['question_category'] ?? null,
             'audio_file_path'   => $audioPath,
             'status'            => 'approved',
