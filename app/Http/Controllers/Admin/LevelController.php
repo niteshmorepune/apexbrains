@@ -58,7 +58,17 @@ class LevelController extends Controller
     public function edit(Level $level): View
     {
         $level->load('book');
-        $resourceFiles = \App\Models\ResourceFile::orderBy('title')->get();
+
+        // Books for this level + general "All Levels" (untagged) resources,
+        // plus the currently-assigned book even if it belongs to another level.
+        $resourceFiles = \App\Models\ResourceFile::where(function ($q) use ($level) {
+            $q->where('level_id', $level->id)
+              ->orWhereNull('level_id');
+            if ($level->book_resource_id) {
+                $q->orWhere('id', $level->book_resource_id);
+            }
+        })->orderBy('title')->get();
+
         return view('admin.levels.edit', compact('level', 'resourceFiles'));
     }
 

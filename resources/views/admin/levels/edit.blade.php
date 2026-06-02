@@ -106,15 +106,37 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign from Resource Library</label>
+                    @php
+                        $rfThisLevel = ($resourceFiles ?? collect())->where('level_id', $level->id);
+                        $rfAllLevels = ($resourceFiles ?? collect())->whereNull('level_id');
+                        $rfOther     = ($resourceFiles ?? collect())->filter(fn($r) => $r->level_id && $r->level_id != $level->id);
+                    @endphp
                     <select name="book_resource_id"
                             class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                         <option value="">None</option>
-                        @foreach($resourceFiles ?? [] as $rf)
-                            <option value="{{ $rf->id }}" @selected(($level->book_resource_id ?? null) == $rf->id)>
-                                {{ $rf->title }}
-                            </option>
-                        @endforeach
+                        @if($rfThisLevel->isNotEmpty())
+                            <optgroup label="This level">
+                                @foreach($rfThisLevel as $rf)
+                                    <option value="{{ $rf->id }}" @selected(($level->book_resource_id ?? null) == $rf->id)>{{ $rf->title }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                        @if($rfAllLevels->isNotEmpty())
+                            <optgroup label="All levels">
+                                @foreach($rfAllLevels as $rf)
+                                    <option value="{{ $rf->id }}" @selected(($level->book_resource_id ?? null) == $rf->id)>{{ $rf->title }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                        @if($rfOther->isNotEmpty())
+                            <optgroup label="Currently assigned (other level)">
+                                @foreach($rfOther as $rf)
+                                    <option value="{{ $rf->id }}" @selected(($level->book_resource_id ?? null) == $rf->id)>{{ $rf->title }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
                     </select>
+                    <p class="text-xs text-gray-400 mt-1">Showing books for this level and untagged "All Levels" resources.</p>
                 </div>
             </div>
 
