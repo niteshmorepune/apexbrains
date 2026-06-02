@@ -143,21 +143,6 @@
             </dl>
         </div>
 
-        @if($question->status === 'pending')
-            <div class="bg-yellow-50 rounded-2xl border border-yellow-200 p-5">
-                <h3 class="text-sm font-bold text-yellow-800 mb-3">Review Actions</h3>
-                <div class="flex gap-2">
-                    <form method="POST" action="{{ route('admin.questions.approve', $question) }}" class="flex-1">
-                        @csrf
-                        <button type="submit" class="w-full py-2 bg-stu text-white rounded-xl text-sm font-medium">Approve</button>
-                    </form>
-                    <form method="POST" action="{{ route('admin.questions.reject', $question) }}" class="flex-1">
-                        @csrf
-                        <button type="submit" class="w-full py-2 border border-red-300 text-red-600 rounded-xl text-sm font-medium">Reject</button>
-                    </form>
-                </div>
-            </div>
-        @endif
     </div>
 </div>
 

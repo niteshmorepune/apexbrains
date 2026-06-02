@@ -25,7 +25,6 @@ class QuestionBankController extends Controller
         match ($tab) {
             'mcq'     => $query->where('type', 'mcq'),
             'audio'   => $query->where('type', 'audio'),
-            'pending' => $query->where('status', 'pending'),
             default   => null,
         };
 
@@ -45,7 +44,6 @@ class QuestionBankController extends Controller
             'total'       => QuestionBank::count(),
             'mcq'         => QuestionBank::where('type', 'mcq')->count(),
             'audio'       => QuestionBank::where('type', 'audio')->count(),
-            'pending'     => QuestionBank::where('status', 'pending')->count(),
             'approved'    => QuestionBank::where('status', 'approved')->count(),
         ];
 

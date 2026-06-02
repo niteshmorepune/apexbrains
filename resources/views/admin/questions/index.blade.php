@@ -22,7 +22,7 @@
 @section('content')
 
 {{-- KPI Cards --}}
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-2xl border border-border p-4 text-center">
         <p class="text-2xl font-bold text-admin">{{ number_format($stats['total']) }}</p>
         <p class="text-xs text-gray-500 mt-1">Total Questions</p>
@@ -34,10 +34,6 @@
     <div class="bg-white rounded-2xl border border-border p-4 text-center">
         <p class="text-2xl font-bold text-stu">{{ number_format($stats['audio']) }}</p>
         <p class="text-xs text-gray-500 mt-1">Audio</p>
-    </div>
-    <div class="bg-white rounded-2xl border border-border p-4 text-center">
-        <p class="text-2xl font-bold text-logo-amber">{{ number_format($stats['pending']) }}</p>
-        <p class="text-xs text-gray-500 mt-1">Pending Review</p>
     </div>
     <div class="bg-white rounded-2xl border border-border p-4 text-center">
         <p class="text-2xl font-bold text-stu-dark">{{ number_format($stats['approved']) }}</p>
@@ -107,14 +103,11 @@
 {{-- Tab filters --}}
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="flex border-b border-border">
-        @foreach(['all' => 'All Questions', 'mcq' => 'MCQ', 'audio' => 'Audio', 'pending' => 'Pending Review'] as $key => $label)
+        @foreach(['all' => 'All Questions', 'mcq' => 'MCQ', 'audio' => 'Audio'] as $key => $label)
             <a href="{{ route('admin.questions.index', array_merge(request()->except('tab', 'page'), ['tab' => $key])) }}"
                class="px-5 py-3 text-sm font-medium border-b-2 transition-colors
                       {{ $tab === $key ? 'border-fran text-fran' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
                 {{ $label }}
-                @if($key === 'pending' && $stats['pending'] > 0)
-                    <span class="ml-1 bg-logo-amber text-white text-xs rounded-full px-1.5 py-0.5">{{ $stats['pending'] }}</span>
-                @endif
             </a>
         @endforeach
     </div>
@@ -164,27 +157,16 @@
                     </td>
                     <td class="px-4 py-3">
                         <div class="flex items-center justify-center gap-2">
-                            @if($q->status === 'pending')
-                                <form method="POST" action="{{ route('admin.questions.approve', $q) }}">
-                                    @csrf
-                                    <button type="submit" class="text-xs text-stu hover:underline font-medium">Approve</button>
-                                </form>
-                                <form method="POST" action="{{ route('admin.questions.reject', $q) }}">
-                                    @csrf
-                                    <button type="submit" class="text-xs text-red-500 hover:underline font-medium">Reject</button>
-                                </form>
-                            @else
-                                <a href="{{ route('admin.questions.edit', $q) }}" class="text-xs text-fran hover:underline">Edit</a>
-                                @if($q->type === 'audio')
-                                    <button type="button" onclick="speakQuestion(@js($q->question_text), this)"
-                                            class="text-xs text-stu hover:underline">▶ Play</button>
-                                @endif
-                                <form method="POST" action="{{ route('admin.questions.destroy', $q) }}"
-                                      onsubmit="return confirm('Delete this question?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
-                                </form>
+                            <a href="{{ route('admin.questions.edit', $q) }}" class="text-xs text-fran hover:underline">Edit</a>
+                            @if($q->type === 'audio')
+                                <button type="button" onclick="speakQuestion(@js($q->question_text), this)"
+                                        class="text-xs text-stu hover:underline">▶ Play</button>
                             @endif
+                            <form method="POST" action="{{ route('admin.questions.destroy', $q) }}"
+                                  onsubmit="return confirm('Delete this question?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
+                            </form>
                         </div>
                     </td>
                 </tr>
