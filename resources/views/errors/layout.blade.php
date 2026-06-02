@@ -8,9 +8,15 @@
 </head>
 <body class="h-full bg-bg-light flex items-center justify-center p-4 font-sans">
 <div class="w-full max-w-sm text-center">
-    <div class="w-16 h-16 rounded-2xl bg-logo-red mx-auto flex items-center justify-center mb-6">
-        <span class="text-white text-2xl font-bold">AB</span>
-    </div>
+    @if(!empty($appSettings['logo_path']))
+        <img src="{{ Storage::url($appSettings['logo_path']) }}"
+             alt="{{ $appSettings['app_name'] ?? 'Apex Brains' }}"
+             class="h-16 w-auto mx-auto mb-6 object-contain">
+    @else
+        <div class="w-16 h-16 rounded-2xl bg-logo-red mx-auto flex items-center justify-center mb-6">
+            <span class="text-white text-2xl font-bold">{{ strtoupper(substr($appSettings['app_name'] ?? 'AB', 0, 2)) }}</span>
+        </div>
+    @endif
 
     <p class="text-7xl font-black text-gray-200 mb-2">@yield('code')</p>
     <h1 class="text-xl font-bold text-gray-800 mb-2">@yield('heading')</h1>
