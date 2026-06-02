@@ -58,6 +58,10 @@ jobs:
           username: ${{ secrets.HOSTINGER_SSH_USERNAME }}
           key: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
           port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          # Hostinger SSH is sometimes slow to accept the handshake; the default
+          # 30s dial timeout intermittently fails with "dial tcp: i/o timeout".
+          timeout: 120s
+          command_timeout: 15m
           script: |
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
