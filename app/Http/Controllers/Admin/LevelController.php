@@ -51,12 +51,15 @@ class LevelController extends Controller
     public function show(Level $level): View
     {
         $level->loadCount('students as students_count');
+        $level->load('book');
         return view('admin.levels.show', compact('level'));
     }
 
     public function edit(Level $level): View
     {
-        return view('admin.levels.edit', compact('level'));
+        $level->load('book');
+        $resourceFiles = \App\Models\ResourceFile::orderBy('title')->get();
+        return view('admin.levels.edit', compact('level', 'resourceFiles'));
     }
 
     public function update(Request $request, Level $level): RedirectResponse
@@ -68,9 +71,11 @@ class LevelController extends Controller
             'learning_objectives' => ['nullable', 'array'],
             'learning_objectives.*' => ['string', 'max:200'],
             'is_active'           => ['boolean'],
+            'book_resource_id'    => ['nullable', 'exists:resource_files,id'],
         ]);
 
         $data['is_active'] = $request->boolean('is_active');
+        $data['book_resource_id'] = $data['book_resource_id'] ?? null;
         $data['learning_objectives'] = array_values(
             array_filter($data['learning_objectives'] ?? [], fn($o) => trim($o) !== '')
         );

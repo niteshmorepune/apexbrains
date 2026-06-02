@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Level extends Model
 {
     protected $fillable = [
         'number', 'title', 'slug', 'description', 'learning_objectives',
-        'fee_per_month', 'is_active', 'sort_order',
+        'fee_per_month', 'is_active', 'sort_order', 'book_resource_id',
     ];
 
     protected $casts = [
@@ -23,6 +24,11 @@ class Level extends Model
     public function students(): HasMany
     {
         return $this->hasMany(Student::class, 'current_level_id');
+    }
+
+    public function book(): BelongsTo
+    {
+        return $this->belongsTo(ResourceFile::class, 'book_resource_id');
     }
 
     public function studentLevels(): HasMany

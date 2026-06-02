@@ -50,6 +50,33 @@ $color = $levelColors[$level->number] ?? '#1A73E8';
                 </ol>
             </div>
         @endif
+
+        <div class="bg-white rounded-2xl border border-border p-6">
+            <h3 class="text-sm font-bold text-admin mb-3">Assigned Book</h3>
+            @if($level->book)
+                <div class="flex items-center gap-3 p-4 bg-bg-light rounded-xl">
+                    <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                        <span class="text-xs font-bold text-red-600">{{ strtoupper($level->book->file_type ?? 'PDF') }}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-admin truncate">{{ $level->book->title }}</p>
+                        <p class="text-xs text-gray-400">{{ $level->book->formatted_size }}</p>
+                    </div>
+                    <a href="{{ route('admin.resources.download', $level->book) }}"
+                       class="text-xs font-medium text-fran hover:underline flex-shrink-0">Download</a>
+                </div>
+            @else
+                <div class="flex items-center gap-3 p-4 bg-bg-light rounded-xl">
+                    <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                        <span class="text-xs font-bold text-gray-400">PDF</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-400">No book assigned yet</p>
+                        <p class="text-xs text-gray-300">Assign one from the Resource Library via Edit Syllabus.</p>
+                    </div>
+                </div>
+            @endif
+        </div>
     </div>
 
     <div class="space-y-4">
