@@ -8,7 +8,7 @@
 
     {{-- Main form --}}
     <div class="col-span-2">
-        <form method="POST" action="{{ route('admin.questions.update', $question) }}">
+        <form id="qedit-form" method="POST" action="{{ route('admin.questions.update', $question) }}">
             @csrf @method('PUT')
 
             <div class="bg-white rounded-2xl border border-border p-6 mb-4">
@@ -87,20 +87,23 @@
                 </div>
             @endif
 
-            <div class="flex items-center gap-3">
-                <a href="{{ route('admin.questions.index') }}"
-                   class="px-5 py-2.5 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">Cancel</a>
-                <button type="submit"
-                        class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
-                    Save Changes
-                </button>
-                <form method="POST" action="{{ route('admin.questions.destroy', $question) }}" class="ml-auto"
-                      onsubmit="return confirm('Delete this question permanently?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="px-4 py-2.5 text-red-500 text-sm hover:underline">Delete Question</button>
-                </form>
-            </div>
         </form>
+
+        {{-- Action row — Delete is its OWN form; never nest forms (a nested
+             DELETE _method would hijack Save and delete the record). --}}
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.questions.index') }}"
+               class="px-5 py-2.5 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">Cancel</a>
+            <button type="submit" form="qedit-form"
+                    class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+                Save Changes
+            </button>
+            <form method="POST" action="{{ route('admin.questions.destroy', $question) }}" class="ml-auto"
+                  onsubmit="return confirm('Delete this question permanently?')">
+                @csrf @method('DELETE')
+                <button type="submit" class="px-4 py-2.5 text-red-500 text-sm hover:underline">Delete Question</button>
+            </form>
+        </div>
     </div>
 
     {{-- Sidebar --}}
