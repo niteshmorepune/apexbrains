@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Commission;
 use App\Models\Franchise;
 use App\Models\Payment;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -52,6 +53,24 @@ class RevenueController extends Controller
             ->orderByDesc('revenue')
             ->limit(8)
             ->get();
+
+        // Commission settlement status per franchise across the selected period.
+        // 'paid' = all monthly commission records paid, 'partial' = some, 'pending' =
+        // records exist but none paid, null = no commission calculated for the period.
+        $commissionStatus = Commission::whereBetween('month', [$from, $to])
+            ->get()
+            ->groupBy('franchise_id')
+            ->map(function ($records) {
+                $paid = $records->where('status', 'paid')->count();
+                if ($paid === 0) {
+                    return 'pending';
+                }
+                return $paid === $records->count() ? 'paid' : 'partial';
+            });
+
+        $branchRevenue->each(function ($f) use ($commissionStatus) {
+            $f->commission_status = $commissionStatus->get($f->id);
+        });
 
         return view('admin.revenue', compact(
             'from', 'to', 'totalRevenue', 'monthRevenue', 'perFranchiseAvg', 'growthRate',

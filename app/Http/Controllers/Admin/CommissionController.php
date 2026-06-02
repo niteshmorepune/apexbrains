@@ -44,10 +44,8 @@ class CommissionController extends Controller
                     $f->students_count  = $record->students_count ?? $f->students_count;
                     $f->fee_per_student = $record->fee_per_student ?? $f->fee_per_student;
                 } else {
-                    // Live estimate: actual payments if any, else expected revenue (students × fee).
-                    $f->gross_revenue  = ($f->paid_revenue ?? 0) > 0
-                        ? $f->paid_revenue
-                        : $f->students_count * $f->fee_per_student;
+                    // Collected payments only — commission is based on money actually received.
+                    $f->gross_revenue  = $f->paid_revenue ?? 0;
                     $f->commission_due = $f->gross_revenue * ($f->commission_rate / 100);
                 }
 
@@ -84,13 +82,11 @@ class CommissionController extends Controller
             $fee      = $data['fee_per_student'] ?? $franchise->fee_per_student;
             $rate     = $data['commission_rate'] ?? $franchise->commission_rate;
 
-            // Prefer actual recorded payments; fall back to expected revenue (students × fee).
-            $paid = Payment::where('franchise_id', $franchise->id)
+            // Collected payments only — commission is based on money actually received.
+            $revenue = Payment::where('franchise_id', $franchise->id)
                 ->whereYear('payment_date', $year)
                 ->whereMonth('payment_date', $mo)
                 ->sum('amount');
-
-            $revenue = $paid > 0 ? $paid : $students * $fee;
 
             if ($revenue > 0) {
                 Commission::updateOrCreate(
@@ -136,9 +132,8 @@ class CommissionController extends Controller
                     $f->students_count  = $record->students_count ?? $f->students_count;
                     $f->fee_per_student = $record->fee_per_student ?? $f->fee_per_student;
                 } else {
-                    $f->gross_revenue  = ($f->paid_revenue ?? 0) > 0
-                        ? $f->paid_revenue
-                        : $f->students_count * $f->fee_per_student;
+                    // Collected payments only — no expected-revenue fallback.
+                    $f->gross_revenue  = $f->paid_revenue ?? 0;
                     $f->commission_due = $f->gross_revenue * ($f->commission_rate / 100);
                 }
 

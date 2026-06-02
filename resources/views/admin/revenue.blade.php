@@ -125,9 +125,9 @@
         <tbody class="divide-y divide-border">
             @forelse($branchRevenue as $f)
                 @php
-                    $gross = $f->revenue ?? ($f->students_count * $f->fee_per_student);
+                    $gross = $f->revenue ?? 0;
                     $commissionDue = $gross * ($f->commission_rate / 100);
-                    $isPaid = ($f->revenue ?? 0) > 0;
+                    $cs = $f->commission_status ?? null;
                 @endphp
                 <tr class="hover:bg-bg-light">
                     <td class="px-5 py-3 font-medium text-admin">{{ $f->name }}</td>
@@ -138,10 +138,14 @@
                     <td class="px-4 py-3 text-right text-gray-500">{{ $f->commission_rate }}%</td>
                     <td class="px-4 py-3 text-right font-medium text-fran">₹{{ number_format($commissionDue) }}</td>
                     <td class="px-4 py-3 text-center">
-                        @if($isPaid)
+                        @if($cs === 'paid')
                             <span class="text-xs bg-green-100 text-green-700 font-medium px-2 py-0.5 rounded-full">Paid</span>
-                        @else
+                        @elseif($cs === 'partial')
+                            <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2 py-0.5 rounded-full">Partial</span>
+                        @elseif($cs === 'pending')
                             <span class="text-xs bg-yellow-100 text-yellow-700 font-medium px-2 py-0.5 rounded-full">Pending</span>
+                        @else
+                            <span class="text-xs bg-gray-100 text-gray-500 font-medium px-2 py-0.5 rounded-full">Not calculated</span>
                         @endif
                     </td>
                 </tr>
