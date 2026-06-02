@@ -40,8 +40,8 @@
         <p class="text-xs text-gray-500 mt-1">Pending Review</p>
     </div>
     <div class="bg-white rounded-2xl border border-border p-4 text-center">
-        <p class="text-2xl font-bold text-gray-600">{{ number_format($stats['pdf_sources']) }}</p>
-        <p class="text-xs text-gray-500 mt-1">PDF Sources</p>
+        <p class="text-2xl font-bold text-stu-dark">{{ number_format($stats['approved']) }}</p>
+        <p class="text-xs text-gray-500 mt-1">Approved</p>
     </div>
 </div>
 

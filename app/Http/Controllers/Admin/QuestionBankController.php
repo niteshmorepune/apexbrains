@@ -46,7 +46,7 @@ class QuestionBankController extends Controller
             'mcq'         => QuestionBank::where('type', 'mcq')->count(),
             'audio'       => QuestionBank::where('type', 'audio')->count(),
             'pending'     => QuestionBank::where('status', 'pending')->count(),
-            'pdf_sources' => QuestionBank::whereNotNull('source_pdf')->distinct('source_pdf')->count('source_pdf'),
+            'approved'    => QuestionBank::where('status', 'approved')->count(),
         ];
 
         return view('admin.questions.index', compact('questions', 'levels', 'stats', 'tab'));
