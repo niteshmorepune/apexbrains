@@ -13,7 +13,7 @@ class LevelController extends Controller
 {
     public function index(): View
     {
-        $levels = Level::withCount('studentLevels as students_count')
+        $levels = Level::withCount('students as students_count')
             ->orderBy('sort_order')
             ->get();
 
@@ -50,7 +50,7 @@ class LevelController extends Controller
 
     public function show(Level $level): View
     {
-        $level->loadCount('studentLevels as students_count');
+        $level->loadCount('students as students_count');
         return view('admin.levels.show', compact('level'));
     }
 
@@ -84,7 +84,7 @@ class LevelController extends Controller
 
     public function destroy(Level $level): RedirectResponse
     {
-        if ($level->students_count > 0) {
+        if ($level->students()->exists()) {
             return back()->with('error', "Cannot delete Level {$level->number} — it has active students.");
         }
 

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Franchise;
 use App\Models\Payment;
 use App\Models\Student;
-use App\Models\StudentLevel;
 use App\Models\ExamAttempt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
@@ -52,14 +51,16 @@ class DashboardController extends Controller
                 'total' => (float) $r->total,
             ]);
 
-        // Student count by level
-        $levelDistribution = StudentLevel::select('level_id', DB::raw('count(*) as total'))
+        // Student count by level (based on each student's current level)
+        $levelDistribution = Student::select('current_level_id', DB::raw('count(*) as total'))
+            ->whereNotNull('current_level_id')
             ->with('level:id,title,sort_order')
-            ->groupBy('level_id')
-            ->orderBy('level_id')
+            ->groupBy('current_level_id')
             ->get()
+            ->sortBy(fn($r) => $r->level->sort_order ?? PHP_INT_MAX)
+            ->values()
             ->map(fn($r) => [
-                'label' => $r->level->title ?? "Level {$r->level_id}",
+                'label' => $r->level->title ?? "Level {$r->current_level_id}",
                 'total' => $r->total,
             ]);
 
