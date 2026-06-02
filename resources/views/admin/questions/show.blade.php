@@ -37,12 +37,13 @@
             <div class="space-y-2">
                 @foreach(['A' => $question->option_a, 'B' => $question->option_b, 'C' => $question->option_c, 'D' => $question->option_d] as $label => $option)
                     @if($option)
+                        @php $isCorrect = strtoupper((string) $question->correct_answer) === $label; @endphp
                         <div class="flex items-center gap-3 p-3 rounded-xl border
-                            {{ $question->correct_answer === $label ? 'border-stu bg-stu-light' : 'border-border' }}">
+                            {{ $isCorrect ? 'border-stu bg-stu-light' : 'border-border' }}">
                             <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                                {{ $question->correct_answer === $label ? 'bg-stu text-white' : 'bg-bg-mid text-gray-600' }}">{{ $label }}</span>
+                                {{ $isCorrect ? 'bg-stu text-white' : 'bg-bg-mid text-gray-600' }}">{{ $label }}</span>
                             <span class="text-sm text-gray-700">{{ $option }}</span>
-                            @if($question->correct_answer === $label)
+                            @if($isCorrect)
                                 <span class="ml-auto text-xs text-stu font-medium">Correct</span>
                             @endif
                         </div>

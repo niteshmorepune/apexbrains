@@ -70,7 +70,7 @@
                                    class="flex-1 border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <label class="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer">
                                 <input type="radio" name="correct_answer" value="{{ $label }}"
-                                       {{ old('correct_answer', $question->correct_answer) === $label ? 'checked' : '' }}
+                                       {{ strtoupper((string) old('correct_answer', $question->correct_answer)) === $label ? 'checked' : '' }}
                                        class="accent-stu">
                                 Correct
                             </label>

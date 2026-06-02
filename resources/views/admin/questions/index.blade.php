@@ -175,8 +175,9 @@
                                 </form>
                             @else
                                 <a href="{{ route('admin.questions.edit', $q) }}" class="text-xs text-fran hover:underline">Edit</a>
-                                @if($q->type === 'audio' || $q->question_type === 'audio')
-                                    <a href="{{ route('admin.questions.audio') }}" class="text-xs text-stu hover:underline">Audio</a>
+                                @if($q->type === 'audio')
+                                    <button type="button" onclick="speakQuestion(@js($q->question_text), this)"
+                                            class="text-xs text-stu hover:underline">▶ Play</button>
                                 @endif
                                 <form method="POST" action="{{ route('admin.questions.destroy', $q) }}"
                                       onsubmit="return confirm('Delete this question?')">
@@ -209,5 +210,35 @@
 
 </div>{{-- end right col --}}
 </div>{{-- end grid --}}
+
+<script>
+// Reads an audio question aloud using the browser's text-to-speech.
+function speakQuestion(text, btn) {
+    if (!('speechSynthesis' in window)) {
+        alert('Audio playback is not supported in this browser.');
+        return;
+    }
+    const spoken = String(text)
+        .replace(/\+/g, ' plus ')
+        .replace(/[−–-]/g, ' minus ')
+        .replace(/[x×*]/gi, ' times ')
+        .replace(/[÷/]/g, ' divided by ')
+        .replace(/=/g, ' equals ')
+        .replace(/\?/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(spoken);
+    utter.rate = 0.9;
+    utter.lang = 'en-IN';
+    if (btn) {
+        btn.classList.add('animate-pulse');
+        utter.onend = () => btn.classList.remove('animate-pulse');
+        utter.onerror = () => btn.classList.remove('animate-pulse');
+    }
+    window.speechSynthesis.speak(utter);
+}
+</script>
 
 @endsection
