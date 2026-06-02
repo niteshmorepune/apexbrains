@@ -268,18 +268,36 @@ class FranchiseController extends Controller
     {
         $franchises = Franchise::withCount('students')
             ->where('status', 'active')
-            ->with(['commissions' => fn($q) => $q->whereMonth('created_at', now()->month)])
             ->orderByDesc('students_count')
             ->get()
             ->map(function ($f, $index) {
-                $monthlyRevenue = $f->commissions->sum('payment_date') > 0
-                    ? $f->commissions->sum('commission_amount') / max($f->commission_rate / 100, 0.01)
-                    : ($f->students_count * $f->fee_per_student);
                 $f->rank = $index + 1;
-                $f->monthly_revenue = $monthlyRevenue;
-                $f->avg_score = rand(72, 96); // placeholder until exam scores aggregated
-                $f->pass_rate = rand(85, 99);
-                $f->growth = rand(-5, 25);
+
+                // Collected revenue this month (payments only — matches commission rule).
+                $f->monthly_revenue = \App\Models\Payment::where('franchise_id', $f->id)
+                    ->whereYear('payment_date', now()->year)
+                    ->whereMonth('payment_date', now()->month)
+                    ->sum('amount');
+
+                // Real exam metrics for this franchise's students.
+                $attempts = \App\Models\ExamAttempt::whereHas('student', fn($q) => $q->where('franchise_id', $f->id))
+                    ->where('status', 'submitted');
+                $totalAttempts = (clone $attempts)->count();
+                $f->avg_score = round((clone $attempts)->avg('percentage') ?? 0, 1);
+                $f->pass_rate = $totalAttempts > 0
+                    ? round((clone $attempts)->where('is_passed', true)->count() / $totalAttempts * 100, 1)
+                    : 0;
+
+                // Enrollment growth: this month's new students vs last month's.
+                $base = \App\Models\Student::withoutGlobalScopes()->where('franchise_id', $f->id);
+                $thisMonth = (clone $base)->whereYear('enrollment_date', now()->year)
+                    ->whereMonth('enrollment_date', now()->month)->count();
+                $lastMonth = (clone $base)->whereYear('enrollment_date', now()->subMonth()->year)
+                    ->whereMonth('enrollment_date', now()->subMonth()->month)->count();
+                $f->growth = $lastMonth > 0
+                    ? (int) round(($thisMonth - $lastMonth) / $lastMonth * 100)
+                    : ($thisMonth > 0 ? 100 : 0);
+
                 return $f;
             });
 

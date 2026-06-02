@@ -103,7 +103,6 @@
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Speed</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Exams</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Badge</th>
-                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Profile</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-border">
@@ -165,17 +164,10 @@
                     <td class="px-4 py-3 text-center">
                         <span class="text-xs px-2 py-0.5 rounded-full {{ $badge[1] }}">{{ $badge[0] }}</span>
                     </td>
-                    <td class="px-4 py-3 text-center">
-                        @if($row->student)
-                            <a href="{{ route('admin.students.show', $row->student_id) }}" class="text-xs text-fran hover:underline">View Profile</a>
-                        @else
-                            <span class="text-xs text-gray-400">—</span>
-                        @endif
-                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="px-5 py-12 text-center text-gray-400">
+                    <td colspan="9" class="px-5 py-12 text-center text-gray-400">
                         No exam data yet. Leaderboard will populate as students complete exams.
                     </td>
                 </tr>
