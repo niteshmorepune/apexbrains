@@ -276,8 +276,8 @@
             <p class="text-xs text-gray-400 mt-0.5">Upload verification documents for this franchise.</p>
         </div>
         <div class="p-6">
-            <form method="POST" action="{{ route('admin.franchises.update', $franchise) }}" enctype="multipart/form-data">
-                @csrf @method('PUT')
+            <form method="POST" action="{{ route('admin.franchises.documents', $franchise) }}" enctype="multipart/form-data">
+                @csrf
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     @foreach([
                         'doc_gst'       => 'GST Certificate',
@@ -287,10 +287,16 @@
                         'doc_agreement' => 'Franchise Agreement',
                         'doc_bank'      => 'Bank Details / Cancelled Cheque',
                     ] as $field => $label)
+                    @php $doc = $documents[\Illuminate\Support\Str::after($field, 'doc_')] ?? null; @endphp
                     <div class="border border-border rounded-xl p-4">
                         <label class="block text-xs font-medium text-gray-700 mb-2">{{ $label }}</label>
-                        @if($franchise->$field ?? null)
-                            <p class="text-xs text-stu mb-2">✓ Uploaded</p>
+                        @if($doc)
+                            <p class="text-xs text-stu mb-2">
+                                ✓ Uploaded
+                                <a href="{{ Storage::url($doc->file_path) }}" target="_blank" rel="noopener"
+                                   class="text-fran font-medium hover:underline ml-1">View</a>
+                                <span class="text-gray-400">· {{ $doc->uploaded_at?->format('d M Y') }}</span>
+                            </p>
                         @else
                             <p class="text-xs text-gray-400 mb-2">Not yet uploaded</p>
                         @endif

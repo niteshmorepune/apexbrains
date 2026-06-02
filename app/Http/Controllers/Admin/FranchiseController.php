@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Franchise;
 use App\Services\AuditLogger;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -102,6 +103,9 @@ class FranchiseController extends Controller
     {
         $franchise->loadCount(['students', 'batches']);
 
+        // Uploaded documents keyed by type (gst, pan, aadhaar, address, agreement, bank)
+        $documents = $franchise->documents()->latest('uploaded_at')->get()->keyBy('document_type');
+
         $recentActivity = \App\Models\AuditLog::where('entity_type', 'Franchise')
             ->where('entity_id', $franchise->id)
             ->latest()
@@ -147,7 +151,7 @@ class FranchiseController extends Controller
             ->get();
 
         return view('admin.franchises.show', compact(
-            'franchise', 'recentActivity', 'franchiseStudents',
+            'franchise', 'documents', 'recentActivity', 'franchiseStudents',
             'monthlyRevenue', 'avgScore', 'growthLabels', 'growthData', 'levelDist'
         ));
     }
@@ -178,6 +182,59 @@ class FranchiseController extends Controller
 
         return redirect()->route('admin.franchises.show', $franchise)
             ->with('success', 'Franchise updated successfully.');
+    }
+
+    public function uploadDocuments(Request $request, Franchise $franchise): RedirectResponse
+    {
+        $docTypes = ['gst', 'pan', 'aadhaar', 'address', 'agreement', 'bank'];
+
+        $request->validate(
+            collect($docTypes)->mapWithKeys(fn($type) => [
+                "doc_{$type}" => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            ])->all()
+        );
+
+        $uploadedCount = 0;
+        foreach ($docTypes as $type) {
+            $input = "doc_{$type}";
+            if (! $request->hasFile($input)) {
+                continue;
+            }
+
+            $path = $request->file($input)->store("franchise-documents/{$franchise->id}", 'public');
+
+            $existing = $franchise->documents()->where('document_type', $type)->first();
+            if ($existing) {
+                Storage::disk('public')->delete($existing->file_path);
+                $existing->update([
+                    'file_path'   => $path,
+                    'status'      => 'pending',
+                    'uploaded_at' => now(),
+                    'reviewed_at' => null,
+                    'reviewed_by' => null,
+                ]);
+            } else {
+                $franchise->documents()->create([
+                    'document_type' => $type,
+                    'file_path'     => $path,
+                    'status'        => 'pending',
+                    'uploaded_at'   => now(),
+                ]);
+            }
+            $uploadedCount++;
+        }
+
+        if ($uploadedCount === 0) {
+            return redirect()->route('admin.franchises.show', $franchise)
+                ->with('openTab', 'documents')
+                ->with('error', 'No file selected. Choose a file before saving.');
+        }
+
+        AuditLogger::log('franchise_documents_uploaded', 'Franchise', $franchise->id);
+
+        return redirect()->route('admin.franchises.show', $franchise)
+            ->with('openTab', 'documents')
+            ->with('success', "{$uploadedCount} document(s) uploaded.");
     }
 
     public function approve(Franchise $franchise): RedirectResponse
