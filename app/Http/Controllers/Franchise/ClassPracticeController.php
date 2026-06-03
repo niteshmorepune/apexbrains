@@ -220,4 +220,87 @@ class ClassPracticeController extends Controller
 
         return view('franchise.class-practice.results', compact('session'));
     }
+
+    /**
+     * Replay the exact same question set (same order) as a fresh session,
+     * preserving the completed session as history.
+     */
+    public function replay(ClassPracticeSession $session): RedirectResponse
+    {
+        $new = $this->cloneSession($session, reuseQuestions: true);
+
+        return redirect()->route('franchise.class-practice.project', $new);
+    }
+
+    /**
+     * Run the same settings (level, timer, count, audio) again with a freshly
+     * randomized question set.
+     */
+    public function again(ClassPracticeSession $session): RedirectResponse
+    {
+        $new = $this->cloneSession($session, reuseQuestions: false);
+
+        if ($new === null) {
+            return redirect()
+                ->route('franchise.class-practice.results', $session)
+                ->with('error', 'No approved questions are available for this level right now.');
+        }
+
+        return redirect()->route('franchise.class-practice.project', $new);
+    }
+
+    /**
+     * Create a new pending session from an existing one. When $reuseQuestions is
+     * true the same questions/order are copied; otherwise a fresh random set is drawn.
+     */
+    protected function cloneSession(ClassPracticeSession $session, bool $reuseQuestions): ?ClassPracticeSession
+    {
+        $session->loadMissing('level');
+
+        if ($reuseQuestions) {
+            $source = $session->sessionQuestions()->orderBy('sort_order')->get();
+        } else {
+            $source = QuestionBank::where('status', 'approved')
+                ->where(fn ($q) => $q->where('level_id', $session->level_id)->orWhereNull('level_id'))
+                ->inRandomOrder()
+                ->limit($session->total_questions)
+                ->get();
+
+            if ($source->isEmpty()) {
+                return null;
+            }
+        }
+
+        $new = ClassPracticeSession::create([
+            'franchise_id'              => $session->franchise_id,
+            'teacher_id'                => Auth::id(),
+            'title'                     => 'Level ' . $session->level?->number . ' Practice — ' . now()->format('d M Y, g:i A'),
+            'level_id'                  => $session->level_id,
+            'question_category'         => $session->question_category,
+            'total_questions'           => $reuseQuestions ? $source->count() : $session->total_questions,
+            'time_per_question_seconds' => $session->time_per_question_seconds,
+            'session_length_minutes'    => $session->session_length_minutes,
+            'audio_dictation'           => $session->audio_dictation,
+            'batch_id'                  => $session->batch_id,
+            'status'                    => 'pending',
+            'current_question_index'    => 0,
+            'session_code'              => strtoupper(substr(md5(uniqid()), 0, 6)),
+        ]);
+
+        foreach ($source as $i => $row) {
+            ClassPracticeSessionQuestion::create([
+                'session_id'  => $new->id,
+                'question_id' => $reuseQuestions ? $row->question_id : $row->id,
+                'sort_order'  => $reuseQuestions ? $row->sort_order : $i + 1,
+            ]);
+        }
+
+        AuditLogger::log(
+            $reuseQuestions ? 'class_practice_replayed' : 'class_practice_cloned',
+            'ClassPracticeSession',
+            $new->id
+        );
+
+        return $new;
+    }
 }

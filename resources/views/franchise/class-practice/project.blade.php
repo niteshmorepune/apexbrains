@@ -52,10 +52,24 @@
             {{-- Active: flashcard (terms flashed one at a time) --}}
             <template x-if="state.status === 'active'">
                 <div class="flex-1 w-full grid place-items-center">
-                    <p class="font-black text-gray-900 leading-none text-center break-words max-w-full select-none"
-                       :class="finished ? 'text-gray-300' : 'text-gray-900'"
+                    {{-- Flashing term --}}
+                    <p x-show="!finished"
+                       class="font-black text-gray-900 leading-none text-center break-words max-w-full select-none"
                        :style="`font-size: clamp(64px, ${flashSize}vw, 200px)`"
                        x-text="display"></p>
+
+                    {{-- Well done: shown once all terms of the question have flashed --}}
+                    <div x-show="finished" x-cloak x-transition class="text-center">
+                        <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-100 text-green-700 rounded-full text-lg font-bold mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 12.5l2.5 2.5 4.5-5"/>
+                            </svg>
+                            Well Done
+                        </span>
+                        <p class="text-gray-500 text-base mb-2">You've completed question <span class="font-semibold text-gray-700" x-text="state.index"></span> of <span x-text="state.total"></span></p>
+                        <p class="text-7xl sm:text-8xl font-black text-fran" x-text="`${state.index}/${state.total}`"></p>
+                        <p class="text-gray-400 text-sm mt-4">Tap <span class="font-semibold text-gray-600">Next Question</span> to continue</p>
+                    </div>
                 </div>
             </template>
 
