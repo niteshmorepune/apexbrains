@@ -176,14 +176,24 @@
             {{-- External competition (external only) --}}
             <div x-show="studentType === 'external'" class="bg-white rounded-2xl border border-border p-6 mb-4">
                 <h2 class="text-sm font-bold text-fran mb-4">Competition Enrollment</h2>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Competition (optional)</label>
-                    <select name="competition_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                        <option value="">No competition selected</option>
-                        @foreach($competitions as $comp)
-                            <option value="{{ $comp->id }}" @selected(old('competition_id') == $comp->id)>{{ $comp->title }}</option>
-                        @endforeach
-                    </select>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Competition (optional)</label>
+                        <select name="competition_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                            <option value="">No competition selected</option>
+                            @foreach($competitions as $comp)
+                                <option value="{{ $comp->id }}" @selected(old('competition_id') == $comp->id)>{{ $comp->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Registration Fee (₹)</label>
+                        <input type="number" name="registration_fee" value="{{ old('registration_fee') }}" min="0" step="0.01"
+                               placeholder="e.g. 500"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('registration_fee') border-red-400 @enderror">
+                        @error('registration_fee')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        <p class="text-xs text-gray-400 mt-1">Creates a competition registration fee record.</p>
+                    </div>
                 </div>
             </div>
 

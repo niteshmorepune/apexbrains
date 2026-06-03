@@ -161,7 +161,7 @@ class StudentController extends Controller
                 'is_primary'   => true,
             ]);
 
-            // External: link to competition and create registration fee
+            // External: link to competition
             if (!$isInternal && !empty($data['competition_id'])) {
                 CompetitionRegistration::create([
                     'competition_id'    => $data['competition_id'],
@@ -171,6 +171,22 @@ class StudentController extends Controller
                     'registration_date' => now()->toDateString(),
                     'student_type'      => 'external',
                     'status'            => 'registered',
+                ]);
+            }
+
+            // External: create a competition registration fee record
+            if (!$isInternal && !empty($data['registration_fee'])) {
+                Fee::create([
+                    'franchise_id' => $franchiseId,
+                    'student_id'   => $student->id,
+                    'level_id'     => null,
+                    'student_type' => 'external',
+                    'amount'       => $data['registration_fee'],
+                    'month'        => now()->startOfMonth()->toDateString(),
+                    'due_date'     => now()->addDays(7)->toDateString(),
+                    'status'       => 'pending',
+                    'paid_amount'  => 0,
+                    'fee_type'     => 'competition_registration',
                 ]);
             }
         });
