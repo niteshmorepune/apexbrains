@@ -51,25 +51,26 @@ class LevelController extends Controller
     public function show(Level $level): View
     {
         $level->loadCount('students as students_count');
-        $level->load('book');
+        $level->load('books');
         return view('admin.levels.show', compact('level'));
     }
 
     public function edit(Level $level): View
     {
-        $level->load('book');
+        $level->load('books');
+        $assignedIds = $level->books->pluck('id')->all();
 
         // Books for this level + general "All Levels" (untagged) resources,
-        // plus the currently-assigned book even if it belongs to another level.
-        $resourceFiles = \App\Models\ResourceFile::where(function ($q) use ($level) {
+        // plus any currently-assigned books even if they belong to another level.
+        $resourceFiles = \App\Models\ResourceFile::where(function ($q) use ($level, $assignedIds) {
             $q->where('level_id', $level->id)
               ->orWhereNull('level_id');
-            if ($level->book_resource_id) {
-                $q->orWhere('id', $level->book_resource_id);
+            if ($assignedIds) {
+                $q->orWhereIn('id', $assignedIds);
             }
         })->orderBy('title')->get();
 
-        return view('admin.levels.edit', compact('level', 'resourceFiles'));
+        return view('admin.levels.edit', compact('level', 'resourceFiles', 'assignedIds'));
     }
 
     public function update(Request $request, Level $level): RedirectResponse
@@ -81,16 +82,25 @@ class LevelController extends Controller
             'learning_objectives' => ['nullable', 'array'],
             'learning_objectives.*' => ['string', 'max:200'],
             'is_active'           => ['boolean'],
-            'book_resource_id'    => ['nullable', 'exists:resource_files,id'],
+            'book_resource_ids'   => ['nullable', 'array'],
+            'book_resource_ids.*' => ['exists:resource_files,id'],
         ]);
 
+        $bookIds = array_values(array_unique(array_filter(
+            $data['book_resource_ids'] ?? [],
+            fn($v) => $v !== null && $v !== ''
+        )));
+        unset($data['book_resource_ids']);
+
         $data['is_active'] = $request->boolean('is_active');
-        $data['book_resource_id'] = $data['book_resource_id'] ?? null;
+        // Keep the legacy single-book column in sync (first selected book) for back-compat
+        $data['book_resource_id'] = $bookIds[0] ?? null;
         $data['learning_objectives'] = array_values(
             array_filter($data['learning_objectives'] ?? [], fn($o) => trim($o) !== '')
         );
 
         $level->update($data);
+        $level->books()->sync($bookIds);
         AuditLogger::log('level_updated', 'Level', $level->id);
 
         return redirect()->route('admin.levels.index')

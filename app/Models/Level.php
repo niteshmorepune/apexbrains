@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Level extends Model
@@ -29,6 +30,11 @@ class Level extends Model
     public function book(): BelongsTo
     {
         return $this->belongsTo(ResourceFile::class, 'book_resource_id');
+    }
+
+    public function books(): BelongsToMany
+    {
+        return $this->belongsToMany(ResourceFile::class, 'level_resource_files')->withTimestamps();
     }
 
     public function studentLevels(): HasMany

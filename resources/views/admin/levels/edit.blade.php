@@ -87,56 +87,70 @@
                 </template>
             </div>
 
-            {{-- Assigned Book --}}
-            <div class="bg-white rounded-2xl border border-border p-6 mb-4">
-                <h2 class="text-sm font-bold text-admin mb-4">Assigned Book</h2>
-                <div class="flex items-center gap-3 p-4 bg-bg-light rounded-xl mb-3">
-                    <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                        <span class="text-xs font-bold text-red-600">PDF</span>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        @if($level->book_resource_id ?? null)
-                            <p class="text-sm font-medium text-admin">{{ $level->book?->title ?? 'Assigned Book' }}</p>
-                            <p class="text-xs text-stu">PDF Available</p>
-                        @else
-                            <p class="text-sm text-gray-400">No book assigned yet</p>
-                            <p class="text-xs text-gray-300">Assign a resource file below</p>
-                        @endif
-                    </div>
+            {{-- Assigned Books (multiple) --}}
+            <div class="bg-white rounded-2xl border border-border p-6 mb-4"
+                 x-data="{
+                    available: {{ ($resourceFiles ?? collect())->map(fn($rf) => ['id' => $rf->id, 'title' => $rf->title, 'group' => $rf->level_id == $level->id ? 'This level' : ($rf->level_id ? 'Other level' : 'All levels')])->values()->toJson() }},
+                    selectedIds: {{ json_encode(array_map('intval', $assignedIds ?? [])) }},
+                    toAdd: '',
+                    get selected() { return this.available.filter(b => this.selectedIds.includes(b.id)); },
+                    get addable() { return this.available.filter(b => !this.selectedIds.includes(b.id)); },
+                    add() { let id = parseInt(this.toAdd); if (id && !this.selectedIds.includes(id)) { this.selectedIds.push(id); } this.toAdd = ''; },
+                    remove(id) { this.selectedIds = this.selectedIds.filter(x => x !== id); }
+                 }">
+                <h2 class="text-sm font-bold text-admin mb-4">Assigned Books</h2>
+
+                {{-- Hidden inputs submitted with the form --}}
+                <template x-for="id in selectedIds" :key="id">
+                    <input type="hidden" name="book_resource_ids[]" :value="id">
+                </template>
+
+                {{-- Assigned list --}}
+                <div class="space-y-2 mb-4">
+                    <template x-if="selected.length === 0">
+                        <div class="flex items-center gap-3 p-4 bg-bg-light rounded-xl">
+                            <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                <span class="text-xs font-bold text-gray-400">PDF</span>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">No books assigned yet</p>
+                                <p class="text-xs text-gray-300">Add one or more from the Resource Library below</p>
+                            </div>
+                        </div>
+                    </template>
+                    <template x-for="b in selected" :key="b.id">
+                        <div class="flex items-center gap-3 p-4 bg-bg-light rounded-xl">
+                            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                                <span class="text-xs font-bold text-red-600">PDF</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-admin truncate" x-text="b.title"></p>
+                                <p class="text-xs text-stu">PDF Available</p>
+                            </div>
+                            <button type="button" @click="remove(b.id)" class="text-gray-400 hover:text-red-500 flex-shrink-0" title="Remove">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </template>
                 </div>
+
+                {{-- Add from library --}}
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign from Resource Library</label>
-                    @php
-                        $rfThisLevel = ($resourceFiles ?? collect())->where('level_id', $level->id);
-                        $rfAllLevels = ($resourceFiles ?? collect())->whereNull('level_id');
-                        $rfOther     = ($resourceFiles ?? collect())->filter(fn($r) => $r->level_id && $r->level_id != $level->id);
-                    @endphp
-                    <select name="book_resource_id"
-                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                        <option value="">None</option>
-                        @if($rfThisLevel->isNotEmpty())
-                            <optgroup label="This level">
-                                @foreach($rfThisLevel as $rf)
-                                    <option value="{{ $rf->id }}" @selected(($level->book_resource_id ?? null) == $rf->id)>{{ $rf->title }}</option>
-                                @endforeach
-                            </optgroup>
-                        @endif
-                        @if($rfAllLevels->isNotEmpty())
-                            <optgroup label="All levels">
-                                @foreach($rfAllLevels as $rf)
-                                    <option value="{{ $rf->id }}" @selected(($level->book_resource_id ?? null) == $rf->id)>{{ $rf->title }}</option>
-                                @endforeach
-                            </optgroup>
-                        @endif
-                        @if($rfOther->isNotEmpty())
-                            <optgroup label="Currently assigned (other level)">
-                                @foreach($rfOther as $rf)
-                                    <option value="{{ $rf->id }}" @selected(($level->book_resource_id ?? null) == $rf->id)>{{ $rf->title }}</option>
-                                @endforeach
-                            </optgroup>
-                        @endif
-                    </select>
-                    <p class="text-xs text-gray-400 mt-1">Showing books for this level and untagged "All Levels" resources.</p>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Add from Resource Library</label>
+                    <div class="flex gap-2">
+                        <select x-model="toAdd"
+                                class="flex-1 border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                            <option value="">Select a book…</option>
+                            <template x-for="b in addable" :key="b.id">
+                                <option :value="b.id" x-text="b.title + ' (' + b.group + ')'"></option>
+                            </template>
+                        </select>
+                        <button type="button" @click="add()"
+                                class="px-4 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+                            Add
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Showing books for this level and untagged "All Levels" resources. Add as many as you need.</p>
                 </div>
             </div>
 
