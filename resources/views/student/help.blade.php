@@ -84,7 +84,7 @@
             <div x-show="open === 'certs'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
                 <p>Open the <strong>Certs</strong> tile on your Home screen to reach your <em>Certificate Vault</em>, split into Exam and Competition tabs.</p>
                 <p>Tap any certificate to see a full preview with a QR code that verifies its authenticity.</p>
-                <p>From the preview you can Print, Download as PDF, or Share via WhatsApp.</p>
+                <p>From the preview you can <strong>Download as PDF</strong>, <strong>Print</strong>, or <strong>Share via WhatsApp</strong>. The downloaded PDF is a single-page certificate carrying the academy logo — anyone can scan its QR code to confirm it's genuine on the public verification page.</p>
             </div>
         </div>
 
