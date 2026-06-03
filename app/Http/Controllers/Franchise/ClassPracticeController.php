@@ -19,13 +19,23 @@ use Illuminate\View\View;
 
 class ClassPracticeController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $sessions = ClassPracticeSession::with(['level', 'batch', 'result'])
-            ->latest()
-            ->paginate(20);
+        $activeLevel = $request->integer('level') ?: null;
 
-        return view('franchise.class-practice.index', compact('sessions'));
+        $query = ClassPracticeSession::with(['level', 'batch', 'result'])->latest();
+
+        if ($activeLevel) {
+            $query->where('level_id', $activeLevel);
+        }
+
+        $sessions = $query->paginate(20)->withQueryString();
+
+        // Levels that actually have sessions in this franchise — drives the filter tabs.
+        $levelIds = ClassPracticeSession::query()->distinct()->pluck('level_id')->filter();
+        $levels   = Level::whereIn('id', $levelIds)->orderBy('number')->get();
+
+        return view('franchise.class-practice.index', compact('sessions', 'levels', 'activeLevel'));
     }
 
     public function create(): View
