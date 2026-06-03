@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
 use App\Models\Batch;
+use App\Models\ClassPracticePaper;
 use App\Models\ClassPracticeResult;
 use App\Models\ClassPracticeSession;
 use App\Models\ClassPracticeSessionQuestion;
 use App\Models\Level;
 use App\Models\QuestionBank;
 use App\Services\AuditLogger;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
@@ -44,6 +47,75 @@ class ClassPracticeController extends Controller
         $batches = Batch::where('is_active', true)->orderBy('name')->get();
 
         return view('franchise.class-practice.create', compact('levels', 'batches'));
+    }
+
+    /**
+     * Catalogue of ready-made practice papers (Figma F42), grouped by level.
+     */
+    public function papers(): View
+    {
+        $papers = ClassPracticePaper::with('level')
+            ->where('is_active', true)
+            ->orderBy('level_id')
+            ->orderBy('paper_number')
+            ->get();
+
+        return view('franchise.class-practice.papers', compact('papers'));
+    }
+
+    /**
+     * Launch the flashcard player for a paper's fixed question set.
+     */
+    public function attemptPaper(ClassPracticePaper $paper): RedirectResponse
+    {
+        $questions = $paper->paperQuestions()->orderBy('sort_order')->get();
+
+        if ($questions->isEmpty()) {
+            return redirect()
+                ->route('franchise.class-practice.papers')
+                ->with('error', 'This paper has no questions yet.');
+        }
+
+        $session = ClassPracticeSession::create([
+            'franchise_id'              => Auth::user()->franchise_id,
+            'teacher_id'                => Auth::id(),
+            'title'                     => $paper->title,
+            'level_id'                  => $paper->level_id,
+            'question_category'         => 'level_practice',
+            'total_questions'           => $questions->count(),
+            'time_per_question_seconds' => 2,
+            'audio_dictation'           => true,
+            'status'                    => 'pending',
+            'current_question_index'    => 0,
+            'session_code'              => strtoupper(substr(md5(uniqid()), 0, 6)),
+        ]);
+
+        foreach ($questions as $pq) {
+            ClassPracticeSessionQuestion::create([
+                'session_id'  => $session->id,
+                'question_id' => $pq->question_id,
+                'sort_order'  => $pq->sort_order,
+            ]);
+        }
+
+        AuditLogger::log('class_practice_paper_attempted', 'ClassPracticePaper', $paper->id);
+
+        return redirect()->route('franchise.class-practice.project', $session);
+    }
+
+    /**
+     * Download the answer key for a paper as a PDF.
+     */
+    public function paperAnswers(ClassPracticePaper $paper): Response
+    {
+        $paper->load('level');
+        $questions = $paper->paperQuestions()->with('question')->orderBy('sort_order')->get();
+
+        $pdf = Pdf::loadView('franchise.class-practice.paper-pdf', compact('paper', 'questions'));
+
+        $slug = str_replace(' ', '-', strtolower($paper->title));
+
+        return $pdf->download('answer-key-' . $slug . '.pdf');
     }
 
     public function store(Request $request): RedirectResponse

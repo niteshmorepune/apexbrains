@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             CompetitionPracticeSeeder::class,
             CompetitionPracticePapersSeeder::class,
             PracticeQuestionsSeeder::class,
+            ClassPracticePapersSeeder::class,
         ]);
     }
 }
