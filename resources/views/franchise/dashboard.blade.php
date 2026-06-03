@@ -13,11 +13,16 @@
 </p>
 
 {{-- KPI Cards (colored accent stripe, per Figma) --}}
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-2xl border border-border border-l-4 border-l-fran p-5">
-        <p class="text-xs text-gray-500 mb-1">Total Students</p>
-        <p class="text-2xl font-bold text-fran">{{ $totalStudents }}</p>
+        <p class="text-xs text-gray-500 mb-1">Internal Students</p>
+        <p class="text-2xl font-bold text-fran">{{ $internalStudents }}</p>
         <p class="text-xs text-stu mt-1">{{ $newThisMonth }} new this month</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-border border-l-4 border-l-stu p-5">
+        <p class="text-xs text-gray-500 mb-1">External Students</p>
+        <p class="text-2xl font-bold text-stu">{{ $externalStudents }}</p>
+        <p class="text-xs text-gray-400 mt-1">Competition-only learners</p>
     </div>
     <div class="bg-white rounded-2xl border border-border border-l-4 border-l-logo-amber p-5">
         <p class="text-xs text-gray-500 mb-1">Fees Collected</p>

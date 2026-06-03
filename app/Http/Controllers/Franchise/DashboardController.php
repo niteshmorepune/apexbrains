@@ -18,11 +18,12 @@ class DashboardController extends Controller
     {
         $franchiseId = Auth::user()->franchise_id;
 
-        $totalStudents   = Student::where('is_active', true)->count();
-        $newThisMonth    = Student::where('is_active', true)
+        $internalStudents = Student::where('is_active', true)->where('student_type', 'internal')->count();
+        $externalStudents = Student::where('is_active', true)->where('student_type', 'external')->count();
+        $newThisMonth     = Student::where('is_active', true)
             ->whereMonth('enrollment_date', now()->month)
             ->whereYear('enrollment_date', now()->year)->count();
-        $pendingFees     = Fee::where('status', '!=', 'paid')->count();
+        $pendingFees      = Fee::where('status', '!=', 'paid')->count();
         $promotionsDue   = \App\Models\ExamAttempt::whereHas('student', fn($q) => $q->where('franchise_id', $franchiseId))
             ->where('status', 'submitted')
             ->whereRaw('percentage >= 80')
@@ -59,7 +60,7 @@ class DashboardController extends Controller
             ->get();
 
         return view('franchise.dashboard', compact(
-            'totalStudents', 'newThisMonth', 'pendingFees', 'promotionsDue',
+            'internalStudents', 'externalStudents', 'newThisMonth', 'pendingFees', 'promotionsDue',
             'monthRevenue', 'byLevel', 'recentActivity', 'students'
         ));
     }
