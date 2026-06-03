@@ -86,9 +86,12 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-gray-700">Set up a session:</span> Class Practice → New Session. Choose the level, time per step, number of questions, session length, and whether to play <em>Audio Dictation</em> automatically. A unique session code is generated.</p>
-                <p><span class="font-semibold text-gray-700">Project to the class:</span> Open the session and use <strong>Project</strong> for the full-screen view. Use Next Question / Restart Question / End Practice from the top bar; the completion screen shows the score and progress.</p>
-                <p><span class="font-semibold text-gray-700">View results:</span> After the session ends, scores and individual performance are available in the session detail.</p>
+                <p><span class="font-semibold text-gray-700">Two tabs:</span> Class Practice has a <strong>Sessions</strong> tab (live drills you run) and a <strong>Practice Papers</strong> tab (ready-made papers per level). Switch between them with the pills at the top.</p>
+                <p><span class="font-semibold text-gray-700">Set up a session:</span> Sessions → New Session. Choose the level, time per step, number of questions, session length, and whether to play <em>Audio Dictation</em> automatically.</p>
+                <p><span class="font-semibold text-gray-700">Run the player:</span> Open a session → <strong>Project</strong> opens the flashcard player. Each question's numbers flash <em>one at a time</em> (abacus style); the speaker icon replays the audio and the pause icon holds the flow. Use <strong>Restart Question</strong> to replay, <strong>Next Question</strong> to advance, and <strong>End Practice</strong> to finish.</p>
+                <p><span class="font-semibold text-gray-700">After completion:</span> a <em>Well Done</em> screen shows the questions covered and level. From there use <strong>Replay Same Set</strong> (same questions again), <strong>New Practice</strong> (fresh questions, same settings), or <strong>Return to Setup</strong>. (It is a teacher-led drill, so no per-student score is recorded.)</p>
+                <p><span class="font-semibold text-gray-700">Practice Papers:</span> the Practice Papers tab lists papers like <em>Abacus Level 1 (Paper 1)</em>. <strong>Attempt</strong> launches the player from that paper's fixed questions; <strong>Download Answer Pdf</strong> gives the answer key.</p>
+                <p><span class="font-semibold text-gray-700">Filter:</span> use the level tabs on the Sessions list to view sessions for a specific level.</p>
             </div>
         </div>
 
@@ -123,9 +126,11 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'certs' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'certs'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-gray-700">Issue a certificate:</span> Certificates → New Certificate. Select the student, certificate type (level completion, competition, achievement), and issue date.</p>
-                <p><span class="font-semibold text-gray-700">Download PDF:</span> Each certificate has a QR code for verification. Download as PDF for printing.</p>
-                <p><span class="font-semibold text-gray-700">Student access:</span> Students can view and download their certificates from their portal.</p>
+                <p><span class="font-semibold text-gray-700">Generate a certificate:</span> Certificates → fill <strong>Select Student</strong>, <strong>Certificate Level</strong> (auto-fills to the student's current level), <strong>Issue Date</strong>, <strong>Certificate Series</strong>, and the <strong>Certificate Type</strong> pill (Level Completion / Merit Award / Excellence Award). The right panel shows a <em>live preview</em>.</p>
+                <p><span class="font-semibold text-gray-700">Generate and Send:</span> creates the certificate and marks it <em>Sent</em>. <strong>Preview Certificate</strong> just updates the on-screen preview.</p>
+                <p><span class="font-semibold text-gray-700">Recently Generated list:</span> each row shows a <strong>Status</strong> (Generated / Sent / Revoked) and a QR check, with actions: <strong>Download</strong> (branded PDF), <strong>WhatsApp</strong> (share link), <strong>Print</strong>, <strong>Mark Sent</strong> (for unsent ones), and <strong>Revoke</strong>.</p>
+                <p><span class="font-semibold text-gray-700">PDF &amp; verification:</span> the PDF is a clean branded certificate with a QR code that links to a public verification page. Students can view and download their own certificates from their portal.</p>
+                <p class="text-xs text-gray-400">Note: sending is manual — "Generate and Send"/"Mark Sent" record delivery and the WhatsApp action opens a share link; there is no automated email yet.</p>
             </div>
         </div>
 
