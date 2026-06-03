@@ -45,10 +45,12 @@ class CertificateController extends Controller
             abort(403);
         }
 
-        $certificate->load(['student', 'level', 'issuedBy']);
+        $certificate->load(['student', 'level', 'issuedBy', 'competition']);
 
-        $pdf = Pdf::loadView('external.certificates.show-print', compact('certificate'))
-            ->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('external.certificates.show-print', [
+            'certificate' => $certificate,
+            'logo'        => Certificate::brandLogoDataUri(),
+        ])->setPaper('a4', 'landscape');
 
         return $pdf->download('certificate-' . $certificate->certificate_number . '.pdf');
     }
