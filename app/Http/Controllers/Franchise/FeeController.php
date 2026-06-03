@@ -19,7 +19,7 @@ class FeeController extends Controller
 
         $tab = $request->get('tab', 'all');
 
-        $query = Fee::with(['student', 'student.currentLevel'])
+        $query = Fee::with(['student', 'student.currentLevel', 'payments'])
             ->whereYear('month', $year)
             ->whereMonth('month', $mo);
 
@@ -63,7 +63,13 @@ class FeeController extends Controller
 
         $students = Student::where('is_active', true)->orderBy('first_name')->get();
 
-        return view('franchise.fees.index', compact('fees', 'stats', 'month', 'tab', 'students'));
+        // Unpaid fees this month for the Quick Record Payment panel (independent of the active tab)
+        $unpaidFees = (clone $allFees)->with('student')
+            ->whereIn('status', ['pending', 'partial', 'overdue'])
+            ->orderBy('due_date')
+            ->get();
+
+        return view('franchise.fees.index', compact('fees', 'stats', 'month', 'tab', 'students', 'unpaidFees'));
     }
 
     public function show(Fee $fee): View

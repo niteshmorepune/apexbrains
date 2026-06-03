@@ -89,6 +89,7 @@
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Paid</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Due Date</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Overdue Days</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Actions</th>
             </tr>
         </thead>
@@ -126,17 +127,32 @@
                             {{ ucfirst($fee->status) }}
                         </span>
                     </td>
+                    <td class="px-4 py-3 text-center text-xs">
+                        @php $od = ($fee->status !== 'paid' && $fee->due_date) ? (int) round(now()->diffInDays($fee->due_date, false) * -1) : null; @endphp
+                        @if($od && $od > 0)
+                            <span class="font-medium {{ $od > 30 ? 'text-red-600' : 'text-logo-amber' }}">{{ $od }} days</span>
+                        @else
+                            <span class="text-gray-300">—</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-center">
                         <div class="flex items-center justify-center gap-2">
                             @if($fee->status !== 'paid')
                                 <button onclick="openPaymentModal({{ $fee->id }}, {{ $fee->student?->full_name ? "'" . addslashes($fee->student->full_name) . "'" : "'—'" }}, {{ $fee->amount - ($fee->paid_amount ?? 0) }})"
                                         class="text-xs text-fran font-medium hover:underline">
-                                    Record
+                                    Pay
                                 </button>
+                            @endif
+                            @if($fee->payments->isNotEmpty())
+                                <a href="{{ route('franchise.payments.receipt', $fee->payments->sortByDesc('payment_date')->first()) }}"
+                                   class="text-xs text-gray-600 hover:underline">Receipt</a>
+                            @endif
+                            @if($fee->status !== 'paid')
                                 <a href="{{ route('franchise.fees.reminder', $fee) }}"
                                    onclick="return confirm('Send reminder to parent?')"
                                    class="text-xs text-logo-amber hover:underline">Remind</a>
-                            @else
+                            @endif
+                            @if($fee->status === 'paid' && $fee->payments->isEmpty())
                                 <span class="text-xs text-gray-300">—</span>
                             @endif
                         </div>
@@ -144,7 +160,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="px-5 py-10 text-center text-gray-400">No fees for this month.</td>
+                    <td colspan="9" class="px-5 py-10 text-center text-gray-400">No fees for this month.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -160,43 +176,77 @@
 </div>{{-- end main table column --}}
 
 {{-- Quick Record Payment Sidebar --}}
-<div class="bg-white rounded-2xl border border-border p-5 sticky top-5">
+<div class="bg-white rounded-2xl border border-border p-5 sticky top-5"
+     x-data="{
+        fees: {{ $unpaidFees->map(fn($f) => ['id' => $f->id, 'name' => $f->student?->full_name, 'due' => round((float) $f->amount - (float) $f->paid_amount, 2)])->values()->toJson() }},
+        feeId: '', amount: 0, mode: 'cash', date: '{{ now()->toDateString() }}', ref: '',
+        modes: [{ v: 'cash', l: 'Cash' }, { v: 'upi', l: 'UPI' }, { v: 'card', l: 'Card' }, { v: 'cheque', l: 'Cheque' }],
+        get fee() { return this.fees.find(f => f.id == this.feeId) || null; },
+        get studentName() { return this.fee ? this.fee.name : '—'; },
+        get modeLabel() { let m = this.modes.find(x => x.v === this.mode); return m ? m.l : ''; },
+        onFee() { this.amount = this.fee ? this.fee.due : 0; }
+     }">
     <h3 class="text-sm font-bold text-fran mb-1">Quick Record Payment</h3>
     <p class="text-xs text-gray-400 mb-4">Fast entry for walk-in payments</p>
     <form method="POST" action="{{ route('franchise.payments.store') }}" class="space-y-3">
         @csrf
         <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">Student</label>
-            <select name="fee_id" required class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                <option value="">Select student...</option>
-                @foreach($fees->filter(fn($f) => $f->status !== 'paid') as $f)
-                    <option value="{{ $f->id }}">{{ $f->student?->full_name }} — ₹{{ number_format($f->amount - ($f->paid_amount ?? 0)) }}</option>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Search Student</label>
+            <select name="fee_id" required x-model="feeId" @change="onFee()"
+                    class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                <option value="">Type name or ID...</option>
+                @foreach($unpaidFees as $f)
+                    <option value="{{ $f->id }}">{{ $f->student?->full_name }} — ₹{{ number_format($f->amount - ($f->paid_amount ?? 0)) }} due</option>
                 @endforeach
             </select>
         </div>
-        <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">Amount (₹)</label>
-            <input type="number" name="amount" step="0.01" required placeholder="0.00"
-                   class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Amount (₹)</label>
+                <input type="number" name="amount" step="0.01" required placeholder="0.00" x-model="amount"
+                       class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Date</label>
+                <input type="date" name="payment_date" required x-model="date"
+                       class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+            </div>
         </div>
         <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">Date</label>
-            <input type="date" name="payment_date" value="{{ now()->toDateString() }}" required
-                   class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+            <label class="block text-xs font-medium text-gray-700 mb-1.5">Payment Mode</label>
+            <div class="grid grid-cols-4 gap-1.5">
+                <template x-for="m in modes" :key="m.v">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="payment_mode" :value="m.v" x-model="mode" class="sr-only peer">
+                        <span class="block text-center px-1 py-2 rounded-lg border text-xs font-medium transition-colors
+                                     peer-checked:bg-fran peer-checked:text-white peer-checked:border-fran
+                                     border-border text-gray-600 hover:border-fran" x-text="m.l"></span>
+                    </label>
+                </template>
+            </div>
         </div>
         <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">Mode</label>
-            <select name="payment_mode" required class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                <option value="cash">Cash</option>
-                <option value="upi">UPI / GPay</option>
-                <option value="card">Card</option>
-                <option value="cheque">Cheque</option>
-            </select>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Transaction Ref / Note</label>
+            <input type="text" name="transaction_reference" x-model="ref" placeholder="UPI ref or note (optional)"
+                   class="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
         </div>
         <button type="submit"
                 class="w-full py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
-            Record &amp; Receipt
+            Record and Generate Receipt
         </button>
+
+        {{-- Live Receipt Preview --}}
+        <div class="mt-2 bg-blue-50 rounded-xl p-3">
+            <p class="text-xs font-bold text-fran mb-2">Receipt Preview</p>
+            <dl class="space-y-1 text-xs">
+                <div class="flex justify-between"><dt class="text-gray-500">Student</dt><dd class="font-semibold text-gray-800" x-text="studentName"></dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Amount</dt><dd class="font-semibold text-gray-800" x-text="amount ? '₹' + Number(amount).toLocaleString('en-IN') : '—'"></dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Mode</dt><dd class="font-semibold text-gray-800" x-text="modeLabel"></dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Date</dt><dd class="font-semibold text-gray-800" x-text="date"></dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Receipt #</dt><dd class="font-mono text-gray-400">Auto-generated</dd></div>
+            </dl>
+        </div>
+
         <a href="{{ route('franchise.fees.record') }}"
            class="block text-center text-xs text-fran hover:underline mt-1">
             Full record form →
