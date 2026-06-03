@@ -34,6 +34,51 @@
             @endif
         </div>
 
+        {{-- Topic checklist — curriculum level progression --}}
+        @if($student->student_type === 'internal')
+            @php $currentNum = $student->currentLevel?->number ?? 0; @endphp
+            <div class="bg-white rounded-2xl border border-border p-5">
+                <h2 class="text-sm font-semibold text-fran mb-1">Topic Checklist</h2>
+                <p class="text-xs text-gray-400 mb-4">Curriculum progress across the abacus levels.</p>
+                <ul class="space-y-1">
+                    @foreach($levels as $lvl)
+                        @php $state = $lvl->number < $currentNum ? 'done' : ($lvl->number === $currentNum ? 'current' : 'upcoming'); @endphp
+                        <li class="flex items-center gap-3 py-1.5 px-2 rounded-lg {{ $state === 'current' ? 'bg-blue-50' : '' }}">
+                            @if($state === 'done')
+                                <span class="w-5 h-5 rounded-full bg-stu flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                </span>
+                            @elseif($state === 'current')
+                                <span class="w-5 h-5 rounded-full border-2 border-fran flex items-center justify-center flex-shrink-0">
+                                    <span class="w-2 h-2 rounded-full bg-fran"></span>
+                                </span>
+                            @else
+                                <span class="w-5 h-5 rounded-full border-2 border-gray-200 flex-shrink-0"></span>
+                            @endif
+                            <span class="text-sm flex-1 {{ $state === 'upcoming' ? 'text-gray-400' : 'text-gray-800 font-medium' }}">
+                                Level {{ $lvl->number }} — {{ $lvl->title }}
+                            </span>
+                            @if($state === 'done')
+                                <span class="text-xs text-stu">Completed</span>
+                            @elseif($state === 'current')
+                                <span class="text-xs text-fran font-semibold">In Progress</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+                @if($student->currentLevel && filled($student->currentLevel->learning_objectives))
+                    <div class="mt-4 pt-4 border-t border-border">
+                        <p class="text-xs font-semibold text-gray-600 mb-2">Focus areas — Level {{ $student->currentLevel->number }} {{ $student->currentLevel->title }}</p>
+                        <ul class="space-y-1">
+                            @foreach($student->currentLevel->learning_objectives as $obj)
+                                <li class="flex items-start gap-2 text-xs text-gray-600"><span class="text-fran mt-0.5">•</span><span>{{ $obj }}</span></li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+            </div>
+        @endif
+
         {{-- Radar / Performance breakdown chart --}}
         <div class="bg-white rounded-2xl border border-border p-5">
             <h2 class="text-sm font-semibold text-fran mb-4">Performance Breakdown</h2>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Franchise;
 
 use App\Exports\StudentReportExport;
 use App\Http\Controllers\Controller;
+use App\Models\Level;
 use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -52,15 +53,17 @@ class ReportController extends Controller
     public function show(Student $student): View
     {
         [$attempts, $chartData, $radarData] = $this->buildReportData($student);
+        $levels = Level::orderBy('number')->get();
 
-        return view('franchise.reports.show', compact('student', 'attempts', 'chartData', 'radarData'));
+        return view('franchise.reports.show', compact('student', 'attempts', 'chartData', 'radarData', 'levels'));
     }
 
     public function downloadPdf(Student $student): Response
     {
         [$attempts, $chartData, $radarData] = $this->buildReportData($student);
+        $levels = Level::orderBy('number')->get();
 
-        $pdf = Pdf::loadView('franchise.reports.show', compact('student', 'attempts', 'chartData', 'radarData'))
+        $pdf = Pdf::loadView('franchise.reports.show', compact('student', 'attempts', 'chartData', 'radarData', 'levels'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('progress-report-' . $student->student_code . '.pdf');
