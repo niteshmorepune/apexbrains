@@ -65,7 +65,10 @@ class PaymentController extends Controller
 
     public function recordPage(Request $request): View
     {
-        $students = \App\Models\Student::with(['currentLevel', 'fees' => fn($q) => $q->where('status', '!=', 'paid')->latest()->limit(1)])
+        $students = \App\Models\Student::with([
+                'currentLevel',
+                'fees' => fn($q) => $q->where('status', '!=', 'paid')->orderBy('due_date'),
+            ])
             ->where('is_active', true)->orderBy('first_name')->get();
 
         $selectedStudent = $request->filled('student_id')

@@ -11,35 +11,39 @@
 @section('content')
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" x-data="{
-    studentId: '{{ $selectedStudent?->id ?? '' }}',
-    studentName: '{{ $selectedStudent?->full_name ?? '' }}',
-    studentCode: '{{ $selectedStudent?->student_code ?? '' }}',
-    levelNum: '{{ $selectedStudent?->currentLevel?->number ?? '' }}',
-    feeAmount: {{ $selectedStudent?->currentLevel?->fee_per_month ?? 0 }},
-    paymentMode: 'cash',
-    amount: {{ $selectedStudent?->currentLevel?->fee_per_month ?? 0 }},
-    note: '',
     students: {{ $students->map(fn($s) => [
-        'id'        => $s->id,
-        'name'      => $s->full_name,
-        'code'      => $s->student_code,
-        'level'     => $s->currentLevel?->number,
-        'fee'       => $s->currentLevel?->fee_per_month ?? 0,
-        'due_since' => $s->fees->first()?->due_date?->format('d M Y') ?? 'No pending fee',
+        'id'    => $s->id,
+        'name'  => $s->full_name,
+        'code'  => $s->student_code,
+        'type'  => $s->student_type,
+        'level' => $s->currentLevel?->number,
+        'fees'  => $s->fees->map(fn($f) => [
+            'id'       => $f->id,
+            'type'     => $f->fee_type,
+            'due'      => round((float) $f->amount - (float) $f->paid_amount, 2),
+            'due_date' => $f->due_date?->format('d M Y'),
+            'label'    => ($f->fee_type === 'competition_registration' ? 'Competition Registration' : 'Monthly Fee')
+                          . ' — ' . $f->month?->format('M Y'),
+        ])->values(),
     ])->values()->toJson() }},
-    get selectedStudentObj() {
-        return this.students.find(s => s.id == this.studentId) || null;
+    studentId: '{{ $selectedStudent?->id ?? '' }}',
+    feeId: '',
+    paymentMode: 'cash',
+    amount: 0,
+    note: '',
+    get student() { return this.students.find(s => s.id == this.studentId) || null; },
+    get fees() { return this.student ? this.student.fees : []; },
+    get fee() { return this.fees.find(f => f.id == this.feeId) || null; },
+    get typeLabel() { return this.student ? (this.student.type === 'internal' ? 'Internal' : 'External') : ''; },
+    onStudentChange() {
+        this.feeId = this.fees.length ? this.fees[0].id : '';
+        this.onFeeChange();
     },
-    selectStudent(id) {
-        const s = this.students.find(st => st.id == id);
-        if (s) {
-            this.studentId   = s.id;
-            this.studentName = s.name;
-            this.studentCode = s.code;
-            this.levelNum    = s.level;
-            this.feeAmount   = s.fee;
-            this.amount      = s.fee;
-        }
+    onFeeChange() {
+        this.amount = this.fee ? this.fee.due : 0;
+    },
+    init() {
+        if (this.studentId) this.onStudentChange();
     }
 }">
 
@@ -57,21 +61,42 @@
             {{-- Student search --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Student <span class="text-red-500">*</span></label>
-                <select name="student_id" required x-model="studentId" @change="selectStudent($event.target.value)"
+                <select name="student_id" required x-model="studentId" @change="onStudentChange()"
                         class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     <option value="">Search student name or ID...</option>
                     @foreach($students as $s)
                         <option value="{{ $s->id }}" {{ ($selectedStudent?->id === $s->id) ? 'selected' : '' }}>
-                            {{ $s->full_name }} — L{{ $s->currentLevel?->number ?? '?' }} ({{ $s->student_code }})
+                            {{ $s->full_name }} ({{ $s->student_code }}) — {{ ucfirst($s->student_type) }}{{ $s->student_type === 'internal' ? ' · L' . ($s->currentLevel?->number ?? '?') : '' }}
                         </option>
                     @endforeach
                 </select>
                 {{-- Student details line --}}
-                <template x-if="selectedStudentObj">
-                    <p class="text-xs text-fran mt-1.5 bg-blue-50 px-3 py-1.5 rounded-lg">
-                        Student found: <span x-text="selectedStudentObj.name" class="font-semibold"></span>
-                        — Monthly Fee: ₹<span x-text="Number(selectedStudentObj.fee).toLocaleString('en-IN')"></span>
-                        | Due Since: <span x-text="selectedStudentObj.due_since"></span>
+                <template x-if="student">
+                    <p class="text-xs mt-1.5 px-3 py-1.5 rounded-lg flex items-center gap-2"
+                       :class="student.type === 'internal' ? 'bg-blue-50 text-fran' : 'bg-amber-50 text-amber-700'">
+                        <span class="font-semibold px-1.5 py-0.5 rounded-full border text-[10px] uppercase"
+                              :class="student.type === 'internal' ? 'border-green-400 text-green-600' : 'border-red-400 text-red-500'"
+                              x-text="typeLabel"></span>
+                        <span x-text="student.name" class="font-semibold"></span>
+                        <span x-text="fees.length + ' pending fee' + (fees.length === 1 ? '' : 's')"></span>
+                    </p>
+                </template>
+            </div>
+
+            {{-- Fee to pay --}}
+            <div x-show="student">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Fee to Pay <span class="text-red-500">*</span></label>
+                <select name="fee_id" x-model="feeId" @change="onFeeChange()" required
+                        class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran"
+                        x-show="fees.length">
+                    <template x-for="f in fees" :key="f.id">
+                        <option :value="f.id"
+                                x-text="f.label + ' — ₹' + Number(f.due).toLocaleString('en-IN') + ' due (by ' + f.due_date + ')'"></option>
+                    </template>
+                </select>
+                <template x-if="fees.length === 0">
+                    <p class="text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg">
+                        No pending fees for this student — nothing to record.
                     </p>
                 </template>
             </div>
@@ -79,7 +104,7 @@
             {{-- Amount --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Payment Amount (₹) <span class="text-red-500">*</span></label>
-                <input type="number" name="amount" :value="amount" x-model="amount" required min="1" step="0.01"
+                <input type="number" name="amount" x-model="amount" required min="1" step="0.01"
                        class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
             </div>
 
@@ -129,7 +154,7 @@
             {{-- Note --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Note (optional)</label>
-                <textarea name="note" x-model="note" rows="2" placeholder="Any additional notes..."
+                <textarea name="notes" x-model="note" rows="2" placeholder="Any additional notes..."
                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran resize-none"></textarea>
             </div>
 
@@ -169,11 +194,15 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-400">Student</span>
-                    <span x-text="studentName || '—'" class="font-medium"></span>
+                    <span x-text="student ? student.name : '—'" class="font-medium"></span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-gray-400">Level</span>
-                    <span x-text="levelNum ? 'Level ' + levelNum : '—'"></span>
+                    <span class="text-gray-400">Type</span>
+                    <span x-text="typeLabel || '—'"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Fee</span>
+                    <span x-text="fee ? fee.label : '—'" class="text-right"></span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-400">Amount</span>
