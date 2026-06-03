@@ -77,11 +77,17 @@ class CertificateController extends Controller
         return back()->with('success', "Certificate {$certificate->certificate_number} marked as sent.");
     }
 
-    public function download(Certificate $certificate)
+    public function download(Certificate $certificate): View
     {
         $certificate->load('student.currentLevel', 'level', 'issuedBy');
 
-        return view('franchise.certificates.show', compact('certificate'));
+        return view('franchise.certificates.certificate-document', [
+            'certificate' => $certificate,
+            'pdf'         => false,
+            'logo'        => Certificate::brandLogoDataUri(),
+            'pdfUrl'      => route('franchise.certificates.pdf', $certificate),
+            'backUrl'     => route('franchise.certificates.index'),
+        ]);
     }
 
     public function revoke(Certificate $certificate): RedirectResponse
@@ -96,8 +102,11 @@ class CertificateController extends Controller
     {
         $certificate->load('student.currentLevel', 'level', 'issuedBy');
 
-        $pdf = Pdf::loadView('franchise.certificates.show', compact('certificate'))
-            ->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('franchise.certificates.certificate-document', [
+            'certificate' => $certificate,
+            'pdf'         => true,
+            'logo'        => Certificate::brandLogoDataUri(),
+        ])->setPaper('a4', 'landscape');
 
         return $pdf->download('certificate-' . $certificate->certificate_number . '.pdf');
     }

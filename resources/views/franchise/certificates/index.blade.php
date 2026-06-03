@@ -141,11 +141,13 @@
 
                 <div class="relative h-full flex flex-col items-center justify-center text-center px-6 py-5">
                     {{-- Header --}}
+                    @php
+                        $logoSrc = !empty($appSettings['logo_path'] ?? null)
+                            ? \Illuminate\Support\Facades\Storage::url($appSettings['logo_path'])
+                            : asset('images/apex-logo.png');
+                    @endphp
                     <div class="flex items-center justify-between w-full mb-1">
-                        <div class="text-left leading-tight">
-                            <p class="text-lg font-black"><span class="text-rose-500">Apex</span> <span class="text-fran">Brains</span></p>
-                            <p class="text-[9px] tracking-[0.3em] text-amber-500 font-semibold">A B A C U S</p>
-                        </div>
+                        <img src="{{ $logoSrc }}" alt="Apex Brains" class="h-9 w-auto object-contain object-left">
                         <span class="w-9 h-9 rounded-full border-2 border-gray-300 text-[7px] font-bold text-gray-400 flex items-center justify-center text-center leading-none">ISO<br>9001</span>
                     </div>
 

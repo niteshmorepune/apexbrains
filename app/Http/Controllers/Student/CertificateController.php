@@ -56,7 +56,13 @@ class CertificateController extends Controller
 
         $certificate->load(['student', 'level', 'issuedBy']);
 
-        return view('franchise.certificates.show', compact('certificate'));
+        return view('franchise.certificates.certificate-document', [
+            'certificate' => $certificate,
+            'pdf'         => false,
+            'logo'        => Certificate::brandLogoDataUri(),
+            'pdfUrl'      => route('student.certificates.pdf', $certificate),
+            'backUrl'     => route('student.certificates.index'),
+        ]);
     }
 
     public function downloadPdf(Certificate $certificate): Response
@@ -69,8 +75,11 @@ class CertificateController extends Controller
 
         $certificate->load(['student', 'level', 'issuedBy']);
 
-        $pdf = Pdf::loadView('franchise.certificates.show', compact('certificate'))
-            ->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('franchise.certificates.certificate-document', [
+            'certificate' => $certificate,
+            'pdf'         => true,
+            'logo'        => Certificate::brandLogoDataUri(),
+        ])->setPaper('a4', 'landscape');
 
         return $pdf->download('certificate-' . $certificate->certificate_number . '.pdf');
     }

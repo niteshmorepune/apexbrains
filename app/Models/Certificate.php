@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Certificate extends Model
 {
@@ -59,5 +60,33 @@ class Certificate extends Model
     public function issuedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'issued_by');
+    }
+
+    /**
+     * The brand logo as a base64 data URI so it embeds reliably in dompdf PDFs
+     * and the browser alike. Prefers the uploaded logo, falls back to the bundled mark.
+     */
+    public static function brandLogoDataUri(): ?string
+    {
+        $path = public_path('images/apex-logo.png');
+
+        try {
+            if (Storage::disk('local')->exists('settings.json')) {
+                $settings = json_decode(Storage::disk('local')->get('settings.json'), true) ?? [];
+                if (! empty($settings['logo_path']) && Storage::disk('public')->exists($settings['logo_path'])) {
+                    $path = Storage::disk('public')->path($settings['logo_path']);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall back to the bundled logo
+        }
+
+        if (! is_file($path)) {
+            return null;
+        }
+
+        $mime = (function_exists('mime_content_type') ? mime_content_type($path) : null) ?: 'image/png';
+
+        return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 }
