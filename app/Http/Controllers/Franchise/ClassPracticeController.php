@@ -39,36 +39,39 @@ class ClassPracticeController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'title'                     => ['required', 'string', 'max:100'],
             'level_id'                  => ['required', 'exists:levels,id'],
-            'question_category'         => ['required', 'in:mcq,abacus,mental_math,mixed'],
-            'total_questions'           => ['required', 'integer', 'min:1', 'max:50'],
-            'time_per_question_seconds' => ['required', 'integer', 'min:5', 'max:300'],
+            'total_questions'           => ['required', 'in:100,120,150'],
+            'time_per_question_seconds' => ['required', 'in:2,2.5,3'],
+            'session_length_minutes'    => ['nullable', 'in:8,10'],
+            'audio_dictation'           => ['nullable', 'boolean'],
             'batch_id'                  => ['nullable', 'exists:batches,id'],
         ]);
 
-        $questionQuery = QuestionBank::where('level_id', $data['level_id'])
-            ->where('status', 'approved');
+        $level = Level::findOrFail($data['level_id']);
 
-        if ($data['question_category'] !== 'mixed') {
-            $questionQuery->where('type', $data['question_category']);
-        }
-
-        $questions = $questionQuery->inRandomOrder()->limit($data['total_questions'])->get();
+        // Prefer questions tagged to the level, but fall back to the general approved pool
+        // (the seeded question bank is not level-tagged).
+        $questions = QuestionBank::where('status', 'approved')
+            ->where(fn ($q) => $q->where('level_id', $data['level_id'])->orWhereNull('level_id'))
+            ->inRandomOrder()
+            ->limit((int) $data['total_questions'])
+            ->get();
 
         if ($questions->isEmpty()) {
-            return back()->withErrors(['level_id' => 'No approved questions found for the selected level and category.']);
+            return back()->withErrors(['level_id' => 'No approved questions are available yet. Add questions to the bank first.']);
         }
 
         $session = ClassPracticeSession::create([
             'franchise_id'              => Auth::user()->franchise_id,
             'teacher_id'                => Auth::id(),
-            'title'                     => $data['title'],
+            'title'                     => 'Level ' . $level->number . ' Practice — ' . now()->format('d M Y, g:i A'),
             'level_id'                  => $data['level_id'],
-            'question_category'         => $data['question_category'],
+            'question_category'         => 'level_practice',
             'total_questions'           => $questions->count(),
             'time_per_question_seconds' => $data['time_per_question_seconds'],
-            'batch_id'                  => $data['batch_id'],
+            'session_length_minutes'    => $data['session_length_minutes'] ?? null,
+            'audio_dictation'           => $request->boolean('audio_dictation'),
+            'batch_id'                  => $data['batch_id'] ?? null,
             'status'                    => 'pending',
             'current_question_index'    => 0,
             'session_code'              => strtoupper(substr(md5(uniqid()), 0, 6)),

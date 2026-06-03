@@ -1,104 +1,113 @@
 @extends('layouts.franchise')
-@section('title', 'New Class Practice Session')
-@section('page-title', 'New Class Practice Session')
-
-@section('page-actions')
-    <a href="{{ route('franchise.class-practice.index') }}"
-       class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">
-        ← Back
-    </a>
-@endsection
+@section('title', 'Class Practice')
+@section('page-title', 'Class Practice')
 
 @section('content')
 
-<div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-2xl border border-border p-6">
-        <h2 class="text-sm font-bold text-fran mb-5">Session Setup</h2>
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-2xl border border-border shadow-sm p-8 sm:p-10">
 
         @if($errors->any())
-            <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
                 {{ $errors->first() }}
             </div>
         @endif
 
-        <form method="POST" action="{{ route('franchise.class-practice.store') }}" class="space-y-5">
+        <form method="POST" action="{{ route('franchise.class-practice.store') }}" class="space-y-8"
+              x-data="{
+                  time: '{{ old('time_per_question_seconds', '2') }}',
+                  length: '{{ old('session_length_minutes', '8') }}'
+              }">
             @csrf
 
+            {{-- Select Level --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Session Title <span class="text-red-500">*</span></label>
-                <input type="text" name="title" value="{{ old('title') }}" required maxlength="100"
-                       placeholder="e.g. Friday Level 3 Practice"
-                       class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                <label class="block text-lg font-semibold text-gray-800 mb-3">Select Level</label>
+                <div class="relative">
+                    <select name="level_id" required
+                            class="w-full appearance-none border border-border rounded-xl px-4 py-3.5 text-base text-gray-700 bg-bg-light focus:outline-none focus:ring-2 focus:ring-fran focus:bg-white">
+                        <option value="">Choose a level…</option>
+                        @foreach($levels as $level)
+                            <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
+                                @if($level->title){{ $level->title }} (L{{ $level->number }})@else Level {{ $level->number }}@endif
+                            </option>
+                        @endforeach
+                    </select>
+                    <svg class="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
             </div>
 
+            {{-- Time per steps --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
-                <select name="level_id" required
-                        class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    <option value="">Select Level</option>
-                    @foreach($levels as $level)
-                        <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
-                            Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Time Per Step <span class="text-red-500">*</span></label>
-                <div class="flex gap-3">
-                    @foreach(['2' => '2s', '3' => '3s', '5' => '5s', '10' => '10s', '30' => '30s'] as $val => $lbl)
-                        <label class="cursor-pointer flex-1">
-                            <input type="radio" name="time_per_question_seconds" value="{{ $val }}"
-                                   {{ old('time_per_question_seconds', '5') === $val ? 'checked' : '' }} class="sr-only peer">
-                            <span class="block text-center py-2 rounded-xl border text-sm font-medium transition-colors
-                                         peer-checked:bg-fran peer-checked:text-white peer-checked:border-fran
-                                         border-border text-gray-600 hover:border-fran">{{ $lbl }}</span>
+                <label class="block text-lg font-semibold text-gray-800 mb-3">Time per steps</label>
+                <div class="grid grid-cols-3 gap-4">
+                    @foreach(['2' => '2 Seconds', '2.5' => '2.5 Seconds', '3' => '3 Seconds'] as $val => $lbl)
+                        <label class="cursor-pointer">
+                            <input type="radio" name="time_per_question_seconds" value="{{ $val }}" x-model="time" class="sr-only">
+                            <span class="block text-center py-4 rounded-xl border text-base font-medium transition-colors"
+                                  :class="time === '{{ $val }}'
+                                      ? 'bg-blue-50 border-fran text-fran font-semibold'
+                                      : 'bg-white border-border text-gray-700 hover:border-fran'">{{ $lbl }}</span>
                         </label>
                     @endforeach
                 </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Number of Questions</label>
-                <input type="number" name="total_questions" value="{{ old('total_questions', 150) }}"
-                       min="1" max="300" required
-                       class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-            </div>
-
-            {{-- Audio Dictation toggle --}}
-            <div class="flex items-center justify-between bg-bg-light rounded-xl p-4">
-                <div>
-                    <p class="text-sm font-medium text-gray-700">Audio Dictation</p>
-                    <p class="text-xs text-gray-400 mt-0.5">Play voice for each number automatically</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="hidden" name="audio_dictation" value="0">
-                    <input type="checkbox" name="audio_dictation" value="1" class="sr-only peer"
-                           {{ old('audio_dictation') ? 'checked' : '' }}>
-                    <div class="w-10 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-fran rounded-full peer peer-checked:after:translate-x-5 peer-checked:bg-fran after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
-                </label>
             </div>
 
             {{-- Session Length --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Session Length</label>
-                <div class="flex gap-3">
-                    @foreach(['8' => '8 min', '10' => '10 min', '15' => '15 min', '20' => '20 min', '0' => 'Unlimited'] as $val => $lbl)
-                        <label class="cursor-pointer flex-1">
-                            <input type="radio" name="session_length_minutes" value="{{ $val }}"
-                                   {{ old('session_length_minutes', '10') === $val ? 'checked' : '' }} class="sr-only peer">
-                            <span class="block text-center py-2 rounded-xl border text-xs font-medium transition-colors
-                                         peer-checked:bg-fran peer-checked:text-white peer-checked:border-fran
-                                         border-border text-gray-600 hover:border-fran">{{ $lbl }}</span>
+                <label class="block text-lg font-semibold text-gray-800 mb-3">Session Length</label>
+                <div class="grid grid-cols-2 gap-4">
+                    @foreach(['8' => '8 min', '10' => '10 min'] as $val => $lbl)
+                        <label class="cursor-pointer">
+                            <input type="radio" name="session_length_minutes" value="{{ $val }}" x-model="length" class="sr-only">
+                            <span class="block text-center py-4 rounded-xl border text-base font-medium transition-colors"
+                                  :class="length === '{{ $val }}'
+                                      ? 'bg-blue-50 border-fran text-fran font-semibold'
+                                      : 'bg-white border-border text-gray-700 hover:border-fran'">{{ $lbl }}</span>
                         </label>
                     @endforeach
                 </div>
             </div>
 
+            {{-- Number of Questions --}}
+            <div>
+                <label class="block text-lg font-semibold text-gray-800 mb-3">Number of Questions</label>
+                <div class="relative">
+                    <select name="total_questions" required
+                            class="w-full appearance-none border border-border rounded-xl px-4 py-3.5 text-base text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-fran">
+                        @foreach(['100', '120', '150'] as $opt)
+                            <option value="{{ $opt }}" @selected(old('total_questions', '150') == $opt)>{{ $opt }} Questions</option>
+                        @endforeach
+                    </select>
+                    <svg class="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </div>
+
+            <hr class="border-border">
+
+            {{-- Audio Dictation toggle --}}
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-lg font-semibold text-gray-800">Audio Dictation</p>
+                    <p class="text-sm text-gray-500 mt-0.5">Play voice for each number automatically</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="hidden" name="audio_dictation" value="0">
+                    <input type="checkbox" name="audio_dictation" value="1" class="sr-only peer"
+                           {{ old('audio_dictation', '1') ? 'checked' : '' }}>
+                    <div class="w-12 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-fran rounded-full peer peer-checked:after:translate-x-6 peer-checked:bg-fran after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                </label>
+            </div>
+
+            <hr class="border-border">
+
             <button type="submit"
-                    class="w-full py-3 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark">
-                Next Question →
+                    class="w-full py-4 bg-fran text-white rounded-2xl text-base font-semibold hover:bg-fran-dark transition-colors">
+                Next Question
             </button>
         </form>
     </div>

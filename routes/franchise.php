@@ -16,18 +16,18 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
         // Help Guide
         Route::view('help', 'franchise.help')->name('help');
 
-        // Student management
-        Route::resource('students', \App\Http\Controllers\Franchise\StudentController::class);
+        // Student management — static routes BEFORE resource so they aren't shadowed by students/{student}
         Route::get('students/bulk-import', [\App\Http\Controllers\Franchise\StudentController::class, 'importPage'])->name('students.import.page');
         Route::post('students/import', [\App\Http\Controllers\Franchise\StudentController::class, 'import'])->name('students.import');
         Route::get('students/import/template', [\App\Http\Controllers\Franchise\StudentController::class, 'importTemplate'])->name('students.import.template');
+        Route::resource('students', \App\Http\Controllers\Franchise\StudentController::class);
 
-        // Fees & Payments
+        // Fees & Payments — static routes BEFORE fees/{fee} so they aren't shadowed
         Route::get('fees', [\App\Http\Controllers\Franchise\FeeController::class, 'index'])->name('fees.index');
-        Route::get('fees/{fee}', [\App\Http\Controllers\Franchise\FeeController::class, 'show'])->name('fees.show');
         Route::get('fees/reminders', [\App\Http\Controllers\Franchise\FeeController::class, 'reminders'])->name('fees.reminders');
-        Route::get('fees/{fee}/reminder', [\App\Http\Controllers\Franchise\FeeController::class, 'reminder'])->name('fees.reminder');
         Route::get('fees/record', [\App\Http\Controllers\Franchise\PaymentController::class, 'recordPage'])->name('fees.record');
+        Route::get('fees/{fee}', [\App\Http\Controllers\Franchise\FeeController::class, 'show'])->name('fees.show');
+        Route::get('fees/{fee}/reminder', [\App\Http\Controllers\Franchise\FeeController::class, 'reminder'])->name('fees.reminder');
         Route::post('payments', [\App\Http\Controllers\Franchise\PaymentController::class, 'store'])->name('payments.store');
         Route::get('payments/{payment}/receipt', [\App\Http\Controllers\Franchise\PaymentController::class, 'receipt'])->name('payments.receipt');
         Route::get('payments/{payment}/receipt-pdf', [\App\Http\Controllers\Franchise\PaymentController::class, 'receiptPdf'])->name('payments.receipt.pdf');
