@@ -25,9 +25,11 @@
                   transform -translate-x-full transition-transform duration-200 ease-in-out
                   lg:static lg:translate-x-0 lg:z-auto">
         {{-- Logo --}}
-        <div class="px-5 py-5 border-b border-fran">
-            <x-brand-logo size="md" subtitle="Management System" subtitle-class="text-blue-200" />
-            <p class="text-blue-200 text-[11px] mt-2 truncate">{{ auth()->user()->franchise->name ?? 'Franchise' }} · Branch Panel</p>
+        <div class="px-4 py-4 border-b border-fran">
+            <div class="bg-white rounded-xl px-3 py-2.5 flex items-center justify-center">
+                <x-brand-logo size="sm" />
+            </div>
+            <p class="text-blue-200 text-[11px] mt-2.5 truncate text-center">{{ auth()->user()->franchise->name ?? 'Franchise' }} · Branch Panel</p>
         </div>
 
         {{-- Navigation --}}
