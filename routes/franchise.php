@@ -13,6 +13,10 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
     Route::middleware(['auth', 'franchise'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Franchise\DashboardController::class, 'index'])->name('dashboard');
 
+        // My Profile
+        Route::get('profile', [\App\Http\Controllers\Franchise\FranchiseProfileController::class, 'index'])->name('profile');
+        Route::put('profile', [\App\Http\Controllers\Franchise\FranchiseProfileController::class, 'update'])->name('profile.update');
+
         // Help Guide
         Route::view('help', 'franchise.help')->name('help');
 

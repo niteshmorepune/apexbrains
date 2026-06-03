@@ -25,14 +25,9 @@
                   transform -translate-x-full transition-transform duration-200 ease-in-out
                   lg:static lg:translate-x-0 lg:z-auto">
         {{-- Logo --}}
-        <div class="px-6 py-5 border-b border-fran">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-fran font-bold text-sm">AB</div>
-                <div>
-                    <p class="text-white font-semibold text-sm leading-tight truncate">{{ auth()->user()->franchise->name ?? 'Franchise' }}</p>
-                    <p class="text-blue-200 text-xs">Branch Panel</p>
-                </div>
-            </div>
+        <div class="px-5 py-5 border-b border-fran">
+            <x-brand-logo size="md" subtitle="Management System" subtitle-class="text-blue-200" />
+            <p class="text-blue-200 text-[11px] mt-2 truncate">{{ auth()->user()->franchise->name ?? 'Franchise' }} · Branch Panel</p>
         </div>
 
         {{-- Navigation --}}
@@ -54,16 +49,18 @@
         {{-- User info --}}
         <div class="px-4 py-4 border-t border-fran">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold">
-                    {{ substr(auth()->user()->name, 0, 2) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-white text-sm font-medium truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-blue-200 text-xs">Franchise Admin</p>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
+                <a href="{{ route('franchise.profile') }}" class="flex items-center gap-3 flex-1 min-w-0 group">
+                    <div class="w-8 h-8 rounded-full bg-fran flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        {{ substr(auth()->user()->name, 0, 2) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white text-sm font-medium truncate group-hover:underline">{{ auth()->user()->name }}</p>
+                        <p class="text-blue-200 text-xs">Franchise Admin</p>
+                    </div>
+                </a>
+                <form method="POST" action="{{ route('franchise.logout') }}">
                     @csrf
-                    <button type="submit" class="text-blue-200 hover:text-white text-xs">Out</button>
+                    <button type="submit" class="text-blue-200 hover:text-white text-xs" title="Log out">Out</button>
                 </form>
             </div>
         </div>

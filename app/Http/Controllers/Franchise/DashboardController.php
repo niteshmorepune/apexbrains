@@ -47,9 +47,12 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
-        // Student overview table (top 8 by enrollment date, with last exam score)
-        $students = Student::with(['currentLevel',
-            'examAttempts' => fn($q) => $q->latest()->limit(1)])
+        // Student overview table (top 8 by enrollment date, with last exam score + latest fee)
+        $students = Student::with([
+                'currentLevel',
+                'examAttempts' => fn($q) => $q->latest()->limit(1),
+                'fees'         => fn($q) => $q->latest()->limit(1),
+            ])
             ->where('is_active', true)
             ->latest('enrollment_date')
             ->limit(8)

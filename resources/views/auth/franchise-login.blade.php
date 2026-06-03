@@ -24,36 +24,8 @@
         <div class="absolute top-[-80px] right-[-60px] w-72 h-72 rounded-full bg-fran/[0.07] pointer-events-none"></div>
         <div class="absolute bottom-[-60px] left-[-40px] w-56 h-56 rounded-full bg-fran/[0.05] pointer-events-none"></div>
 
-        {{-- Logo --}}
-        @if(!empty($appSettings['logo_path']))
-            <div class="mb-8">
-                <img src="{{ Storage::url($appSettings['logo_path']) }}" alt="{{ $appSettings['app_name'] ?? 'Apex Brains' }}" class="h-12 w-auto">
-            </div>
-        @else
-            <div class="flex items-center gap-3 mb-8">
-                {{-- Abacus mark --}}
-                <svg class="w-11 h-11 flex-shrink-0" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <rect x="6" y="7" width="36" height="34" rx="4" stroke="#1A73E8" stroke-width="2.5"/>
-                    <line x1="6" y1="18" x2="42" y2="18" stroke="#1A73E8" stroke-width="2"/>
-                    <line x1="6" y1="30" x2="42" y2="30" stroke="#1A73E8" stroke-width="2"/>
-                    <circle cx="14" cy="12.5" r="3.5" fill="#EA4335"/>
-                    <circle cx="24" cy="12.5" r="3.5" fill="#FBBC05"/>
-                    <circle cx="34" cy="12.5" r="3.5" fill="#34A853"/>
-                    <circle cx="14" cy="24" r="3.5" fill="#FBBC05"/>
-                    <circle cx="24" cy="24" r="3.5" fill="#34A853"/>
-                    <circle cx="34" cy="24" r="3.5" fill="#1A73E8"/>
-                    <circle cx="14" cy="35.5" r="3.5" fill="#34A853"/>
-                    <circle cx="24" cy="35.5" r="3.5" fill="#EA4335"/>
-                    <circle cx="34" cy="35.5" r="3.5" fill="#FBBC05"/>
-                </svg>
-                <div class="leading-tight">
-                    <div class="text-[22px] font-extrabold tracking-tight">
-                        <span class="text-logo-red">A</span><span class="text-fran">p</span><span class="text-[#34A853]">e</span><span class="text-logo-amber">x</span><span class="text-logo-red"> B</span><span class="text-fran">r</span><span class="text-[#34A853]">a</span><span class="text-logo-amber">i</span><span class="text-logo-red">n</span><span class="text-fran">s</span>
-                    </div>
-                    <div class="text-[11px] font-semibold tracking-[0.30em] text-gray-400 uppercase">Abacus</div>
-                </div>
-            </div>
-        @endif
+        {{-- Logo — Figma brand mark (abacus + colorful wordmark) --}}
+        <x-brand-logo size="lg" class="mb-8" />
 
         {{-- Taglines --}}
         <h2 class="text-[16px] font-normal text-gray-700 mb-1">International Abacus Programme</h2>
