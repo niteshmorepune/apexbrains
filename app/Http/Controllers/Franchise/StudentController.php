@@ -25,11 +25,21 @@ class StudentController extends Controller
 {
     public function index(Request $request): View
     {
-        $tab = $request->get('tab', 'internal');
+        $tab = $request->get('tab', 'all');
+        if (! in_array($tab, ['all', 'internal', 'external'])) {
+            $tab = 'all';
+        }
 
-        $query = Student::with('currentLevel')
-            ->where('is_active', true)
-            ->where('student_type', in_array($tab, ['internal', 'external']) ? $tab : 'internal');
+        $query = Student::with([
+                'currentLevel',
+                'primaryParent',
+                'examAttempts' => fn ($q) => $q->where('status', 'submitted')->latest('submitted_at')->limit(1),
+            ])
+            ->where('is_active', true);
+
+        if ($tab !== 'all') {
+            $query->where('student_type', $tab);
+        }
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -38,8 +48,18 @@ class StudentController extends Controller
                   ->orWhere('student_code', 'like', '%' . $request->search . '%');
             });
         }
-        if ($request->filled('level') && $tab === 'internal') {
-            $query->where('current_level_id', $request->level);
+
+        if ($request->filled('level_group')) {
+            [$min, $max] = match ($request->level_group) {
+                '1-3'   => [1, 3],
+                '4-6'   => [4, 6],
+                '7-9'   => [7, 9],
+                '10'    => [10, 99],
+                default => [null, null],
+            };
+            if ($min !== null) {
+                $query->whereHas('currentLevel', fn ($q) => $q->whereBetween('number', [$min, $max]));
+            }
         }
 
         $students = $query->orderBy('first_name')->paginate(20)->withQueryString();
@@ -47,8 +67,9 @@ class StudentController extends Controller
 
         $internalCount = Student::where('is_active', true)->where('student_type', 'internal')->count();
         $externalCount = Student::where('is_active', true)->where('student_type', 'external')->count();
+        $allCount      = $internalCount + $externalCount;
 
-        return view('franchise.students.index', compact('students', 'levels', 'tab', 'internalCount', 'externalCount'));
+        return view('franchise.students.index', compact('students', 'levels', 'tab', 'internalCount', 'externalCount', 'allCount'));
     }
 
     public function create(): View
