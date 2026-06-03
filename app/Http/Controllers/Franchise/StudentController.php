@@ -101,6 +101,7 @@ class StudentController extends Controller
             'city'          => ['nullable', 'string', 'max:100'],
             'pincode'       => ['nullable', 'string', 'max:10'],
             'parent_name'   => ['required', 'string', 'max:100'],
+            'parent_relationship' => ['nullable', 'in:father,mother,guardian'],
             'parent_phone'  => ['required', 'string', 'max:15'],
             'parent_whatsapp' => ['nullable', 'string', 'max:15'],
             'parent_email'  => ['nullable', 'email', 'max:150'],
@@ -153,7 +154,7 @@ class StudentController extends Controller
             StudentParent::create([
                 'student_id'   => $student->id,
                 'name'         => $data['parent_name'],
-                'relationship' => 'parent',
+                'relationship' => $data['parent_relationship'] ?? 'guardian',
                 'phone'        => $data['parent_phone'],
                 'whatsapp'     => $data['parent_whatsapp'] ?? $data['parent_phone'],
                 'email'        => $data['parent_email'] ?? null,
