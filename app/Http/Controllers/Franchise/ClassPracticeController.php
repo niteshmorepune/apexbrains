@@ -97,9 +97,25 @@ class ClassPracticeController extends Controller
         return view('franchise.class-practice.show', compact('session'));
     }
 
-    public function project(ClassPracticeSession $session): View
+    public function project(ClassPracticeSession $session): View|RedirectResponse
     {
-        return view('franchise.class-practice.project', compact('session'));
+        if ($session->status === 'ended') {
+            return redirect()->route('franchise.class-practice.results', $session);
+        }
+
+        $session->load('level');
+
+        $currentQuestion = null;
+        if ($session->status === 'active' && $session->current_question_index > 0) {
+            $sq = $session->sessionQuestions()
+                ->where('sort_order', $session->current_question_index)
+                ->with('question')
+                ->first();
+
+            $currentQuestion = $sq?->question;
+        }
+
+        return view('franchise.class-practice.project', compact('session', 'currentQuestion'));
     }
 
     public function state(ClassPracticeSession $session): JsonResponse
