@@ -201,7 +201,10 @@ class StudentController extends Controller
     public function show(Student $student): View
     {
         $student->load('currentLevel', 'parents', 'examAttempts', 'payments',
-            'competitionRegistrations.competition');
+            'competitionRegistrations.competition',
+            'certificates.level',
+            'competitionPracticeAttempts.paper',
+            'practiceSessions.level');
         return view('franchise.students.show', compact('student'));
     }
 

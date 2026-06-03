@@ -75,7 +75,7 @@
 
         {{-- Competition registrations (external students) --}}
         @if($student->student_type === 'external')
-            <div class="bg-white rounded-2xl border border-border overflow-hidden">
+            <div id="competitions" class="bg-white rounded-2xl border border-border overflow-hidden scroll-mt-24">
                 <div class="px-5 py-4 border-b border-border">
                     <h3 class="text-sm font-bold text-fran">Competition Registrations</h3>
                 </div>
@@ -117,6 +117,101 @@
                 </div>
             </div>
         @endif
+
+        {{-- Class Practice (internal — this student's practice sessions) --}}
+        @if($student->student_type === 'internal')
+            <div id="class-practice" class="bg-white rounded-2xl border border-border overflow-hidden scroll-mt-24">
+                <div class="px-5 py-4 border-b border-border">
+                    <h3 class="text-sm font-bold text-fran">Class Practice — {{ $student->first_name }}</h3>
+                </div>
+                @if($student->practiceSessions->isNotEmpty())
+                    <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
+                        <thead>
+                            <tr class="bg-fran">
+                                <th class="text-left px-5 py-3 text-xs font-semibold text-white">Date</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Questions</th>
+                                <th class="text-right px-5 py-3 text-xs font-semibold text-white">Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border">
+                            @foreach($student->practiceSessions->sortByDesc('completed_at') as $ps)
+                                <tr class="hover:bg-bg-light">
+                                    <td class="px-5 py-3 text-xs text-gray-600">{{ $ps->completed_at?->format('d M Y') ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-center text-xs">{{ $ps->level ? 'L' . $ps->level->number : '—' }}</td>
+                                    <td class="px-4 py-3 text-center text-xs text-gray-600">{{ $ps->questions_correct }}/{{ $ps->total_questions }}</td>
+                                    <td class="px-5 py-3 text-right font-bold {{ $ps->accuracy >= 75 ? 'text-stu' : 'text-logo-amber' }}">{{ number_format((float) $ps->accuracy, 0) }}%</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table></div>
+                @else
+                    <p class="px-5 py-6 text-sm text-gray-400">No practice sessions recorded for this student yet.</p>
+                @endif
+            </div>
+        @endif
+
+        {{-- Competition Practice Papers (this student's attempts) --}}
+        <div id="competition-practice" class="bg-white rounded-2xl border border-border overflow-hidden scroll-mt-24">
+            <div class="px-5 py-4 border-b border-border">
+                <h3 class="text-sm font-bold text-fran">Competition Practice Papers — {{ $student->first_name }}</h3>
+            </div>
+            @if($student->competitionPracticeAttempts->isNotEmpty())
+                <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
+                    <thead>
+                        <tr class="bg-fran">
+                            <th class="text-left px-5 py-3 text-xs font-semibold text-white">Paper</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-white">Date</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
+                            <th class="text-right px-5 py-3 text-xs font-semibold text-white">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        @foreach($student->competitionPracticeAttempts->sortByDesc('submitted_at') as $att)
+                            <tr class="hover:bg-bg-light">
+                                <td class="px-5 py-3 font-medium text-gray-800">{{ $att->paper?->title ?? 'Paper #' . $att->paper_id }}</td>
+                                <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $att->submitted_at?->format('d M Y') ?? '—' }}</td>
+                                <td class="px-4 py-3 text-center"><span class="text-xs capitalize px-2 py-0.5 rounded-full bg-bg-mid text-gray-600">{{ $att->status ?? '—' }}</span></td>
+                                <td class="px-5 py-3 text-right font-bold {{ $att->percentage >= 75 ? 'text-stu' : ($att->percentage >= 50 ? 'text-logo-amber' : 'text-red-500') }}">
+                                    {{ $att->submitted_at ? number_format((float) $att->percentage, 0) . '%' : '—' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table></div>
+            @else
+                <p class="px-5 py-6 text-sm text-gray-400">No competition practice attempts for this student yet.</p>
+            @endif
+        </div>
+
+        {{-- Certificates (this student's) --}}
+        <div id="certificates" class="bg-white rounded-2xl border border-border overflow-hidden scroll-mt-24">
+            <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+                <h3 class="text-sm font-bold text-fran">Certificates — {{ $student->first_name }}</h3>
+                <a href="{{ route('franchise.certificates.index') }}" class="text-xs text-fran hover:underline">Generate / Manage</a>
+            </div>
+            @if($student->certificates->isNotEmpty())
+                <div class="divide-y divide-border">
+                    @foreach($student->certificates->sortByDesc('issued_at') as $cert)
+                        <div class="px-5 py-3 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-800 capitalize">{{ str_replace('_', ' ', $cert->type) }}{{ $cert->level ? ' — Level ' . $cert->level->number : '' }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5 font-mono">{{ $cert->certificate_number }} · {{ $cert->issued_at?->format('d M Y') }}</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                @if($cert->is_revoked)
+                                    <span class="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded-full">Revoked</span>
+                                @else
+                                    <a href="{{ route('franchise.certificates.pdf', $cert) }}" class="text-xs text-fran hover:underline">Download PDF</a>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="px-5 py-6 text-sm text-gray-400">No certificates issued to this student yet.</p>
+            @endif
+        </div>
     </div>
 
     {{-- Sidebar --}}
@@ -137,23 +232,31 @@
                     Progress Report
                 </a>
                 @if($student->student_type === 'internal')
-                    <a href="{{ route('franchise.class-practice.index') }}"
+                    <a href="#class-practice"
                        class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
                         Class Practice
                     </a>
+                @endif
+                <a href="#competition-practice"
+                   class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
+                    Competition Practice Papers
+                </a>
+                <a href="#certificates"
+                   class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
+                    Certificates
+                </a>
+                @if($student->student_type === 'external')
+                    <a href="#competitions"
+                       class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
+                        Competition Registrations
+                    </a>
+                @endif
+                @if($student->student_type === 'internal')
                     <a href="{{ route('franchise.promotions.index') }}"
                        class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
                         Promote Student
                     </a>
                 @endif
-                <a href="{{ route('franchise.competitions.index') }}"
-                   class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
-                    Competitions
-                </a>
-                <a href="{{ route('franchise.certificates.index') }}"
-                   class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
-                    Certificates
-                </a>
             </div>
         </div>
 
