@@ -124,6 +124,10 @@
         <div class="bg-white rounded-2xl border border-border p-5">
             <h3 class="text-sm font-bold text-fran mb-3">Quick Actions</h3>
             <div class="space-y-2">
+                <a href="{{ route('franchise.fees.record', ['student_id' => $student->id]) }}"
+                   class="block text-center py-2 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+                    Record Payment
+                </a>
                 <a href="{{ route('franchise.fees.index') }}"
                    class="block text-center py-2 border border-fran text-fran rounded-xl text-sm font-medium hover:bg-fran hover:text-white transition-colors">
                     View Fee Status
@@ -132,9 +136,23 @@
                    class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
                     Progress Report
                 </a>
-                <a href="{{ route('franchise.promotions.index') }}"
+                @if($student->student_type === 'internal')
+                    <a href="{{ route('franchise.class-practice.index') }}"
+                       class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
+                        Class Practice
+                    </a>
+                    <a href="{{ route('franchise.promotions.index') }}"
+                       class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
+                        Promote Student
+                    </a>
+                @endif
+                <a href="{{ route('franchise.competitions.index') }}"
                    class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
-                    Promotions
+                    Competitions
+                </a>
+                <a href="{{ route('franchise.certificates.index') }}"
+                   class="block text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
+                    Certificates
                 </a>
             </div>
         </div>
