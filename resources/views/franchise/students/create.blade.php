@@ -23,6 +23,18 @@
               x-data="{ studentType: '{{ old('student_type', 'internal') }}', levelFee: 0 }">
             @csrf
 
+            {{-- Validation error summary --}}
+            @if($errors->any())
+                <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-2xl">
+                    <p class="text-sm font-semibold text-red-700 mb-1">Please fix the following before registering:</p>
+                    <ul class="list-disc list-inside text-xs text-red-600 space-y-0.5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             {{-- Photo upload --}}
             <div class="flex items-center gap-5 bg-white rounded-2xl border border-border p-5 mb-4">
                 <label class="cursor-pointer" x-data="{ preview: null }">
@@ -204,11 +216,11 @@
                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran resize-none">{{ old('notes') }}</textarea>
             </div>
 
-            {{-- Login credentials (collapsed section) --}}
-            <div class="bg-white rounded-2xl border border-border p-6 mb-6" x-data="{ open: false }">
+            {{-- Login credentials (required — open by default so it isn't missed) --}}
+            <div class="bg-white rounded-2xl border border-border p-6 mb-6" x-data="{ open: true }">
                 <button type="button" @click="open = !open"
                         class="flex items-center justify-between w-full text-sm font-bold text-fran">
-                    Login Credentials (Portal Access)
+                    <span>Login Credentials (Portal Access) <span class="text-red-500">*</span></span>
                     <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
