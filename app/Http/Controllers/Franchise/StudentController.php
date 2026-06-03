@@ -200,12 +200,13 @@ class StudentController extends Controller
 
     public function show(Student $student): View
     {
-        $student->load('currentLevel', 'parents', 'examAttempts', 'payments',
+        $student->load('currentLevel', 'parents', 'examAttempts.exam', 'payments', 'fees',
             'competitionRegistrations.competition',
             'certificates.level',
             'competitionPracticeAttempts.paper',
             'practiceSessions.level');
-        return view('franchise.students.show', compact('student'));
+        $levels = Level::orderBy('number')->get();
+        return view('franchise.students.show', compact('student', 'levels'));
     }
 
     public function edit(Student $student): View
