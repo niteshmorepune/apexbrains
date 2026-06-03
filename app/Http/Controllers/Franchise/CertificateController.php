@@ -33,7 +33,9 @@ class CertificateController extends Controller
     {
         $data = $request->validate([
             'student_id' => ['required', 'exists:students,id'],
-            'type'       => ['required', 'in:level_completion,merit,excellence,participation'],
+            'level_id'   => ['nullable', 'exists:levels,id'],
+            'issued_at'  => ['nullable', 'date'],
+            'type'       => ['required', 'in:level_completion,merit,excellence'],
         ]);
 
         $student    = Student::with('currentLevel')->findOrFail($data['student_id']);
@@ -45,11 +47,11 @@ class CertificateController extends Controller
         $certificate = Certificate::create([
             'franchise_id'      => $franchiseId,
             'student_id'        => $student->id,
-            'level_id'          => $student->current_level_id,
+            'level_id'          => $data['level_id'] ?? $student->current_level_id,
             'certificate_number'=> $certNumber,
             'verification_code' => $verificationCode,
             'type'              => $data['type'],
-            'issued_at'         => now(),
+            'issued_at'         => $data['issued_at'] ?? now(),
             'issued_by'         => Auth::id(),
             'qr_data'           => route('certificate.verify', $verificationCode),
             'is_revoked'        => false,
