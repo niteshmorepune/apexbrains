@@ -45,6 +45,7 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
         Route::get('certificates/{certificate}/download', [\App\Http\Controllers\Franchise\CertificateController::class, 'download'])->name('certificates.download');
         Route::get('certificates/{certificate}/pdf', [\App\Http\Controllers\Franchise\CertificateController::class, 'downloadPdf'])->name('certificates.pdf');
         Route::patch('certificates/{certificate}/revoke', [\App\Http\Controllers\Franchise\CertificateController::class, 'revoke'])->name('certificates.revoke');
+        Route::patch('certificates/{certificate}/sent', [\App\Http\Controllers\Franchise\CertificateController::class, 'markSent'])->name('certificates.sent');
 
         // Promotions
         Route::get('promotions', [\App\Http\Controllers\Franchise\PromotionController::class, 'index'])->name('promotions.index');

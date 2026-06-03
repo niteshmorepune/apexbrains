@@ -216,11 +216,16 @@
                             <td class="px-4 py-3.5 capitalize text-gray-600">{{ str_replace('_', ' ', $cert->type) }}</td>
                             <td class="px-4 py-3.5 text-gray-500">{{ $cert->issued_at?->format('d M Y') }}</td>
                             <td class="px-4 py-3.5">
-                                @if($cert->is_revoked)
-                                    <span class="text-xs bg-red-50 text-red-600 px-2.5 py-1 rounded-full font-medium">Revoked</span>
-                                @else
-                                    <span class="text-xs bg-green-50 text-green-600 px-2.5 py-1 rounded-full font-medium">Generated</span>
-                                @endif
+                                @switch($cert->status)
+                                    @case('revoked')
+                                        <span class="text-xs bg-red-50 text-red-600 px-2.5 py-1 rounded-full font-medium">Revoked</span>
+                                        @break
+                                    @case('sent')
+                                        <span class="text-xs bg-green-50 text-green-600 px-2.5 py-1 rounded-full font-medium">Sent</span>
+                                        @break
+                                    @default
+                                        <span class="text-xs bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full font-medium">Generated</span>
+                                @endswitch
                             </td>
                             <td class="px-4 py-3.5 text-center">
                                 @if($cert->qr_data)<span class="text-green-600 font-bold">✓</span>@else<span class="text-gray-300">—</span>@endif
@@ -235,6 +240,12 @@
                                         <span class="text-gray-300">WhatsApp</span>
                                     @endif
                                     <a href="{{ route('franchise.certificates.download', $cert) }}" target="_blank" class="text-gray-500 hover:underline">Print</a>
+                                    @if(!$cert->is_revoked && !$cert->sent_at)
+                                        <form method="POST" action="{{ route('franchise.certificates.sent', $cert) }}">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="text-fran hover:underline">Mark Sent</button>
+                                        </form>
+                                    @endif
                                     @if(!$cert->is_revoked)
                                         <form method="POST" action="{{ route('franchise.certificates.revoke', $cert) }}"
                                               onsubmit="return confirm('Revoke this certificate?')">

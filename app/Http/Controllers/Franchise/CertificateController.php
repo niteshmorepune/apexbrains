@@ -35,6 +35,7 @@ class CertificateController extends Controller
             'student_id' => ['required', 'exists:students,id'],
             'level_id'   => ['nullable', 'exists:levels,id'],
             'issued_at'  => ['nullable', 'date'],
+            'series'     => ['nullable', 'string', 'max:50'],
             'type'       => ['required', 'in:level_completion,merit,excellence'],
         ]);
 
@@ -51,7 +52,10 @@ class CertificateController extends Controller
             'certificate_number'=> $certNumber,
             'verification_code' => $verificationCode,
             'type'              => $data['type'],
+            'series'            => $data['series'] ?? null,
             'issued_at'         => $data['issued_at'] ?? now(),
+            // "Generate and Send" marks the certificate as delivered immediately.
+            'sent_at'           => now(),
             'issued_by'         => Auth::id(),
             'qr_data'           => route('certificate.verify', $verificationCode),
             'is_revoked'        => false,
@@ -60,7 +64,17 @@ class CertificateController extends Controller
         AuditLogger::log('certificate_generated', 'Certificate', $certificate->id);
 
         return redirect()->route('franchise.certificates.download', $certificate)
-            ->with('success', "Certificate {$certNumber} generated for {$student->full_name}.");
+            ->with('success', "Certificate {$certNumber} generated and sent for {$student->full_name}.");
+    }
+
+    public function markSent(Certificate $certificate): RedirectResponse
+    {
+        if (! $certificate->is_revoked && ! $certificate->sent_at) {
+            $certificate->update(['sent_at' => now()]);
+            AuditLogger::log('certificate_sent', 'Certificate', $certificate->id);
+        }
+
+        return back()->with('success', "Certificate {$certificate->certificate_number} marked as sent.");
     }
 
     public function download(Certificate $certificate)

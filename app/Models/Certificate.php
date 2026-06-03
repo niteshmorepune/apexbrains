@@ -9,14 +9,27 @@ class Certificate extends Model
 {
     protected $fillable = [
         'franchise_id', 'student_id', 'level_id', 'exam_attempt_id', 'competition_id',
-        'certificate_number', 'verification_code', 'type', 'issued_at', 'issued_by',
-        'pdf_path', 'qr_data', 'is_revoked',
+        'certificate_number', 'verification_code', 'type', 'series', 'issued_at', 'sent_at',
+        'issued_by', 'pdf_path', 'qr_data', 'is_revoked',
     ];
 
     protected $casts = [
         'issued_at' => 'date',
+        'sent_at' => 'datetime',
         'is_revoked' => 'boolean',
     ];
+
+    /**
+     * Lifecycle status: revoked > sent > generated.
+     */
+    public function getStatusAttribute(): string
+    {
+        if ($this->is_revoked) {
+            return 'revoked';
+        }
+
+        return $this->sent_at ? 'sent' : 'generated';
+    }
 
     public function franchise(): BelongsTo
     {
