@@ -76,6 +76,10 @@
                         Recipients: <span class="font-semibold text-fran" x-text="recipientCount"></span> students
                     </p>
 
+                    <p class="text-[11px] text-gray-400 leading-relaxed">
+                        Messages are recorded in each student's notification history. Automatic WhatsApp/SMS delivery is coming soon.
+                    </p>
+
                     {{-- Two send buttons --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <button type="submit" name="channel" value="whatsapp"
@@ -112,7 +116,7 @@
                                 @endif
                             </p>
                         </div>
-                        <span class="text-xs bg-stu-light text-stu-dark px-2 py-0.5 rounded-full font-medium flex-shrink-0">Delivered</span>
+                        <span class="text-xs bg-bg-mid text-gray-500 px-2 py-0.5 rounded-full font-medium flex-shrink-0">Logged</span>
                     </div>
                 </div>
             @empty

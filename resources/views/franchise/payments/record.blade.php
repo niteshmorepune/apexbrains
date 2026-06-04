@@ -159,12 +159,8 @@
             </div>
 
             <div class="flex gap-3">
-                <button type="submit" name="draft" value="1"
-                        class="flex-1 py-2.5 border border-fran text-fran rounded-xl text-sm font-semibold hover:bg-fran-light transition-colors">
-                    Save Draft
-                </button>
                 <button type="submit"
-                        class="flex-1 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
+                        class="w-full py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
                     Record and Generate Receipt
                 </button>
             </div>

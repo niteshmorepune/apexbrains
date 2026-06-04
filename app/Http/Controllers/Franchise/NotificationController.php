@@ -65,6 +65,6 @@ class NotificationController extends Controller
 
         $count = $targetStudents->count();
 
-        return back()->with('success', "Notification sent to {$count} student(s).");
+        return back()->with('success', "Notification logged for {$count} student(s).");
     }
 }
