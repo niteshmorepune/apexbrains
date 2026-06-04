@@ -36,8 +36,10 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
         Route::get('payments/{payment}/receipt', [\App\Http\Controllers\Franchise\PaymentController::class, 'receipt'])->name('payments.receipt');
         Route::get('payments/{payment}/receipt-pdf', [\App\Http\Controllers\Franchise\PaymentController::class, 'receiptPdf'])->name('payments.receipt.pdf');
 
-        // Exams
-        Route::resource('exams', \App\Http\Controllers\Franchise\ExamController::class);
+        // Exams — read-only. Exams are authored by Admin; franchises monitor
+        // their own students' attempts only.
+        Route::get('exams', [\App\Http\Controllers\Franchise\ExamController::class, 'index'])->name('exams.index');
+        Route::get('exams/{exam}', [\App\Http\Controllers\Franchise\ExamController::class, 'show'])->name('exams.show');
 
         // Certificates
         Route::get('certificates', [\App\Http\Controllers\Franchise\CertificateController::class, 'index'])->name('certificates.index');

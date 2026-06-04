@@ -11,6 +11,21 @@
             <h2 class="text-sm font-bold text-admin mb-4">Paper Details</h2>
             <div class="space-y-4">
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
+                    <select name="level_id" required
+                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('level_id') border-red-400 @enderror">
+                        <option value="">Select level…</option>
+                        @foreach($levels as $level)
+                            <option value="{{ $level->id }}" @selected(old('level_id', $paper->level_id) == $level->id)>
+                                Level {{ $level->number }} — {{ $level->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    <p class="text-xs text-gray-400 mt-1">Changing the level or total questions re-pulls the question set.</p>
+                </div>
+
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Title <span class="text-red-500">*</span></label>
                     <input type="text" name="title" value="{{ old('title', $paper->title) }}" required
                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('title') border-red-400 @enderror">

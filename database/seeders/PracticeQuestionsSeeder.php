@@ -2,49 +2,24 @@
 
 namespace Database\Seeders;
 
-use App\Models\CompetitionPaperQuestion;
-use App\Models\CompetitionPracticePaper;
 use App\Models\QuestionBank;
 use Illuminate\Database\Seeder;
 
 class PracticeQuestionsSeeder extends Seeder
 {
+    /**
+     * Seeds the approved Question Bank with abacus-style MCQs. Practice Papers
+     * are built from this pool by CompetitionPracticePapersSeeder.
+     */
     public function run(): void
     {
-        // Skip if questions already linked
-        if (CompetitionPaperQuestion::count() > 0) {
+        // Idempotent: skip if an approved bank already exists.
+        if (QuestionBank::where('status', 'approved')->exists()) {
             return;
         }
 
-        // Generate abacus-style MCQ questions
-        $questions = $this->generateQuestions();
-
-        $questionIds = [];
-        foreach ($questions as $q) {
-            $existing = QuestionBank::where('question_text', $q['question_text'])->first();
-            if (!$existing) {
-                $existing = QuestionBank::create($q);
-            }
-            $questionIds[] = $existing->id;
-        }
-
-        // Link questions to papers (round-robin: reuse questions across papers)
-        $papers = CompetitionPracticePaper::orderBy('paper_number')->get();
-        $total  = count($questionIds);
-
-        foreach ($papers as $paper) {
-            $count  = $paper->total_questions;
-            $offset = (($paper->paper_number - 1) * 7) % $total;
-
-            for ($i = 0; $i < $count; $i++) {
-                $qId = $questionIds[($offset + $i) % $total];
-                CompetitionPaperQuestion::firstOrCreate([
-                    'paper_id'    => $paper->id,
-                    'question_id' => $qId,
-                ], [
-                    'sort_order' => $i + 1,
-                ]);
-            }
+        foreach ($this->generateQuestions() as $q) {
+            QuestionBank::firstOrCreate(['question_text' => $q['question_text']], $q);
         }
     }
 

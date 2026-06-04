@@ -20,15 +20,15 @@
         {{-- Info grid --}}
         <div class="grid grid-cols-2 gap-2 text-sm">
             <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-admin">{{ $competition->duration_minutes ?? 10 }} Min</p>
+                <p class="font-bold text-admin">{{ $paper?->duration_minutes ?? 10 }} Min</p>
                 <p class="text-xs text-gray-400">Duration</p>
             </div>
             <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-fran">{{ $competition->total_questions ?? 120 }} MCQ</p>
+                <p class="font-bold text-fran">{{ $paper?->total_questions ?? '—' }} MCQ</p>
                 <p class="text-xs text-gray-400">Questions</p>
             </div>
             <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-logo-amber">{{ $competition->pass_percentage ?? 75 }}%</p>
+                <p class="font-bold text-logo-amber">{{ $paper?->pass_percentage ?? 75 }}%</p>
                 <p class="text-xs text-gray-400">Pass Marks</p>
             </div>
             <div class="bg-bg-light rounded-xl p-3 text-center">
@@ -58,16 +58,29 @@
         </ol>
     </div>
 
+    @if(session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl px-4 py-3">
+            {{ session('error') }}
+        </div>
+    @endif
+
     {{-- CTA --}}
     @if($registration)
         @if($myAttempts->isEmpty())
-            <form method="POST" action="{{ route('student.competitions.start', $competition) }}">
-                @csrf
-                <button type="submit"
-                        class="w-full py-4 bg-fran text-white rounded-2xl text-sm font-bold hover:bg-fran-dark transition-colors">
-                    I am Ready — Start Exam
-                </button>
-            </form>
+            @if($paper)
+                <form method="POST" action="{{ route('student.competitions.start', $competition) }}">
+                    @csrf
+                    <button type="submit"
+                            class="w-full py-4 bg-fran text-white rounded-2xl text-sm font-bold hover:bg-fran-dark transition-colors">
+                        I am Ready — Start Exam
+                    </button>
+                </form>
+            @else
+                <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 text-center">
+                    <p class="text-sm text-yellow-700 font-medium">The question paper for your level is not available yet</p>
+                    <p class="text-xs text-yellow-600 mt-1">Please check back closer to the competition date</p>
+                </div>
+            @endif
         @else
             <a href="{{ route('student.competitions.result', $competition) }}"
                class="block w-full py-4 bg-stu text-white rounded-2xl text-sm font-bold text-center hover:bg-stu-dark transition-colors">

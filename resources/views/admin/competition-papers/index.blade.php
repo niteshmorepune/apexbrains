@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('title', 'Practice Papers')
-@section('page-title', 'Competition Practice Papers')
+@section('page-title', 'Practice Papers')
 
 @section('page-actions')
     <a href="{{ route('admin.competition-papers.create') }}"
@@ -36,6 +36,7 @@
             <tr class="bg-admin">
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white w-16">#</th>
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Title</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Questions</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Duration</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Difficulty</th>
@@ -55,7 +56,10 @@
                             <p class="text-xs text-gray-400 line-clamp-1">{{ $paper->description }}</p>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-center font-medium text-gray-700">{{ $paper->total_questions }}</td>
+                    <td class="px-4 py-3 text-center text-gray-600">
+                        {{ $paper->level ? 'Level ' . $paper->level->number : '—' }}
+                    </td>
+                    <td class="px-4 py-3 text-center font-medium text-gray-700">{{ $paper->paper_questions_count }}</td>
                     <td class="px-4 py-3 text-center text-gray-600">{{ $paper->duration_minutes }} min</td>
                     <td class="px-4 py-3 text-center">
                         @php
@@ -84,7 +88,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="px-5 py-12 text-center text-gray-400">
+                    <td colspan="8" class="px-5 py-12 text-center text-gray-400">
                         No practice papers yet.
                         <a href="{{ route('admin.competition-papers.create') }}" class="text-fran hover:underline ml-1">
                             Create Paper #1 →

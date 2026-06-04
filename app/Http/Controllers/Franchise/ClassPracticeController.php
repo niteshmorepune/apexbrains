@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
 use App\Models\Batch;
-use App\Models\ClassPracticePaper;
 use App\Models\ClassPracticeResult;
+use App\Models\CompetitionPracticePaper;
 use App\Models\ClassPracticeSession;
 use App\Models\ClassPracticeSessionQuestion;
 use App\Models\Level;
@@ -51,10 +51,12 @@ class ClassPracticeController extends Controller
 
     /**
      * Catalogue of ready-made practice papers (Figma F42), grouped by level.
+     * These are the Admin-authored Practice Papers (single source of truth);
+     * the franchise presents them through the flashcard player.
      */
     public function papers(): View
     {
-        $papers = ClassPracticePaper::with('level')
+        $papers = CompetitionPracticePaper::with('level')
             ->where('is_active', true)
             ->orderBy('level_id')
             ->orderBy('paper_number')
@@ -66,7 +68,7 @@ class ClassPracticeController extends Controller
     /**
      * Launch the flashcard player for a paper's fixed question set.
      */
-    public function attemptPaper(ClassPracticePaper $paper): RedirectResponse
+    public function attemptPaper(CompetitionPracticePaper $paper): RedirectResponse
     {
         $questions = $paper->paperQuestions()->orderBy('sort_order')->get();
 
@@ -98,7 +100,7 @@ class ClassPracticeController extends Controller
             ]);
         }
 
-        AuditLogger::log('class_practice_paper_attempted', 'ClassPracticePaper', $paper->id);
+        AuditLogger::log('class_practice_paper_attempted', 'CompetitionPracticePaper', $paper->id);
 
         return redirect()->route('franchise.class-practice.project', $session);
     }
@@ -106,7 +108,7 @@ class ClassPracticeController extends Controller
     /**
      * Download the answer key for a paper as a PDF.
      */
-    public function paperAnswers(ClassPracticePaper $paper): Response
+    public function paperAnswers(CompetitionPracticePaper $paper): Response
     {
         $paper->load('level');
         $questions = $paper->paperQuestions()->with('question')->orderBy('sort_order')->get();

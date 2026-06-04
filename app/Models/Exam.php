@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\FranchiseTenantScope;
+use App\Models\Scopes\ExamTenantScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,7 +24,7 @@ class Exam extends Model
 
     protected static function booted(): void
     {
-        static::addGlobalScope(new FranchiseTenantScope());
+        static::addGlobalScope(new ExamTenantScope());
     }
 
     public function franchise(): BelongsTo

@@ -11,6 +11,17 @@
 
 @section('content')
 
+@if(session('success'))
+    <div class="bg-stu-light border border-green-200 text-stu-dark text-sm rounded-xl px-4 py-3 mb-4">
+        {{ session('success') }}
+    </div>
+@endif
+@if(session('error'))
+    <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">
+        {{ session('error') }}
+    </div>
+@endif
+
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Registrations</p>
@@ -43,6 +54,57 @@
             <div class="col-span-2"><dt class="text-gray-500 mb-0.5">Description</dt><dd>{{ $competition->description }}</dd></div>
         @endif
     </dl>
+</div>
+
+{{-- Competition question papers (level-wise, CSV-uploaded, deletable) --}}
+<div class="bg-white rounded-2xl border border-border p-6 mt-4">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-admin">Question Papers</h2>
+        <a href="{{ route('admin.competitions.papers.create', $competition) }}"
+           class="inline-flex items-center gap-2 bg-fran text-white text-xs font-semibold px-3 py-2 rounded-xl hover:bg-fran-dark transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Upload Paper
+        </a>
+    </div>
+
+    @if($competition->questionPapers->isEmpty())
+        <p class="text-sm text-gray-400 py-6 text-center">
+            No question papers uploaded yet. Upload level-wise papers via CSV when the competition is scheduled.
+        </p>
+    @else
+        <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
+            <thead>
+                <tr class="border-b border-border text-left text-xs text-gray-500">
+                    <th class="py-2 pr-4 font-semibold">Title</th>
+                    <th class="py-2 px-4 font-semibold text-center">Level</th>
+                    <th class="py-2 px-4 font-semibold text-center">Questions</th>
+                    <th class="py-2 px-4 font-semibold text-center">Duration</th>
+                    <th class="py-2 px-4 font-semibold text-center">Pass %</th>
+                    <th class="py-2 pl-4 font-semibold text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+                @foreach($competition->questionPapers as $paper)
+                    <tr>
+                        <td class="py-3 pr-4 font-medium text-admin">{{ $paper->title }}</td>
+                        <td class="py-3 px-4 text-center text-gray-600">{{ $paper->level ? 'Level ' . $paper->level->number : '—' }}</td>
+                        <td class="py-3 px-4 text-center font-medium text-gray-700">{{ $paper->items_count }}</td>
+                        <td class="py-3 px-4 text-center text-gray-600">{{ $paper->duration_minutes }} min</td>
+                        <td class="py-3 px-4 text-center text-gray-600">{{ $paper->pass_percentage }}%</td>
+                        <td class="py-3 pl-4 text-center">
+                            <form method="POST" action="{{ route('admin.competitions.papers.destroy', [$competition, $paper]) }}"
+                                  onsubmit="return confirm('Delete paper “{{ $paper->title }}” and all its questions?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table></div>
+    @endif
 </div>
 
 @endsection

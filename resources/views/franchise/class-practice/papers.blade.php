@@ -41,7 +41,7 @@
                         <tr class="{{ $i % 2 === 0 ? 'bg-bg-light/50' : 'bg-white' }} hover:bg-blue-50/40">
                             <td class="px-5 py-3.5 text-center text-gray-500">{{ $i + 1 }}</td>
                             <td class="px-5 py-3.5 font-medium text-gray-800">{{ $paper->title }}</td>
-                            <td class="px-5 py-3.5 text-gray-600">Practice Test</td>
+                            <td class="px-5 py-3.5 text-gray-600">{{ $paper->level ? 'Level ' . $paper->level->number : 'Practice Test' }}</td>
                             <td class="px-5 py-3.5 text-center">
                                 <form method="POST" action="{{ route('franchise.class-practice.papers.attempt', $paper) }}">
                                     @csrf

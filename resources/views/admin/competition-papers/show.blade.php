@@ -24,7 +24,7 @@
     </div>
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Questions</p>
-        <p class="text-2xl font-bold text-fran">{{ number_format($paper->total_questions) }}</p>
+        <p class="text-2xl font-bold text-fran">{{ number_format($paper->paper_questions_count) }}</p>
     </div>
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Duration</p>
@@ -41,6 +41,7 @@
 <div class="bg-white rounded-2xl border border-border p-6">
     <h2 class="text-sm font-semibold text-admin mb-4">Details</h2>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div><dt class="text-gray-500 mb-0.5">Level</dt><dd class="font-medium">{{ $paper->level ? 'Level ' . $paper->level->number . ' — ' . $paper->level->title : '—' }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Difficulty</dt><dd class="capitalize font-medium">{{ $paper->difficulty }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Practice Attempts</dt><dd class="font-medium">{{ number_format($paper->attempts()->count()) }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Created</dt><dd>{{ $paper->created_at->format('d M Y') }}</dd></div>

@@ -59,6 +59,8 @@ class CompetitionController extends Controller
     public function show(Competition $competition): View
     {
         $competition->loadCount('registrations');
+        $competition->load(['questionPapers' => fn ($q) => $q->with('level')->withCount('items')->orderBy('level_id')]);
+
         return view('admin.competitions.show', compact('competition'));
     }
 

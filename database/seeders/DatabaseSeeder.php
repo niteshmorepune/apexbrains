@@ -12,10 +12,10 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             LevelSeeder::class,
             DemoDataSeeder::class,
-            CompetitionPracticeSeeder::class,
-            CompetitionPracticePapersSeeder::class,
+            // Seed the approved Question Bank first, then build level-wise
+            // Practice Papers (with questions attached) from that pool.
             PracticeQuestionsSeeder::class,
-            ClassPracticePapersSeeder::class,
+            CompetitionPracticePapersSeeder::class,
         ]);
     }
 }

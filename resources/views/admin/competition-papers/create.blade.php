@@ -29,6 +29,20 @@
                 </div>
 
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
+                    <select name="level_id" required
+                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('level_id') border-red-400 @enderror">
+                        <option value="">Select level…</option>
+                        @foreach($levels as $level)
+                            <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
+                                Level {{ $level->number }} — {{ $level->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Title <span class="text-red-500">*</span></label>
                     <input type="text" name="title" value="{{ old('title') }}" required
                            placeholder="e.g. Practice Paper 1 — Easy"
@@ -48,6 +62,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Total Questions <span class="text-red-500">*</span></label>
                         <input type="number" name="total_questions" value="{{ old('total_questions', 50) }}" min="1" max="200" required
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        <p class="text-xs text-gray-400 mt-1">Approved questions for this level are pulled automatically.</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Duration (minutes) <span class="text-red-500">*</span></label>

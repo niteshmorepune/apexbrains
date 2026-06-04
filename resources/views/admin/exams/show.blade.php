@@ -1,67 +1,51 @@
-@extends('layouts.franchise')
+@extends('layouts.admin')
 @section('title', $exam->title)
 @section('page-title', $exam->title)
 
 @section('page-actions')
-    <a href="{{ route('franchise.exams.index') }}"
-       class="px-4 py-2 border border-white text-white rounded-xl text-sm hover:bg-blue-600 transition-colors">
-        ← Exams
-    </a>
+    <div class="flex items-center gap-2">
+        <a href="{{ route('admin.exams.edit', $exam) }}"
+           class="px-4 py-2 bg-fran text-white text-sm font-semibold rounded-xl hover:bg-fran-dark transition-colors">Edit</a>
+        <a href="{{ route('admin.exams.index') }}"
+           class="px-4 py-2 border border-border text-gray-600 text-sm font-semibold rounded-xl hover:bg-bg-light transition-colors">← Exams</a>
+    </div>
 @endsection
 
 @section('content')
 
+@if(session('success'))
+    <div class="bg-stu-light border border-green-200 text-stu-dark text-sm rounded-xl px-4 py-3 mb-4">{{ session('success') }}</div>
+@endif
+
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
 
-    {{-- Exam info --}}
     <div class="space-y-4">
         <div class="bg-white rounded-2xl border border-border p-5">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Exam Details</h2>
             <div class="space-y-3 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Level</span>
-                    <span class="font-medium">Level {{ $exam->level?->number }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Questions</span>
-                    <span class="font-medium">{{ $exam->total_questions }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Duration</span>
-                    <span class="font-medium">{{ $exam->duration_minutes }} min</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Pass Mark</span>
-                    <span class="font-medium text-fran">{{ number_format($exam->pass_percentage, 0) }}%</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Max Attempts</span>
-                    <span class="font-medium">{{ $exam->max_attempts ?? 'Unlimited' }}</span>
-                </div>
+                <div class="flex justify-between"><span class="text-gray-500">Level</span><span class="font-medium">Level {{ $exam->level?->number }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Questions</span><span class="font-medium">{{ $exam->total_questions }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Duration</span><span class="font-medium">{{ $exam->duration_minutes }} min</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Pass Mark</span><span class="font-medium text-fran">{{ number_format($exam->pass_percentage, 0) }}%</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Max Attempts</span><span class="font-medium">{{ $exam->max_attempts ?? 'Unlimited' }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Audience</span><span class="font-medium">{{ $exam->franchise_id ? 'Single franchise' : 'All franchises' }}</span></div>
                 @if($exam->scheduled_at)
-                    <div class="flex justify-between">
-                        <span class="text-gray-500">Scheduled</span>
-                        <span class="font-medium text-fran">{{ $exam->scheduled_at->format('d M Y, H:i') }}</span>
-                    </div>
+                    <div class="flex justify-between"><span class="text-gray-500">Scheduled</span><span class="font-medium text-fran">{{ $exam->scheduled_at->format('d M Y, H:i') }}</span></div>
                 @endif
                 @if($exam->expires_at)
-                    <div class="flex justify-between">
-                        <span class="text-gray-500">Expires</span>
-                        <span class="font-medium">{{ $exam->expires_at->format('d M Y') }}</span>
-                    </div>
+                    <div class="flex justify-between"><span class="text-gray-500">Expires</span><span class="font-medium">{{ $exam->expires_at->format('d M Y') }}</span></div>
                 @endif
                 <div class="flex justify-between">
                     <span class="text-gray-500">Status</span>
                     @if($exam->is_active)
-                        <span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">Active</span>
+                        <span class="text-xs bg-stu-light text-stu-dark px-2 py-0.5 rounded-full">Active</span>
                     @else
-                        <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>
+                        <span class="text-xs bg-bg-mid text-gray-400 px-2 py-0.5 rounded-full">Inactive</span>
                     @endif
                 </div>
             </div>
         </div>
 
-        {{-- Stats --}}
         <div class="grid grid-cols-3 gap-2">
             <div class="bg-white rounded-xl border border-border p-3 text-center">
                 <p class="text-xl font-black text-gray-800">{{ $attemptCount }}</p>
@@ -78,10 +62,9 @@
         </div>
     </div>
 
-    {{-- Recent Attempts --}}
     <div class="col-span-2 bg-white rounded-2xl border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border">
-            <h2 class="text-sm font-semibold text-fran">Recent Attempts</h2>
+            <h2 class="text-sm font-semibold text-admin">Recent Attempts</h2>
         </div>
         <div class="divide-y divide-border">
             @forelse($recentAttempts as $attempt)
@@ -105,9 +88,7 @@
                     </span>
                 </div>
             @empty
-                <div class="px-5 py-12 text-center text-gray-400">
-                    No attempts yet. Share this exam with your students.
-                </div>
+                <div class="px-5 py-12 text-center text-gray-400">No attempts yet.</div>
             @endforelse
         </div>
     </div>

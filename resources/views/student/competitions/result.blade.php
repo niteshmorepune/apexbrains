@@ -6,7 +6,8 @@
 
     @if($attempt)
         @php
-            $passed = $attempt->percentage >= 75;
+            $passMark = $attempt->paper?->pass_percentage ?? 75;
+            $passed = $attempt->percentage >= $passMark;
             $durationSec = $attempt->started_at && $attempt->submitted_at
                 ? $attempt->submitted_at->diffInSeconds($attempt->started_at) : 0;
             $timeMins = $durationSec > 0
@@ -41,17 +42,12 @@
             </div>
         </div>
 
-        @if($attempt->paper)
-            <a href="{{ route('student.competitions.practice.result', $attempt->paper) }}"
-               class="block w-full py-3 bg-fran text-white rounded-2xl text-sm font-semibold text-center hover:bg-fran-dark transition-colors">
-                View Detailed Report
-            </a>
-        @endif
+        <p class="text-center text-xs text-gray-400">Pass mark: {{ $passMark }}%</p>
     @else
         <div class="bg-white rounded-2xl border border-border p-10 text-center text-gray-400">
             <div class="text-4xl mb-3">📝</div>
             <p class="font-medium text-gray-600">No result yet</p>
-            <p class="text-sm mt-1">Complete a competition practice paper to see your result.</p>
+            <p class="text-sm mt-1">Complete the competition exam to see your result.</p>
         </div>
     @endif
 

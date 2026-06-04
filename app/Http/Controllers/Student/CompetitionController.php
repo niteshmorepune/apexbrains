@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
+use App\Models\CompetitionExamAttempt;
+use App\Models\CompetitionQuestionPaper;
 use App\Models\CompetitionRegistration;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class CompetitionController extends Controller
@@ -43,42 +47,130 @@ class CompetitionController extends Controller
     public function show(Competition $competition): View
     {
         $student = Auth::user()->student()->firstOrFail();
+
         $registration = CompetitionRegistration::where('competition_id', $competition->id)
             ->where('student_id', $student->id)
             ->first();
-        // Competition exams run through the practice-paper engine — track via paper attempts
-        $myAttempts = \App\Models\CompetitionPracticeAttempt::where('student_id', $student->id)
+
+        $paper       = $this->paperForStudent($competition, $student);
+        $myAttempts  = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
             ->where('status', 'submitted')
             ->get();
 
-        return view('student.competitions.show', compact('competition', 'registration', 'myAttempts'));
+        return view('student.competitions.show', compact('competition', 'registration', 'myAttempts', 'paper'));
     }
 
     public function startExam(Request $request, Competition $competition): RedirectResponse
     {
-        // Competition exams are delivered through the competition practice papers
-        return redirect()->route('student.competitions.practice');
+        $student = Auth::user()->student()->firstOrFail();
+
+        if (! $this->isRegistered($competition, $student)) {
+            return back()->with('error', 'You are not registered for this competition.');
+        }
+
+        $paper = $this->paperForStudent($competition, $student);
+
+        if (! $paper || $paper->items()->count() === 0) {
+            return back()->with('error', 'No question paper is available for your level yet. Please contact your branch.');
+        }
+
+        // Resume an in-progress attempt rather than starting a duplicate.
+        $attempt = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'in_progress')
+            ->latest()
+            ->first();
+
+        if (! $attempt) {
+            $attempt = CompetitionExamAttempt::create([
+                'paper_id'       => $paper->id,
+                'competition_id' => $competition->id,
+                'student_id'     => $student->id,
+                'started_at'     => now(),
+                'status'         => 'in_progress',
+                'ip_address'     => $request->ip(),
+                'user_agent'     => $request->userAgent(),
+            ]);
+
+            Cache::put("comp_exam_{$attempt->id}_answers", [], now()->addHours(3));
+        }
+
+        return redirect()->route('student.competitions.attempt', $competition);
     }
 
-    public function attempt(Competition $competition): RedirectResponse
+    public function attempt(Competition $competition): View|RedirectResponse
     {
-        return redirect()->route('student.competitions.practice');
+        $student = Auth::user()->student()->firstOrFail();
+
+        $attempt = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'in_progress')
+            ->latest()
+            ->first();
+
+        if (! $attempt) {
+            return redirect()->route('student.competitions.show', $competition);
+        }
+
+        $paper     = $attempt->paper;
+        $questions = $this->questionPayload($paper);
+
+        $savedAnswers    = Cache::get("comp_exam_{$attempt->id}_answers", []);
+        $durationSeconds = $paper->duration_minutes * 60;
+        $elapsed         = now()->diffInSeconds($attempt->started_at);
+        $remaining       = max(0, $durationSeconds - $elapsed);
+
+        if ($remaining === 0) {
+            return $this->doSubmit($attempt, $paper);
+        }
+
+        return view('student.competitions.attempt', compact(
+            'competition', 'paper', 'attempt', 'questions', 'savedAnswers', 'remaining'
+        ));
     }
 
-    public function saveAnswer(Request $request, Competition $competition): \Illuminate\Http\JsonResponse
+    public function saveAnswer(Request $request, Competition $competition): JsonResponse
     {
-        return response()->json(['ok' => true]);
+        $student = Auth::user()->student()->firstOrFail();
+
+        $attempt = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'in_progress')
+            ->latest()
+            ->firstOrFail();
+
+        $data = $request->validate([
+            'question_id'     => ['required', 'integer'],
+            'selected_answer' => ['required', 'in:a,b,c,d'],
+        ]);
+
+        $answers = Cache::get("comp_exam_{$attempt->id}_answers", []);
+        $answers[$data['question_id']] = $data['selected_answer'];
+        Cache::put("comp_exam_{$attempt->id}_answers", $answers, now()->addHours(3));
+
+        return response()->json(['saved' => true]);
     }
 
     public function submitExam(Request $request, Competition $competition): RedirectResponse
     {
-        return redirect()->route('student.competitions.result', $competition);
+        $student = Auth::user()->student()->firstOrFail();
+
+        $attempt = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'in_progress')
+            ->latest()
+            ->firstOrFail();
+
+        return $this->doSubmit($attempt, $attempt->paper);
     }
 
     public function result(Competition $competition): View
     {
         $student = Auth::user()->student()->firstOrFail();
-        $attempt = \App\Models\CompetitionPracticeAttempt::where('student_id', $student->id)
+
+        $attempt = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
             ->where('status', 'submitted')
             ->with('paper')
             ->latest('submitted_at')
@@ -91,22 +183,81 @@ class CompetitionController extends Controller
     {
         $student = Auth::user()->student()->firstOrFail();
 
-        $already = CompetitionRegistration::where('competition_id', $competition->id)
-            ->where('student_id', $student->id)
-            ->exists();
-
-        if ($already) {
+        if ($this->isRegistered($competition, $student)) {
             return back()->with('error', 'You are already registered.');
         }
 
         CompetitionRegistration::create([
-            'competition_id' => $competition->id,
-            'student_id'     => $student->id,
-            'franchise_id'   => $student->franchise_id,
-            'status'          => 'registered',
+            'competition_id'    => $competition->id,
+            'student_id'        => $student->id,
+            'franchise_id'      => $student->franchise_id,
+            'status'            => 'registered',
             'registration_date' => now()->toDateString(),
         ]);
 
         return back()->with('success', "Registered for {$competition->title}!");
+    }
+
+    /**
+     * The active competition paper matching the student's current level, falling
+     * back to any active paper for the competition.
+     */
+    protected function paperForStudent(Competition $competition, $student): ?CompetitionQuestionPaper
+    {
+        return CompetitionQuestionPaper::where('competition_id', $competition->id)
+            ->where('is_active', true)
+            ->orderByRaw('level_id = ? DESC', [$student->current_level_id])
+            ->orderBy('level_id')
+            ->first();
+    }
+
+    protected function isRegistered(Competition $competition, $student): bool
+    {
+        return CompetitionRegistration::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
+            ->exists();
+    }
+
+    /**
+     * Shape paper items for the Alpine attempt engine WITHOUT leaking the
+     * correct answer to the browser.
+     */
+    protected function questionPayload(CompetitionQuestionPaper $paper)
+    {
+        return $paper->items()
+            ->orderBy('sort_order')
+            ->get(['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d'])
+            ->map(fn ($item) => ['question' => $item]);
+    }
+
+    protected function doSubmit(CompetitionExamAttempt $attempt, CompetitionQuestionPaper $paper): RedirectResponse
+    {
+        if ($attempt->status === 'submitted') {
+            return redirect()->route('student.competitions.result', $attempt->competition_id);
+        }
+
+        $answers = Cache::get("comp_exam_{$attempt->id}_answers", []);
+        $items   = $paper->items()->get(['id', 'correct_answer']);
+        $correct = 0;
+
+        foreach ($items as $item) {
+            if (isset($answers[$item->id]) && strtolower($answers[$item->id]) === strtolower($item->correct_answer)) {
+                $correct++;
+            }
+        }
+
+        $total = $items->count();
+        $pct   = $total > 0 ? round(($correct / $total) * 100, 2) : 0;
+
+        $attempt->update([
+            'score'        => $correct,
+            'percentage'   => $pct,
+            'status'       => 'submitted',
+            'submitted_at' => now(),
+        ]);
+
+        Cache::forget("comp_exam_{$attempt->id}_answers");
+
+        return redirect()->route('student.competitions.result', $attempt->competition_id);
     }
 }

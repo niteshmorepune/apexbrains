@@ -4,9 +4,20 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Retire the separate class_practice_papers catalogue. The Franchise Class
+ * Practice module now reads the unified, Admin-authored Practice Papers
+ * (competition_practice_papers), so these tables are no longer used.
+ */
 return new class extends Migration
 {
     public function up(): void
+    {
+        Schema::dropIfExists('class_practice_paper_questions');
+        Schema::dropIfExists('class_practice_papers');
+    }
+
+    public function down(): void
     {
         Schema::create('class_practice_papers', function (Blueprint $table) {
             $table->id();
@@ -29,15 +40,5 @@ return new class extends Migration
             $table->unsignedSmallInteger('sort_order');
             $table->timestamps();
         });
-
-        // NOTE: This catalogue is retired by a later migration
-        // (2026_06_04_000002_drop_class_practice_papers_tables). The Franchise
-        // Class Practice module now reads the unified Practice Papers instead.
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('class_practice_paper_questions');
-        Schema::dropIfExists('class_practice_papers');
     }
 };

@@ -1,13 +1,6 @@
 @extends('layouts.franchise')
 @section('title', 'Exams')
-@section('page-title', 'Exam Management')
-
-@section('page-actions')
-    <a href="{{ route('franchise.exams.create') }}"
-       class="px-4 py-2 bg-white text-fran rounded-xl text-sm font-semibold hover:bg-blue-50">
-        + Schedule Exam
-    </a>
-@endsection
+@section('page-title', 'Exams')
 
 @section('content')
 
@@ -51,20 +44,12 @@
                        class="text-xs bg-fran text-white px-3 py-1.5 rounded-lg font-medium hover:bg-fran-dark">
                         View
                     </a>
-                    <a href="{{ route('franchise.exams.edit', $exam) }}"
-                       class="text-xs border border-border text-gray-600 px-3 py-1.5 rounded-lg hover:bg-bg-light">
-                        Edit
-                    </a>
                 </div>
             </div>
         @empty
             <div class="px-5 py-16 text-center text-gray-400">
                 <p class="text-base mb-1">No exams yet</p>
-                <p class="text-sm mb-4">Create your first exam to assess students on a level.</p>
-                <a href="{{ route('franchise.exams.create') }}"
-                   class="inline-block px-5 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold">
-                    Schedule Exam
-                </a>
+                <p class="text-sm">Exams scheduled by the head office will appear here.</p>
             </div>
         @endforelse
     </div>

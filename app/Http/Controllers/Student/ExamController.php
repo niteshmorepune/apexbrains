@@ -19,7 +19,11 @@ class ExamController extends Controller
     {
         $student = Auth::user()->student()->with('currentLevel')->firstOrFail();
 
-        $upcomingExams = Exam::where('franchise_id', $student->franchise_id)
+        $upcomingExams = Exam::where(function ($q) use ($student) {
+                // Global (Admin-authored) exams plus any legacy franchise exams.
+                $q->whereNull('franchise_id')
+                  ->orWhere('franchise_id', $student->franchise_id);
+            })
             ->where('is_active', true)
             ->where(function ($q) use ($student) {
                 $q->whereNull('level_id')

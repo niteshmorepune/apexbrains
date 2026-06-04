@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class CompetitionPracticePaper extends Model
 {
     protected $fillable = [
-        'title', 'description', 'total_questions', 'duration_minutes',
+        'title', 'description', 'level_id', 'total_questions', 'duration_minutes',
         'difficulty', 'is_active', 'paper_number', 'created_by',
     ];
 
@@ -18,7 +18,13 @@ class CompetitionPracticePaper extends Model
         'total_questions' => 'integer',
         'duration_minutes' => 'integer',
         'paper_number' => 'integer',
+        'level_id' => 'integer',
     ];
+
+    public function level(): BelongsTo
+    {
+        return $this->belongsTo(Level::class);
+    }
 
     public function createdBy(): BelongsTo
     {
