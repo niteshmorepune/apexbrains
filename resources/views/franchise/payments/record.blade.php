@@ -178,9 +178,15 @@
         <div class="border border-border rounded-xl p-5 text-sm">
             {{-- Header --}}
             <div class="flex items-center gap-2 mb-3 pb-3 border-b border-border">
-                <div class="w-9 h-9 rounded-lg bg-logo-red flex items-center justify-center text-white font-black text-xs">AB</div>
+                @php
+                    $previewLogo = !empty($appSettings['logo_path'] ?? null)
+                        ? \Illuminate\Support\Facades\Storage::url($appSettings['logo_path'])
+                        : asset('images/apex-logo.png');
+                @endphp
+                <img src="{{ $previewLogo }}" alt="{{ $appSettings['app_name'] ?? 'Apex Brains' }}"
+                     class="w-9 h-9 rounded-lg object-contain">
                 <div>
-                    <p class="font-black text-admin text-sm">Apex Brains</p>
+                    <p class="font-black text-admin text-sm">{{ $appSettings['app_name'] ?? 'Apex Brains' }}</p>
                     <p class="text-xs text-gray-400">ISO 9001:2015</p>
                 </div>
                 <div class="ml-auto text-right">
@@ -223,16 +229,20 @@
         </div>
 
         <div class="mt-4 space-y-2">
-            <button type="button"
-                    class="w-full py-2 bg-fran text-white rounded-xl text-sm font-medium">
+            <p class="text-xs text-gray-400 text-center">
+                This is a live preview. Click <span class="font-semibold text-fran">Record and Generate Receipt</span> to
+                save the payment — the official receipt with Download PDF, Share WhatsApp &amp; Print opens next.
+            </p>
+            <button type="button" disabled title="Available after the payment is recorded"
+                    class="w-full py-2 bg-bg-mid text-gray-400 rounded-xl text-sm font-medium cursor-not-allowed">
                 Download PDF
             </button>
-            <button type="button"
-                    class="w-full py-2 bg-stu text-white rounded-xl text-sm font-medium">
+            <button type="button" disabled title="Available after the payment is recorded"
+                    class="w-full py-2 bg-bg-mid text-gray-400 rounded-xl text-sm font-medium cursor-not-allowed">
                 Share WhatsApp
             </button>
-            <button type="button" onclick="window.print()"
-                    class="w-full py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light">
+            <button type="button" disabled title="Available after the payment is recorded"
+                    class="w-full py-2 border border-border text-gray-400 rounded-xl text-sm font-medium cursor-not-allowed">
                 Print Receipt
             </button>
         </div>

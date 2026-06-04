@@ -29,9 +29,15 @@
         {{-- Header --}}
         <div class="flex items-center justify-between mb-6 pb-5 border-b border-border">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-logo-red flex items-center justify-center text-white font-black text-lg">AB</div>
+                @php
+                    $receiptLogo = !empty($appSettings['logo_path'] ?? null)
+                        ? \Illuminate\Support\Facades\Storage::url($appSettings['logo_path'])
+                        : asset('images/apex-logo.png');
+                @endphp
+                <img src="{{ $receiptLogo }}" alt="{{ $appSettings['app_name'] ?? 'Apex Brains' }}"
+                     class="w-12 h-12 rounded-xl object-contain">
                 <div>
-                    <p class="font-black text-admin text-lg leading-tight">Apex Brains</p>
+                    <p class="font-black text-admin text-lg leading-tight">{{ $appSettings['app_name'] ?? 'Apex Brains' }}</p>
                     <p class="text-xs text-gray-400">ISO 9001:2015</p>
                 </div>
             </div>
