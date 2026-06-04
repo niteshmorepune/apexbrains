@@ -27,10 +27,6 @@
             </button>
         @endforeach
     </form>
-    <a href="{{ route('admin.competition-papers.index') }}"
-       class="ml-auto text-sm text-fran hover:underline font-medium">
-        Practice Papers →
-    </a>
 </div>
 
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
