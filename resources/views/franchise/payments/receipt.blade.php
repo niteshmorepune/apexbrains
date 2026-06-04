@@ -1,6 +1,6 @@
 @extends('layouts.franchise')
 @section('title', 'Receipt ' . $payment->receipt_number)
-@section('page-title', 'Payment Receipt — {{ $payment->receipt_number }}')
+@section('page-title', 'Payment Receipt — ' . $payment->receipt_number)
 
 @section('page-actions')
     <a href="{{ route('franchise.payments.receipt.pdf', $payment) }}"
@@ -22,6 +22,23 @@
 @endsection
 
 @section('content')
+
+{{-- Print only the receipt card — hide the portal chrome (sidebar, header, buttons). --}}
+<style>
+    @media print {
+        body * { visibility: hidden !important; }
+        #receipt, #receipt * { visibility: visible !important; }
+        #receipt {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        @page { margin: 14mm; }
+    }
+</style>
 
 <div class="max-w-xl mx-auto">
     <div class="bg-white rounded-2xl border border-border p-8" id="receipt">
