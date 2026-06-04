@@ -8,29 +8,7 @@
 
     {{-- Compose --}}
     <div class="space-y-4">
-        <div class="bg-white rounded-2xl border border-border p-6" x-data="{
-            target: @json(old('target', 'all')),
-            title: @json(old('title', '')),
-            message: @json(old('message', '')),
-            tpl: '',
-            totalStudents: {{ $totalStudents }},
-            templates: {
-                exam_result:    { title: 'Exam Results Published',    message: 'Dear Parent, your child\'s exam results are now available. Please log in to the student portal to view the detailed results and performance report.' },
-                fee_reminder:   { title: 'Fee Payment Reminder',      message: 'This is a friendly reminder that the monthly fee for your child is due. Please make the payment at the earliest to avoid any inconvenience.' },
-                exam_schedule:  { title: 'Upcoming Exam Schedule',    message: 'Please be informed that the next level exam is scheduled. Ensure your child is prepared and arrives on time. Further details will be shared soon.' },
-                class_cancelled:{ title: 'Class Cancelled',           message: 'Please note that today\'s class has been cancelled due to unavoidable circumstances. We apologise for the inconvenience. Classes will resume as scheduled.' },
-                achievement:    { title: 'Achievement Unlocked! 🏆',  message: 'Congratulations! Your child has achieved a milestone in their abacus journey. We are proud of their dedication and hard work. Keep it up!' },
-            },
-            get recipientCount() {
-                return this.target === 'all' ? this.totalStudents : (this.target === 'student' ? 1 : Math.ceil(this.totalStudents / 7));
-            },
-            applyTemplate() {
-                if (this.tpl && this.templates[this.tpl]) {
-                    this.title   = this.templates[this.tpl].title;
-                    this.message = this.templates[this.tpl].message;
-                }
-            }
-        }">
+        <div class="bg-white rounded-2xl border border-border p-6" x-data="notificationForm()">
             <h2 class="text-sm font-bold text-fran mb-4">Compose Notification</h2>
 
             @if($errors->any())
@@ -57,7 +35,7 @@
                         <select name="target" x-model="target" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="all">All Students</option>
                             <option value="level">By Level</option>
-                            <option value="individual">Individual</option>
+                            <option value="student">Individual</option>
                         </select>
                     </div>
                     <div x-show="target === 'level'" x-cloak>
@@ -69,7 +47,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div x-show="target === 'individual'" x-cloak>
+                    <div x-show="target === 'student'" x-cloak>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Student</label>
                         <select name="student_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="">Select Student</option>
@@ -150,5 +128,36 @@
         @endif
     </div>
 </div>
+
+{{-- Alpine component for the compose form. Defined in a <script> (not inline in
+     x-data) so @json values keep their double quotes without breaking the
+     x-data="..." attribute. Edit the template messages below to change them. --}}
+<script>
+    function notificationForm() {
+        return {
+            target: @json(old('target', 'all')),
+            title: @json(old('title', '')),
+            message: @json(old('message', '')),
+            tpl: '',
+            totalStudents: {{ $totalStudents }},
+            templates: {
+                exam_result:     { title: 'Exam Results Published',   message: "Dear Parent, your child's exam results are now available. Please log in to the student portal to view the detailed results and performance report." },
+                fee_reminder:    { title: 'Fee Payment Reminder',     message: "This is a friendly reminder that the monthly fee for your child is due. Please make the payment at the earliest to avoid any inconvenience." },
+                exam_schedule:   { title: 'Upcoming Exam Schedule',   message: "Please be informed that the next level exam is scheduled. Ensure your child is prepared and arrives on time. Further details will be shared soon." },
+                class_cancelled: { title: 'Class Cancelled',          message: "Please note that today's class has been cancelled due to unavoidable circumstances. We apologise for the inconvenience. Classes will resume as scheduled." },
+                achievement:     { title: 'Achievement Unlocked! 🏆', message: "Congratulations! Your child has achieved a milestone in their abacus journey. We are proud of their dedication and hard work. Keep it up!" },
+            },
+            get recipientCount() {
+                return this.target === 'all' ? this.totalStudents : (this.target === 'student' ? 1 : Math.ceil(this.totalStudents / 7));
+            },
+            applyTemplate() {
+                if (this.tpl && this.templates[this.tpl]) {
+                    this.title   = this.templates[this.tpl].title;
+                    this.message = this.templates[this.tpl].message;
+                }
+            },
+        };
+    }
+</script>
 
 @endsection
