@@ -50,7 +50,7 @@
             @forelse($competitions as $c)
                 <tr class="hover:bg-bg-light">
                     <td class="px-5 py-3">
-                        <p class="font-medium text-admin">{{ $c->title }}</p>
+                        <a href="{{ route('admin.competitions.show', $c) }}" class="font-medium text-admin hover:text-fran hover:underline">{{ $c->title }}</a>
                         @if($c->description)
                             <p class="text-xs text-gray-400 line-clamp-1">{{ $c->description }}</p>
                         @endif
@@ -84,8 +84,10 @@
                     </td>
                     <td class="px-4 py-3">
                         <div class="flex items-center justify-center gap-2">
+                            <a href="{{ route('admin.competitions.show', $c) }}"
+                               class="text-xs text-fran hover:underline font-medium">View</a>
                             <a href="{{ route('admin.competitions.edit', $c) }}"
-                               class="text-xs text-fran hover:underline font-medium">Edit</a>
+                               class="text-xs text-gray-500 hover:underline">Edit</a>
                             <form method="POST" action="{{ route('admin.competitions.destroy', $c) }}"
                                   onsubmit="return confirm('Delete this competition?')">
                                 @csrf @method('DELETE')
