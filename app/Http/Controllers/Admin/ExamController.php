@@ -123,8 +123,11 @@ class ExamController extends Controller
      */
     private function guardQuestionPool(array $data): void
     {
-        $available = QuestionBank::where('level_id', $data['level_id'])
-            ->where('status', 'approved')
+        // Prefer questions tagged to the level, but fall back to the general
+        // approved pool (the seeded bank is not level-tagged) — same rule the
+        // Practice Papers and Class Practice modules use.
+        $available = QuestionBank::where('status', 'approved')
+            ->where(fn ($q) => $q->where('level_id', $data['level_id'])->orWhereNull('level_id'))
             ->count();
 
         if ($available < $data['total_questions']) {

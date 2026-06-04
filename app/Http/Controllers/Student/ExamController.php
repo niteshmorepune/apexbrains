@@ -95,8 +95,8 @@ class ExamController extends Controller
             return back()->with('error', 'Maximum attempts reached for this exam.');
         }
 
-        $questions = QuestionBank::where('level_id', $exam->level_id)
-            ->where('status', 'approved')
+        $questions = QuestionBank::where('status', 'approved')
+            ->where(fn ($q) => $q->where('level_id', $exam->level_id)->orWhereNull('level_id'))
             ->inRandomOrder()
             ->limit($exam->total_questions)
             ->pluck('id')
