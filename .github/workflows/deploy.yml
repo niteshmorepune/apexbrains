@@ -53,20 +53,22 @@ jobs:
 
       # Hostinger SSH intermittently refuses/drops the connection (even a 120s
       # dial timed out), but a fresh attempt soon after succeeds. So retry the
-      # whole deploy up to 3 times. The on-server commands are idempotent
-      # (reset --hard + composer + migrate + cache), so re-running is safe.
+      # whole deploy many times with a short per-attempt connect timeout — this
+      # lets the run self-heal instead of needing a manual re-run. The on-server
+      # commands are idempotent (reset --hard + composer + migrate + cache), so
+      # re-running is safe.
       - name: Deploy to Hostinger via SSH
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 12
-          max_attempts: 3
-          retry_wait_seconds: 30
+          timeout_minutes: 25
+          max_attempts: 8
+          retry_wait_seconds: 45
           command: |
             install -m 700 -d ~/.ssh
             printf '%s\n' "${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
             chmod 600 ~/.ssh/deploy_key
             ssh -i ~/.ssh/deploy_key -p "${{ secrets.HOSTINGER_SSH_PORT }}" \
               -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-              -o BatchMode=yes -o ConnectTimeout=60 -o ServerAliveInterval=15 \
+              -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 \
               "${{ secrets.HOSTINGER_SSH_USERNAME }}@${{ secrets.HOSTINGER_SSH_HOST }}" \
               "set -e; cd ${{ secrets.DEPLOY_PATH }} && git fetch origin main && git reset --hard origin/main && composer install --no-dev --optimize-autoloader --no-interaction && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:clear && php artisan view:cache && php artisan event:cache && php artisan queue:restart && chmod -R 755 storage bootstrap/cache"
