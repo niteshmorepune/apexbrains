@@ -14,7 +14,7 @@ class CompetitionController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Competition::withCount('registrations');
+        $query = Competition::withCount(['registrations', 'questionPapers']);
 
         if ($request->filled('type')) {
             $query->where('competition_type', $request->type);

@@ -47,6 +47,14 @@
                 <tr class="hover:bg-bg-light">
                     <td class="px-5 py-3">
                         <a href="{{ route('admin.competitions.show', $c) }}" class="font-medium text-admin hover:text-fran hover:underline">{{ $c->title }}</a>
+                        @if($c->question_papers_count === 0)
+                            <span class="inline-flex items-center gap-1 mt-1 text-[11px] font-medium bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/>
+                                </svg>
+                                No papers
+                            </span>
+                        @endif
                         @if($c->description)
                             <p class="text-xs text-gray-400 line-clamp-1">{{ $c->description }}</p>
                         @endif

@@ -22,6 +22,18 @@
     </div>
 @endif
 
+@if($competition->questionPapers->isEmpty())
+    <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl px-4 py-3 mb-4">
+        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/>
+        </svg>
+        <div>
+            <p class="font-semibold">No question papers uploaded yet</p>
+            <p class="text-amber-700">Students cannot take this competition until a level-wise paper is uploaded. Use “Upload Paper” below.</p>
+        </div>
+    </div>
+@endif
+
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Registrations</p>
