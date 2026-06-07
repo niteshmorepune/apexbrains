@@ -23,10 +23,14 @@
     {{-- Brand row + avatar --}}
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5">
-            <span class="text-lg">🧮</span>
-            <span class="font-extrabold text-sm tracking-tight">
-                <span class="text-logo-red">Apex</span> <span class="text-fran">Brains</span>
-            </span>
+            @if(!empty($appSettings['logo_path']))
+                <img src="{{ Storage::url($appSettings['logo_path']) }}" alt="{{ $appSettings['app_name'] ?? 'Apex Brains' }}" class="h-8 w-auto">
+            @else
+                <span class="text-xl leading-none">🧮</span>
+                <span class="text-base font-extrabold tracking-tight leading-none">
+                    <span class="text-logo-red">A</span><span class="text-fran">p</span><span class="text-[#34A853]">e</span><span class="text-logo-amber">x</span><span class="text-logo-red"> B</span><span class="text-fran">r</span><span class="text-[#34A853]">a</span><span class="text-logo-amber">i</span><span class="text-logo-red">n</span><span class="text-fran">s</span>
+                </span>
+            @endif
         </div>
         <div class="flex items-center gap-2">
             <a href="{{ route('student.notifications.index') }}"
