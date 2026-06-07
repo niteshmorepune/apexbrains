@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\ApexNotification;
 use App\Models\Certificate;
 use App\Models\Competition;
+use App\Models\CompetitionPracticeAttempt;
+use App\Models\CompetitionPracticePaper;
 use App\Models\CompetitionQuestionPaper;
 use App\Models\CompetitionRegistration;
 use App\Models\Exam;
@@ -200,7 +202,7 @@ class StudentWalkthroughSeeder extends Seeder
                     'start_date' => now()->subDays($daysAgo)->toDateString(),
                     'end_date' => now()->subDays($daysAgo)->toDateString(),
                     'registration_deadline' => now()->subDays($daysAgo + 5)->toDateString(),
-                    'fee_amount' => 0, 'is_active' => true, 'is_open_to_external' => false,
+                    'fee_amount' => 0, 'is_active' => true, 'is_open_to_external' => true,
                     'created_by' => $admin?->id,
                 ]
             );
@@ -214,7 +216,55 @@ class StudentWalkthroughSeeder extends Seeder
             );
         }
 
-        $this->command?->info("Student walkthrough demo data ready for {$user->email} (level {$cur->number}).");
+        // ===== External (competition-only) student: external@test.in =====
+        $extUser    = User::where('email', 'external@test.in')->first();
+        $extStudent = $extUser?->student()->withoutGlobalScopes()->first();
+        if ($extStudent) {
+            $efid   = $extStudent->franchise_id;
+            $papers = CompetitionPracticePaper::where('is_active', true)->orderBy('paper_number')->take(3)->get();
+            foreach ($papers as $idx => $paper) {
+                if (CompetitionPracticeAttempt::where('student_id', $extStudent->id)->where('paper_id', $paper->id)->exists()) continue;
+                $tot = $paper->total_questions ?: 10;
+                $sc  = min($tot, 8 + $idx);
+                CompetitionPracticeAttempt::create([
+                    'paper_id' => $paper->id, 'student_id' => $extStudent->id,
+                    'started_at' => now()->subDays(3 - $idx)->setTime(11, 0), 'status' => 'submitted',
+                    'score' => $sc, 'percentage' => round($sc / $tot * 100, 2),
+                    'submitted_at' => now()->subDays(3 - $idx)->setTime(11, 10),
+                    'ip_address' => '127.0.0.1', 'user_agent' => 'StudentWalkthroughSeeder',
+                ]);
+            }
+
+            CompetitionRegistration::firstOrCreate(
+                ['competition_id' => $cup->id, 'student_id' => $extStudent->id],
+                ['franchise_id' => $efid, 'student_type' => 'external', 'registration_date' => now()->toDateString(),
+                 'payment_status' => 'paid', 'status' => 'registered', 'registered_by' => $admin?->id]
+            );
+
+            Certificate::firstOrCreate(
+                ['certificate_number' => 'EXT-CERT-COMP-1'],
+                ['franchise_id' => $efid, 'student_id' => $extStudent->id, 'competition_id' => $cup->id,
+                 'verification_code' => (string) Str::uuid(), 'type' => 'competition', 'series' => 'C',
+                 'issued_at' => now()->subDays(20)->toDateString(), 'issued_by' => $admin?->id]
+            );
+
+            foreach ([
+                ['competition', 'Competition Registration Confirmed', 'You have successfully registered for Global Abacus Masters Cup', 0],
+                ['practice', 'Practice Reminder', "Don't miss out! Complete today's practice session and stay consistent.", 0],
+                ['competition', 'New Competition Announced', 'Inter Academy Abacus Battle registrations are now open.', 2],
+                ['certificate', 'Certificate Available', 'Your participation certificate is ready to download.', 3],
+                ['practice', 'Practice Paper Completed', 'Great job! You completed Practice Paper 12.', 4],
+            ] as [$type, $title, $msg, $d]) {
+                $n = ApexNotification::firstOrCreate(
+                    ['student_id' => $extStudent->id, 'title' => $title],
+                    ['franchise_id' => $efid, 'type' => $type, 'message' => $msg, 'channel' => 'app',
+                     'is_read' => $d > 0, 'read_at' => $d > 0 ? now()->subDays($d) : null, 'sent_at' => now()->subDays($d)]
+                );
+                $n->forceFill(['created_at' => now()->subDays($d)->subHours(2)])->save();
+            }
+        }
+
+        $this->command?->info("Student walkthrough demo data ready for {$user->email} (level {$cur->number}) + external@test.in.");
     }
 
     private function seedPastExam(Student $student, int $fid, ?User $admin, string $title, int $levelId, int $pct, int $daysAgo): void

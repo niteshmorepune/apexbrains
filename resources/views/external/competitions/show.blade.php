@@ -2,95 +2,65 @@
 @section('title', $competition->title)
 
 @section('content')
-<div class="p-4 space-y-4">
+<x-student-header :title="$competition->title" :back="route('external.competitions.index')" />
 
-    {{-- Competition header --}}
-    <div class="bg-white rounded-2xl border border-border p-5">
-        <div class="flex items-start gap-3 mb-3">
-            <div class="w-12 h-12 rounded-2xl bg-yellow-50 flex items-center justify-center flex-shrink-0">
-                <span class="text-2xl">🏆</span>
-            </div>
-            <div class="flex-1">
-                <p class="font-bold text-gray-800">{{ $competition->title }}</p>
-                @if($competition->description)
-                    <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">{{ $competition->description }}</p>
-                @endif
-            </div>
-        </div>
+<div class="px-4 pb-4 space-y-4">
 
-        {{-- Info grid --}}
-        <div class="grid grid-cols-2 gap-2 text-sm">
-            <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-admin">{{ $competition->duration_minutes ?? 10 }} Min</p>
-                <p class="text-xs text-gray-400">Duration</p>
-            </div>
-            <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-fran">{{ $competition->total_questions ?? 120 }} MCQ</p>
-                <p class="text-xs text-gray-400">Questions</p>
-            </div>
-            <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-logo-amber">{{ $competition->pass_percentage ?? 75 }}%</p>
-                <p class="text-xs text-gray-400">Pass Marks</p>
-            </div>
-            <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-admin">
-                    @if($competition->start_date){{ $competition->start_date->format('d M') }}@else TBA @endif
-                </p>
-                <p class="text-xs text-gray-400">Exam Date</p>
-            </div>
+    {{-- Header card --}}
+    <div class="bg-white rounded-2xl border border-border p-5 text-center">
+        <span class="text-3xl">🏆</span>
+        <p class="font-black text-gray-900 text-lg mt-1">{{ $competition->title }}</p>
+        <div class="flex items-center justify-center gap-3 text-xs text-gray-500 mt-2">
+            @if($competition->start_date)<span>📅 {{ $competition->start_date->format('d M Y') }}</span>@endif
+            @if($competition->fee_amount > 0)<span>💳 ₹{{ number_format($competition->fee_amount, 0) }}</span>@else<span>🎟️ Free entry</span>@endif
         </div>
+        @if($competition->description)
+            <p class="text-xs text-gray-400 mt-2">{{ $competition->description }}</p>
+        @endif
     </div>
 
-    {{-- Rules and Instructions --}}
+    {{-- Stats --}}
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">📅 Start</p><p class="text-base font-black text-gray-800 mt-1">{{ $competition->start_date?->format('d M') ?? 'TBA' }}</p></div>
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🏁 End</p><p class="text-base font-black text-gray-800 mt-1">{{ $competition->end_date?->format('d M') ?? 'TBA' }}</p></div>
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🌐 Type</p><p class="text-base font-black text-gray-800 mt-1 capitalize">{{ $competition->competition_type }}</p></div>
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🎟️ Entry</p><p class="text-base font-black text-gray-800 mt-1">@if($competition->fee_amount > 0)₹{{ number_format($competition->fee_amount, 0) }}@else Free @endif</p></div>
+    </div>
+
+    {{-- Rules --}}
     <div class="bg-white rounded-2xl border border-border p-5">
-        <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Rules and Instructions</p>
-        <ol class="space-y-2 text-sm text-gray-600">
+        <p class="text-sm font-bold text-gray-800 mb-3">Rules and Instructions</p>
+        <ol class="space-y-2.5">
             @foreach([
-                'Exam will open in fullscreen mode',
-                'Do not switch browser tabs or windows',
-                'Each question must be answered within the time limit',
-                'Once submitted, answers cannot be changed',
-                'Results will be available immediately after submission',
-                'In case of technical issues, contact your franchise',
+                'Registration is handled by your branch / academy.',
+                'Use the practice papers to prepare beforehand.',
+                'Arrive / log in before the competition start time.',
+                'Results and certificates are issued after the event.',
+                'In case of technical issues, contact your branch.',
             ] as $i => $rule)
-                <li class="flex items-start gap-2">
-                    <span class="w-5 h-5 rounded-full bg-fran/10 text-fran text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{{ $i + 1 }}</span>
-                    <span>{{ $rule }}</span>
+                <li class="flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-full bg-fran-light text-fran text-xs font-bold flex items-center justify-center flex-shrink-0">{{ $i + 1 }}</span>
+                    <span class="text-sm text-gray-600">{{ $rule }}</span>
                 </li>
             @endforeach
         </ol>
     </div>
 
-    {{-- CTA --}}
+    {{-- Registration status --}}
     @if($myRegistration)
-        @php
-            $examOpen = $competition->start_date
-                ? now()->gte($competition->start_date) && (!$competition->end_date || now()->lte($competition->end_date))
-                : true;
-        @endphp
-        @if($examOpen)
-            <a href="{{ route('external.practice.index') }}"
-               class="block w-full py-4 bg-fran text-white rounded-2xl text-sm font-bold text-center hover:bg-fran-dark transition-colors">
-                I am Ready — Start Exam
-            </a>
-            <p class="text-center text-xs text-gray-400">Exam will open in fullscreen mode</p>
-        @else
-            <div class="bg-fran/5 border border-fran/20 rounded-2xl p-4 text-center">
-                <p class="text-fran font-semibold text-sm">✓ You are registered</p>
-                <p class="text-gray-500 text-xs mt-1">Exam opens on {{ $competition->start_date?->format('d M Y') }}</p>
-            </div>
-        @endif
+        <div class="bg-stu-light border border-stu/30 rounded-2xl p-4 text-center">
+            <p class="text-stu-dark font-bold text-sm">✓ You are registered</p>
+            @if($competition->start_date)<p class="text-gray-500 text-xs mt-1">Competition date: {{ $competition->start_date->format('d M Y') }}</p>@endif
+        </div>
     @else
         <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
             <p class="text-amber-700 text-sm font-medium">Not registered</p>
-            <p class="text-amber-600 text-xs mt-1">Contact your franchise to register for this competition.</p>
+            <p class="text-amber-600 text-xs mt-1">Contact your branch to register for this competition.</p>
         </div>
     @endif
 
-    <a href="{{ route('external.competitions.index') }}"
-       class="block text-center text-sm text-gray-400 hover:text-gray-600 py-2">
-        ← Back to Competitions
-    </a>
+    <a href="{{ route('external.practice.index') }}" class="block w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold text-center">Practice for this Competition</a>
+    <a href="{{ route('external.competitions.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">Go Back</a>
 
 </div>
 @endsection

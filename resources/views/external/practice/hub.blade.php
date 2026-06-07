@@ -2,46 +2,37 @@
 @section('title', 'Practice Hub')
 
 @section('content')
-<div class="p-4 space-y-4">
+<x-student-header title="Practice Hub" :back="route('external.home')" subtitle="Advanced mental math and speed drills" />
 
-    <div>
-        <h1 class="text-lg font-bold text-admin">Practice Hub</h1>
-        <p class="text-xs text-gray-400 mt-0.5">Advanced mental math and speed drills</p>
+<div class="px-4 pb-4 space-y-4">
+
+    {{-- Papers completed --}}
+    <div class="bg-white rounded-2xl border border-border p-4">
+        <div class="flex items-center justify-between mb-1">
+            <p class="text-sm font-bold text-gray-800">Papers Completed</p>
+            <span class="text-sm font-bold text-fran">{{ $pct }}%</span>
+        </div>
+        <div class="h-2 bg-bg-mid rounded-full overflow-hidden mb-1.5">
+            <div class="h-full bg-fran rounded-full" style="width: {{ max(3, $pct) }}%"></div>
+        </div>
+        <p class="text-xs text-gray-400">{{ $doneCount }}/{{ $totalPapers }} Papers Completed</p>
     </div>
 
-    {{-- Progress --}}
-    <div class="bg-fran rounded-2xl p-5 text-white">
-        <div class="flex items-center justify-between mb-2">
-            <p class="text-sm font-semibold">Papers Completed</p>
-            <p class="text-sm font-bold">{{ $pct }}%</p>
-        </div>
-        <p class="text-white/70 text-xs mb-2">{{ $doneCount }}/{{ $totalPapers }} Papers Completed</p>
-        <div class="h-2 bg-white/20 rounded-full overflow-hidden">
-            <div class="h-full bg-white rounded-full transition-all" style="width: {{ max(3, $pct) }}%"></div>
-        </div>
-    </div>
-
-    {{-- Milestone checklist --}}
-    <div class="bg-white rounded-2xl border border-border p-5">
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Milestones</p>
-        <ul class="space-y-3">
+    {{-- Topic Checklist (milestones) --}}
+    <div class="bg-white rounded-2xl border border-border p-4">
+        <p class="text-sm font-bold text-gray-800 mb-3">Topic Checklist</p>
+        <ul class="space-y-2.5">
             @foreach($milestones as $m)
-                <li class="flex items-center gap-3">
-                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0
-                        {{ $m['done'] ? 'bg-stu text-white' : 'border-2 border-border text-transparent' }}">
-                        {{ $m['done'] ? '✓' : '○' }}
-                    </span>
+                <li class="flex items-center gap-3 rounded-xl px-3 py-2.5 {{ $m['done'] ? 'bg-stu-light' : 'bg-bg-light' }}">
+                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0
+                        {{ $m['done'] ? 'bg-stu text-white' : 'border-2 border-gray-300 text-transparent' }}">{{ $m['done'] ? '✓' : '' }}</span>
                     <span class="text-sm {{ $m['done'] ? 'text-gray-700' : 'text-gray-400' }}">{{ $m['label'] }}</span>
                 </li>
             @endforeach
         </ul>
     </div>
 
-    {{-- Continue CTA --}}
-    <a href="{{ route('external.practice.index') }}"
-       class="block bg-fran text-white text-center font-bold py-3.5 rounded-2xl text-sm hover:bg-fran-dark transition-colors">
-        Continue Practice
-    </a>
+    <a href="{{ route('external.practice.index') }}" class="block bg-fran text-white text-center font-bold py-3.5 rounded-2xl text-sm">Continue Practice</a>
 
 </div>
 @endsection

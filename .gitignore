@@ -25,3 +25,4 @@ Thumbs.db
 
 # Local Figma reference exports (not for commit)
 .figma_student/
+.figma_external/

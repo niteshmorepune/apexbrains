@@ -2,85 +2,52 @@
 @section('title', 'Result — ' . $paper->title)
 
 @section('content')
-<div class="p-4 space-y-4">
+@php
+    $total      = $paper->total_questions ?: max(1, ($questions->count() ?: 1));
+    $score      = (int) $attempt->score;
+    $pct        = (int) round($attempt->percentage);
+    $wrong      = max(0, $total - $score);
+    $durationSec = $attempt->started_at && $attempt->submitted_at ? $attempt->submitted_at->diffInSeconds($attempt->started_at) : 0;
+    $timeMins   = $durationSec > 0 ? floor($durationSec/60).':'.str_pad($durationSec%60, 2, '0', STR_PAD_LEFT) : '—';
+    $avgSpeed   = $total > 0 && $durationSec > 0 ? round($durationSec / $total, 1) : null;
+    $passed     = $pct >= ($paper->pass_percentage ?? 75);
+    $circ       = 2 * 3.14159 * 52;
+@endphp
 
-    {{-- Score --}}
-    <div class="bg-fran rounded-2xl p-6 text-white text-center">
-        <p class="text-white/70 text-sm mb-1">{{ $paper->title }}</p>
-        <p class="text-5xl font-black mb-1">{{ $attempt->score }}/{{ $paper->total_questions }}</p>
-        <p class="text-white/70 text-sm">Correct</p>
+<div class="px-4 pt-6 pb-4 space-y-4">
+
+    {{-- Score ring --}}
+    <div class="flex flex-col items-center">
+        <div class="relative w-36 h-36">
+            <svg class="w-36 h-36 -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#EDF0F5" stroke-width="10"/>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="{{ $passed ? '#2ECC71' : '#1A73E8' }}" stroke-width="10" stroke-linecap="round" stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $circ - ($circ * $pct / 100) }}"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <p class="text-2xl font-black text-gray-900">{{ $score }}/{{ $total }}</p>
+                <p class="text-xs text-gray-400">Correct</p>
+            </div>
+        </div>
+        <p class="text-base font-bold text-gray-800 mt-3">{{ $paper->title }}</p>
+        <span class="inline-block font-bold text-xs px-4 py-1 rounded-full mt-1.5 {{ $passed ? 'bg-stu text-white' : 'bg-fran text-white' }}">{{ $passed ? 'PASSED' : 'COMPLETED' }}</span>
     </div>
 
-    {{-- 3 stat chips --}}
-    @php
-        $durationSec = $attempt->started_at && $attempt->submitted_at
-            ? $attempt->submitted_at->diffInSeconds($attempt->started_at) : 0;
-        $avgSpeed = $paper->total_questions > 0 ? round($durationSec / $paper->total_questions, 1) : null;
-        $accuracy = $paper->total_questions > 0 ? round($attempt->score / $paper->total_questions * 100) : 0;
-    @endphp
-    <div class="grid grid-cols-3 gap-3">
-        <div class="bg-white rounded-2xl border border-border p-3 text-center">
-            <p class="text-lg font-bold text-stu">{{ $accuracy }}%</p>
-            <p class="text-xs text-gray-400 mt-0.5">Accuracy</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-border p-3 text-center">
-            <p class="text-lg font-bold text-fran">{{ $avgSpeed ? $avgSpeed.'s' : '—' }}</p>
-            <p class="text-xs text-gray-400 mt-0.5">Avg Speed</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-border p-3 text-center">
-            <p class="text-lg font-bold text-logo-amber">{{ (int) ceil($durationSec / 60) }}m</p>
-            <p class="text-xs text-gray-400 mt-0.5">Duration</p>
-        </div>
+    {{-- Stats 2x2 --}}
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-stu text-xl">✅</span><div><p class="text-lg font-black text-stu leading-none">{{ $score }}/{{ $total }}</p><p class="text-xs text-gray-400 mt-1">Correct</p></div></div>
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-red-500 text-xl">❌</span><div><p class="text-lg font-black text-red-500 leading-none">{{ $wrong }}/{{ $total }}</p><p class="text-xs text-gray-400 mt-1">Wrong</p></div></div>
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-fran text-xl">⚡</span><div><p class="text-lg font-black text-fran leading-none">{{ $avgSpeed ? $avgSpeed.'s' : '—' }}</p><p class="text-xs text-gray-400 mt-1">Avg Speed</p></div></div>
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-logo-amber text-xl">⏱️</span><div><p class="text-lg font-black text-gray-700 leading-none">{{ $timeMins }}</p><p class="text-xs text-gray-400 mt-1">Time Taken</p></div></div>
     </div>
 
-    {{-- Review Incorrect --}}
-    @php
-        $wrongAnswers = $attempt->answers ?? collect();
-        $incorrectCount = is_array($attempt->answers) ? collect($attempt->answers)->where('is_correct', false)->count() : 0;
-    @endphp
-    @if($incorrectCount > 0 || $questions->isNotEmpty())
-    <div class="bg-white rounded-2xl border border-border overflow-hidden">
-        <div class="px-4 py-3 border-b border-border">
-            <p class="text-sm font-semibold text-gray-700">
-                Review Incorrect {{ $incorrectCount > 0 ? "($incorrectCount)" : '' }}
-            </p>
-        </div>
-        <div class="divide-y divide-border">
-            @foreach($questions as $i => $pq)
-                @php
-                    $q = $pq->question;
-                    $correct = strtolower($q->correct_answer ?? '');
-                    $myAnswer = is_array($attempt->answers) ? (collect($attempt->answers)->firstWhere('question_id', $q->id)['answer'] ?? null) : null;
-                    $isWrong = $myAnswer && strtolower($myAnswer) !== $correct;
-                @endphp
-                @if($isWrong)
-                    <div class="px-4 py-3">
-                        <div class="flex items-start gap-2 mb-1.5">
-                            <span class="text-xs text-gray-400 flex-shrink-0 mt-0.5">{{ $i + 1 }}.</span>
-                            <p class="text-sm text-gray-800 flex-1 leading-snug">{{ $q->question_text }}</p>
-                        </div>
-                        <p class="ml-4 text-xs text-red-500">✗ Your answer: {{ strtoupper($myAnswer) }})</p>
-                        <p class="ml-4 text-xs text-green-600 font-medium mt-0.5">
-                            ✓ Correct: {{ strtoupper($correct) }}) {{ $q->{'option_' . $correct} ?? '' }}
-                        </p>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    <div class="space-y-3">
+    {{-- Actions --}}
+    <div class="space-y-3 pt-1">
         <form method="POST" action="{{ route('external.practice.start', $paper) }}">
             @csrf
-            <button type="submit" class="w-full py-3 bg-fran text-white rounded-2xl text-sm font-semibold">
-                Try Again
-            </button>
+            <button type="submit" class="w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold">Try Again</button>
         </form>
-        <a href="{{ route('external.practice.index') }}"
-           class="block w-full py-3 border border-border text-gray-600 rounded-2xl text-sm font-semibold text-center">
-            ← All Papers
-        </a>
+        <a href="{{ route('external.practice.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">All Papers</a>
+        <a href="{{ route('external.home') }}" class="block w-full text-center text-xs text-gray-400 py-1">Back to Home</a>
     </div>
 
 </div>

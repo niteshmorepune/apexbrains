@@ -7,66 +7,56 @@
     <title>@yield('title', 'Home') — Apex Brains Competition</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body { -webkit-tap-highlight-color: transparent; font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0.5rem); }
     </style>
+    @stack('head')
 </head>
-<body class="bg-bg-light md:bg-slate-200 min-h-screen flex flex-col">
+<body class="bg-stu-bg md:bg-slate-200 min-h-screen flex flex-col">
 
 {{-- App column: phone-width on mobile, centered framed column on desktop --}}
-<div class="max-w-sm md:max-w-md mx-auto w-full flex flex-col min-h-screen relative bg-bg-light md:shadow-xl">
+<div class="max-w-sm md:max-w-md mx-auto w-full flex flex-col min-h-screen relative bg-stu-bg md:shadow-xl">
 
-    {{-- Blue header — EXTERNAL STUDENT (visually distinct from internal green) --}}
-    <header class="bg-fran sticky top-0 z-30 flex-shrink-0">
-        <div class="flex items-center justify-between px-4 py-3">
-            <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-white flex items-center justify-center">
-                    <span class="text-fran font-bold text-xs">AB</span>
-                </div>
-                <div>
-                    <span class="text-white font-semibold text-sm">Apex Brains</span>
-                    <span class="ml-2 text-xs text-blue-100 bg-fran-dark rounded px-1.5 py-0.5">Competition</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <a href="{{ route('external.notifications.index') }}" class="text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                </a>
-                <a href="{{ route('external.profile') }}" class="w-7 h-7 rounded-full bg-fran-dark flex items-center justify-center text-white text-xs font-bold">
-                    {{ substr(auth()->user()->name, 0, 1) }}
-                </a>
-            </div>
-        </div>
-    </header>
-
+    {{-- Alerts --}}
     @if(session('success'))
-        <div class="px-4 pt-3">
-            <x-alert type="success" :message="session('success')" />
-        </div>
+        <div class="px-4 pt-3"><x-alert type="success" :message="session('success')" /></div>
     @endif
     @if(session('error'))
-        <div class="px-4 pt-3">
-            <x-alert type="error" :message="session('error')" />
-        </div>
+        <div class="px-4 pt-3"><x-alert type="error" :message="session('error')" /></div>
     @endif
 
-    <main class="flex-1 overflow-y-auto pb-20">
+    {{-- Page content (each screen renders its own <x-student-header> where needed) --}}
+    <main class="flex-1 overflow-y-auto pb-24">
         @yield('content')
     </main>
 
-    {{-- Bottom Navigation (simpler than internal) --}}
+    {{-- Bottom Navigation — emoji icons, blue active + indicator (external / competition) --}}
+    @php
+        $extNav = [
+            ['route' => 'external.home',              'emoji' => '🏠', 'label' => 'Home',     'active' => request()->routeIs('external.home')],
+            ['route' => 'external.practice.index',    'emoji' => '📚', 'label' => 'Practice', 'active' => request()->routeIs('external.practice.*')],
+            ['route' => 'external.competitions.index','emoji' => '🏆', 'label' => 'Exams',    'active' => request()->routeIs('external.competitions.*')],
+            ['route' => 'external.results',            'emoji' => '📊', 'label' => 'Results',  'active' => request()->routeIs('external.results') || request()->routeIs('external.certificates.*')],
+            ['route' => 'external.profile',           'emoji' => '👤', 'label' => 'Profile',  'active' => request()->routeIs('external.profile')],
+        ];
+    @endphp
     <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm md:max-w-md bg-white border-t border-border z-30 safe-bottom">
-        <div class="flex justify-around items-center h-14">
-            <x-bottom-nav-item route="external.home" icon="home" label="Home" color="fran" />
-            <x-bottom-nav-item route="external.practice.index" icon="zap" label="Practice" color="fran" />
-            <x-bottom-nav-item route="external.competitions.index" icon="trophy" label="Exams" color="fran" />
-            <x-bottom-nav-item route="external.results" icon="bar-chart-2" label="Results" color="fran" />
-            <x-bottom-nav-item route="external.profile" icon="user" label="Profile" color="fran" />
+        <div class="flex justify-around items-stretch h-16">
+            @foreach($extNav as $item)
+                <a href="{{ route($item['route']) }}" class="relative flex flex-col items-center justify-center gap-0.5 flex-1">
+                    @if($item['active'])
+                        <span class="absolute top-0 h-1 w-8 bg-fran rounded-b-full"></span>
+                    @endif
+                    <span class="text-xl leading-none {{ $item['active'] ? '' : 'opacity-50 grayscale' }}">{{ $item['emoji'] }}</span>
+                    <span class="text-[10px] font-medium {{ $item['active'] ? 'text-fran font-bold' : 'text-gray-400' }}">{{ $item['label'] }}</span>
+                </a>
+            @endforeach
         </div>
     </nav>
 </div>
+@stack('scripts')
 </body>
 </html>
