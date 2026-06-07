@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $competition->title }} — Apex Brains</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>body{font-family:'Inter',ui-sans-serif,system-ui,sans-serif}[x-cloak]{display:none!important}</style>
 </head>
-<body class="bg-bg-light font-sans min-h-screen"
-      x-data="examEngine()"
-      x-init="init()">
+<body class="bg-stu-bg min-h-screen" x-data="examEngine()" x-init="init()">
+
+<div class="max-w-md mx-auto min-h-screen">
 
     {{-- Time up overlay --}}
     <div x-show="timeUp" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6" x-cloak>
@@ -21,90 +24,89 @@
     </div>
 
     {{-- Header --}}
-    <div class="bg-fran text-white px-4 py-3 flex items-center justify-between sticky top-0 z-20">
+    <div class="px-4 pt-5 pb-2 flex items-center gap-2">
+        <button @click="doSubmit()" class="w-8 h-8 -ml-1 flex items-center justify-center text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <h1 class="flex-1 text-center pr-7 text-[17px] font-bold text-gray-900 truncate">{{ $competition->title }}</h1>
+    </div>
+
+    {{-- Timer pills --}}
+    <div class="px-4 flex items-center justify-between">
+        <span class="bg-fran text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="`Q${currentIndex + 1} of ${questions.length}`"></span>
+        <span class="text-white text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 animate-pulse' : 'bg-red-500'" x-text="formatTime(timeLeft)"></span>
+    </div>
+
+    {{-- Warning --}}
+    <div class="px-4 mt-2">
+        <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center">
+            <p class="text-[11px] text-amber-700 font-medium">Warning — Do not switch tabs — exam will be flagged</p>
+        </div>
+    </div>
+
+    <template x-if="questions.length > 0">
         <div>
-            <p class="font-semibold text-sm">{{ $competition->title }}</p>
-            <p class="text-white/70 text-xs" x-text="`Q${currentIndex + 1} of ${questions.length}`"></p>
-        </div>
-        <div class="text-center">
-            <p class="text-xl font-black tabular-nums" :class="timeLeft <= 60 ? 'text-red-300' : ''" x-text="formatTime(timeLeft)"></p>
-            <p class="text-white/60 text-xs">remaining</p>
-        </div>
-    </div>
-
-    <div class="h-1 bg-white/20">
-        <div class="h-full bg-white transition-all"
-             :style="`width: ${(currentIndex / questions.length) * 100}%`"></div>
-    </div>
-
-    <div class="max-w-lg mx-auto px-4 py-6 space-y-4">
-        <template x-if="questions.length > 0">
-            <div>
-                <div class="bg-white rounded-2xl border border-border p-5 mb-4">
-                    <p class="text-sm font-bold text-gray-800 leading-relaxed"
-                       x-text="questions[currentIndex]?.question?.question_text"></p>
-                </div>
-
-                <div class="space-y-3">
-                    <template x-for="opt in ['a','b','c','d']" :key="opt">
-                        <template x-if="questions[currentIndex]?.question?.['option_' + opt]">
-                            <button @click="selectAnswer(opt)"
-                                    :class="{
-                                        'border-fran bg-fran/5': answers[questions[currentIndex]?.question?.id] === opt,
-                                        'border-border bg-white': answers[questions[currentIndex]?.question?.id] !== opt
-                                    }"
-                                    class="w-full flex items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left transition-colors">
-                                <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                      :class="{
-                                          'bg-fran text-white': answers[questions[currentIndex]?.question?.id] === opt,
-                                          'bg-bg-mid text-gray-500': answers[questions[currentIndex]?.question?.id] !== opt
-                                      }"
-                                      x-text="opt.toUpperCase()"></span>
-                                <span class="text-sm text-gray-700" x-text="questions[currentIndex]?.question?.['option_' + opt]"></span>
-                            </button>
-                        </template>
-                    </template>
-                </div>
-
-                <div class="flex items-center justify-between mt-5">
-                    <button @click="currentIndex--" x-show="currentIndex > 0"
-                            class="px-4 py-2 border border-border rounded-xl text-sm text-gray-600">← Prev</button>
-                    <div x-show="currentIndex === 0"></div>
-
-                    <template x-if="currentIndex < questions.length - 1">
-                        <button @click="currentIndex++" class="px-5 py-2 bg-fran text-white rounded-xl text-sm font-semibold">
-                            Next →
-                        </button>
-                    </template>
-                    <template x-if="currentIndex === questions.length - 1">
-                        <button @click="doSubmit()" class="px-5 py-2 bg-green-600 text-white rounded-xl text-sm font-semibold">
-                            Submit
-                        </button>
-                    </template>
-                </div>
-
-                <div class="flex flex-wrap gap-1.5 mt-4 justify-center">
+            {{-- Question strip --}}
+            <div class="px-4 mt-3 overflow-x-auto">
+                <div class="flex gap-2 w-max">
                     <template x-for="(q, i) in questions" :key="i">
-                        <button @click="currentIndex = i"
-                                class="w-7 h-7 rounded-lg text-xs font-bold"
-                                :class="{
-                                    'bg-fran text-white': i === currentIndex,
-                                    'bg-green-500 text-white': answers[q.question?.id] && i !== currentIndex,
-                                    'bg-bg-mid text-gray-500': !answers[q.question?.id] && i !== currentIndex
-                                }"
+                        <button @click="currentIndex = i" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                                :class="i === currentIndex ? 'bg-fran text-white' : (answers[q.question?.id] ? 'bg-stu-light text-stu' : 'bg-white border border-border text-gray-400')"
                                 x-text="i + 1"></button>
                     </template>
                 </div>
             </div>
-        </template>
-    </div>
 
-    <form id="submitForm" method="POST" action="{{ route('student.competitions.submit', $competition) }}" class="hidden">
-        @csrf
-    </form>
+            {{-- Calculate prompt --}}
+            <div class="px-4 mt-5 flex items-center justify-between">
+                <p class="text-sm text-gray-500">Calculate mentally :</p>
+                <span class="text-gray-400">🔊</span>
+            </div>
+
+            {{-- Big number display --}}
+            <div class="px-4 mt-3">
+                <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
+                    <p class="font-black text-gray-900 leading-tight whitespace-pre-line" style="font-size:42px" x-text="questions[currentIndex]?.question?.question_text"></p>
+                </div>
+            </div>
+
+            {{-- Answer grid --}}
+            <div class="px-4 mt-5">
+                <p class="text-sm text-gray-500 mb-2">Select your answer :</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <template x-for="opt in ['a','b','c','d']" :key="opt">
+                        <template x-if="questions[currentIndex]?.question?.['option_' + opt]">
+                            <button @click="selectAnswer(opt)" class="flex items-center gap-3 rounded-2xl border-2 px-4 py-4 text-left"
+                                    :class="answers[questions[currentIndex]?.question?.id] === opt ? 'border-stu bg-stu-light' : 'border-border bg-white'">
+                                <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                                      :class="answers[questions[currentIndex]?.question?.id] === opt ? 'bg-stu text-white' : 'bg-bg-mid text-gray-500'"
+                                      x-text="opt.toUpperCase()"></span>
+                                <span class="text-base font-bold text-gray-800" x-text="questions[currentIndex]?.question?.['option_' + opt]"></span>
+                            </button>
+                        </template>
+                    </template>
+                </div>
+            </div>
+
+            {{-- Navigation --}}
+            <div class="px-4 mt-5 flex items-center gap-3">
+                <button @click="currentIndex--" x-show="currentIndex > 0" class="px-5 py-3 border border-border rounded-xl text-sm font-semibold text-gray-600">← Prev</button>
+                <template x-if="currentIndex < questions.length - 1">
+                    <button @click="currentIndex++" class="flex-1 py-3 bg-fran text-white rounded-xl text-sm font-bold">Next →</button>
+                </template>
+                <template x-if="currentIndex === questions.length - 1">
+                    <button @click="doSubmit()" class="flex-1 py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit</button>
+                </template>
+            </div>
+            <div class="pb-6"></div>
+        </div>
+    </template>
+
+</div>
+
+<form id="submitForm" method="POST" action="{{ route('student.competitions.submit', $competition) }}" class="hidden">@csrf</form>
 
 </body>
-
 <script>
 function examEngine() {
     return {
@@ -114,19 +116,12 @@ function examEngine() {
         timeLeft: {{ $remaining }},
         timeUp: false,
 
-        init() {
-            this.startTimer();
-        },
+        init() { this.startTimer(); },
 
         startTimer() {
             const tick = setInterval(() => {
-                if (this.timeLeft > 0) {
-                    this.timeLeft--;
-                } else {
-                    clearInterval(tick);
-                    this.timeUp = true;
-                    setTimeout(() => this.doSubmit(), 2000);
-                }
+                if (this.timeLeft > 0) { this.timeLeft--; }
+                else { clearInterval(tick); this.timeUp = true; setTimeout(() => this.doSubmit(), 2000); }
             }, 1000);
         },
 
@@ -142,17 +137,12 @@ function examEngine() {
             this.answers[q.question.id] = opt;
             fetch('{{ route('student.competitions.answer', $competition) }}', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
                 body: JSON.stringify({ question_id: q.question.id, selected_answer: opt }),
             });
         },
 
-        doSubmit() {
-            document.getElementById('submitForm').submit();
-        },
+        doSubmit() { document.getElementById('submitForm').submit(); },
     };
 }
 </script>

@@ -2,66 +2,50 @@
 @section('title', $competition->title)
 
 @section('content')
-<div class="p-4 space-y-4">
+<x-student-header :title="$competition->title" :back="route('student.competitions.index')" />
 
-    {{-- Competition header --}}
-    <div class="bg-white rounded-2xl border border-border p-5">
-        <div class="flex items-start gap-3 mb-3">
-            <div class="w-12 h-12 rounded-2xl bg-yellow-50 flex items-center justify-center flex-shrink-0">
-                <span class="text-2xl">🏆</span>
-            </div>
-            <div class="flex-1">
-                <p class="font-bold text-gray-800">{{ $competition->title }}</p>
-                @if($competition->description)
-                    <p class="text-xs text-gray-500 mt-0.5">{{ $competition->description }}</p>
-                @endif
-            </div>
+<div class="px-4 pb-4 space-y-4">
+
+    {{-- Header card --}}
+    <div class="bg-white rounded-2xl border border-border p-5 text-center">
+        <span class="text-3xl">🏆</span>
+        <p class="font-black text-gray-900 text-lg mt-1">{{ $competition->title }}</p>
+        <div class="flex items-center justify-center gap-3 text-xs text-gray-500 mt-2">
+            @if($competition->start_date)<span>📅 {{ $competition->start_date->format('d M Y') }}</span>@endif
+            @if($competition->start_date)<span>🕐 {{ $competition->start_date->format('g:i A') }}</span>@endif
         </div>
-        {{-- Info grid --}}
-        <div class="grid grid-cols-2 gap-2 text-sm">
-            <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-admin">{{ $paper?->duration_minutes ?? 10 }} Min</p>
-                <p class="text-xs text-gray-400">Duration</p>
-            </div>
-            <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-fran">{{ $paper?->total_questions ?? '—' }} MCQ</p>
-                <p class="text-xs text-gray-400">Questions</p>
-            </div>
-            <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-logo-amber">{{ $paper?->pass_percentage ?? 75 }}%</p>
-                <p class="text-xs text-gray-400">Pass Marks</p>
-            </div>
-            <div class="bg-bg-light rounded-xl p-3 text-center">
-                <p class="font-bold text-admin">{{ $myAttempts->count() }} of 3</p>
-                <p class="text-xs text-gray-400">Attempts</p>
-            </div>
-        </div>
+    </div>
+
+    {{-- Stats 2x2 --}}
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">⏱️ Duration</p><p class="text-base font-black text-gray-800 mt-1">{{ $paper?->duration_minutes ?? 10 }} Minutes</p></div>
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">📝 Questions</p><p class="text-base font-black text-gray-800 mt-1">{{ $paper?->total_questions ?? '—' }} MCQ</p></div>
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🎯 Pass Marks</p><p class="text-base font-black text-gray-800 mt-1">{{ $paper?->pass_percentage ?? 75 }}%</p></div>
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🔄 Attempts</p><p class="text-base font-black text-gray-800 mt-1">{{ $myAttempts->count() }} of 3</p></div>
     </div>
 
     {{-- Rules --}}
     <div class="bg-white rounded-2xl border border-border p-5">
-        <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Rules and Instructions</p>
-        <ol class="space-y-2 text-sm text-gray-600">
+        <p class="text-sm font-bold text-gray-800 mb-3">Rules and Instructions</p>
+        <ol class="space-y-2.5">
             @foreach([
-                'Exam will open in fullscreen mode',
-                'Do not switch browser tabs or windows',
-                'Each question must be answered within the time limit',
-                'Once submitted, answers cannot be changed',
-                'Results will be available immediately after submission',
-                'In case of technical issues, contact your branch',
+                'Do not switch browser tabs — exam will flag.',
+                'Ensure stable internet connection.',
+                'Answer all questions before time runs out.',
+                'Use the question palette to navigate freely.',
+                'Audio questions will play automatically.',
+                'Submit before the timer ends.',
             ] as $i => $rule)
-                <li class="flex items-start gap-2">
-                    <span class="w-5 h-5 rounded-full bg-fran-light text-fran text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{{ $i + 1 }}</span>
-                    <span>{{ $rule }}</span>
+                <li class="flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-full bg-fran-light text-fran text-xs font-bold flex items-center justify-center flex-shrink-0">{{ $i + 1 }}</span>
+                    <span class="text-sm text-gray-600">{{ $rule }}</span>
                 </li>
             @endforeach
         </ol>
     </div>
 
     @if(session('error'))
-        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl px-4 py-3">
-            {{ session('error') }}
-        </div>
+        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl px-4 py-3">{{ session('error') }}</div>
     @endif
 
     {{-- CTA --}}
@@ -70,35 +54,23 @@
             @if($paper)
                 <form method="POST" action="{{ route('student.competitions.start', $competition) }}">
                     @csrf
-                    <button type="submit"
-                            class="w-full py-4 bg-fran text-white rounded-2xl text-sm font-bold hover:bg-fran-dark transition-colors">
-                        I am Ready — Start Exam
-                    </button>
+                    <button type="submit" class="w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold">I am Ready — Start Exam</button>
                 </form>
             @else
-                <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 text-center">
-                    <p class="text-sm text-yellow-700 font-medium">The question paper for your level is not available yet</p>
-                    <p class="text-xs text-yellow-600 mt-1">Please check back closer to the competition date</p>
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+                    <p class="text-sm text-amber-700 font-medium">The question paper for your level is not available yet</p>
                 </div>
             @endif
         @else
-            <a href="{{ route('student.competitions.result', $competition) }}"
-               class="block w-full py-4 bg-stu text-white rounded-2xl text-sm font-bold text-center hover:bg-stu-dark transition-colors">
-                View My Result
-            </a>
+            <a href="{{ route('student.competitions.result', $competition) }}" class="block w-full py-3.5 bg-stu text-white rounded-2xl text-sm font-bold text-center">View My Result</a>
         @endif
-        <p class="text-center text-xs text-gray-400">Exam will open in fullscreen mode</p>
     @else
-        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 text-center">
-            <p class="text-sm text-yellow-700 font-medium">You are not registered for this competition</p>
-            <p class="text-xs text-yellow-600 mt-1">Contact your branch to register</p>
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+            <p class="text-sm text-amber-700 font-medium">You are not registered for this competition</p>
         </div>
     @endif
 
-    <a href="{{ route('student.competitions.index') }}"
-       class="block text-center text-sm text-gray-400 hover:text-gray-600 py-2">
-        ← Back to Competitions
-    </a>
+    <a href="{{ route('student.competitions.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">Go Back</a>
 
 </div>
 @endsection

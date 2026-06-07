@@ -6,89 +6,93 @@
 @endpush
 
 @section('content')
-<div class="p-4 space-y-4">
+@php
+    $correct = $session->questions_correct ?? 0;
+    $total   = $session->total_questions ?: 1;
+    $pct     = round($correct / $total * 100);
+    $mins    = $session->created_at && $session->completed_at
+        ? (int) ceil($session->completed_at->diffInSeconds($session->created_at) / 60) : ($session->duration_minutes ?? 0);
+    $rating = match(true) {
+        $session->accuracy >= 95 => ['label' => 'Excellent!',  'emoji' => '🏆', 'color' => 'text-stu'],
+        $session->accuracy >= 80 => ['label' => 'Very good',   'emoji' => '🏆', 'color' => 'text-logo-amber'],
+        $session->accuracy >= 65 => ['label' => 'Good',        'emoji' => '👍', 'color' => 'text-fran'],
+        default                  => ['label' => 'Keep going',  'emoji' => '💪', 'color' => 'text-gray-500'],
+    };
+    $circ = 2 * 3.14159 * 52;
+@endphp
 
-    {{-- Score card --}}
-    <div class="bg-stu rounded-2xl p-6 text-white text-center">
-        <p class="text-5xl font-black mb-1">{{ $session->questions_correct }}/{{ $session->total_questions }}</p>
-        <p class="text-white/70 text-sm">Correct</p>
-        @if($vsYesterday != 0)
-            <p class="text-sm mt-2 font-medium {{ $vsYesterday > 0 ? 'text-white' : 'text-white/60' }}">
-                {{ $vsYesterday > 0 ? '🔥 Great Session! +' . $vsYesterday . ' vs yesterday' : '↓ ' . abs($vsYesterday) . '% vs yesterday' }}
-            </p>
-        @else
-            <p class="text-white/60 text-sm mt-2">Keep it up!</p>
-        @endif
-    </div>
+<div class="px-4 pt-6 pb-4 space-y-4">
 
-    {{-- 3 stat chips --}}
-    <div class="grid grid-cols-3 gap-3">
-        <div class="bg-white rounded-2xl border border-border p-3 text-center">
-            <p class="text-lg font-bold text-stu">{{ number_format($session->accuracy, 0) }}%</p>
-            <p class="text-xs text-gray-400 mt-0.5">Accuracy</p>
+    {{-- Score ring --}}
+    <div class="flex flex-col items-center">
+        <div class="relative w-36 h-36">
+            <svg class="w-36 h-36 -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#EDF0F5" stroke-width="10"/>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#2ECC71" stroke-width="10" stroke-linecap="round"
+                        stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $circ - ($circ * $pct / 100) }}"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <p class="text-2xl font-black text-gray-900">{{ $correct }}/{{ $session->total_questions }}</p>
+                <p class="text-xs text-gray-400">Correct</p>
+            </div>
         </div>
-        <div class="bg-white rounded-2xl border border-border p-3 text-center">
-            @if($avgSpeed)
-                <p class="text-lg font-bold text-fran">{{ $avgSpeed }}s</p>
-                <p class="text-xs text-gray-400 mt-0.5">Avg Speed</p>
+        <p class="text-sm font-semibold text-gray-700 mt-3">
+            @if($vsYesterday > 0)
+                Great Session! <span class="text-stu">+{{ $vsYesterday }} vs yesterday</span>
+            @elseif($vsYesterday < 0)
+                Session done · <span class="text-red-500">{{ $vsYesterday }} vs yesterday</span>
             @else
-                <p class="text-lg font-bold text-gray-400">—</p>
-                <p class="text-xs text-gray-400 mt-0.5">Avg Speed</p>
+                Session complete!
             @endif
-        </div>
-        <div class="bg-white rounded-2xl border border-border p-3 text-center">
-            @php
-                $mins = $session->created_at && $session->completed_at
-                    ? (int) ceil($session->completed_at->diffInSeconds($session->created_at) / 60) : 0;
-            @endphp
-            <p class="text-lg font-bold text-logo-amber">{{ $mins }}m</p>
-            <p class="text-xs text-gray-400 mt-0.5">Duration</p>
-        </div>
+        </p>
     </div>
 
-    {{-- Performance rating --}}
-    @php
-        $rating = match(true) {
-            $session->accuracy >= 95 => ['label' => 'Excellent!', 'color' => 'text-stu'],
-            $session->accuracy >= 80 => ['label' => 'Very good', 'color' => 'text-fran'],
-            $session->accuracy >= 65 => ['label' => 'Good',      'color' => 'text-logo-amber'],
-            default                  => ['label' => 'Keep practicing', 'color' => 'text-gray-500'],
-        };
-    @endphp
-    <p class="text-center text-sm font-semibold {{ $rating['color'] }}">{{ $rating['label'] }}</p>
+    {{-- 2x2 stat grid --}}
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-2xl border border-border p-4">
+            <span class="text-stu text-lg">🎯</span>
+            <p class="text-xl font-black text-stu mt-1">{{ number_format($session->accuracy ?? 0, 0) }}%</p>
+            <p class="text-xs text-gray-400">Accuracy</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-border p-4">
+            <span class="text-fran text-lg">⚡</span>
+            <p class="text-xl font-black text-fran mt-1">{{ $avgSpeed ? $avgSpeed.'s' : '—' }}</p>
+            <p class="text-xs text-gray-400">Avg Speed</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-border p-4">
+            <span class="text-logo-amber text-lg">⏱️</span>
+            <p class="text-xl font-black text-logo-amber mt-1">{{ $mins }} min</p>
+            <p class="text-xs text-gray-400">Duration</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-border p-4">
+            <span class="text-lg">{{ $rating['emoji'] }}</span>
+            <p class="text-xl font-black {{ $rating['color'] }} mt-1">{{ $rating['label'] }}</p>
+            <p class="text-xs text-gray-400">Rating</p>
+        </div>
+    </div>
 
     {{-- Speed Improvement chart --}}
     <div class="bg-white rounded-2xl border border-border p-4">
-        <p class="text-xs font-semibold text-gray-600 mb-3">Speed Improvement</p>
-        <canvas id="speedChart" height="80"></canvas>
+        <p class="text-sm font-bold text-gray-800 mb-3">Speed Improvement</p>
+        <canvas id="speedChart" height="90"></canvas>
     </div>
 
-    {{-- Correct / Wrong / Total --}}
-    <div class="grid grid-cols-3 gap-3 text-center">
-        <div class="bg-green-50 rounded-2xl p-3">
-            <p class="text-xl font-black text-green-600">{{ $session->questions_correct }}</p>
-            <p class="text-xs text-green-600 mt-0.5">Correct</p>
+    {{-- Correct / Wrong --}}
+    <div class="grid grid-cols-2 gap-3 text-center">
+        <div class="bg-stu-light rounded-2xl p-3">
+            <p class="text-xl font-black text-stu">{{ $correct }}</p>
+            <p class="text-xs text-stu mt-0.5">Correct</p>
         </div>
         <div class="bg-red-50 rounded-2xl p-3">
-            <p class="text-xl font-black text-red-500">{{ $session->total_questions - $session->questions_correct }}</p>
+            <p class="text-xl font-black text-red-500">{{ $session->total_questions - $correct }}</p>
             <p class="text-xs text-red-500 mt-0.5">Wrong</p>
-        </div>
-        <div class="bg-bg-mid rounded-2xl p-3">
-            <p class="text-xl font-black text-gray-600">{{ $session->total_questions }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Total</p>
         </div>
     </div>
 
     {{-- Actions --}}
-    <div class="space-y-3">
-        <a href="{{ route('student.practice.index') }}"
-           class="block w-full py-3 bg-stu text-white rounded-2xl text-sm font-semibold text-center hover:bg-stu-dark transition-colors">
-            Practice Again ⚡
-        </a>
-        <a href="{{ route('student.home') }}"
-           class="block w-full py-3 border border-border text-gray-600 rounded-2xl text-sm font-semibold text-center hover:bg-bg-light transition-colors">
-            Back to Home
-        </a>
+    <div class="space-y-3 pt-1">
+        <a href="{{ route('student.practice.index') }}" class="block w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold text-center">Practice Again</a>
+        <a href="{{ route('student.home') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">Back to Home</a>
     </div>
 
 </div>
@@ -97,25 +101,23 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const data = @json($chartLabels);
-    if (document.getElementById('speedChart')) {
-        new Chart(document.getElementById('speedChart'), {
-            type: 'bar',
+    const el = document.getElementById('speedChart');
+    if (el && window.Chart) {
+        new Chart(el, {
+            type: 'line',
             data: {
                 labels: data.map(d => d.label),
                 datasets: [{
                     data: data.map(d => d.value),
-                    backgroundColor: '#2ECC71',
-                    borderRadius: 6,
+                    borderColor: '#2ECC71',
+                    backgroundColor: 'rgba(46,204,113,0.12)',
+                    fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#2ECC71', borderWidth: 2,
                 }]
             },
             options: {
                 plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, max: 100, ticks: { stepSize: 25, callback: v => v + '%' } },
-                    x: { grid: { display: false } }
-                },
-                responsive: true,
-                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, max: 100, ticks: { stepSize: 25, callback: v => v + '%' } }, x: { grid: { display: false } } },
+                responsive: true, maintainAspectRatio: false,
             }
         });
     }

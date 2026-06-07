@@ -2,10 +2,11 @@
 @section('title', 'Practice Papers')
 
 @section('content')
-<div class="p-4 space-y-3">
+<x-student-header title="Practice Papers" :back="route('student.competitions.index')" />
+<div class="px-4 pb-4 space-y-3">
 
-    <div class="bg-fran/10 rounded-2xl p-4 mb-2">
-        <p class="text-sm font-semibold text-fran">Competition Practice Papers</p>
+    <div class="bg-fran-light rounded-2xl p-4 mb-1">
+        <p class="text-sm font-bold text-fran">Competition Practice Papers</p>
         <p class="text-xs text-gray-500 mt-0.5">Practise with actual competition-style questions</p>
     </div>
 

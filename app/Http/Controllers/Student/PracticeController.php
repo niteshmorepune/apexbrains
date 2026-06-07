@@ -34,29 +34,37 @@ class PracticeController extends Controller
     public function start(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'level_id'   => ['required', 'exists:levels,id'],
-            'difficulty' => ['required', 'in:easy,medium,hard'],
-            'count'      => ['required', 'integer', 'min:5', 'max:30'],
+            'level_id'               => ['required', 'exists:levels,id'],
+            'difficulty'             => ['nullable', 'in:easy,medium,hard,all'],
+            'count'                  => ['required', 'integer', 'min:5', 'max:300'],
+            'session_length_minutes' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $student = Auth::user()->student()->firstOrFail();
 
-        $questions = QuestionBank::where('level_id', $data['level_id'])
-            ->where('status', 'approved')
-            ->when($data['difficulty'] !== 'all', fn($q) => $q->where('difficulty', $data['difficulty']))
+        $difficulty = $data['difficulty'] ?? null;
+
+        // Questions may be authored against a specific level or globally (level_id null),
+        // so include both — mirrors how ExamController::start pulls its question pool.
+        $questions = QuestionBank::where('status', 'approved')
+            ->where(fn ($q) => $q->where('level_id', $data['level_id'])->orWhereNull('level_id'))
+            ->when($difficulty && $difficulty !== 'all', fn($q) => $q->where('difficulty', $difficulty))
             ->inRandomOrder()
             ->limit($data['count'])
             ->get(['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty']);
 
         if ($questions->isEmpty()) {
-            return back()->withErrors(['level_id' => 'No questions available for this level and difficulty.']);
+            return back()
+                ->withErrors(['level_id' => 'No questions available for this level and difficulty.'])
+                ->withInput();
         }
 
         $session = PracticeSession::create([
-            'student_id'      => $student->id,
-            'level_id'        => $data['level_id'],
-            'difficulty'      => $data['difficulty'],
-            'total_questions' => $questions->count(),
+            'student_id'       => $student->id,
+            'level_id'         => $data['level_id'],
+            'difficulty'       => $difficulty === 'all' ? null : $difficulty,
+            'total_questions'  => $questions->count(),
+            'duration_minutes' => $data['session_length_minutes'] ?? null,
         ]);
 
         Cache::put("practice_{$session->id}_questions", $questions->values()->toArray(), now()->addHours(2));

@@ -29,7 +29,10 @@ class LearningPathController extends Controller
 
         $exams = collect();
         if ($student) {
-            $exams = \App\Models\Exam::where('franchise_id', $student->franchise_id)
+            $exams = \App\Models\Exam::where(function ($q) use ($student) {
+                    // Admin-authored global exams plus any legacy franchise exams.
+                    $q->whereNull('franchise_id')->orWhere('franchise_id', $student->franchise_id);
+                })
                 ->where('level_id', $level->id)
                 ->where('is_active', true)
                 ->orderBy('scheduled_at')

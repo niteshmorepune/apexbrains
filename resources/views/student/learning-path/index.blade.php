@@ -2,83 +2,71 @@
 @section('title', 'My Learning')
 
 @section('content')
-<div class="p-4 space-y-3">
+@php
+    $levelColors = [
+        1=>'#87CEEB', 2=>'#2ECC71', 3=>'#00BCD4', 4=>'#FFD54F', 5=>'#F5A623',
+        6=>'#FF69B4', 7=>'#D42B2B', 8=>'#9C27B0', 9=>'#1A73E8', 10=>'#00897B',
+        11=>'#FF6F00', 12=>'#AD1457', 13=>'#283593', 14=>'#212121',
+    ];
+    $totalLevels = $levels->count();
+    $overallPct  = $totalLevels > 0 ? round(count($completedLevelIds) / $totalLevels * 100) : 0;
+@endphp
 
-    {{-- Overall progress header --}}
+<x-student-header title="My Learning" :back="route('student.home')" />
+
+<div class="px-4 pb-4 space-y-4">
+
+    {{-- Overall progress --}}
     @if($student?->currentLevel)
-    <div class="bg-stu rounded-2xl p-4 text-white">
-        <div class="flex items-center justify-between mb-2">
-            <p class="text-sm font-bold">L{{ $student->currentLevel->number }} / L{{ $levels->count() }}</p>
-            <p class="text-white/70 text-xs">{{ round(count($completedLevelIds) / max($levels->count(), 1) * 100) }}% complete</p>
+        <div class="bg-white rounded-2xl border border-border p-4">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-sm font-bold text-gray-800">Overall Progress</p>
+                <p class="text-sm font-bold text-fran">L{{ $student->currentLevel->number }} / L{{ $totalLevels }}</p>
+            </div>
+            <div class="h-2 bg-bg-mid rounded-full overflow-hidden mb-1.5">
+                <div class="h-full bg-fran rounded-full" style="width: {{ max(3, $overallPct) }}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+                <span>Level {{ $student->currentLevel->number }} of {{ $totalLevels }} total levels</span>
+                <span>{{ $overallPct }}% complete</span>
+            </div>
         </div>
-        <p class="text-white/70 text-xs mb-2">Level {{ $student->currentLevel->number }} of {{ $levels->count() }} total levels</p>
-        <div class="h-1.5 bg-white/20 rounded-full overflow-hidden">
-            <div class="h-full bg-white rounded-full"
-                 style="width: {{ max(3, round(count($completedLevelIds) / max($levels->count(), 1) * 100)) }}%"></div>
-        </div>
-    </div>
     @endif
 
-    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide px-1">Your Level Journey</p>
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Your Level Journey</p>
 
-    @foreach($levels as $level)
-        @php
-            $isCompleted = in_array($level->id, $completedLevelIds);
-            $isCurrent   = $student?->current_level_id === $level->id;
-            $isLocked    = !$isCompleted && !$isCurrent && $level->number > $currentLevelNumber;
-        @endphp
-
-        <a href="{{ $isLocked ? '#' : route('student.levels.show', $level) }}"
-           class="block bg-white rounded-2xl border p-4 transition-all
-               {{ $isCurrent ? 'border-stu shadow-sm' : 'border-border' }}
-               {{ $isLocked ? 'opacity-50 cursor-not-allowed' : 'hover:border-stu' }}">
-            <div class="flex items-center gap-4">
-                {{-- Level number circle --}}
-                <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg flex-shrink-0
-                    {{ $isCompleted ? 'bg-stu text-white' : ($isCurrent ? 'bg-stu/20 text-stu' : 'bg-bg-mid text-gray-400') }}">
-                    @if($isCompleted)
-                        ✓
-                    @else
-                        {{ $level->number }}
-                    @endif
+    {{-- Connected level journey --}}
+    <div class="grid grid-cols-3 gap-x-2 gap-y-5">
+        @foreach($levels as $level)
+            @php
+                $isCompleted = in_array($level->id, $completedLevelIds);
+                $isCurrent   = $student?->current_level_id === $level->id;
+                $isLocked    = !$isCompleted && !$isCurrent && $level->number > $currentLevelNumber;
+                $color       = $levelColors[$level->number] ?? '#2ECC71';
+            @endphp
+            <a href="{{ $isLocked ? '#' : route('student.levels.show', $level) }}"
+               class="flex flex-col items-center text-center {{ $isLocked ? 'pointer-events-none' : '' }}">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center font-black text-lg shadow-sm
+                            {{ $isCurrent ? 'ring-4 ring-offset-2' : '' }}"
+                     style="{{ $isLocked ? 'background:#E5E9F0;color:#A8B0BE' : 'background:'.$color.';color:#fff' }}{{ $isCurrent ? ';--tw-ring-color:'.$color : '' }}">
+                    @if($isLocked) 🔒 @else L{{ $level->number }} @endif
                 </div>
-
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2">
-                        <p class="font-semibold text-gray-800 text-sm">Level {{ $level->number }}</p>
-                        @if($isCurrent)
-                            <span class="text-xs bg-stu text-white px-2 py-0.5 rounded-full">Current</span>
-                        @elseif($isCompleted)
-                            <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">✓ Cert</span>
-                        @elseif($isLocked)
-                            <span class="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">Locked</span>
-                        @endif
-                    </div>
-                    @if($level->title)
-                        <p class="text-xs text-gray-500 mt-0.5">{{ $level->title }}</p>
-                    @endif
-                    @if($level->learning_objectives && count($level->learning_objectives) > 0)
-                        <p class="text-xs text-gray-400 mt-1">{{ count($level->learning_objectives) }} objectives</p>
-                    @endif
-                </div>
-
-                @if(!$isLocked)
-                    <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
+                <p class="text-[11px] font-semibold text-gray-700 mt-1.5 leading-tight">{{ \Illuminate\Support\Str::limit($level->title ?? ('Level '.$level->number), 14) }}</p>
+                @if($isCompleted)
+                    <span class="text-[10px] font-bold text-stu">✓ Cert</span>
+                @elseif($isCurrent)
+                    <span class="text-[10px] font-bold text-logo-amber">In Progress</span>
                 @else
-                    <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
+                    <span class="text-[10px] text-gray-300">{{ $isLocked ? 'Locked' : 'Start' }}</span>
                 @endif
-            </div>
-        </a>
-    @endforeach
+            </a>
+        @endforeach
+    </div>
 
     {{-- Continue CTA --}}
     @if($student?->currentLevel)
         <a href="{{ route('student.levels.show', $student->currentLevel) }}"
-           class="block bg-stu text-white text-center font-bold py-3.5 rounded-2xl text-sm hover:bg-stu-dark transition-colors">
+           class="block bg-fran text-white text-center font-bold py-3.5 rounded-2xl text-sm">
             Continue Level {{ $student->currentLevel->number }}
         </a>
     @endif

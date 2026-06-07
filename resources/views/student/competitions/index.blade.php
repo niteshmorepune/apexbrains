@@ -1,99 +1,63 @@
 @extends('layouts.student')
-@section('title', 'Competitions')
+@section('title', 'Competition')
 
 @section('content')
-<div class="p-4 space-y-4">
+@php $borderColors = ['#D42B2B', '#F5A623', '#FFD54F', '#FF69B4', '#1A73E8', '#9C27B0']; @endphp
 
-    {{-- Upcoming Exams --}}
+<x-student-header title="Competition" :back="route('student.exams.index')" />
+
+<div class="px-4 pb-4 space-y-4">
+
+    {{-- Upcoming --}}
     <div>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Upcoming Exams</p>
-
-        @if(session('success'))
-            <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
-                {{ session('success') }}
-            </div>
-        @endif
-
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Upcoming Competitions</p>
         @forelse($competitions as $comp)
             <div class="bg-white rounded-2xl border border-border p-4 mb-3">
-                <div class="flex items-start justify-between gap-3">
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-800 text-sm">{{ $comp->title }}</p>
-                        @if($comp->description)
-                            <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ $comp->description }}</p>
-                        @endif
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            @if($comp->start_date)
-                                <span class="text-xs bg-bg-mid text-gray-600 px-2 py-0.5 rounded-full">
-                                    {{ $comp->start_date->format('d M') }}
-                                </span>
-                            @endif
-                            @if($comp->registration_deadline)
-                                <span class="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">
-                                    Register by {{ $comp->registration_deadline->format('d M') }}
-                                </span>
-                            @endif
-                            @if($comp->fee_amount > 0)
-                                <span class="text-xs bg-bg-mid text-gray-600 px-2 py-0.5 rounded-full">
-                                    ₹{{ number_format($comp->fee_amount, 0) }}
-                                </span>
-                            @endif
-                        </div>
+                <div class="flex items-start gap-3">
+                    <span class="w-10 h-10 rounded-xl bg-fran-light flex items-center justify-center text-fran flex-shrink-0">📅</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-gray-800 text-sm">{{ $comp->title }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">
+                            @if($comp->start_date){{ $comp->start_date->format('d M Y') }} · @endif
+                            @if($comp->fee_amount > 0)₹{{ number_format($comp->fee_amount, 0) }}@else Free @endif
+                        </p>
                     </div>
-
                     @if(in_array($comp->id, $myRegistrationIds))
-                        <span class="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-xl font-medium flex-shrink-0">
-                            Registered ✓
-                        </span>
+                        <a href="{{ route('student.competitions.show', $comp) }}" class="text-[11px] bg-stu-light text-stu px-2.5 py-1 rounded-full font-bold flex-shrink-0">Registered ✓</a>
                     @else
                         <form method="POST" action="{{ route('student.competitions.register', $comp) }}" class="flex-shrink-0">
                             @csrf
-                            <button type="submit"
-                                    class="text-xs bg-fran text-white px-3 py-1.5 rounded-xl font-medium hover:bg-fran-dark">
-                                Register
-                            </button>
+                            <button type="submit" class="text-xs bg-fran text-white px-4 py-1.5 rounded-lg font-bold">Register</button>
                         </form>
                     @endif
                 </div>
             </div>
         @empty
-            <div class="bg-white rounded-2xl border border-border p-8 text-center text-gray-400">
-                <p class="text-sm">No open competitions right now.</p>
-                <p class="text-xs mt-1">Check back soon or practice with past papers.</p>
-            </div>
+            <div class="bg-white rounded-2xl border border-border p-6 text-center text-sm text-gray-400">No open competitions right now.</div>
         @endforelse
     </div>
 
-    {{-- Past Exams --}}
+    {{-- Past --}}
     @if($pastCompetitions->isNotEmpty())
         <div>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Past Exams</p>
-            <div class="bg-white rounded-2xl border border-border overflow-hidden">
-                <div class="divide-y divide-border">
-                    @foreach($pastCompetitions as $comp)
-                        @php
-                            $registered = in_array($comp->id, $myRegistrationIds);
-                        @endphp
-                        <div class="px-4 py-3 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-yellow-50 flex items-center justify-center flex-shrink-0">
-                                <span class="text-sm">🏆</span>
-                            </div>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Past Competitions</p>
+            <div class="space-y-3">
+                @foreach($pastCompetitions as $i => $comp)
+                    @php $registered = in_array($comp->id, $myRegistrationIds); @endphp
+                    <div class="bg-white rounded-2xl border border-border overflow-hidden flex items-stretch">
+                        <span class="w-1.5 flex-shrink-0" style="background-color: {{ $borderColors[$i % count($borderColors)] }}"></span>
+                        <div class="flex items-center gap-3 p-4 flex-1 min-w-0">
+                            <span class="w-10 h-10 rounded-full bg-bg-light flex items-center justify-center flex-shrink-0">📊</span>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-700 truncate">{{ $comp->title }}</p>
-                                <p class="text-xs text-gray-400">
-                                    {{ $comp->end_date?->format('d M Y') }}
-                                    @if($registered)· <span class="text-stu font-medium">Participated</span>@endif
-                                </p>
+                                <p class="text-sm font-bold text-gray-800 truncate">{{ $comp->title }}</p>
+                                <p class="text-xs text-gray-400">{{ $comp->end_date?->format('d M Y') }}@if($registered) · Participated @endif</p>
                             </div>
                             @if($registered)
-                                <a href="{{ route('student.competitions.index') }}"
-                                   class="text-xs text-fran hover:underline font-medium flex-shrink-0">
-                                    View Report
-                                </a>
+                                <a href="{{ route('student.competitions.result', $comp) }}" class="text-xs text-fran font-semibold flex-shrink-0">View Report</a>
                             @endif
                         </div>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     @endif

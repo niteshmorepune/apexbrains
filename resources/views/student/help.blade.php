@@ -2,10 +2,10 @@
 @section('title', 'Help Guide')
 
 @section('content')
-<div class="max-w-2xl mx-auto px-4 py-6 space-y-5">
+<x-student-header title="Help Guide" :back="route('student.home')" />
+<div class="max-w-2xl mx-auto px-4 pb-6 space-y-4">
 
     <div class="bg-white rounded-2xl border border-border p-5">
-        <h1 class="text-lg font-bold text-stu mb-1">Student Help Guide</h1>
         <p class="text-text-muted text-sm">Everything you need to know about using your Apex Brains student portal.</p>
     </div>
 

@@ -27,6 +27,7 @@
     --color-stu:         #2ECC71;
     --color-stu-light:   #EAFAF1;
     --color-stu-dark:    #1E9850;
+    --color-stu-bg:      #F4F7FE; /* mobile page background (matches Figma) */
 
     /* Logo / brand accent */
     --color-logo-red:    #D42B2B;

@@ -2,47 +2,44 @@
 @section('title', 'Competition Result')
 
 @section('content')
-<div class="p-4 space-y-4">
+<div class="px-4 pt-6 pb-4 space-y-4">
 
     @if($attempt)
         @php
-            $passMark = $attempt->paper?->pass_percentage ?? 75;
-            $passed = $attempt->percentage >= $passMark;
-            $durationSec = $attempt->started_at && $attempt->submitted_at
-                ? $attempt->submitted_at->diffInSeconds($attempt->started_at) : 0;
-            $timeMins = $durationSec > 0
-                ? floor($durationSec/60).':'.str_pad($durationSec%60, 2, '0', STR_PAD_LEFT) : '—';
-            $totalQ = $attempt->paper?->total_questions ?? 0;
+            $passMark   = $attempt->paper?->pass_percentage ?? 75;
+            $passed     = $attempt->percentage >= $passMark;
+            $pct        = (int) round($attempt->percentage);
+            $ringColor  = $passed ? '#2ECC71' : '#EF4444';
+            $durationSec = $attempt->started_at && $attempt->submitted_at ? $attempt->submitted_at->diffInSeconds($attempt->started_at) : 0;
+            $timeMins   = $durationSec > 0 ? floor($durationSec/60).':'.str_pad($durationSec%60, 2, '0', STR_PAD_LEFT) : '—';
+            $totalQ     = $attempt->paper?->total_questions ?? 0;
+            $wrong      = max(0, $totalQ - (int) $attempt->score);
+            $circ       = 2 * 3.14159 * 52;
         @endphp
 
-        {{-- Result banner --}}
-        <div class="rounded-2xl p-6 text-white text-center {{ $passed ? 'bg-stu' : 'bg-red-500' }}">
-            <p class="text-white/80 text-sm">{{ $competition->title }}</p>
-            <p class="text-white/60 text-xs mt-0.5">Completed via {{ $attempt->paper?->title }}</p>
-            <p class="text-5xl font-black my-2">{{ number_format($attempt->percentage, 0) }}%</p>
-            <span class="inline-block font-bold text-sm px-4 py-1 rounded-full
-                {{ $passed ? 'bg-white/20 text-white' : 'bg-white text-red-500' }}">
-                {{ $passed ? 'PASSED' : 'FAILED' }}
-            </span>
+        {{-- Score ring --}}
+        <div class="flex flex-col items-center">
+            <div class="relative w-36 h-36">
+                <svg class="w-36 h-36 -rotate-90" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="#EDF0F5" stroke-width="10"/>
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="{{ $ringColor }}" stroke-width="10" stroke-linecap="round" stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $circ - ($circ * $pct / 100) }}"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <p class="text-3xl font-black text-gray-900">{{ $pct }}%</p>
+                    <p class="text-xs text-gray-400">Score</p>
+                </div>
+            </div>
+            <p class="text-base font-bold text-gray-800 mt-3">{{ $competition->title }}</p>
+            <span class="inline-block font-bold text-xs px-4 py-1 rounded-full mt-1.5 {{ $passed ? 'bg-stu text-white' : 'bg-red-500 text-white' }}">{{ $passed ? 'PASSED' : 'COMPLETED' }}</span>
         </div>
 
-        {{-- Stats --}}
-        <div class="grid grid-cols-3 gap-3">
-            <div class="bg-green-50 rounded-2xl p-4 text-center">
-                <p class="text-2xl font-black text-green-600">{{ (int) $attempt->score }}</p>
-                <p class="text-xs text-green-600 mt-0.5">Correct</p>
-            </div>
-            <div class="bg-red-50 rounded-2xl p-4 text-center">
-                <p class="text-2xl font-black text-red-500">{{ max(0, $totalQ - (int) $attempt->score) }}</p>
-                <p class="text-xs text-red-500 mt-0.5">Wrong</p>
-            </div>
-            <div class="bg-bg-mid rounded-2xl p-4 text-center">
-                <p class="text-2xl font-black text-gray-600">{{ $timeMins }}</p>
-                <p class="text-xs text-gray-500 mt-0.5">Time</p>
-            </div>
+        {{-- Stats 2x2 --}}
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-stu text-xl">✅</span><div><p class="text-lg font-black text-stu leading-none">{{ (int) $attempt->score }}/{{ $totalQ }}</p><p class="text-xs text-gray-400 mt-1">Correct</p></div></div>
+            <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-red-500 text-xl">❌</span><div><p class="text-lg font-black text-red-500 leading-none">{{ $wrong }}/{{ $totalQ }}</p><p class="text-xs text-gray-400 mt-1">Wrong</p></div></div>
+            <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-logo-amber text-xl">🎯</span><div><p class="text-lg font-black text-logo-amber leading-none">{{ $passMark }}%</p><p class="text-xs text-gray-400 mt-1">Pass Mark</p></div></div>
+            <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-red-500 text-xl">⏱️</span><div><p class="text-lg font-black text-gray-700 leading-none">{{ $timeMins }}</p><p class="text-xs text-gray-400 mt-1">Time Taken</p></div></div>
         </div>
-
-        <p class="text-center text-xs text-gray-400">Pass mark: {{ $passMark }}%</p>
     @else
         <div class="bg-white rounded-2xl border border-border p-10 text-center text-gray-400">
             <div class="text-4xl mb-3">📝</div>
@@ -51,10 +48,8 @@
         </div>
     @endif
 
-    <a href="{{ route('student.competitions.index') }}"
-       class="block w-full py-3 border border-border text-gray-600 rounded-2xl text-sm font-semibold text-center hover:bg-bg-light transition-colors">
-        Back to Home
-    </a>
+    <a href="{{ route('student.home') }}" class="block w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold text-center">Back to Home</a>
+    <a href="{{ route('student.competitions.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">All Competitions</a>
 
 </div>
 @endsection

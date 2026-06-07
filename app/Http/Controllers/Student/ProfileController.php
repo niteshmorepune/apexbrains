@@ -33,9 +33,12 @@ class ProfileController extends Controller
             'password'              => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
-        if ($request->filled('current_password')) {
-            if (!Hash::check($request->current_password, $user->password)) {
+        if ($request->filled('current_password') || $request->filled('password')) {
+            if (!$request->filled('current_password') || !Hash::check($request->current_password, $user->password)) {
                 return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            }
+            if (!$request->filled('password')) {
+                return back()->withErrors(['password' => 'Enter a new password to change it.']);
             }
             $user->password = Hash::make($data['password']);
         }

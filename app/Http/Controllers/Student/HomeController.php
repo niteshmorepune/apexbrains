@@ -31,8 +31,13 @@ class HomeController extends Controller
             : 0;
 
         $upcomingExam = $student
-            ? Exam::where('franchise_id', $student->franchise_id)
-                ->where('level_id', $student->current_level_id)
+            ? Exam::where(function ($q) use ($student) {
+                    // Admin-authored global exams plus any legacy franchise exams.
+                    $q->whereNull('franchise_id')->orWhere('franchise_id', $student->franchise_id);
+                })
+                ->where(function ($q) use ($student) {
+                    $q->whereNull('level_id')->orWhere('level_id', $student->current_level_id);
+                })
                 ->where('is_active', true)
                 ->where('scheduled_at', '>=', now())
                 ->orderBy('scheduled_at')

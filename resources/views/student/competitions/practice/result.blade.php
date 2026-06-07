@@ -53,7 +53,7 @@
     </div>
 
     <div class="space-y-3">
-        <a href="{{ route('student.competitions.practice.index') }}"
+        <a href="{{ route('student.competitions.practice') }}"
            class="block w-full py-3 border border-border text-gray-700 rounded-2xl text-sm font-semibold text-center">
             ← All Papers
         </a>

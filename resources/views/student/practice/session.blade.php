@@ -2,59 +2,81 @@
 @section('title', 'Practice — Q' . ($index + 1))
 
 @section('content')
-<div class="p-4 space-y-4" x-data="{ selected: null, submitting: false }">
+@php
+    $isAnzan = isset($question['question_type']) && in_array($question['question_type'], ['audio', 'anzan']);
+    $diffLabel = ucfirst($session->difficulty ?? 'Practice');
+@endphp
 
-    {{-- Inline tab-switch warning --}}
-    <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 flex items-center gap-2">
-        <span class="text-yellow-500 text-xs">⚠</span>
-        <p class="text-xs text-yellow-700 font-medium">Do not switch tabs — session will be flagged</p>
+<div x-data="{
+        selected: null,
+        remaining: {{ ($session->duration_minutes ?? 10) * 60 }},
+        tick() { if (this.remaining > 0) { this.remaining--; setTimeout(() => this.tick(), 1000); } },
+        get clock() { const m = Math.floor(this.remaining/60), s = this.remaining%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+     }" x-init="tick()">
+
+    {{-- Header --}}
+    <div class="px-4 pt-5 pb-2 flex items-center gap-2">
+        <form method="POST" action="{{ route('student.practice.submit', $session) }}">
+            @csrf
+            <button type="submit" class="w-8 h-8 -ml-1 flex items-center justify-center text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+        </form>
+        <h1 class="flex-1 text-center pr-7 text-[17px] font-bold text-gray-900">{{ $diffLabel }} Practice</h1>
     </div>
 
-    {{-- Progress bar --}}
-    <div>
-        <div class="flex justify-between text-xs text-gray-500 mb-1.5">
-            <span>Q{{ $index + 1 }} of {{ $totalCount }}</span>
-            <span>{{ count($answered) }} answered</span>
-        </div>
-        <div class="w-full h-2 bg-bg-mid rounded-full overflow-hidden">
-            <div class="h-full bg-stu rounded-full transition-all"
-                 style="width: {{ ($index / max($totalCount, 1)) * 100 }}%"></div>
+    {{-- Timer pills --}}
+    <div class="px-4 flex items-center justify-between">
+        <span class="bg-fran text-white text-xs font-bold px-3 py-1.5 rounded-full">Q{{ $index + 1 }} of {{ $totalCount }}</span>
+        <span class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="clock"></span>
+    </div>
+
+    {{-- Warning --}}
+    <div class="px-4 mt-2">
+        <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center">
+            <p class="text-[11px] text-amber-700 font-medium">Warning — Do not switch tabs — session will be flagged</p>
         </div>
     </div>
 
-    {{-- Question card — Flash Anzan for audio/numeric, standard for MCQ --}}
-    @php $isAnzan = isset($question['question_type']) && in_array($question['question_type'], ['audio', 'anzan']); @endphp
-    @if($isAnzan)
-        <div class="bg-white rounded-2xl border border-border p-8 text-center">
-            <p class="font-black leading-none text-gray-900" style="font-size: 100px; line-height: 1;">
-                {{ $question['question_text'] }}
-            </p>
+    {{-- Question number strip --}}
+    <div class="px-4 mt-3 overflow-x-auto">
+        <div class="flex gap-2 w-max">
+            @for($i = 0; $i < $totalCount; $i++)
+                @php $isDone = isset($answered[$i]); $isCur = $i === $index; @endphp
+                <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                    {{ $isCur ? 'bg-fran text-white' : ($isDone ? 'bg-stu-light text-stu' : 'bg-white border border-border text-gray-400') }}">
+                    {{ $i + 1 }}
+                </span>
+            @endfor
         </div>
-    @else
-        <div class="bg-white rounded-2xl border border-border p-5">
-            <p class="text-base font-bold text-gray-800 leading-relaxed">
-                {{ $question['question_text'] }}
-            </p>
+    </div>
+
+    {{-- Calculate prompt --}}
+    <div class="px-4 mt-5 flex items-center justify-between">
+        <p class="text-sm text-gray-500">Calculate mentally :</p>
+        <span class="text-gray-400">🔊</span>
+    </div>
+
+    {{-- Big number display --}}
+    <div class="px-4 mt-3">
+        <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[180px] flex items-center justify-center">
+            <p class="font-black text-gray-900 leading-tight whitespace-pre-line" style="font-size: 44px;">{{ $question['question_text'] }}</p>
         </div>
-    @endif
+    </div>
 
     {{-- Answer options --}}
-    <form method="POST" action="{{ route('student.practice.answer', $session) }}" id="answerForm">
+    <form method="POST" action="{{ route('student.practice.answer', $session) }}" id="answerForm" class="px-4 mt-5">
         @csrf
-        <div class="space-y-3">
+        <p class="text-sm text-gray-500 mb-2">Select your answer :</p>
+        <div class="grid grid-cols-2 gap-3">
             @foreach(['a' => $question['option_a'], 'b' => $question['option_b'], 'c' => $question['option_c'], 'd' => $question['option_d']] as $letter => $option)
-                @if($option)
-                    <label class="block cursor-pointer">
+                @if($option !== null && $option !== '')
+                    <label class="cursor-pointer">
                         <input type="radio" name="answer" value="{{ $letter }}" class="sr-only peer"
-                               x-model="selected" @change="submitting = true; $nextTick(() => document.getElementById('answerForm').submit())">
-                        <div class="flex items-center gap-3 bg-white border-2 rounded-2xl px-4 py-3.5 transition-all
-                                    border-border peer-checked:border-stu peer-checked:bg-stu/5">
-                            <span class="w-7 h-7 rounded-full border-2 border-border flex items-center justify-center
-                                         text-xs font-bold text-gray-500 flex-shrink-0
-                                         peer-checked:border-stu peer-checked:bg-stu peer-checked:text-white">
-                                {{ strtoupper($letter) }}
-                            </span>
-                            <span class="text-sm text-gray-700">{{ $option }}</span>
+                               x-model="selected" @change="$nextTick(() => document.getElementById('answerForm').submit())">
+                        <div class="flex items-center gap-3 bg-white border-2 border-border rounded-2xl px-4 py-4 peer-checked:border-stu peer-checked:bg-stu-light">
+                            <span class="w-7 h-7 rounded-full bg-bg-mid text-gray-500 flex items-center justify-center text-xs font-bold flex-shrink-0 peer-checked:bg-stu peer-checked:text-white">{{ strtoupper($letter) }}</span>
+                            <span class="text-base font-bold text-gray-800">{{ $option }}</span>
                         </div>
                     </label>
                 @endif
@@ -62,14 +84,7 @@
         </div>
     </form>
 
-    {{-- Skip / End --}}
-    <div class="flex items-center justify-between pt-2">
-        <form method="POST" action="{{ route('student.practice.submit', $session) }}">
-            @csrf
-            <button type="submit" class="text-xs text-gray-400 hover:text-gray-600">End session</button>
-        </form>
-        <p class="text-xs text-gray-400">Tap an option to continue</p>
-    </div>
+    <p class="text-center text-xs text-gray-400 mt-4">Tap an option to continue</p>
 
 </div>
 @endsection

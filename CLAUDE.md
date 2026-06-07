@@ -53,7 +53,7 @@ php artisan optimize:clear
 | Student | #2ECC71 (GREEN) | `bg-stu` | `internal.student` | `/student` |
 | External | #1A73E8 (blue) | `bg-fran` | `external.student` | `/external` |
 
-Student portal header is **GREEN** (`bg-stu`). Never dark navy.
+Student portal uses GREEN as its accent (bottom-nav active, badges, success) — never dark navy. **Per the 2026-06-07 Figma redesign there is NO green top app-bar:** student screens sit on a light-blue page background (`bg-stu-bg`) with a per-screen back-chevron + centered title via `<x-student-header>`. Primary CTA buttons are blue (`bg-fran`) to match Figma. Do not reintroduce a persistent green header.
 
 ## Route Files
 - `routes/web.php` — root redirect, `/login`, `/logout`, `/verify/{code}`

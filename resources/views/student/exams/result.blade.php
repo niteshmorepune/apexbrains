@@ -2,78 +2,86 @@
 @section('title', 'Exam Result')
 
 @section('content')
-<div class="p-4 space-y-4">
+@php
+    $pct        = (int) round($attempt->percentage);
+    $ringColor  = $attempt->is_passed ? '#2ECC71' : '#EF4444';
+    $totalQ     = count($attempt->question_ids ?? []);
+    $wrongCount = $attempt->answers->where('is_correct', false)->count();
+    $timeMins   = $timeTaken > 0 ? floor($timeTaken/60).':'.str_pad($timeTaken%60, 2, '0', STR_PAD_LEFT) : '—';
+    $circ       = 2 * 3.14159 * 52;
+@endphp
 
-    {{-- Result banner --}}
-    <div class="rounded-2xl p-6 text-white text-center
-        {{ $attempt->is_passed ? 'bg-stu' : 'bg-red-500' }}">
-        <p class="text-white/80 text-sm">{{ $exam->title }}</p>
-        @if($classAvg)
-            <p class="text-white/60 text-xs mt-0.5">Class Avg: {{ number_format($classAvg, 0) }}%</p>
-        @endif
-        <p class="text-5xl font-black my-2">{{ number_format($attempt->percentage, 0) }}%</p>
-        <span class="inline-block font-bold text-sm px-4 py-1 rounded-full
-            {{ $attempt->is_passed ? 'bg-white/20 text-white' : 'bg-white text-red-500' }}">
+<div class="px-4 pt-6 pb-4 space-y-4">
+
+    {{-- Score ring --}}
+    <div class="flex flex-col items-center">
+        <div class="relative w-36 h-36">
+            <svg class="w-36 h-36 -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#EDF0F5" stroke-width="10"/>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="{{ $ringColor }}" stroke-width="10" stroke-linecap="round"
+                        stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $circ - ($circ * $pct / 100) }}"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <p class="text-3xl font-black text-gray-900">{{ $pct }}%</p>
+                <p class="text-xs text-gray-400">Score</p>
+            </div>
+        </div>
+        <p class="text-base font-bold text-gray-800 mt-3">{{ $exam->title }}</p>
+        <span class="inline-block font-bold text-xs px-4 py-1 rounded-full mt-1.5 {{ $attempt->is_passed ? 'bg-stu text-white' : 'bg-red-500 text-white' }}">
             {{ $attempt->is_passed ? 'PASSED' : 'FAILED' }}
         </span>
+        @if($classAvg)
+            <p class="text-xs text-gray-400 mt-1.5">Class Avg: {{ number_format($classAvg, 0) }}%</p>
+        @endif
     </div>
 
-    {{-- 4-stat grid --}}
-    @php
-        $timeMins = $timeTaken > 0 ? floor($timeTaken/60).':'.str_pad($timeTaken%60, 2, '0', STR_PAD_LEFT) : '—';
-        $wrongCount = $attempt->answers->where('is_correct', false)->count();
-    @endphp
+    {{-- Stats 2x2 --}}
     <div class="grid grid-cols-2 gap-3">
-        <div class="bg-green-50 rounded-2xl p-4 text-center">
-            <p class="text-2xl font-black text-green-600">{{ $attempt->score }}</p>
-            <p class="text-xs text-green-600 mt-0.5">Correct</p>
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3">
+            <span class="text-stu text-xl">✅</span>
+            <div><p class="text-lg font-black text-stu leading-none">{{ $attempt->score }}/{{ $totalQ }}</p><p class="text-xs text-gray-400 mt-1">Correct</p></div>
         </div>
-        <div class="bg-red-50 rounded-2xl p-4 text-center">
-            <p class="text-2xl font-black text-red-500">{{ $wrongCount }}</p>
-            <p class="text-xs text-red-500 mt-0.5">Wrong</p>
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3">
+            <span class="text-red-500 text-xl">❌</span>
+            <div><p class="text-lg font-black text-red-500 leading-none">{{ $wrongCount }}/{{ $totalQ }}</p><p class="text-xs text-gray-400 mt-1">Wrong</p></div>
         </div>
-        <div class="bg-yellow-50 rounded-2xl p-4 text-center">
-            <p class="text-2xl font-black text-logo-amber">{{ $skipped }}</p>
-            <p class="text-xs text-logo-amber mt-0.5">Skipped</p>
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3">
+            <span class="text-logo-amber text-xl">⏭️</span>
+            <div><p class="text-lg font-black text-logo-amber leading-none">{{ $skipped }}/{{ $totalQ }}</p><p class="text-xs text-gray-400 mt-1">Skipped</p></div>
         </div>
-        <div class="bg-bg-mid rounded-2xl p-4 text-center">
-            <p class="text-2xl font-black text-gray-600">{{ $timeMins }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Time Taken</p>
+        <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3">
+            <span class="text-red-500 text-xl">⏱️</span>
+            <div><p class="text-lg font-black text-gray-700 leading-none">{{ $timeMins }}</p><p class="text-xs text-gray-400 mt-1">Time Taken</p></div>
         </div>
     </div>
 
-    {{-- Review Incorrect --}}
-    @if($wrongCount > 0)
-    <div class="bg-white rounded-2xl border border-border overflow-hidden">
-        <div class="px-4 py-3 border-b border-border">
-            <p class="text-sm font-semibold text-gray-700">Review Incorrect ({{ $wrongCount }})</p>
+    {{-- Question-by-Question Breakdown --}}
+    @if($attempt->answers->isNotEmpty())
+        <div class="bg-white rounded-2xl border border-border overflow-hidden">
+            <div class="px-4 py-3 border-b border-border"><p class="text-sm font-bold text-gray-800">Question-by-Question Breakdown</p></div>
+            <div class="divide-y divide-border">
+                @foreach($attempt->answers as $answer)
+                    <div class="px-4 py-3 flex items-start gap-3">
+                        <span class="text-sm mt-0.5">{{ $answer->is_correct ? '✅' : '❌' }}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-gray-800 truncate">{{ $answer->question?->question_text }}</p>
+                            <p class="text-xs mt-0.5 {{ $answer->is_correct ? 'text-gray-400' : 'text-red-500' }}">
+                                Your: {{ strtoupper($answer->selected_answer) }}) {{ $answer->question?->{'option_' . $answer->selected_answer} }}
+                                @unless($answer->is_correct)
+                                    · <span class="text-stu">Correct: {{ strtoupper($answer->question?->correct_answer) }})</span>
+                                @endunless
+                            </p>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
-        <div class="divide-y divide-border">
-            @foreach($attempt->answers->where('is_correct', false) as $i => $answer)
-                <div class="px-4 py-3">
-                    <p class="text-sm text-gray-800 mb-2 leading-snug">{{ $answer->question?->question_text }}</p>
-                    <p class="text-xs text-red-500">
-                        ✗ Your answer: {{ strtoupper($answer->selected_answer) }}) {{ $answer->question?->{'option_' . $answer->selected_answer} }}
-                    </p>
-                    <p class="text-xs text-green-600 font-medium mt-0.5">
-                        ✓ Correct: {{ strtoupper($answer->question?->correct_answer) }}) {{ $answer->question?->{'option_' . $answer->question?->correct_answer} }}
-                    </p>
-                </div>
-            @endforeach
-        </div>
-    </div>
     @endif
 
     {{-- Actions --}}
-    <div class="space-y-3">
-        <a href="{{ route('student.exams.index') }}"
-           class="block w-full py-3 border border-border text-gray-700 rounded-2xl text-sm font-semibold text-center hover:bg-bg-light">
-            ← Back to Exams
-        </a>
-        <a href="{{ route('student.home') }}"
-           class="block w-full py-3 bg-fran text-white rounded-2xl text-sm font-semibold text-center">
-            Home
-        </a>
+    <div class="space-y-3 pt-1">
+        <a href="{{ route('student.home') }}" class="block w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold text-center">Back to Home</a>
+        <a href="{{ route('student.exams.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">All Exams</a>
     </div>
 
 </div>

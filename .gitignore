@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local Figma reference exports (not for commit)
+.figma_student/
