@@ -5,18 +5,30 @@
 @php
     $isAnzan = isset($question['question_type']) && in_array($question['question_type'], ['audio', 'anzan']);
     $diffLabel = ucfirst($session->difficulty ?? 'Practice');
+    // Anchor the countdown to the session's real start so it keeps ticking
+    // across question reloads instead of resetting to full duration each time.
+    $totalSeconds = (int) (($session->duration_minutes ?? 10) * 60);
+    $elapsedSeconds = (int) abs($session->created_at->diffInSeconds(now()));
+    $remaining = max(0, $totalSeconds - $elapsedSeconds);
 @endphp
 
 <div x-data="{
         selected: null,
-        remaining: {{ ($session->duration_minutes ?? 10) * 60 }},
-        tick() { if (this.remaining > 0) { this.remaining--; setTimeout(() => this.tick(), 1000); } },
+        remaining: {{ $remaining }},
+        tick() {
+            if (this.remaining > 0) {
+                this.remaining--;
+                setTimeout(() => this.tick(), 1000);
+            } else {
+                document.getElementById('exitForm').submit();
+            }
+        },
         get clock() { const m = Math.floor(this.remaining/60), s = this.remaining%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
      }" x-init="tick()">
 
     {{-- Header --}}
     <div class="px-4 pt-5 pb-2 flex items-center gap-2">
-        <form method="POST" action="{{ route('student.practice.submit', $session) }}">
+        <form method="POST" action="{{ route('student.practice.submit', $session) }}" id="exitForm">
             @csrf
             <button type="submit" class="w-8 h-8 -ml-1 flex items-center justify-center text-gray-700">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
