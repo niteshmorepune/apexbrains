@@ -74,7 +74,10 @@
     {{-- Speed Improvement chart --}}
     <div class="bg-white rounded-2xl border border-border p-4">
         <p class="text-sm font-bold text-gray-800 mb-3">Speed Improvement</p>
-        <canvas id="speedChart" height="90"></canvas>
+        {{-- Fixed-height wrapper: required so Chart.js (maintainAspectRatio:false) doesn't grow the canvas indefinitely --}}
+        <div class="relative h-36">
+            <canvas id="speedChart"></canvas>
+        </div>
     </div>
 
     {{-- Correct / Wrong --}}
