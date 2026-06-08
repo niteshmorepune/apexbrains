@@ -88,14 +88,17 @@ class PracticeController extends Controller
 
         $questions = Cache::get("practice_{$session->id}_questions", []);
         $index     = Cache::get("practice_{$session->id}_index", 0);
+        $answered  = Cache::get("practice_{$session->id}_answers", []);
 
-        if (empty($questions) || $index >= count($questions)) {
+        // Finalize if we've run past the last question OR every question has
+        // already been answered (guards against a stale index pointer leaving
+        // a fully-answered session stuck on a question view).
+        if (empty($questions) || $index >= count($questions) || count($answered) >= count($questions)) {
             return $this->finalize($session, $student);
         }
 
         $question   = $questions[$index];
         $totalCount = count($questions);
-        $answered   = Cache::get("practice_{$session->id}_answers", []);
 
         return view('student.practice.session', compact('session', 'question', 'index', 'totalCount', 'answered'));
     }
