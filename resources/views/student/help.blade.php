@@ -24,8 +24,8 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>Tap <strong>Practice</strong> in the bottom menu, then pick a type: <em>Exam Practice</em>, <em>Class Practice</em>, or <em>Competition Practice</em>.</p>
-                <p>Set your options — time per step, session length, number of questions, and Audio Dictation — then start. Numbers appear large on screen for mental-math drills.</p>
+                <p>Tap <strong>Practice</strong> in the bottom menu, then pick a type: <em>Exam Practice</em> or <em>Competition Practice</em>.</p>
+                <p>Choose a <em>difficulty</em> (Easy / Medium / Hard) and your session starts straight away. Numbers appear large on screen for mental-math drills.</p>
                 <p>After each session you'll see your accuracy, average speed, and a speed-improvement chart, plus a review of any questions you got wrong.</p>
             </div>
         </div>

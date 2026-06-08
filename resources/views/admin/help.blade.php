@@ -49,9 +49,9 @@
             </button>
             <div x-show="open === 'questions'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
                 <p><span class="font-semibold text-admin">Add questions manually:</span> Question Bank → New Question. Select a level, enter the question text, four options (A–D), and mark the correct answer.</p>
-                <p><span class="font-semibold text-admin">Audio Question Generator:</span> Question Bank → Generate Audio Questions. Upload a PDF or enter text; the system generates MCQ questions automatically. Review and approve before they appear in exams.</p>
+                <p><span class="font-semibold text-admin">Audio Question Generator:</span> Question Bank → Generate Audio Questions. Enter the question text, level, and answer to add an <em>audio-type</em> question to the bank. Review and approve before it appears in exams. <span class="text-xs text-text-muted">(Automatic text-to-speech audio is planned — generated questions currently use a placeholder audio file.)</span></p>
                 <p><span class="font-semibold text-admin">Approve / Reject:</span> New questions are in <em>pending</em> status. Use the Approve or Reject action on each question. Only approved questions appear in student exams.</p>
-                <p><span class="font-semibold text-admin">PDF Upload:</span> Upload scanned question papers. The OCR system extracts questions for review.</p>
+                <p><span class="font-semibold text-admin">Bulk import:</span> Question Bank → Import. Download the CSV template, fill in your questions, and upload it (<strong>CSV or Excel</strong>) to add many questions at once.</p>
             </div>
         </div>
 
