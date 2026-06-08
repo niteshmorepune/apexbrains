@@ -112,7 +112,7 @@
                 ['route' => 'student.practice.index',     'emoji' => '🎯', 'label' => 'Practice',  'bg' => 'bg-stu-light'],
                 ['route' => 'student.exams.index',        'emoji' => '📝', 'label' => 'My Exams',  'bg' => 'bg-fran-light'],
                 ['route' => 'student.results',            'emoji' => '🏆', 'label' => 'Results',   'bg' => 'bg-amber-50'],
-                ['route' => 'student.certificates.index', 'emoji' => '🎓', 'label' => 'Certs',     'bg' => 'bg-pink-50'],
+                ['route' => 'student.certificates.index', 'emoji' => '🎓', 'label' => 'Certificate', 'bg' => 'bg-pink-50'],
             ] as $action)
                 <a href="{{ route($action['route']) }}" class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3">
                     <span class="w-11 h-11 rounded-xl {{ $action['bg'] }} flex items-center justify-center text-xl flex-shrink-0">{{ $action['emoji'] }}</span>
