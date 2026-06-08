@@ -18,10 +18,15 @@
     $doneTopics  = $totalTopics > 0 ? (int) round($levelProgress / 100 * $totalTopics) : 0;
 @endphp
 
-<div class="px-4 pt-5 pb-4 space-y-4">
+<div class="pb-4">
+
+    {{-- Header panel: light-blue background + soft decorative circles (Figma S31) --}}
+    <div class="relative bg-[#D7E8FC] rounded-b-3xl overflow-hidden px-4 pt-5 pb-6">
+    <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/30 pointer-events-none"></div>
+    <div class="absolute top-7 -right-6 w-28 h-28 rounded-full bg-white/20 pointer-events-none"></div>
 
     {{-- Brand row + avatar --}}
-    <div class="flex items-center justify-between">
+    <div class="relative flex items-center justify-between">
         <div class="flex items-center gap-1.5">
             @if(!empty($appSettings['logo_path']))
                 <img src="{{ Storage::url($appSettings['logo_path']) }}" alt="{{ $appSettings['app_name'] ?? 'Apex Brains' }}" class="h-8 w-auto">
@@ -45,8 +50,8 @@
     </div>
 
     {{-- Greeting --}}
-    <div>
-        <p class="text-sm text-gray-400">{{ $greeting }},</p>
+    <div class="relative mt-3">
+        <p class="text-sm text-gray-500">{{ $greeting }},</p>
         <h1 class="text-2xl font-black text-gray-900 -mt-0.5">{{ $firstName }}!</h1>
         <div class="flex items-center gap-2 mt-1.5">
             @if($lvlNum)
@@ -57,6 +62,10 @@
             </p>
         </div>
     </div>
+    </div>{{-- /header panel --}}
+
+    {{-- Lower content --}}
+    <div class="px-4 pt-4 space-y-4">
 
     {{-- Streak + Next Exam --}}
     <div class="grid grid-cols-2 gap-3">
@@ -138,5 +147,6 @@
         </div>
     @endif
 
+    </div>{{-- /lower content --}}
 </div>
 @endsection
