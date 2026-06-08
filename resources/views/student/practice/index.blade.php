@@ -46,63 +46,29 @@
                     <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{{ $message }}</div>
                 @enderror
 
-                <form method="POST" action="{{ route('student.practice.start') }}" class="space-y-5">
+                {{-- Pick a difficulty — tapping it starts the session immediately --}}
+                <p class="text-sm text-gray-500">Choose a difficulty to begin.</p>
+                <form method="POST" action="{{ route('student.practice.start') }}" class="space-y-3">
                     @csrf
-                    <input type="hidden" name="practice_type" :value="type">
                     <input type="hidden" name="level_id" value="{{ $currentLevelId }}">
+                    <input type="hidden" name="count" value="20">
+                    <input type="hidden" name="session_length_minutes" value="10">
 
-                    {{-- Number of Questions --}}
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Number of Questions</label>
-                        <select name="count" class="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-fran">
-                            @foreach([50, 100, 120, 150] as $c)
-                                <option value="{{ $c }}" @selected($c === 150)>{{ $c }} Questions</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Time per steps --}}
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Time per steps</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            @foreach(['2' => '2 Sec', '2.5' => '2.5 Sec', '3' => '3 Sec'] as $v => $l)
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="time_per_question_seconds" value="{{ $v }}" {{ $v === '2.5' ? 'checked' : '' }} class="sr-only peer">
-                                    <span class="block text-center py-3 rounded-xl border bg-white text-sm font-semibold text-gray-600
-                                                 peer-checked:border-fran peer-checked:text-fran peer-checked:bg-fran-light border-border">{{ $l }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- Session Length --}}
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Session Length</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            @foreach(['8' => '8 min', '10' => '10 min'] as $v => $l)
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="session_length_minutes" value="{{ $v }}" {{ $v === '10' ? 'checked' : '' }} class="sr-only peer">
-                                    <span class="block text-center py-3 rounded-xl border bg-white text-sm font-semibold text-gray-600
-                                                 peer-checked:border-fran peer-checked:text-fran peer-checked:bg-fran-light border-border">{{ $l }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- Audio Dictation --}}
-                    <div class="flex items-center justify-between bg-white border border-border rounded-xl px-4 py-3">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-700">Audio Dictation</p>
-                            <p class="text-xs text-gray-400">Play voice for each number automatically</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="hidden" name="audio_dictation" value="0">
-                            <input type="checkbox" name="audio_dictation" value="1" checked class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-fran after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="w-full py-3.5 bg-fran text-white rounded-xl text-sm font-bold">Start Practice Session</button>
+                    @foreach([
+                        ['value' => 'easy',   'emoji' => '🟢', 'title' => 'Easy',   'sub' => 'Build confidence with simpler sums',    'bg' => 'bg-stu-light'],
+                        ['value' => 'medium', 'emoji' => '🟡', 'title' => 'Medium', 'sub' => 'Sharpen your speed and accuracy',        'bg' => 'bg-amber-50'],
+                        ['value' => 'hard',   'emoji' => '🔴', 'title' => 'Hard',   'sub' => 'Challenge yourself with tougher drills', 'bg' => 'bg-red-50'],
+                    ] as $diff)
+                        <button type="submit" name="difficulty" value="{{ $diff['value'] }}"
+                                class="w-full bg-white rounded-2xl border border-border p-4 flex items-center gap-3 text-left">
+                            <span class="w-12 h-12 rounded-xl {{ $diff['bg'] }} flex items-center justify-center text-2xl flex-shrink-0">{{ $diff['emoji'] }}</span>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-bold text-gray-800">{{ $diff['title'] }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5 leading-snug">{{ $diff['sub'] }}</p>
+                            </div>
+                            <svg class="w-5 h-5 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    @endforeach
                 </form>
 
                 {{-- Recent Sessions --}}
