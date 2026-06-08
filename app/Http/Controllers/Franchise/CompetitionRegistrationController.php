@@ -18,7 +18,13 @@ class CompetitionRegistrationController extends Controller
     {
         $franchiseId = Auth::user()->franchise_id;
 
-        $competitions = Competition::where('franchise_id', $franchiseId)
+        // Show only active competitions: this franchise's own plus any
+        // admin-created (global) competitions that have no franchise_id.
+        $competitions = Competition::where('is_active', true)
+            ->where(function ($q) use ($franchiseId) {
+                $q->whereNull('franchise_id')
+                  ->orWhere('franchise_id', $franchiseId);
+            })
             ->with(['registrations.student'])
             ->orderByDesc('start_date')
             ->get();
@@ -34,8 +40,18 @@ class CompetitionRegistrationController extends Controller
     {
         $franchiseId = Auth::user()->franchise_id;
 
-        if ($competition->franchise_id !== $franchiseId) {
+        // Allow registering into this franchise's own competitions and into
+        // admin-created (global, franchise_id = null) competitions.
+        if ($competition->franchise_id !== null && $competition->franchise_id !== $franchiseId) {
             abort(403);
+        }
+
+        if (! $competition->is_active) {
+            return back()->with('error', 'This competition is not active.');
+        }
+
+        if ($competition->registration_deadline && $competition->registration_deadline->isPast()) {
+            return back()->with('error', 'The registration deadline for this competition has passed.');
         }
 
         $request->validate([
