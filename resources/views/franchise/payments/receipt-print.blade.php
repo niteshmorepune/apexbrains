@@ -26,6 +26,9 @@
     $mode = match($payment->payment_mode) {
         'upi' => 'UPI', 'card' => 'Card', 'cheque' => 'Cheque', 'bank_transfer' => 'Bank Transfer', default => 'Cash',
     };
+    $feeTypeLabel = $payment->fee?->fee_type
+        ? ucwords(str_replace('_', ' ', $payment->fee->fee_type))
+        : '—';
     $franchise = auth()->user()->franchise ?? null;
 @endphp
 <!DOCTYPE html>
@@ -51,6 +54,9 @@
         .foot td { vertical-align: top; font-size: 10px; color: #6b7280; }
         .sig { color: #9ca3af; margin-top: 18px; }
         .note { text-align: center; color: #d1d5db; font-size: 9px; margin-top: 14px; }
+        /* Explicit svg sizing so dompdf renders the QR (matches the certificate). */
+        .qr { width: 72px; height: 72px; margin-left: auto; }
+        .qr svg { width: 72px; height: 72px; display: block; }
     </style>
 </head>
 <body>
@@ -88,10 +94,10 @@
             <td class="lbl">Student ID</td><td class="val">{{ $payment->student?->student_code }}</td></tr>
         <tr><td class="lbl">Level</td><td class="val">{{ $payment->student?->currentLevel ? 'Level ' . $payment->student->currentLevel->number : '—' }}</td>
             <td class="lbl">Academic Year</td><td class="val">{{ $academicYear }}</td></tr>
-        <tr><td class="lbl">Month</td><td class="val">{{ $payment->fee?->month?->format('M Y') ?? '—' }}</td>
-            <td class="lbl">Payment Mode</td><td class="val">{{ $mode }}</td></tr>
-        <tr><td class="lbl">Amount Paid</td><td class="val">₹{{ number_format($payment->amount) }}</td>
-            <td class="lbl"></td><td class="val"></td></tr>
+        <tr><td class="lbl">Fee Type</td><td class="val">{{ $feeTypeLabel }}</td>
+            <td class="lbl">Month</td><td class="val">{{ $payment->fee?->month?->format('M Y') ?? '—' }}</td></tr>
+        <tr><td class="lbl">Payment Mode</td><td class="val">{{ $mode }}</td>
+            <td class="lbl">Amount Paid</td><td class="val">₹{{ number_format($payment->amount) }}</td></tr>
         @if($payment->transaction_reference)
             <tr><td class="lbl">Transaction ID</td><td class="val" colspan="3">{{ $payment->transaction_reference }}</td></tr>
         @endif
@@ -109,8 +115,8 @@
                 <div class="sig">Signature: ___________________</div>
             </td>
             <td style="text-align:right; width:90px;">
-                {!! QrCode::size(72)->generate(route('franchise.payments.receipt', $payment)) !!}
-                <div style="font-size:9px; color:#9ca3af;">Scan to verify</div>
+                <div class="qr">{!! QrCode::size(72)->margin(0)->generate(route('franchise.payments.receipt', $payment)) !!}</div>
+                <div style="font-size:9px; color:#9ca3af; text-align:right;">Scan to verify</div>
             </td>
         </tr>
     </table>

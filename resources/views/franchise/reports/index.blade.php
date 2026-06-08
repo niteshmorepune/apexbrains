@@ -24,9 +24,29 @@
 </div>
 @endif
 
+{{-- Type tabs --}}
+<div class="flex items-center gap-2 mb-4">
+    @php
+        $allCount = ($internalCount ?? 0) + ($externalCount ?? 0);
+        $tabs = [
+            'all'      => ['All', $allCount],
+            'internal' => ['Internal', $internalCount ?? 0],
+            'external' => ['External', $externalCount ?? 0],
+        ];
+    @endphp
+    @foreach($tabs as $key => [$label, $count])
+        <a href="{{ route('franchise.reports.index', array_merge(request()->only('search', 'sort', 'level'), ['type' => $key])) }}"
+           class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors
+                  {{ ($type ?? 'all') === $key ? 'bg-fran text-white' : 'bg-white border border-border text-gray-600 hover:bg-bg-light' }}">
+            {{ $label }} <span class="opacity-70">({{ $count }})</span>
+        </a>
+    @endforeach
+</div>
+
 {{-- Filters --}}
 <div class="bg-white rounded-2xl border border-border p-4 mb-4">
     <form method="GET" action="{{ route('franchise.reports.index') }}" class="flex items-center gap-3 flex-wrap">
+        <input type="hidden" name="type" value="{{ $type ?? 'all' }}">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search student..."
                class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran flex-1 min-w-40">
         <select name="sort" class="border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
@@ -46,6 +66,7 @@
         <thead>
             <tr class="bg-fran">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Type</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Avg Score</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Speed</th>
@@ -65,6 +86,13 @@
                             </div>
                             <span class="font-medium text-gray-800">{{ $s->full_name }}</span>
                         </div>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        @if($s->student_type === 'external')
+                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">External</span>
+                        @else
+                            <span class="text-xs bg-stu-light text-stu-dark px-2 py-0.5 rounded-full font-medium">Internal</span>
+                        @endif
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($s->currentLevel)
@@ -109,7 +137,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="px-5 py-10 text-center text-gray-400">No students found.</td>
+                    <td colspan="9" class="px-5 py-10 text-center text-gray-400">No students found.</td>
                 </tr>
             @endforelse
         </tbody>

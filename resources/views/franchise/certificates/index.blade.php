@@ -9,13 +9,23 @@
     $studentData = $students->map(fn ($s) => [
         'id'          => (string) $s->id,
         'name'        => $s->full_name,
+        'type'        => $s->student_type,
         'levelId'     => (string) ($s->current_level_id ?? ''),
         'levelNumber' => $s->currentLevel?->number,
+        // Competitions this student is registered for (for participation certs).
+        'comps'       => $s->competitionRegistrations
+            ->filter(fn ($r) => $r->competition)
+            ->map(fn ($r) => (string) $r->competition_id)->values(),
     ])->values();
     $levelData = $levels->map(fn ($l) => [
         'id'     => (string) $l->id,
         'number' => $l->number,
         'title'  => $l->title,
+    ])->values();
+    $competitionData = $competitions->map(fn ($c) => [
+        'id'    => (string) $c->id,
+        'title' => $c->title,
+        'date'  => $c->start_date?->format('d M Y'),
     ])->values();
 @endphp
 
@@ -45,6 +55,8 @@
 
             <form method="POST" action="{{ route('franchise.certificates.generate') }}" class="space-y-5">
                 @csrf
+                <input type="hidden" name="type" :value="isExternal ? 'competition' : type">
+
 
                 {{-- Select Student --}}
                 <div>
@@ -63,12 +75,12 @@
                     </div>
                 </div>
 
-                {{-- Certificate Level + badge --}}
-                <div>
+                {{-- Certificate Level + badge (internal) --}}
+                <div x-show="!isExternal">
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Certificate Level <span class="text-red-500">*</span></label>
                     <div class="flex items-center gap-3">
                         <div class="relative flex-1">
-                            <select name="level_id" x-model="levelId" @change="onLevelChange()"
+                            <select name="level_id" x-model="levelId" @change="onLevelChange()" :disabled="isExternal"
                                     class="w-full appearance-none border border-fran rounded-xl px-4 py-3 text-sm text-fran font-medium bg-blue-50 focus:outline-none focus:ring-2 focus:ring-fran">
                                 <option value="">Auto (student's current level)</option>
                                 @foreach($levels as $level)
@@ -82,6 +94,19 @@
                               :style="`background:${badgeColor}`"
                               x-text="`L${levelNumber}`"></span>
                     </div>
+                </div>
+
+                {{-- Competition (external participation certificate) --}}
+                <div x-show="isExternal" x-cloak>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Competition <span class="text-red-500">*</span></label>
+                    <select name="competition_id" x-model="competitionId" :required="isExternal" :disabled="!isExternal"
+                            class="w-full appearance-none border border-fran rounded-xl px-4 py-3 text-sm text-fran font-medium bg-blue-50 focus:outline-none focus:ring-2 focus:ring-fran">
+                        <option value="">Select competition…</option>
+                        <template x-for="c in competitionOptions" :key="c.id">
+                            <option :value="c.id" x-text="c.title + (c.date ? ' — ' + c.date : '')"></option>
+                        </template>
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1.5">External students receive a Participation certificate.</p>
                 </div>
 
                 {{-- Issue date + series --}}
@@ -98,10 +123,9 @@
                     </div>
                 </div>
 
-                {{-- Certificate Type pills --}}
-                <div>
+                {{-- Certificate Type pills (internal) --}}
+                <div x-show="!isExternal">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Certificate Type</label>
-                    <input type="hidden" name="type" :value="type">
                     <div class="grid grid-cols-3 gap-3">
                         @foreach(['level_completion' => 'Level Completion', 'merit' => 'Merit Award', 'excellence' => 'Excellence Award'] as $val => $lbl)
                             <button type="button" @click="type = '{{ $val }}'"
@@ -151,16 +175,16 @@
                         <span class="w-9 h-9 rounded-full border-2 border-gray-300 text-[7px] font-bold text-gray-400 flex items-center justify-center text-center leading-none">ISO<br>9001</span>
                     </div>
 
-                    <p class="text-[13px] font-bold tracking-wide text-gray-800 mt-1">CERTIFICATE OF COMPLETION</p>
+                    <p class="text-[13px] font-bold tracking-wide text-gray-800 mt-1" x-text="docTitle"></p>
                     <p class="text-[9px] text-gray-400 mt-2">This certifies that</p>
 
                     <p class="text-2xl font-black text-fran my-1" style="font-family: 'Brush Script MT', cursive;"
                        x-text="studentName || 'Student Name'"></p>
 
-                    <p class="text-[9px] text-gray-400">has successfully completed</p>
+                    <p class="text-[9px] text-gray-400" x-text="isExternal ? 'participated in' : 'has successfully completed'"></p>
 
                     <div class="bg-blue-50 rounded-lg px-4 py-1.5 my-2">
-                        <p class="text-[11px] font-bold text-fran" x-text="levelLabel"></p>
+                        <p class="text-[11px] font-bold text-fran" x-text="boxLabel"></p>
                     </div>
 
                     {{-- Footer --}}
@@ -278,14 +302,30 @@ function certForm() {
     return {
         students: @json($studentData),
         levels: @json($levelData),
+        competitions: @json($competitionData),
         colors: @json($levelColors),
 
         studentId: '',
         levelId: '',
+        competitionId: '',
         type: 'level_completion',
         issueDate: '{{ now()->toDateString() }}',
 
         get student() { return this.students.find(s => s.id === this.studentId) || null; },
+        get isExternal() { return this.student?.type === 'external'; },
+        get competitionOptions() {
+            const s = this.student;
+            if (s && s.comps && s.comps.length) {
+                return this.competitions.filter(c => s.comps.includes(c.id));
+            }
+            return this.competitions;
+        },
+        get competitionObj() { return this.competitions.find(c => c.id === this.competitionId) || null; },
+        get docTitle() { return this.isExternal ? 'CERTIFICATE OF PARTICIPATION' : 'CERTIFICATE OF COMPLETION'; },
+        get boxLabel() {
+            if (this.isExternal) return this.competitionObj?.title || 'Select a competition';
+            return this.levelLabel;
+        },
         get levelObj() { return this.levels.find(l => l.id === this.levelId) || null; },
         get levelNumber() { return this.levelObj?.number ?? this.student?.levelNumber ?? null; },
         get studentName() { return this.student?.name ?? ''; },
@@ -300,6 +340,7 @@ function certForm() {
             return 'Level — Abacus Mental Math';
         },
         get typeLabel() {
+            if (this.isExternal) return 'Participation';
             return { level_completion: 'Level Completion', merit: 'Merit Award', excellence: 'Excellence Award' }[this.type] || 'Level Completion';
         },
         get issueDateLabel() {
@@ -311,6 +352,12 @@ function certForm() {
         onStudentChange() {
             // Default the certificate level to the student's current level.
             if (this.student?.levelId) this.levelId = this.student.levelId;
+            // For external students, default the competition when there's only one.
+            this.competitionId = '';
+            if (this.isExternal) {
+                const opts = this.competitionOptions;
+                if (opts.length === 1) this.competitionId = opts[0].id;
+            }
         },
         onLevelChange() {},
         scrollToPreview() {

@@ -51,6 +51,7 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
 
         // Promotions
         Route::get('promotions', [\App\Http\Controllers\Franchise\PromotionController::class, 'index'])->name('promotions.index');
+        Route::post('promotions/batch-promote', [\App\Http\Controllers\Franchise\PromotionController::class, 'promoteBatch'])->name('promotions.batch');
         Route::post('promotions/{student}/promote', [\App\Http\Controllers\Franchise\PromotionController::class, 'promote'])->name('promotions.promote');
 
         // Progress & Reports

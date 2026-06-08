@@ -8,10 +8,9 @@
             <span class="text-sm font-bold bg-logo-amber/10 text-logo-amber border border-logo-amber/30 px-3 py-1.5 rounded-full">
                 {{ $eligible->count() }} Eligible
             </span>
-            <form method="POST" action="{{ route('franchise.promotions.promote', 0) }}"
-                  onsubmit="return confirm('Batch promote all {{ $eligible->count() }} eligible students?')">
+            <form method="POST" action="{{ route('franchise.promotions.batch') }}"
+                  onsubmit="return confirm('Batch promote all {{ $eligible->count() }} eligible students to their next level?')">
                 @csrf
-                <input type="hidden" name="batch" value="1">
                 <button type="submit"
                         class="px-5 py-2 bg-white text-fran border border-white rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
                     Batch Promote All ({{ $eligible->count() }})
@@ -35,6 +34,7 @@
                     <th class="text-right px-4 py-3 text-xs font-semibold text-white">Speed</th>
                     <th class="text-right px-4 py-3 text-xs font-semibold text-white">Accuracy</th>
                     <th class="text-right px-4 py-3 text-xs font-semibold text-white">Attempts</th>
+                    <th class="text-center px-4 py-3 text-xs font-semibold text-white">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -68,6 +68,21 @@
                         </td>
                         <td class="px-4 py-3 text-right text-gray-600">{{ number_format($student->exam_accuracy, 1) }}%</td>
                         <td class="px-4 py-3 text-right text-gray-500">{{ $student->exam_attempts }}</td>
+                        <td class="px-4 py-3 text-center">
+                            @if($nextLevel)
+                                <form method="POST" action="{{ route('franchise.promotions.promote', $student) }}"
+                                      onsubmit="return confirm('Promote {{ $student->full_name }} to Level {{ $nextLevel->number }}?')">
+                                    @csrf
+                                    <input type="hidden" name="new_level_id" value="{{ $nextLevel->id }}">
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-fran text-white rounded-lg text-xs font-semibold hover:bg-fran-dark transition-colors">
+                                        Promote → L{{ $nextLevel->number }}
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-xs text-gray-400">Max level</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

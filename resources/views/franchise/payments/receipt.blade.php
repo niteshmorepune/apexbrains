@@ -25,6 +25,8 @@
 
 {{-- Print only the receipt card — hide the portal chrome (sidebar, header, buttons). --}}
 <style>
+    /* Force the QR svg to a fixed size so it renders on screen and when printing. */
+    #receipt .qr-box svg { width: 64px; height: 64px; display: block; }
     @media print {
         body * { visibility: hidden !important; }
         #receipt, #receipt * { visibility: visible !important; }
@@ -87,6 +89,8 @@
                 'Student ID'     => $payment->student?->student_code,
                 'Level'          => $payment->student?->currentLevel ? 'Level ' . $payment->student->currentLevel->number : '—',
                 'Academic Year'  => $academicYear,
+                'Fee Type'       => $payment->fee?->fee_type
+                    ? ucwords(str_replace('_', ' ', $payment->fee->fee_type)) : '—',
                 'Month'          => $payment->fee?->month?->format('M Y'),
                 'Amount Paid'    => '₹' . number_format($payment->amount),
                 'Payment Mode'   => match($payment->payment_mode) {
@@ -137,8 +141,8 @@
                 <p class="text-xs text-gray-400 mt-1">Signature: ___________________</p>
             </div>
             <div class="text-right">
-                <div class="w-16 h-16">
-                    {!! QrCode::size(64)->generate(route('franchise.payments.receipt', $payment)) !!}
+                <div class="w-16 h-16 qr-box">
+                    {!! QrCode::size(64)->margin(0)->generate(route('franchise.payments.receipt', $payment)) !!}
                 </div>
                 <p class="text-xs text-gray-400 mt-1">Scan to verify</p>
             </div>

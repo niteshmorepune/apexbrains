@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
+use App\Models\Competition;
 use App\Models\Student;
 use App\Services\AuditLogger;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -23,24 +24,54 @@ class CertificateController extends Controller
             ->latest('issued_at')
             ->paginate(20);
 
-        $students = Student::with('currentLevel')->where('is_active', true)->orderBy('first_name')->get();
+        $students = Student::with(['currentLevel', 'competitionRegistrations.competition'])
+            ->where('is_active', true)->orderBy('first_name')->get();
         $levels   = \App\Models\Level::orderBy('number')->get();
 
-        return view('franchise.certificates.index', compact('certificates', 'students', 'levels'));
+        // Competitions available for external participation certificates.
+        $competitions = Competition::where('franchise_id', Auth::user()->franchise_id)
+            ->orderByDesc('start_date')->get();
+
+        return view('franchise.certificates.index', compact('certificates', 'students', 'levels', 'competitions'));
     }
 
     public function generate(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'student_id' => ['required', 'exists:students,id'],
-            'level_id'   => ['nullable', 'exists:levels,id'],
-            'issued_at'  => ['nullable', 'date'],
-            'series'     => ['nullable', 'string', 'max:50'],
-            'type'       => ['required', 'in:level_completion,merit,excellence'],
+            'student_id'     => ['required', 'exists:students,id'],
+            'level_id'       => ['nullable', 'exists:levels,id'],
+            'competition_id' => ['nullable', 'exists:competitions,id'],
+            'issued_at'      => ['nullable', 'date'],
+            'series'         => ['nullable', 'string', 'max:50'],
+            'type'           => ['required', 'in:level_completion,merit,excellence,competition'],
         ]);
 
-        $student    = Student::with('currentLevel')->findOrFail($data['student_id']);
+        $student     = Student::with('currentLevel')->findOrFail($data['student_id']);
         $franchiseId = Auth::user()->franchise_id;
+
+        // External (competition-only) students get a participation certificate tied
+        // to a competition; internal students get a level-completion certificate.
+        $isParticipation = $student->student_type === 'external' || $data['type'] === 'competition';
+
+        $levelId       = null;
+        $competitionId = null;
+        $type          = $data['type'];
+
+        if ($isParticipation) {
+            if (empty($data['competition_id'])) {
+                return back()
+                    ->withErrors(['competition_id' => 'Select the competition for this participation certificate.'])
+                    ->withInput();
+            }
+            $competition = Competition::findOrFail($data['competition_id']);
+            if ($competition->franchise_id !== $franchiseId) {
+                abort(403);
+            }
+            $type          = 'competition';
+            $competitionId = $competition->id;
+        } else {
+            $levelId = $data['level_id'] ?? $student->current_level_id;
+        }
 
         $certNumber      = 'CERT-' . strtoupper(Str::random(8));
         $verificationCode = Str::uuid()->toString();
@@ -48,10 +79,11 @@ class CertificateController extends Controller
         $certificate = Certificate::create([
             'franchise_id'      => $franchiseId,
             'student_id'        => $student->id,
-            'level_id'          => $data['level_id'] ?? $student->current_level_id,
+            'level_id'          => $levelId,
+            'competition_id'    => $competitionId,
             'certificate_number'=> $certNumber,
             'verification_code' => $verificationCode,
-            'type'              => $data['type'],
+            'type'              => $type,
             'series'            => $data['series'] ?? null,
             'issued_at'         => $data['issued_at'] ?? now(),
             // "Generate and Send" marks the certificate as delivered immediately.
@@ -79,7 +111,7 @@ class CertificateController extends Controller
 
     public function download(Certificate $certificate): View
     {
-        $certificate->load('student.currentLevel', 'level', 'issuedBy');
+        $certificate->load('student.currentLevel', 'level', 'competition', 'issuedBy');
 
         return view('franchise.certificates.certificate-document', [
             'certificate' => $certificate,
@@ -100,7 +132,7 @@ class CertificateController extends Controller
 
     public function downloadPdf(Certificate $certificate): Response
     {
-        $certificate->load('student.currentLevel', 'level', 'issuedBy');
+        $certificate->load('student.currentLevel', 'level', 'competition', 'issuedBy');
 
         $pdf = Pdf::loadView('franchise.certificates.certificate-document', [
             'certificate' => $certificate,

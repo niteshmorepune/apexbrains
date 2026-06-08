@@ -23,7 +23,9 @@
     $tabs = ['overview' => 'Overview', 'fees' => 'Fees & Payments'];
     if ($student->student_type === 'internal') $tabs['class-practice'] = 'Class Practice';
     $tabs['comp-practice'] = 'Competition Practice';
-    if ($student->student_type === 'external') $tabs['comp-reg'] = 'Competition Registrations';
+    if ($student->student_type === 'external' || $student->competitionRegistrations->isNotEmpty()) {
+        $tabs['comp-reg'] = 'Competition Registrations';
+    }
     $tabs['certificates'] = 'Certificates';
     if ($student->student_type === 'internal') $tabs['progress'] = 'Progress';
 @endphp
@@ -222,20 +224,32 @@
                 </div>
             </div>
 
-            {{-- Competition Registrations (external) --}}
-            @if($student->student_type === 'external')
+            {{-- Competition Registrations --}}
+            @if($student->student_type === 'external' || $student->competitionRegistrations->isNotEmpty())
                 <div x-show="tab === 'comp-reg'" x-cloak>
                     <div class="bg-white rounded-2xl border border-border overflow-hidden">
                         <div class="px-5 py-4 border-b border-border"><h3 class="text-sm font-bold text-fran">Competition Registrations</h3></div>
                         @if($student->competitionRegistrations->isNotEmpty())
                             <div class="divide-y divide-border">
-                                @foreach($student->competitionRegistrations as $reg)
-                                    <div class="px-5 py-3 flex items-center justify-between">
-                                        <div>
+                                @foreach($student->competitionRegistrations->sortByDesc('registration_date') as $reg)
+                                    <div class="px-5 py-3 flex items-center justify-between gap-3">
+                                        <div class="min-w-0">
                                             <p class="text-sm font-medium text-gray-800">{{ $reg->competition?->title ?? '—' }}</p>
-                                            <p class="text-xs text-gray-400 mt-0.5">Registered {{ $reg->created_at?->format('d M Y') }}</p>
+                                            <p class="text-xs text-gray-400 mt-0.5">
+                                                Registered {{ ($reg->registration_date ?? $reg->created_at)?->format('d M Y') }}
+                                                @if($reg->competition?->start_date)
+                                                    · Held {{ $reg->competition->start_date->format('d M Y') }}
+                                                @endif
+                                            </p>
                                         </div>
-                                        <span class="text-xs capitalize px-2 py-0.5 rounded-full {{ $reg->status === 'confirmed' ? 'bg-stu-light text-stu-dark' : 'bg-bg-mid text-gray-500' }}">{{ $reg->status ?? 'pending' }}</span>
+                                        <div class="flex items-center gap-2 flex-shrink-0">
+                                            @if($reg->payment_status === 'paid')
+                                                <span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">Paid</span>
+                                            @elseif($reg->payment_status === 'pending')
+                                                <span class="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">Payment Pending</span>
+                                            @endif
+                                            <span class="text-xs capitalize px-2 py-0.5 rounded-full {{ $reg->status === 'confirmed' ? 'bg-stu-light text-stu-dark' : 'bg-bg-mid text-gray-500' }}">{{ $reg->status ?? 'pending' }}</span>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
@@ -342,12 +356,27 @@
                     <form x-show="certOpen" x-cloak method="POST" action="{{ route('franchise.certificates.generate') }}" class="p-3 bg-bg-light rounded-xl space-y-2">
                         @csrf
                         <input type="hidden" name="student_id" value="{{ $student->id }}">
-                        <select name="type" required class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                            <option value="level_completion">Level Completion</option>
-                            <option value="merit">Merit</option>
-                            <option value="excellence">Excellence</option>
-                            <option value="participation">Participation</option>
-                        </select>
+                        @if($student->student_type === 'external')
+                            {{-- Participation certificate tied to a competition --}}
+                            <input type="hidden" name="type" value="competition">
+                            <select name="competition_id" required class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                                <option value="">Select competition…</option>
+                                @foreach($student->competitionRegistrations as $reg)
+                                    @if($reg->competition)
+                                        <option value="{{ $reg->competition->id }}">{{ $reg->competition->title }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            @if($student->competitionRegistrations->whereNotNull('competition')->isEmpty())
+                                <p class="text-xs text-amber-600">Register this student for a competition first.</p>
+                            @endif
+                        @else
+                            <select name="type" required class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                                <option value="level_completion">Level Completion</option>
+                                <option value="merit">Merit</option>
+                                <option value="excellence">Excellence</option>
+                            </select>
+                        @endif
                         <button type="submit" class="w-full py-2 bg-fran text-white rounded-lg text-sm font-semibold hover:bg-fran-dark">Generate</button>
                     </form>
 

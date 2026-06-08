@@ -20,6 +20,14 @@ class ReportController extends Controller
         $query = Student::with(['currentLevel', 'examAttempts'])
             ->where('is_active', true);
 
+        $type = $request->get('type', 'all');
+        if (! in_array($type, ['all', 'internal', 'external'])) {
+            $type = 'all';
+        }
+        if ($type !== 'all') {
+            $query->where('student_type', $type);
+        }
+
         if ($request->filled('search')) {
             $query->where(fn($q) => $q->where('first_name', 'like', '%' . $request->search . '%')
                 ->orWhere('last_name', 'like', '%' . $request->search . '%'));
@@ -27,6 +35,9 @@ class ReportController extends Controller
         if ($request->filled('level')) {
             $query->where('current_level_id', $request->level);
         }
+
+        $internalCount = Student::where('is_active', true)->where('student_type', 'internal')->count();
+        $externalCount = Student::where('is_active', true)->where('student_type', 'external')->count();
 
         $sort = $request->get('sort', 'best_score');
         $students = $query->get()->map(function ($s) {
@@ -47,7 +58,7 @@ class ReportController extends Controller
             ? $this->buildReportData($topStudent)
             : [collect(), [], []];
 
-        return view('franchise.reports.index', compact('students', 'topStudent', 'topRadarData'));
+        return view('franchise.reports.index', compact('students', 'topStudent', 'topRadarData', 'type', 'internalCount', 'externalCount'));
     }
 
     public function show(Student $student): View

@@ -1,10 +1,19 @@
 @php
     $isPdf   = $pdf ?? false;
     $student = $certificate->student;
+
+    // External (competition) students get a participation certificate; internal get level completion.
+    $isParticipation = $certificate->type === 'competition';
+    $competition = $certificate->competition;
+    $compTitle   = $competition?->title ?? 'Apex Brains Competition';
+    $compDate    = $competition?->start_date?->format('d F Y');
+
     $levelLine = $certificate->level
         ? 'Level ' . $certificate->level->number . ' — ' . ($certificate->level->title ?: 'Abacus Mental Math')
         : 'Abacus Programme';
     $typeLine  = ucwords(str_replace('_', ' ', $certificate->type)) . ' Certificate';
+
+    $docTitle  = $isParticipation ? 'CERTIFICATE OF PARTICIPATION' : 'CERTIFICATE OF COMPLETION';
     $verifyUrl = $certificate->qr_data ?: route('certificate.verify', $certificate->verification_code);
 @endphp
 <!DOCTYPE html>
@@ -112,17 +121,25 @@
                     </tr>
                 </table>
 
-                <div class="title">CERTIFICATE OF COMPLETION</div>
+                <div class="title">{{ $docTitle }}</div>
                 <div class="rule"></div>
 
                 <p class="muted" style="margin-top:22px;">This is to certify that</p>
                 <div class="name">{{ $student?->full_name ?? 'Student Name' }}</div>
-                <p class="muted">has successfully completed</p>
 
-                <div class="levelbox">
-                    <div class="lv">{{ $levelLine }}</div>
-                    <div class="ty">{{ $typeLine }}</div>
-                </div>
+                @if($isParticipation)
+                    <p class="muted">participated in</p>
+                    <div class="levelbox">
+                        <div class="lv">{{ $compTitle }}</div>
+                        @if($compDate)<div class="ty">Held on {{ $compDate }}</div>@endif
+                    </div>
+                @else
+                    <p class="muted">has successfully completed</p>
+                    <div class="levelbox">
+                        <div class="lv">{{ $levelLine }}</div>
+                        <div class="ty">{{ $typeLine }}</div>
+                    </div>
+                @endif
 
                 <p class="issued">
                     Issued on {{ optional($certificate->issued_at)->format('d F Y') }}
