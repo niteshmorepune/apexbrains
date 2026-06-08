@@ -50,12 +50,13 @@
         </div>
     </div>
 
-    {{-- Question number strip --}}
-    <div class="px-4 mt-3 overflow-x-auto">
+    {{-- Question number strip (auto-scrolls to keep the current question centered) --}}
+    <div id="qStrip" class="relative px-4 mt-3 overflow-x-auto">
         <div class="flex gap-2 w-max">
             @for($i = 0; $i < $totalCount; $i++)
                 @php $isDone = isset($answered[$i]); $isCur = $i === $index; @endphp
-                <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                <span @if($isCur) id="qCurrent" @endif
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
                     {{ $isCur ? 'bg-fran text-white' : ($isDone ? 'bg-stu-light text-stu' : 'bg-white border border-border text-gray-400') }}">
                     {{ $i + 1 }}
                 </span>
@@ -99,4 +100,17 @@
     <p class="text-center text-xs text-gray-400 mt-4">Tap an option to continue</p>
 
 </div>
+
+@push('scripts')
+<script>
+    // Keep the active question pill centered in the horizontally-scrolling strip.
+    (function () {
+        var strip = document.getElementById('qStrip');
+        var cur   = document.getElementById('qCurrent');
+        if (strip && cur) {
+            strip.scrollLeft = cur.offsetLeft - (strip.clientWidth / 2) + (cur.offsetWidth / 2);
+        }
+    })();
+</script>
+@endpush
 @endsection
