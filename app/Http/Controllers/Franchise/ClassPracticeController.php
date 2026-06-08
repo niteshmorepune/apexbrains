@@ -181,12 +181,8 @@ class ClassPracticeController extends Controller
         return view('franchise.class-practice.show', compact('session'));
     }
 
-    public function project(ClassPracticeSession $session): View|RedirectResponse
+    public function project(ClassPracticeSession $session): View
     {
-        if ($session->status === 'ended') {
-            return redirect()->route('franchise.class-practice.results', $session);
-        }
-
         $session->load('level');
 
         $currentQuestion = null;
@@ -199,7 +195,16 @@ class ClassPracticeController extends Controller
             $currentQuestion = $sq?->question;
         }
 
-        return view('franchise.class-practice.project', compact('session', 'currentQuestion'));
+        // On the end screen we project a classroom answer key so students can
+        // self-check against their notebooks.
+        $answerKey = collect();
+        $shown     = $session->total_questions;
+        if ($session->status === 'ended') {
+            $answerKey = $session->sessionQuestions()->with('question')->orderBy('sort_order')->get();
+            $shown     = $session->result?->total_questions_shown ?? $session->current_question_index;
+        }
+
+        return view('franchise.class-practice.project', compact('session', 'currentQuestion', 'answerKey', 'shown'));
     }
 
     public function state(ClassPracticeSession $session): JsonResponse
@@ -285,7 +290,8 @@ class ClassPracticeController extends Controller
             AuditLogger::log('class_practice_ended', 'ClassPracticeSession', $session->id);
         }
 
-        return redirect()->route('franchise.class-practice.results', $session);
+        // Stay on the projector so the class sees the answer key end screen.
+        return redirect()->route('franchise.class-practice.project', $session);
     }
 
     public function results(ClassPracticeSession $session): View

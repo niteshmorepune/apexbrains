@@ -97,16 +97,37 @@
                             New Practice
                         </button>
                     </form>
-                    <a href="{{ route('franchise.class-practice.create') }}"
-                       class="w-full sm:w-auto text-center px-7 py-3.5 text-gray-500 rounded-full text-sm font-semibold hover:text-gray-700 hover:bg-bg-light transition-colors">
-                        Return to Setup
-                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Collapsible question review --}}
+    {{-- Answer Key — always visible so students can match against their notebook --}}
+    <div class="max-w-[1140px] mt-5 bg-white rounded-2xl border border-border overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+            <div>
+                <h2 class="text-base font-bold text-gray-900">Answer Key</h2>
+                <p class="text-xs text-gray-400 mt-0.5">Match these with the answers in your notebook.</p>
+            </div>
+            <span class="text-xs font-semibold text-fran bg-blue-50 px-3 py-1 rounded-full whitespace-nowrap">{{ $shown }} answers</span>
+        </div>
+        <div class="p-4 sm:p-5 grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-2">
+            @foreach($session->sessionQuestions as $sq)
+                @php
+                    $letter  = strtolower($sq->question->correct_answer);
+                    $value   = $sq->question->{'option_' . $letter} ?? strtoupper($sq->question->correct_answer);
+                    $isShown = $sq->sort_order <= $shown;
+                @endphp
+                <div class="flex items-center gap-2 rounded-lg border px-2.5 py-2 text-sm
+                            @if($isShown) border-border bg-bg-light @else border-dashed border-border opacity-40 @endif">
+                    <span class="text-xs font-bold text-gray-400 w-7 flex-shrink-0 text-right">{{ $sq->sort_order }}.</span>
+                    <span class="font-bold text-green-600 truncate">{{ $value }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Collapsible question review (full text + options) --}}
     <div class="max-w-[1140px] mt-5" x-data="{ open: false }">
         <button type="button" @click="open = !open"
                 class="w-full flex items-center justify-between px-5 py-4 bg-white rounded-2xl border border-border text-sm font-semibold text-fran hover:bg-bg-light transition-colors">

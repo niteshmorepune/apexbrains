@@ -21,7 +21,7 @@
         {{-- Card header --}}
         <div class="relative flex items-center justify-center px-6 py-4 border-b border-border">
             <p class="text-lg font-semibold text-gray-900"
-               x-text="state.status === 'active' ? `Question ${state.index} of ${state.total}` : 'Ready to Begin'"></p>
+               x-text="state.status === 'active' ? `Question ${state.index} of ${state.total}` : (state.status === 'ended' ? 'Practice Complete' : 'Ready to Begin')"></p>
 
             <div class="absolute right-5 flex items-center gap-4" x-show="state.status === 'active'">
                 {{-- Audio --}}
@@ -89,6 +89,36 @@
                 </div>
             </template>
 
+            {{-- Ended: classroom answer key so students can match their notebooks --}}
+            <template x-if="state.status === 'ended'">
+                <div class="flex-1 w-full">
+                    <div class="text-center mb-7">
+                        <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-100 text-green-700 rounded-full text-base font-bold mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 12.5l2.5 2.5 4.5-5"/>
+                            </svg>
+                            Practice Complete
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Answer Key</h2>
+                        <p class="text-gray-500 text-sm sm:text-base mt-1">Match these with the answers in your notebook.</p>
+                    </div>
+                    <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-10 gap-2 max-w-[1000px] mx-auto">
+                        @foreach($answerKey as $sq)
+                            @php
+                                $letter  = strtolower($sq->question->correct_answer);
+                                $value   = $sq->question->{'option_' . $letter} ?? strtoupper($sq->question->correct_answer);
+                                $isShown = $sq->sort_order <= $shown;
+                            @endphp
+                            <div class="flex items-center gap-1.5 rounded-lg border px-2 py-2 text-base
+                                        @if($isShown) border-border bg-white @else border-dashed border-border bg-white opacity-40 @endif">
+                                <span class="text-xs font-bold text-gray-400 w-6 flex-shrink-0 text-right">{{ $sq->sort_order }}.</span>
+                                <span class="font-bold text-green-600 truncate">{{ $value }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </template>
+
             {{-- Progress bar --}}
             <div class="w-full max-w-[420px]" x-show="state.status === 'active'">
                 <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
@@ -102,7 +132,8 @@
         <div class="bg-white border-t border-border px-6 py-4 flex items-center justify-between gap-4">
             {{-- End Practice --}}
             <form method="POST" action="{{ route('franchise.class-practice.end', $session) }}"
-                  onsubmit="return confirm('End this practice session now?')">
+                  onsubmit="return confirm('End this practice session now?')"
+                  x-show="state.status !== 'ended'">
                 @csrf
                 <button type="submit"
                         class="flex items-center gap-2 text-red-600 font-semibold hover:text-red-700 transition-colors">
@@ -112,6 +143,34 @@
                     End Practice
                 </button>
             </form>
+
+            {{-- Ended: end-screen actions --}}
+            <div class="flex items-center gap-3 ml-auto" x-show="state.status === 'ended'" x-cloak>
+                <a href="{{ route('franchise.class-practice.results', $session) }}"
+                   class="flex items-center gap-2 px-5 py-2.5 border border-border rounded-full text-sm font-semibold text-gray-700 hover:bg-bg-light transition-colors">
+                    View Full Results
+                </a>
+                <form method="POST" action="{{ route('franchise.class-practice.replay', $session) }}">
+                    @csrf
+                    <button type="submit"
+                            class="flex items-center gap-2 px-5 py-2.5 border border-fran text-fran rounded-full text-sm font-semibold hover:bg-blue-50 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 2v6h6M3.51 9a9 9 0 102.13-3.36L3 8"/>
+                        </svg>
+                        Replay Same Set
+                    </button>
+                </form>
+                <form method="POST" action="{{ route('franchise.class-practice.again', $session) }}">
+                    @csrf
+                    <button type="submit"
+                            class="flex items-center gap-2 px-6 py-2.5 bg-fran text-white rounded-full text-sm font-semibold hover:bg-fran-dark transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        New Practice
+                    </button>
+                </form>
+            </div>
 
             <div class="flex items-center gap-3" x-show="state.status === 'active'">
                 {{-- Restart Question --}}
