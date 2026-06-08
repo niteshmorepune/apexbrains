@@ -14,7 +14,6 @@
             <x-student-header title="Practice" :back="route('student.home')" />
             <div class="px-4 pb-4 space-y-3">
                 @foreach([
-                    ['type' => 'class',       'emoji' => '📘', 'bg' => 'bg-fran-light', 'title' => 'Class Practice',       'sub' => 'Build speed, accuracy, and confidence through guided exercises'],
                     ['type' => 'exam',        'emoji' => '📝', 'bg' => 'bg-stu-light',  'title' => 'Exam Practice',        'sub' => 'Evaluate your calculation skills and track your learning progress'],
                     ['type' => 'competition', 'emoji' => '🏆', 'bg' => 'bg-amber-50',   'title' => 'Competition Practice', 'sub' => 'Challenge your abilities and compete with top performers'],
                 ] as $opt)
@@ -39,7 +38,7 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </button>
                 <h1 class="flex-1 text-center pr-7 text-[17px] font-bold text-gray-900"
-                    x-text="{ class: 'Class Practice', exam: 'Exam Practice', competition: 'Competition Practice' }[type]"></h1>
+                    x-text="{ exam: 'Exam Practice', competition: 'Competition Practice' }[type]"></h1>
             </div>
 
             <div class="px-4 pb-4 space-y-5">
