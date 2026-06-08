@@ -19,22 +19,39 @@ class CompetitionController extends Controller
     public function index(): View
     {
         $student = Auth::user()->student()->firstOrFail();
-
-        $competitions = Competition::where('franchise_id', $student->franchise_id)
-            ->where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('registration_deadline')
-                  ->orWhere('registration_deadline', '>=', now()->toDateString());
-            })
-            ->orderBy('start_date')
-            ->get();
+        $today   = now()->toDateString();
 
         $myRegistrationIds = CompetitionRegistration::where('student_id', $student->id)
             ->pluck('competition_id')
             ->toArray();
 
-        $pastCompetitions = Competition::where('franchise_id', $student->franchise_id)
-            ->where('end_date', '<', now()->toDateString())
+        // Competitions visible to the student: their franchise's own + admin-created
+        // global (franchise_id null) competitions, plus anything they're already
+        // registered for (e.g. registered by the franchise).
+        $visibleScope = function ($q) use ($student, $myRegistrationIds) {
+            $q->whereNull('franchise_id')
+              ->orWhere('franchise_id', $student->franchise_id)
+              ->orWhereIn('id', $myRegistrationIds);
+        };
+
+        // Upcoming = active and not yet ended. Registration may still be open OR
+        // the student is already registered, so franchise-registered competitions
+        // stay visible even after their registration deadline has passed.
+        $competitions = Competition::where('is_active', true)
+            ->where($visibleScope)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
+            })
+            ->where(function ($q) use ($today, $myRegistrationIds) {
+                $q->whereNull('registration_deadline')
+                  ->orWhere('registration_deadline', '>=', $today)
+                  ->orWhereIn('id', $myRegistrationIds);
+            })
+            ->orderBy('start_date')
+            ->get();
+
+        $pastCompetitions = Competition::where($visibleScope)
+            ->where('end_date', '<', $today)
             ->orderByDesc('end_date')
             ->limit(5)
             ->get();
@@ -191,8 +208,11 @@ class CompetitionController extends Controller
             'competition_id'    => $competition->id,
             'student_id'        => $student->id,
             'franchise_id'      => $student->franchise_id,
+            'student_type'      => $student->student_type,
             'status'            => 'registered',
+            'payment_status'    => 'pending',
             'registration_date' => now()->toDateString(),
+            'registered_by'     => Auth::id(),
         ]);
 
         return back()->with('success', "Registered for {$competition->title}!");
