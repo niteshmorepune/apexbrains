@@ -30,6 +30,10 @@
         ? ucwords(str_replace('_', ' ', $payment->fee->fee_type))
         : '—';
     $franchise = auth()->user()->franchise ?? null;
+
+    // dompdf does not render inline <svg>; embed the QR as an <img> data URI instead.
+    $qrData = base64_encode((string) QrCode::size(140)->margin(0)
+        ->generate(route('franchise.payments.receipt', $payment)));
 @endphp
 <!DOCTYPE html>
 <html>
@@ -54,17 +58,16 @@
         .foot td { vertical-align: top; font-size: 10px; color: #6b7280; }
         .sig { color: #9ca3af; margin-top: 18px; }
         .note { text-align: center; color: #d1d5db; font-size: 9px; margin-top: 14px; }
-        /* Explicit svg sizing so dompdf renders the QR (matches the certificate). */
-        .qr { width: 72px; height: 72px; margin-left: auto; }
-        .qr svg { width: 72px; height: 72px; display: block; }
+        .qr { width: 72px; height: 72px; }
     </style>
 </head>
 <body>
     <table class="head">
         <tr>
-            <td style="width:48px;">
+            <td style="width:54px;">
                 @if($logoData)
-                    <img src="{{ $logoData }}" style="width:42px; height:42px; object-fit:contain;" alt="logo">
+                    {{-- dompdf ignores object-fit; constrain height only to keep aspect ratio --}}
+                    <img src="{{ $logoData }}" style="height:42px;" alt="logo">
                 @endif
             </td>
             <td>
@@ -115,7 +118,7 @@
                 <div class="sig">Signature: ___________________</div>
             </td>
             <td style="text-align:right; width:90px;">
-                <div class="qr">{!! QrCode::size(72)->margin(0)->generate(route('franchise.payments.receipt', $payment)) !!}</div>
+                <img class="qr" src="data:image/svg+xml;base64,{{ $qrData }}" width="72" height="72" alt="QR code">
                 <div style="font-size:9px; color:#9ca3af; text-align:right;">Scan to verify</div>
             </td>
         </tr>

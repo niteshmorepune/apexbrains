@@ -15,6 +15,9 @@
 
     $docTitle  = $isParticipation ? 'CERTIFICATE OF PARTICIPATION' : 'CERTIFICATE OF COMPLETION';
     $verifyUrl = $certificate->qr_data ?: route('certificate.verify', $certificate->verification_code);
+
+    // dompdf does not render inline <svg>; embed the QR as an <img> data URI.
+    $qrData = base64_encode((string) \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->margin(0)->generate($verifyUrl));
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -83,7 +86,6 @@
         .sig-name { font-size: 12px; font-weight: 600; color: #374151; }
         .sig-role { font-size: 10px; color: #9ca3af; }
         .qr { width: 92px; height: 92px; margin: 0 auto; }
-        .qr svg { width: 92px; height: 92px; }
         .certno { font-size: 10px; color: #c2c8d0; margin-top: 18px; font-family: 'DejaVu Sans Mono', monospace; }
     </style>
 </head>
@@ -154,7 +156,7 @@
                             <div class="sig-role">Authorized Signatory</div>
                         </td>
                         <td>
-                            <div class="qr">{!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(92)->margin(0)->generate($verifyUrl) !!}</div>
+                            <img class="qr" src="data:image/svg+xml;base64,{{ $qrData }}" width="92" height="92" alt="QR code">
                             <div class="sig-role" style="margin-top:4px;">Scan to verify</div>
                         </td>
                         <td>
