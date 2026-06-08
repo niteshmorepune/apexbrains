@@ -71,7 +71,7 @@ Monthly fee collection and tracking.
 - KPI strip: Collected, Outstanding, Overdue, Collection Rate (vs. previous month).
 - Tabs: **All / Paid / Pending / Partial / Overdue**; filter by month and student type.
 - **Record Payment** (`/franchise/fees/record`) — pick a student, choose which fee to pay, auto-fills the outstanding amount, select mode (Cash / UPI / Card / Cheque / Bank Transfer), then **Record and Generate Receipt**.
-- The **Receipt** shows the academy logo, a unique receipt number, amount in words, and a **verification QR**. Buttons: **Download PDF**, **Share WhatsApp**, **Print Receipt** (prints just the receipt).
+- The **Receipt** shows the academy logo, a unique receipt number, the **fee type** (e.g. Monthly / Competition Registration), amount in words, and a **verification QR**. Buttons: **Download PDF**, **Share WhatsApp**, **Print Receipt** (prints just the receipt). The QR and logo render correctly on the downloaded PDF as well as on screen.
 - **Reminders** (`/franchise/fees/reminders`) — outstanding fees prioritised by how overdue they are; one-click **WhatsApp** reminder to the parent (opens WhatsApp with a pre-filled message).
 - **Talking point:** "From admission to a GST-style printable/PDF receipt with a QR code, the whole fee cycle is in one place. Reminders go to parents over WhatsApp."
 
@@ -84,23 +84,29 @@ The franchise's signature in-class tool — an audio/display practice session fo
 - **Sessions** tab — past and current practice sessions with results.
 - **New session** — pick a level, number of questions, time per question, and audio dictation; the system pulls questions and launches an in-class **flashcard player** (term-by-term flash-anzan) for the projector. Students write answers in their workbook; the teacher reveals the answer at the end.
 - **Practice Papers** tab — ready-made, **level-wise practice papers authored by head office**; **Attempt** launches the same flashcard player, and **Download Answer PDF** gives the answer key.
-- **Talking point:** "This is the daily classroom experience — the teacher projects questions, the class solves on their abacus, and the answer key is one click away. The papers come straight from head office, so every branch teaches the same material."
+- **Answer key at the end** — when a session finishes, the **full answer key is shown automatically** (numbered grid of correct answers) both on the projector end screen and on the session results page, so students can match it against the answers they wrote in their workbook.
+- **Talking point:** "This is the daily classroom experience — the teacher projects questions, the class solves on their abacus, and the answer key appears at the end for instant self-checking. The papers come straight from head office, so every branch teaches the same material."
 
 ### 4.6 Competitions (`/franchise/competitions`)
 - Competitions announced by head office; the franchise **registers its students** to participate.
-- **Talking point:** "Head office runs the competition; the branch enrolls its students from here."
+- Each competition card lists **who is registered** — student name, internal/external, registration date, and payment status — so the owner can see exactly which students are entered in which competition.
+- The same registrations also appear on each student's profile under the **Competition Registrations** tab.
+- **Talking point:** "Head office runs the competition; the branch enrolls its students from here — and can see at a glance which student is registered for which competition."
 
 ### 4.7 Certificates (`/franchise/certificates`)
-- Generate and manage student certificates (level completion, merit, etc.) with a live preview, level badge, and a verification QR; download as a branded single-page PDF; mark as sent.
-- **Talking point:** "Branded, verifiable certificates — each one carries a QR a parent can scan to confirm it's genuine."
+- Generate and manage student certificates with a live preview and a verification QR; download as a branded single-page PDF; mark as sent.
+- **Internal students** get a **Level Completion / Merit / Excellence** certificate (with the level badge). **External (competition) students** get a **Certificate of Participation** tied to a specific competition (competition name + date) — the form switches automatically based on the student type.
+- **Talking point:** "Branded, verifiable certificates — internal students get level-completion certificates, competition students get participation certificates, and each one carries a QR a parent can scan to confirm it's genuine."
 
 ### 4.8 Promotions (`/franchise/promotions`)
-- Students who **passed their level exam** appear as eligible; promote them to the next level in one click (their progress history is recorded).
-- **Talking point:** "When a student clears their level, the owner promotes them here and the learning ladder moves up."
+- Students who **passed the exam for their current level** appear as eligible. Promote a student individually with the per-row **Promote → next level** button, or use **Batch Promote All** to advance every eligible student at once. Each promotion is recorded in the student's progress history.
+- **Guardrail:** the system **blocks promotion** of any student who has not passed their current level's exam — so no one is advanced by mistake.
+- **Talking point:** "When a student clears their level exam, the owner promotes them here — one at a time or in bulk — and the learning ladder moves up. A student can't be promoted until they've actually passed the exam."
 
 ### 4.9 Reports (`/franchise/reports`)
 - Branch and per-student progress reports; export to Excel, and download a per-student PDF.
-- **Talking point:** "Shareable progress reports for parent meetings and the owner's own review."
+- Filter by **All / Internal / External**, and every row shows the student **Type** so internal and external students are clearly distinguished.
+- **Talking point:** "Shareable progress reports for parent meetings and the owner's own review — clearly separated by internal vs. competition students."
 
 ### 4.10 Parent Directory (`/franchise/parents`)
 - A consolidated directory of all parents/guardians for the branch with their contact details.
@@ -118,10 +124,11 @@ The franchise's signature in-class tool — an audio/display practice session fo
 ## 5. Highlights to Emphasise
 
 - **Strict data isolation** — a franchise only ever sees its own students, fees, and reports (multi-tenant by design).
-- **End-to-end fee cycle** — admission → record payment → branded PDF receipt with verification QR → WhatsApp reminders.
+- **End-to-end fee cycle** — admission → record payment → branded PDF receipt with fee type + verification QR → WhatsApp reminders.
 - **Consistent curriculum** — Question Bank, Practice Papers, Competition Papers, and Exams are authored by head office, so every branch teaches and tests identically.
-- **Classroom-ready Class Practice** — projector flashcard player with head-office practice papers and instant answer keys.
-- **Verifiable certificates** — branded, QR-verifiable, one-click PDF.
+- **Classroom-ready Class Practice** — projector flashcard player with head-office practice papers and an automatic end-of-session answer key for self-checking.
+- **Verifiable certificates** — branded, QR-verifiable, one-click PDF; level-completion for internal students, participation for competition students.
+- **Exam-gated promotions** — students advance only after passing their level exam, individually or in bulk.
 
 ---
 
