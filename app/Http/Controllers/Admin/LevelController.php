@@ -29,7 +29,7 @@ class LevelController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'number'              => ['required', 'integer', 'min:1', 'unique:levels,number'],
+            'number'              => ['required', 'integer', 'min:1', 'max:255', 'unique:levels,number'],
             'title'               => ['required', 'string', 'max:100'],
             'description'         => ['nullable', 'string'],
             'fee_per_month'       => ['required', 'numeric', 'min:0'],
