@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Certificate;
 use App\Models\ClassPracticeResult;
 use App\Models\ClassPracticeSession;
+use App\Models\Competition;
+use App\Models\CompetitionRegistration;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Fee;
@@ -210,6 +212,107 @@ class FranchiseWalkthroughSeeder extends Seeder
                 'user_agent'            => 'WalkthroughSeeder',
                 'tab_switch_count'      => 0,
                 'fullscreen_exit_count' => 0,
+            ]
+        );
+
+        // 7) An external (competition-only) student + a competition, registration,
+        //    competition-registration fee, and a Participation certificate.
+        $extUser = User::firstOrCreate(
+            ['email' => 'ktd.ext.demo@demo.apexbrains.in'],
+            [
+                'name'         => 'Priya Nair',
+                'password'     => Hash::make('password'),
+                'franchise_id' => $fid,
+                'student_type' => 'external',
+            ]
+        );
+        if (! $extUser->hasRole('student')) {
+            $extUser->assignRole('student');
+        }
+
+        $extStudent = Student::withoutGlobalScopes()->where('student_code', 'KTD-EXT-DEMO-1')->first();
+        if (! $extStudent) {
+            $extStudent = Student::create([
+                'franchise_id'     => $fid,
+                'user_id'          => $extUser->id,
+                'student_code'     => 'KTD-EXT-DEMO-1',
+                'student_type'     => 'external',
+                'first_name'       => 'Priya',
+                'last_name'        => 'Nair',
+                'gender'           => 'female',
+                'date_of_birth'    => now()->subYears(11)->toDateString(),
+                'enrollment_date'  => now()->subMonths(2)->toDateString(),
+                'is_active'        => true,
+                'current_level_id' => null,
+                'city'             => 'Pune',
+            ]);
+        }
+
+        StudentParent::firstOrCreate(
+            ['student_id' => $extStudent->id, 'is_primary' => true],
+            [
+                'name'         => 'Priya Nair (Parent)',
+                'relationship' => 'mother',
+                'phone'        => '9876500001',
+                'whatsapp'     => '9876500001',
+                'email'        => 'priya.parent.demo@example.com',
+            ]
+        );
+
+        $competition = Competition::firstOrCreate(
+            ['franchise_id' => $fid, 'title' => 'Apex Abacus Championship — Demo'],
+            [
+                'description'           => 'Demo competition for the franchise walkthrough.',
+                'competition_type'      => 'regional',
+                'start_date'            => now()->addDays(20)->toDateString(),
+                'end_date'              => now()->addDays(20)->toDateString(),
+                'registration_deadline' => now()->addDays(10)->toDateString(),
+                'fee_amount'            => 500,
+                'is_active'             => true,
+                'is_open_to_external'   => true,
+                'created_by'            => $admin->id,
+            ]
+        );
+
+        CompetitionRegistration::firstOrCreate(
+            ['competition_id' => $competition->id, 'student_id' => $extStudent->id],
+            [
+                'franchise_id'      => $fid,
+                'student_type'      => 'external',
+                'registration_date' => now()->toDateString(),
+                'payment_status'    => 'paid',
+                'registered_by'     => $admin->id,
+                'status'            => 'confirmed',
+            ]
+        );
+
+        // Competition-registration fee → demonstrates the "Competition Registration" fee type on receipts.
+        Fee::firstOrCreate(
+            ['student_id' => $extStudent->id, 'fee_type' => 'competition_registration', 'month' => $month->toDateString()],
+            [
+                'franchise_id' => $fid,
+                'level_id'     => null,
+                'student_type' => 'external',
+                'amount'       => 500,
+                'paid_amount'  => 0,
+                'status'       => 'pending',
+                'due_date'     => now()->addDays(7)->toDateString(),
+            ]
+        );
+
+        // Participation certificate tied to the competition (type=competition, no level).
+        Certificate::firstOrCreate(
+            ['certificate_number' => 'KTD-CERT-PART-1'],
+            [
+                'franchise_id'      => $fid,
+                'student_id'        => $extStudent->id,
+                'level_id'          => null,
+                'competition_id'    => $competition->id,
+                'verification_code' => (string) Str::uuid(),
+                'type'              => 'competition',
+                'series'            => 'A',
+                'issued_at'         => now()->toDateString(),
+                'issued_by'         => $admin->id,
             ]
         );
 

@@ -148,10 +148,13 @@ The `FranchiseWalkthroughSeeder` populates the **Kothrud** branch with identifia
 
 | Data | Detail |
 |---|---|
-| Students | 5 demo students (`KTD-DEMO-*`) + their parents |
-| Fees | Current-month fees — a mix of **paid / pending / overdue** |
+| Students (internal) | 5 demo students (`KTD-DEMO-*`) + their parents |
+| Student (external) | One competition-only student **`KTD-EXT-DEMO-1`** (Priya Nair) + parent |
+| Fees | Current-month fees — a mix of **paid / pending / overdue**, plus a **Competition Registration** fee for the external student |
 | Payment | One recorded payment, receipt **`KTD-2026-DEMO1`** (open it to show the PDF + print) |
-| Certificate | One issued certificate (`KTD-CERT-DEMO-1`) |
+| Competition | One competition (**Apex Abacus Championship — Demo**) with the external student **registered (paid / confirmed)** |
+| Certificate (internal) | One level-completion certificate (`KTD-CERT-DEMO-1`) |
+| Certificate (external) | One **Participation** certificate (`KTD-CERT-PART-1`) tied to the demo competition |
 | Class Practice | One completed session (`KTDEMO`) with results |
 | Exam | One demo exam + a **passed** attempt → drives the Promotions screen |
 
