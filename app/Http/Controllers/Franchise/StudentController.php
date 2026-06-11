@@ -129,10 +129,10 @@ class StudentController extends Controller
             $user->assignRole('student');
 
             $franchise   = Auth::user()->franchise;
-            $prefix      = $isInternal ? 'INT' : 'EXT';
-            $seq         = Student::withoutGlobalScopes()->where('franchise_id', $franchiseId)->count() + 1;
-            $studentCode = strtoupper(substr($franchise->franchise_code ?? 'ST', 0, 2))
-                         . '-' . $prefix . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+            $studentCode = Student::generateCode(
+                $franchise,
+                \Illuminate\Support\Carbon::parse($data['enrollment_date'])
+            );
 
             $student = Student::create([
                 'franchise_id'     => $franchiseId,

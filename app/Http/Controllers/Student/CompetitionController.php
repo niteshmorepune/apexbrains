@@ -7,6 +7,7 @@ use App\Models\Competition;
 use App\Models\CompetitionExamAttempt;
 use App\Models\CompetitionQuestionPaper;
 use App\Models\CompetitionRegistration;
+use App\Services\CertificateIssuer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -193,7 +194,15 @@ class CompetitionController extends Controller
             ->latest('submitted_at')
             ->first();
 
-        return view('student.competitions.result', compact('competition', 'attempt'));
+        // Participation certificate auto-issued on submission, if any.
+        $certificate = \App\Models\Certificate::where('student_id', $student->id)
+            ->where('competition_id', $competition->id)
+            ->where('type', 'competition')
+            ->where('is_revoked', false)
+            ->latest()
+            ->first();
+
+        return view('student.competitions.result', compact('competition', 'attempt', 'certificate'));
     }
 
     public function register(Request $request, Competition $competition): RedirectResponse
@@ -277,6 +286,15 @@ class CompetitionController extends Controller
         ]);
 
         Cache::forget("comp_exam_{$attempt->id}_answers");
+
+        // Auto-issue a participation certificate on submission. The service
+        // no-ops if the student is not registered (registration is mandatory).
+        $student = $attempt->student;
+        if ($student && $attempt->competition) {
+            app(CertificateIssuer::class)->issueForCompetition(
+                $student, $attempt->competition, $student->user_id
+            );
+        }
 
         return redirect()->route('student.competitions.result', $attempt->competition_id);
     }

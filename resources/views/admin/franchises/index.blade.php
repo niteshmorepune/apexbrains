@@ -73,7 +73,7 @@
                         <td class="px-4 py-3 text-gray-600">{{ $f->owner_name }}</td>
                         <td class="px-4 py-3 text-gray-500">{{ $f->city }}</td>
                         <td class="px-4 py-3 text-right font-medium text-admin">{{ number_format($f->students_count) }}</td>
-                        <td class="px-4 py-3 text-right text-fran font-medium text-sm">₹{{ number_format($f->students_count * $f->fee_per_student) }}</td>
+                        <td class="px-4 py-3 text-right text-fran font-medium text-sm">₹{{ number_format($f->month_revenue ?? 0) }}</td>
                         <td class="px-4 py-3 text-right text-gray-600 text-sm">—</td>
                         <td class="px-4 py-3 text-gray-500 text-xs">
                             {{ $f->created_at->format('M Y') }}

@@ -48,6 +48,17 @@
         </div>
     @endif
 
+    @if($certificate)
+        <div class="bg-stu-light border border-stu/30 rounded-2xl p-4 flex items-center gap-3">
+            <span class="text-2xl">🏅</span>
+            <div class="flex-1">
+                <p class="text-sm font-bold text-gray-800">Participation Certificate Ready</p>
+                <p class="text-xs text-gray-500">{{ $certificate->certificate_number }}</p>
+            </div>
+        </div>
+        <a href="{{ route('student.certificates.pdf', $certificate) }}" class="block w-full py-3.5 bg-stu text-white rounded-2xl text-sm font-bold text-center">Download Certificate</a>
+    @endif
+
     <a href="{{ route('student.home') }}" class="block w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold text-center">Back to Home</a>
     <a href="{{ route('student.competitions.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">All Competitions</a>
 

@@ -40,9 +40,9 @@
     <div class="max-w-lg mx-auto px-4 py-6 space-y-4">
         <template x-if="questions.length > 0">
             <div>
-                <div class="bg-white rounded-2xl border border-border p-5 mb-4">
-                    <p class="text-sm font-bold text-gray-800 leading-relaxed"
-                       x-text="questions[currentIndex]?.question?.question_text"></p>
+                <div class="bg-white rounded-2xl border border-border p-5 mb-4 text-center">
+                    <div class="text-gray-900" style="font-size:30px"
+                         x-html="verticalSum(questions[currentIndex]?.question?.question_text)"></div>
                 </div>
 
                 <div class="space-y-3">
@@ -152,6 +152,26 @@ function paperEngine() {
 
         doSubmit() {
             document.getElementById('submitForm').submit();
+        },
+
+        // Render an arithmetic expression as a right-aligned vertical column
+        // (abacus sum layout). Numbers stack; operators sit to the left.
+        verticalSum(text) {
+            if (!text) return '';
+            const clean = String(text).replace(/=\s*\?|\?/g, '');
+            const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '-': '−', '–': '−' };
+            const re = /([+\-−–×xX*÷/])?\s*(\d+(?:\.\d+)?)/g;
+            const rows = []; let m, first = true;
+            while ((m = re.exec(clean)) !== null) {
+                let op = m[1] || '';
+                if (op && opMap[op]) op = opMap[op];
+                if (first) op = ''; else if (!op) op = '+';
+                rows.push(`<tr><td style="text-align:right;padding-right:0.6em;color:#9ca3af">${op}</td><td style="text-align:right;font-variant-numeric:tabular-nums">${m[2]}</td></tr>`);
+                first = false;
+            }
+            if (rows.length <= 1) return `<span style="font-weight:900">${text}</span>`;
+            return `<table style="border-collapse:collapse;margin:0 auto;font-family:monospace;font-weight:900">${rows.join('')}`
+                 + `<tr><td colspan="2" style="border-top:4px solid #1f2937;padding-top:4px"></td></tr></table>`;
         },
     };
 }

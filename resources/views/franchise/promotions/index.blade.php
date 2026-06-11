@@ -39,7 +39,11 @@
             </thead>
             <tbody class="divide-y divide-border">
                 @foreach($eligible as $student)
-                    @php $nextLevel = $levels->firstWhere('number', $student->currentLevel->number + 1); @endphp
+                    @php
+                        // Junior 4 (number 4) skips directly to Regular 3 (number 7).
+                        $nextNum   = $student->currentLevel->number === 4 ? 7 : $student->currentLevel->number + 1;
+                        $nextLevel = $levels->firstWhere('number', $nextNum);
+                    @endphp
                     <tr class="hover:bg-bg-light">
                         <td class="px-5 py-3">
                             <div class="flex items-center gap-2">
@@ -48,7 +52,7 @@
                                 </div>
                                 <div>
                                     <p class="font-medium text-gray-800">{{ $student->full_name }}</p>
-                                    <p class="text-xs text-gray-400">→ L{{ $student->currentLevel->number + 1 }} after promotion</p>
+                                    <p class="text-xs text-gray-400">→ {{ $nextLevel?->title ?? ('L' . $nextNum) }} after promotion</p>
                                 </div>
                             </div>
                         </td>

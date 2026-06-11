@@ -100,6 +100,26 @@ class Student extends Model
         return $this->hasMany(PracticeSession::class);
     }
 
+    /**
+     * Generate the 8-digit student ID: YY + FF + SSSS
+     *  - YY   = 2-digit year (from $when, defaults to now)
+     *  - FF   = 2-digit franchise number
+     *  - SSSS = 4-digit per-franchise running sequence
+     * Kept as a string to preserve leading zeros. Uniqueness is guaranteed
+     * by the FF+SSSS segment regardless of year.
+     */
+    public static function generateCode(Franchise $franchise, ?\Illuminate\Support\Carbon $when = null): string
+    {
+        $yy   = ($when ?? now())->format('y');
+        $ff   = str_pad((string) (int) ($franchise->franchise_number ?? 0), 2, '0', STR_PAD_LEFT);
+        $seq  = static::withoutGlobalScopes()
+            ->where('franchise_id', $franchise->id)
+            ->count() + 1;
+        $ssss = str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
+
+        return $yy . $ff . $ssss;
+    }
+
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";

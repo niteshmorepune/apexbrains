@@ -390,8 +390,14 @@
                             @csrf
                             <select name="new_level_id" required class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                                 <option value="">Select new level…</option>
+                                @php
+                                    // Junior 4 (number 4) skips directly to Regular 3 (number 7).
+                                    $suggestedNum = $student->currentLevel
+                                        ? ($student->currentLevel->number === 4 ? 7 : $student->currentLevel->number + 1)
+                                        : null;
+                                @endphp
                                 @foreach($levels as $lvl)
-                                    <option value="{{ $lvl->id }}" @selected($student->currentLevel && $lvl->number === $student->currentLevel->number + 1)>Level {{ $lvl->number }} — {{ $lvl->title }}</option>
+                                    <option value="{{ $lvl->id }}" @selected($lvl->number === $suggestedNum)>Level {{ $lvl->number }} — {{ $lvl->title }}</option>
                                 @endforeach
                             </select>
                             <button type="submit" class="w-full py-2 bg-fran text-white rounded-lg text-sm font-semibold hover:bg-fran-dark">Promote</button>

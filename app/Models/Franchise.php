@@ -13,13 +13,11 @@ class Franchise extends Model
     protected $fillable = [
         'name', 'slug', 'owner_name', 'email', 'phone', 'whatsapp',
         'address', 'city', 'pincode', 'state', 'gst_number', 'pan_number',
-        'status', 'rejection_reason', 'franchise_code', 'commission_rate', 'fee_per_student',
+        'status', 'rejection_reason', 'franchise_code', 'franchise_number',
         'logo', 'agreed_at',
     ];
 
     protected $casts = [
-        'commission_rate' => 'decimal:2',
-        'fee_per_student' => 'decimal:2',
         'agreed_at' => 'datetime',
     ];
 
@@ -51,11 +49,6 @@ class Franchise extends Model
     public function exams(): HasMany
     {
         return $this->hasMany(Exam::class);
-    }
-
-    public function commissions(): HasMany
-    {
-        return $this->hasMany(Commission::class);
     }
 
     public function settings(): HasMany

@@ -13,7 +13,7 @@ class ClassPracticeSession extends Model
     protected $fillable = [
         'franchise_id', 'batch_id', 'teacher_id', 'title', 'level_id',
         'question_category', 'total_questions', 'time_per_question_seconds',
-        'session_length_minutes', 'audio_dictation',
+        'audio_dictation',
         'status', 'current_question_index', 'started_at', 'ended_at', 'session_code',
     ];
 
@@ -23,7 +23,6 @@ class ClassPracticeSession extends Model
         'current_question_index' => 'integer',
         'total_questions' => 'integer',
         'time_per_question_seconds' => 'float',
-        'session_length_minutes' => 'integer',
         'audio_dictation' => 'boolean',
     ];
 

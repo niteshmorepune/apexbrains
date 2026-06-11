@@ -73,7 +73,7 @@
     {{-- Big number display --}}
     <div class="px-4 mt-3">
         <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[180px] flex items-center justify-center">
-            <p class="font-black text-gray-900 leading-tight whitespace-pre-line" style="font-size: 44px;">{{ $question['question_text'] }}</p>
+            <x-sum-vertical :text="$question['question_text']" :size="40" />
         </div>
     </div>
 

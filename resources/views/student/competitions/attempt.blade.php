@@ -66,7 +66,7 @@
             {{-- Big number display --}}
             <div class="px-4 mt-3">
                 <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
-                    <p class="font-black text-gray-900 leading-tight whitespace-pre-line" style="font-size:42px" x-text="questions[currentIndex]?.question?.question_text"></p>
+                    <div class="text-gray-900" style="font-size:38px" x-html="verticalSum(questions[currentIndex]?.question?.question_text)"></div>
                 </div>
             </div>
 
@@ -143,6 +143,26 @@ function examEngine() {
         },
 
         doSubmit() { document.getElementById('submitForm').submit(); },
+
+        // Render an arithmetic expression as a right-aligned vertical column
+        // (abacus sum layout). Numbers stack; operators sit to the left.
+        verticalSum(text) {
+            if (!text) return '';
+            const clean = String(text).replace(/=\s*\?|\?/g, '');
+            const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '-': '−', '–': '−' };
+            const re = /([+\-−–×xX*÷/])?\s*(\d+(?:\.\d+)?)/g;
+            const rows = []; let m, first = true;
+            while ((m = re.exec(clean)) !== null) {
+                let op = m[1] || '';
+                if (op && opMap[op]) op = opMap[op];
+                if (first) op = ''; else if (!op) op = '+';
+                rows.push(`<tr><td style="text-align:right;padding-right:0.6em;color:#9ca3af">${op}</td><td style="text-align:right;font-variant-numeric:tabular-nums">${m[2]}</td></tr>`);
+                first = false;
+            }
+            if (rows.length <= 1) return `<span style="font-weight:900">${text}</span>`;
+            return `<table style="border-collapse:collapse;margin:0 auto;font-family:monospace;font-weight:900">${rows.join('')}`
+                 + `<tr><td colspan="2" style="border-top:4px solid #1f2937;padding-top:4px"></td></tr></table>`;
+        },
     };
 }
 </script>

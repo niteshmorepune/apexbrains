@@ -219,13 +219,32 @@ function practicePlayer() {
         paused: false,
         timer: null,
         flashSize: 18,
+        femaleVoice: null,
 
         init() {
+            this.loadVoice();
             this.terms = this.parseTerms(this.state.question);
             if (this.state.status === 'active') {
                 // user gesture (page nav) lets audio autoplay in most browsers
                 this.startSequence();
             }
+        },
+
+        // Pick a female voice once the browser has loaded its voice list.
+        loadVoice() {
+            if (!window.speechSynthesis) return;
+            const choose = () => {
+                const voices = window.speechSynthesis.getVoices();
+                if (!voices.length) return;
+                const wanted = ['female', 'zira', 'heera', 'google uk english female', 'samantha', 'google hindi'];
+                this.femaleVoice =
+                    voices.find(v => /en[-_]?in/i.test(v.lang) && /female|heera/i.test(v.name)) ||
+                    voices.find(v => wanted.some(w => v.name.toLowerCase().includes(w))) ||
+                    voices.find(v => /^en/i.test(v.lang)) ||
+                    voices[0] || null;
+            };
+            choose();
+            window.speechSynthesis.onvoiceschanged = choose;
         },
 
         // Break an arithmetic expression into abacus-style signed terms.
@@ -271,8 +290,11 @@ function practicePlayer() {
                 return;
             }
 
-            this.display = this.terms[this.termIndex];
-            this.speak(this.display);
+            // Show only the number on screen (operators are hidden during
+            // dictation); the operator is conveyed by voice instead.
+            const term = this.terms[this.termIndex];
+            this.display = this.numericPart(term);
+            this.speak(term);
 
             const flashMs = Math.max(400, this.state.duration * 1000);
             const gapMs = Math.min(260, flashMs * 0.18); // brief blank so repeats are distinct
@@ -313,22 +335,37 @@ function practicePlayer() {
             this.restart();
         },
 
+        // The bare number shown on the projector (operator glyph stripped).
+        numericPart(term) {
+            return String(term).replace(/^[+\-−–×x*÷/]\s*/, '').trim();
+        },
+
         // Speak a single term as it flashes (TTS fallback when no recorded file).
         speak(term) {
             if (this.audioPath || !this.audioDictation || !term) return;
             if (!window.speechSynthesis) return;
+            const phrase = this.spokenForm(term);
+            if (!phrase) return;
             window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(this.spokenForm(term));
+            const u = new SpeechSynthesisUtterance(phrase);
             u.rate = 0.9;
+            u.lang = 'en-IN';
+            if (this.femaleVoice) u.voice = this.femaleVoice;
             window.speechSynthesis.speak(u);
         },
 
+        // Spoken rules (abacus dictation):
+        //  + (addition)        → not spoken, just the number
+        //  − (subtraction)     → "less <n>"
+        //  × (multiplication)  → "multiply by <n>"
+        //  ÷ (division)        → "divide by <n>"
         spokenForm(term) {
-            return term
-                .replace('×', ' times ')
-                .replace('÷', ' divided by ')
-                .replace('+', 'plus ')
-                .replace('−', 'minus ');
+            const t = String(term).trim();
+            const n = this.numericPart(t);
+            if (/^[×x*]/.test(t)) return 'multiply by ' + n;
+            if (/^[÷/]/.test(t))  return 'divide by ' + n;
+            if (/^[−\-–]/.test(t)) return 'less ' + n;
+            return n; // addition or first term — number only
         },
     };
 }

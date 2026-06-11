@@ -9,21 +9,21 @@ class LevelSeeder extends Seeder
 {
     public function run(): void
     {
+        // 11-level structure approved 2026-06 client meeting:
+        // Junior 1–4 (numbers 1–4) followed by Regular 1–7 (numbers 5–11).
+        // Junior 4 students move directly to Regular 3 — see PromotionController.
         $levels = [
-            ['number' => 1,  'title' => 'Beginner 1',     'fee_per_month' => 800],
-            ['number' => 2,  'title' => 'Beginner 2',     'fee_per_month' => 900],
-            ['number' => 3,  'title' => 'Elementary 1',   'fee_per_month' => 1000],
-            ['number' => 4,  'title' => 'Elementary 2',   'fee_per_month' => 1000],
-            ['number' => 5,  'title' => 'Pre-Junior 1',   'fee_per_month' => 1100],
-            ['number' => 6,  'title' => 'Pre-Junior 2',   'fee_per_month' => 1100],
-            ['number' => 7,  'title' => 'Junior 1',       'fee_per_month' => 1200],
-            ['number' => 8,  'title' => 'Junior 2',       'fee_per_month' => 1200],
-            ['number' => 9,  'title' => 'Intermediate 1', 'fee_per_month' => 1400],
-            ['number' => 10, 'title' => 'Intermediate 2', 'fee_per_month' => 1400],
-            ['number' => 11, 'title' => 'Senior 1',       'fee_per_month' => 1600],
-            ['number' => 12, 'title' => 'Senior 2',       'fee_per_month' => 1600],
-            ['number' => 13, 'title' => 'Expert 1',       'fee_per_month' => 1800],
-            ['number' => 14, 'title' => 'Expert 2',       'fee_per_month' => 1800],
+            ['number' => 1,  'title' => 'Junior 1',   'fee_per_month' => 800],
+            ['number' => 2,  'title' => 'Junior 2',   'fee_per_month' => 900],
+            ['number' => 3,  'title' => 'Junior 3',   'fee_per_month' => 1000],
+            ['number' => 4,  'title' => 'Junior 4',   'fee_per_month' => 1100],
+            ['number' => 5,  'title' => 'Regular 1',  'fee_per_month' => 1200],
+            ['number' => 6,  'title' => 'Regular 2',  'fee_per_month' => 1300],
+            ['number' => 7,  'title' => 'Regular 3',  'fee_per_month' => 1400],
+            ['number' => 8,  'title' => 'Regular 4',  'fee_per_month' => 1500],
+            ['number' => 9,  'title' => 'Regular 5',  'fee_per_month' => 1600],
+            ['number' => 10, 'title' => 'Regular 6',  'fee_per_month' => 1700],
+            ['number' => 11, 'title' => 'Regular 7',  'fee_per_month' => 1800],
         ];
 
         foreach ($levels as $data) {

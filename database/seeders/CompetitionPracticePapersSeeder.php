@@ -37,7 +37,9 @@ class CompetitionPracticePapersSeeder extends Seeder
         $difficulties = ['easy', 'easy', 'medium', 'medium', 'hard'];
         $paperNumber  = 0;
 
-        $levels = Level::orderBy('number')->take(6)->get();
+        // Cover every level (Junior 1–4 + Regular 1–7) so testers see the full
+        // level-wise practice-paper catalogue.
+        $levels = Level::orderBy('number')->get();
 
         foreach ($levels as $level) {
             // Prefer questions tagged to the level, fall back to the general approved pool.

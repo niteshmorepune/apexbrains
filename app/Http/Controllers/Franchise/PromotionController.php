@@ -23,7 +23,7 @@ class PromotionController extends Controller
             ->where('student_type', 'internal')
             ->get()
             ->filter(function ($s) {
-                if (! $s->currentLevel || $s->currentLevel->number >= 14) {
+                if (! $s->currentLevel || $s->currentLevel->number >= 11) {
                     return false;
                 }
                 return $s->examAttempts->contains(fn($a) =>
@@ -81,14 +81,15 @@ class PromotionController extends Controller
 
         $promoted = 0;
         foreach ($students as $student) {
-            if (! $student->currentLevel || $student->currentLevel->number >= 14) {
+            if (! $student->currentLevel || $student->currentLevel->number >= 11) {
                 continue;
             }
             if (! $this->hasPassedCurrentLevel($student)) {
                 continue;
             }
 
-            $nextLevel = Level::where('number', $student->currentLevel->number + 1)->first();
+            $nextNumber = $this->nextLevelNumber($student->currentLevel->number);
+            $nextLevel  = $nextNumber ? Level::where('number', $nextNumber)->first() : null;
             if (! $nextLevel) {
                 continue;
             }
@@ -102,6 +103,20 @@ class PromotionController extends Controller
         }
 
         return back()->with('success', "Batch promoted {$promoted} student" . ($promoted === 1 ? '' : 's') . '.');
+    }
+
+    /**
+     * The next level number in the progression. Junior 4 (number 4) skips
+     * directly to Regular 3 (number 7) per the approved level structure;
+     * every other level advances by one. Returns null at/after the top level.
+     */
+    protected function nextLevelNumber(int $current): ?int
+    {
+        if ($current >= 11) {
+            return null;
+        }
+
+        return $current === 4 ? 7 : $current + 1;
     }
 
     /**

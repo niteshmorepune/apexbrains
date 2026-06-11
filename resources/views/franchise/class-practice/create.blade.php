@@ -15,8 +15,7 @@
 
         <form method="POST" action="{{ route('franchise.class-practice.store') }}" class="space-y-8"
               x-data="{
-                  time: '{{ old('time_per_question_seconds', '2') }}',
-                  length: '{{ old('session_length_minutes', '8') }}'
+                  time: '{{ old('time_per_question_seconds', '2') }}'
               }">
             @csrf
 
@@ -39,31 +38,15 @@
                 </div>
             </div>
 
-            {{-- Time per steps --}}
+            {{-- Time per number (flash speed) --}}
             <div>
-                <label class="block text-lg font-semibold text-gray-800 mb-3">Time per steps</label>
-                <div class="grid grid-cols-3 gap-4">
-                    @foreach(['2' => '2 Seconds', '2.5' => '2.5 Seconds', '3' => '3 Seconds'] as $val => $lbl)
+                <label class="block text-lg font-semibold text-gray-800 mb-3">Time per number</label>
+                <div class="grid grid-cols-5 gap-3">
+                    @foreach(['1' => '1 Sec', '2' => '2 Sec', '3' => '3 Sec', '4' => '4 Sec', '5' => '5 Sec'] as $val => $lbl)
                         <label class="cursor-pointer">
                             <input type="radio" name="time_per_question_seconds" value="{{ $val }}" x-model="time" class="sr-only">
                             <span class="block text-center py-4 rounded-xl border text-base font-medium transition-colors"
                                   :class="time === '{{ $val }}'
-                                      ? 'bg-blue-50 border-fran text-fran font-semibold'
-                                      : 'bg-white border-border text-gray-700 hover:border-fran'">{{ $lbl }}</span>
-                        </label>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- Session Length --}}
-            <div>
-                <label class="block text-lg font-semibold text-gray-800 mb-3">Session Length</label>
-                <div class="grid grid-cols-2 gap-4">
-                    @foreach(['8' => '8 min', '10' => '10 min'] as $val => $lbl)
-                        <label class="cursor-pointer">
-                            <input type="radio" name="session_length_minutes" value="{{ $val }}" x-model="length" class="sr-only">
-                            <span class="block text-center py-4 rounded-xl border text-base font-medium transition-colors"
-                                  :class="length === '{{ $val }}'
                                       ? 'bg-blue-50 border-fran text-fran font-semibold'
                                       : 'bg-white border-border text-gray-700 hover:border-fran'">{{ $lbl }}</span>
                         </label>

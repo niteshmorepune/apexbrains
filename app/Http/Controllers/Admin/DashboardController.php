@@ -110,7 +110,7 @@ class DashboardController extends Controller
             ->orderByDesc('students_count')
             ->get();
 
-        $csv  = "Franchise,City,Status,Students,Monthly Revenue (₹),Commission Rate\n";
+        $csv  = "Franchise,City,Status,Students,Monthly Revenue (₹)\n";
         foreach ($franchises as $f) {
             $csv .= implode(',', [
                 '"' . str_replace('"', '""', $f->name) . '"',
@@ -118,7 +118,6 @@ class DashboardController extends Controller
                 $f->status,
                 $f->students_count,
                 number_format($f->monthly_revenue, 2, '.', ''),
-                $f->commission_rate,
             ]) . "\n";
         }
 

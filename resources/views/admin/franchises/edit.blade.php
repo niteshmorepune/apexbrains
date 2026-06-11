@@ -107,16 +107,12 @@
                 <span class="font-mono">{{ $franchise->franchise_code }}</span>
             </div>
             <div class="flex justify-between">
+                <span class="text-gray-400">Franchise No.</span>
+                <span class="font-mono">{{ $franchise->franchise_number ? str_pad($franchise->franchise_number, 2, '0', STR_PAD_LEFT) : '—' }}</span>
+            </div>
+            <div class="flex justify-between">
                 <span class="text-gray-400">Status</span>
                 <x-status-badge :status="$franchise->status" />
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-400">Commission</span>
-                <span>{{ $franchise->commission_rate }}%</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-400">Fee/Student</span>
-                <span>₹{{ number_format($franchise->fee_per_student) }}</span>
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-400">Joined</span>

@@ -31,10 +31,6 @@
         </svg>
         Export PDF
     </a>
-    <a href="{{ route('admin.commissions.index') }}"
-       class="text-sm text-fran hover:underline font-medium">
-        Commission Calculator →
-    </a>
 </div>
 
 {{-- KPI Cards --}}
@@ -104,10 +100,10 @@
     </div>
 </div>
 
-{{-- Commission breakdown table --}}
+{{-- Revenue by franchise (collected payments) --}}
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="px-5 py-4 border-b border-border">
-        <h2 class="text-sm font-semibold text-admin">Commission Breakdown by Franchise</h2>
+        <h2 class="text-sm font-semibold text-admin">Revenue by Franchise</h2>
     </div>
     <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
@@ -115,43 +111,20 @@
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Franchise</th>
                 <th class="text-left px-4 py-3 text-xs font-semibold text-white">City</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Students</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Fee/Student</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Gross Revenue</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Commission %</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Net Commission</th>
-                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Collected Revenue</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-border">
             @forelse($branchRevenue as $f)
-                @php
-                    $gross = $f->revenue ?? 0;
-                    $commissionDue = $gross * ($f->commission_rate / 100);
-                    $cs = $f->commission_status ?? null;
-                @endphp
                 <tr class="hover:bg-bg-light">
                     <td class="px-5 py-3 font-medium text-admin">{{ $f->name }}</td>
                     <td class="px-4 py-3 text-gray-500">{{ $f->city }}</td>
                     <td class="px-4 py-3 text-right text-gray-700">{{ number_format($f->students_count) }}</td>
-                    <td class="px-4 py-3 text-right text-gray-500">₹{{ number_format($f->fee_per_student) }}</td>
-                    <td class="px-4 py-3 text-right">₹{{ number_format($gross) }}</td>
-                    <td class="px-4 py-3 text-right text-gray-500">{{ $f->commission_rate }}%</td>
-                    <td class="px-4 py-3 text-right font-medium text-fran">₹{{ number_format($commissionDue) }}</td>
-                    <td class="px-4 py-3 text-center">
-                        @if($cs === 'paid')
-                            <span class="text-xs bg-green-100 text-green-700 font-medium px-2 py-0.5 rounded-full">Paid</span>
-                        @elseif($cs === 'partial')
-                            <span class="text-xs bg-blue-100 text-blue-700 font-medium px-2 py-0.5 rounded-full">Partial</span>
-                        @elseif($cs === 'pending')
-                            <span class="text-xs bg-yellow-100 text-yellow-700 font-medium px-2 py-0.5 rounded-full">Pending</span>
-                        @else
-                            <span class="text-xs bg-gray-100 text-gray-500 font-medium px-2 py-0.5 rounded-full">Not calculated</span>
-                        @endif
-                    </td>
+                    <td class="px-4 py-3 text-right font-medium text-fran">₹{{ number_format($f->revenue ?? 0) }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="px-5 py-8 text-center text-gray-400">No revenue data for this period.</td>
+                    <td colspan="4" class="px-5 py-8 text-center text-gray-400">No revenue data for this period.</td>
                 </tr>
             @endforelse
         </tbody>

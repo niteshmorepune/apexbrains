@@ -7,6 +7,7 @@ use App\Models\Certificate;
 use App\Models\Competition;
 use App\Models\Student;
 use App\Services\AuditLogger;
+use App\Services\CertificateIssuer;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -53,10 +54,6 @@ class CertificateController extends Controller
         // to a competition; internal students get a level-completion certificate.
         $isParticipation = $student->student_type === 'external' || $data['type'] === 'competition';
 
-        $levelId       = null;
-        $competitionId = null;
-        $type          = $data['type'];
-
         if ($isParticipation) {
             if (empty($data['competition_id'])) {
                 return back()
@@ -67,23 +64,34 @@ class CertificateController extends Controller
             if ($competition->franchise_id !== $franchiseId) {
                 abort(403);
             }
-            $type          = 'competition';
-            $competitionId = $competition->id;
-        } else {
-            $levelId = $data['level_id'] ?? $student->current_level_id;
+
+            // Registration is mandatory before a certificate can be generated.
+            $certificate = app(CertificateIssuer::class)->issueForCompetition(
+                $student, $competition, Auth::id(), $data['series'] ?? null, $data['issued_at'] ?? null
+            );
+
+            if (! $certificate) {
+                return back()
+                    ->withErrors(['competition_id' => "{$student->full_name} is not registered for this competition. Register the student before generating a certificate."])
+                    ->withInput();
+            }
+
+            return redirect()->route('franchise.certificates.download', $certificate)
+                ->with('success', "Certificate {$certificate->certificate_number} generated and sent for {$student->full_name}.");
         }
 
-        $certNumber      = 'CERT-' . strtoupper(Str::random(8));
+        // Internal level-completion / merit / excellence certificate.
+        $certNumber       = 'CERT-' . strtoupper(Str::random(8));
         $verificationCode = Str::uuid()->toString();
 
         $certificate = Certificate::create([
             'franchise_id'      => $franchiseId,
             'student_id'        => $student->id,
-            'level_id'          => $levelId,
-            'competition_id'    => $competitionId,
+            'level_id'          => $data['level_id'] ?? $student->current_level_id,
+            'competition_id'    => null,
             'certificate_number'=> $certNumber,
             'verification_code' => $verificationCode,
-            'type'              => $type,
+            'type'              => $data['type'],
             'series'            => $data['series'] ?? null,
             'issued_at'         => $data['issued_at'] ?? now(),
             // "Generate and Send" marks the certificate as delivered immediately.

@@ -176,7 +176,6 @@
                         'notify_new_franchise' => ['New Franchise Registered', 'Get notified when a new franchise submits an application'],
                         'notify_new_student'   => ['New Student Enrolled', 'Get notified when a new student is added'],
                         'notify_payment_due'   => ['Payment Due Alerts', 'Get notified when payments are overdue'],
-                        'notify_commission'    => ['Commission Reports', 'Get notified when monthly commissions are calculated'],
                     ] as $key => $info)
                         <div class="flex items-start justify-between py-3 border-b border-border last:border-b-0">
                             <div>

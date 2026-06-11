@@ -125,8 +125,7 @@ class ClassPracticeController extends Controller
         $data = $request->validate([
             'level_id'                  => ['required', 'exists:levels,id'],
             'total_questions'           => ['required', 'in:100,120,150'],
-            'time_per_question_seconds' => ['required', 'in:2,2.5,3'],
-            'session_length_minutes'    => ['nullable', 'in:8,10'],
+            'time_per_question_seconds' => ['required', 'in:1,2,3,4,5'],
             'audio_dictation'           => ['nullable', 'boolean'],
             'batch_id'                  => ['nullable', 'exists:batches,id'],
         ]);
@@ -153,7 +152,6 @@ class ClassPracticeController extends Controller
             'question_category'         => 'level_practice',
             'total_questions'           => $questions->count(),
             'time_per_question_seconds' => $data['time_per_question_seconds'],
-            'session_length_minutes'    => $data['session_length_minutes'] ?? null,
             'audio_dictation'           => $request->boolean('audio_dictation'),
             'batch_id'                  => $data['batch_id'] ?? null,
             'status'                    => 'pending',
@@ -359,7 +357,6 @@ class ClassPracticeController extends Controller
             'question_category'         => $session->question_category,
             'total_questions'           => $reuseQuestions ? $source->count() : $session->total_questions,
             'time_per_question_seconds' => $session->time_per_question_seconds,
-            'session_length_minutes'    => $session->session_length_minutes,
             'audio_dictation'           => $session->audio_dictation,
             'batch_id'                  => $session->batch_id,
             'status'                    => 'pending',

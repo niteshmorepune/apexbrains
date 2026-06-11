@@ -246,17 +246,17 @@
         <div class="bg-white rounded-2xl border border-border p-4">
             <p class="text-xs text-gray-500 mb-1">Monthly Revenue</p>
             <p class="text-2xl font-bold text-fran">₹{{ number_format($monthlyRevenue) }}</p>
-            <p class="text-xs text-gray-400 mt-1">{{ $franchise->students_count }} students × ₹{{ number_format($franchise->fee_per_student) }}</p>
+            <p class="text-xs text-gray-400 mt-1">Collected this month</p>
         </div>
         <div class="bg-white rounded-2xl border border-border p-4">
-            <p class="text-xs text-gray-500 mb-1">Commission Rate</p>
-            <p class="text-2xl font-bold text-logo-amber">{{ $franchise->commission_rate }}%</p>
-            <p class="text-xs text-gray-400 mt-1">Commission due: ₹{{ number_format($monthlyRevenue * $franchise->commission_rate / 100) }}</p>
+            <p class="text-xs text-gray-500 mb-1">Active Students</p>
+            <p class="text-2xl font-bold text-admin">{{ number_format($franchise->students_count) }}</p>
+            <p class="text-xs text-gray-400 mt-1">Enrolled at this branch</p>
         </div>
         <div class="bg-white rounded-2xl border border-border p-4">
-            <p class="text-xs text-gray-500 mb-1">Net Revenue</p>
-            <p class="text-2xl font-bold text-stu">₹{{ number_format($monthlyRevenue - ($monthlyRevenue * $franchise->commission_rate / 100)) }}</p>
-            <p class="text-xs text-gray-400 mt-1">After commission deduction</p>
+            <p class="text-xs text-gray-500 mb-1">Avg Score</p>
+            <p class="text-2xl font-bold text-stu">{{ $avgScore !== null ? $avgScore . '%' : '—' }}</p>
+            <p class="text-xs text-gray-400 mt-1">Across exam attempts</p>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-border p-5">
@@ -335,18 +335,6 @@
             <h3 class="text-sm font-semibold text-admin mb-4">Franchise Settings</h3>
             <form method="POST" action="{{ route('admin.franchises.update', $franchise) }}" class="space-y-4">
                 @csrf @method('PUT')
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Commission Rate (%)</label>
-                    <input type="number" name="commission_rate" step="0.01" min="0" max="100"
-                           value="{{ $franchise->commission_rate }}"
-                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Fee per Student (₹)</label>
-                    <input type="number" name="fee_per_student" step="0.01" min="0"
-                           value="{{ $franchise->fee_per_student }}"
-                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1.5">Franchise Status</label>
                     <select name="status" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
@@ -433,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'bar',
             data: {
                 labels: growthLabels,
-                datasets: [{ label: 'Revenue (₹)', data: growthData.map(d => d * {{ $franchise->fee_per_student }}),
+                datasets: [{ label: 'Revenue (₹)', data: @json($revenueData),
                     backgroundColor: 'rgba(26,115,232,0.7)', borderRadius: 6 }]
             },
             options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }

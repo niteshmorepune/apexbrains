@@ -54,8 +54,6 @@
                 <th>Franchise</th>
                 <th>City</th>
                 <th class="right">Revenue (Period)</th>
-                <th class="right">Commission Rate</th>
-                <th class="right">Commission Due</th>
                 <th class="right">Revenue Share</th>
             </tr>
         </thead>
@@ -67,8 +65,6 @@
                     <td>{{ $f->name }}</td>
                     <td>{{ $f->city }}</td>
                     <td class="right">&#8377;{{ number_format($f->revenue ?? 0) }}</td>
-                    <td class="right">{{ $f->commission_rate }}%</td>
-                    <td class="right">&#8377;{{ number_format(($f->revenue ?? 0) * ($f->commission_rate / 100)) }}</td>
                     <td class="right">{{ $share }}%</td>
                 </tr>
             @endforeach
@@ -77,8 +73,6 @@
             <tr>
                 <td colspan="3" style="font-weight:bold; background:#F0F4FF;">TOTAL</td>
                 <td class="right" style="font-weight:bold; background:#F0F4FF;">&#8377;{{ number_format($totalRevenue) }}</td>
-                <td class="right" style="background:#F0F4FF;">—</td>
-                <td class="right" style="font-weight:bold; background:#F0F4FF;">&#8377;{{ number_format($branchRevenue->sum(fn($f) => ($f->revenue ?? 0) * ($f->commission_rate / 100))) }}</td>
                 <td class="right" style="background:#F0F4FF;">100%</td>
             </tr>
         </tfoot>

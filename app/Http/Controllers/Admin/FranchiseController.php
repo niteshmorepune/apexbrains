@@ -15,7 +15,11 @@ class FranchiseController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Franchise::withCount('students');
+        $query = Franchise::withCount('students')
+            ->withSum(['payments as month_revenue' => function ($q) {
+                $q->whereYear('payment_date', now()->year)
+                  ->whereMonth('payment_date', now()->month);
+            }], 'amount');
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -73,6 +77,8 @@ class FranchiseController extends Controller
         $data['franchise_code'] = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $data['name']), 0, 3))
             . '-' . strtoupper(substr($data['city'], 0, 3))
             . '-' . str_pad(Franchise::count() + 1, 3, '0', STR_PAD_LEFT);
+        // Sequential 2-digit franchise number used in the 8-digit student ID (YY+FF+SSSS).
+        $data['franchise_number'] = (Franchise::max('franchise_number') ?? 0) + 1;
 
         $franchise = Franchise::create($data);
 
@@ -119,17 +125,21 @@ class FranchiseController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        // Monthly revenue
-        $monthlyRevenue = $franchise->students_count * $franchise->fee_per_student;
+        // Monthly revenue — collected payments for the current month.
+        $monthlyRevenue = \App\Models\Payment::where('franchise_id', $franchise->id)
+            ->whereYear('payment_date', now()->year)
+            ->whereMonth('payment_date', now()->month)
+            ->sum('amount');
 
         // Avg score from exam attempts
         $avgScore = \App\Models\ExamAttempt::whereHas('student', fn($q) => $q->where('franchise_id', $franchise->id))
             ->avg('score');
         $avgScore = $avgScore ? round($avgScore, 1) : null;
 
-        // Student growth — last 6 months enrollment counts
+        // Student growth + collected revenue — last 6 months
         $growthLabels = [];
         $growthData   = [];
+        $revenueData  = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = now()->subMonths($i);
             $growthLabels[] = $month->format('M');
@@ -138,6 +148,10 @@ class FranchiseController extends Controller
                 ->whereYear('enrollment_date', $month->year)
                 ->whereMonth('enrollment_date', $month->month)
                 ->count();
+            $revenueData[]  = (float) \App\Models\Payment::where('franchise_id', $franchise->id)
+                ->whereYear('payment_date', $month->year)
+                ->whereMonth('payment_date', $month->month)
+                ->sum('amount');
         }
 
         // Level distribution
@@ -152,7 +166,7 @@ class FranchiseController extends Controller
 
         return view('admin.franchises.show', compact(
             'franchise', 'documents', 'recentActivity', 'franchiseStudents',
-            'monthlyRevenue', 'avgScore', 'growthLabels', 'growthData', 'levelDist'
+            'monthlyRevenue', 'avgScore', 'growthLabels', 'growthData', 'revenueData', 'levelDist'
         ));
     }
 

@@ -182,7 +182,7 @@ class FranchiseWalkthroughSeeder extends Seeder
 
         // 6) A franchise-scoped exam + a passed attempt (so Promotions lists a student
         //    and the read-only Exams page shows monitoring data).
-        $promoStudent = $students->first(fn ($s) => optional($s->currentLevel)->number < 14) ?? $students->first();
+        $promoStudent = $students->first(fn ($s) => optional($s->currentLevel)->number < 11) ?? $students->first();
         $exam = Exam::withoutGlobalScopes()->firstOrCreate(
             ['title' => 'Level ' . optional($promoStudent->currentLevel)->number . ' Assessment — Demo', 'franchise_id' => $fid],
             [

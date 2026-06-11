@@ -37,7 +37,6 @@ class SettingsController extends Controller
             'notify_new_franchise'   => ['nullable', 'boolean'],
             'notify_new_student'     => ['nullable', 'boolean'],
             'notify_payment_due'     => ['nullable', 'boolean'],
-            'notify_commission'      => ['nullable', 'boolean'],
             'payment_gateway'        => ['nullable', 'string', 'max:30'],
             'payment_api_key'        => ['nullable', 'string', 'max:255'],
             'payment_api_secret'     => ['nullable', 'string', 'max:255'],
@@ -47,7 +46,6 @@ class SettingsController extends Controller
         $data['notify_new_franchise'] = $request->boolean('notify_new_franchise');
         $data['notify_new_student']   = $request->boolean('notify_new_student');
         $data['notify_payment_due']   = $request->boolean('notify_payment_due');
-        $data['notify_commission']    = $request->boolean('notify_commission');
 
         $existing = $this->loadSettings();
         $data['logo_path'] = $existing['logo_path'] ?? null;
@@ -95,7 +93,6 @@ class SettingsController extends Controller
             'notify_new_franchise' => true,
             'notify_new_student'   => true,
             'notify_payment_due'   => true,
-            'notify_commission'    => true,
             'logo_path'            => null,
         ];
     }

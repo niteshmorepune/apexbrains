@@ -20,7 +20,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'question.create', 'question.read', 'question.update', 'question.delete',
             'question.approve', 'question.audio',
             'competition.create', 'competition.read', 'competition.update', 'competition.delete',
-            'commission.read', 'commission.pay',
             'audit.view', 'settings.edit', 'user.manage',
             'class_practice.admin',
         ];

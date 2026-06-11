@@ -34,8 +34,7 @@ class DemoDataSeeder extends Seeder
             'state'           => 'Maharashtra',
             'status'          => 'active',
             'franchise_code'  => 'KTH001',
-            'commission_rate' => 10.00,
-            'fee_per_student' => 1200.00,
+            'franchise_number'=> 1,
             'agreed_at'       => now(),
         ]);
 
@@ -63,7 +62,7 @@ class DemoDataSeeder extends Seeder
         if ($level1) {
             Student::firstOrCreate(['user_id' => $internalUser->id], [
                 'franchise_id'      => $franchise->id,
-                'student_code'      => 'KTH-INT-001',
+                'student_code'      => Student::generateCode($franchise),
                 'student_type'      => 'internal',
                 'first_name'        => 'Arjun',
                 'last_name'         => 'Patil',
@@ -87,7 +86,7 @@ class DemoDataSeeder extends Seeder
 
         Student::firstOrCreate(['user_id' => $externalUser->id], [
             'franchise_id'     => $franchise->id,
-            'student_code'     => 'KTH-EXT-001',
+            'student_code'     => Student::generateCode($franchise),
             'student_type'     => 'external',
             'first_name'       => 'Priya',
             'last_name'        => 'Mehta',

@@ -52,10 +52,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('revenue', [\App\Http\Controllers\Admin\RevenueController::class, 'index'])->name('revenue');
         Route::get('revenue/export-pdf', [\App\Http\Controllers\Admin\RevenueController::class, 'exportPdf'])->name('revenue.export-pdf');
         Route::get('leaderboard', [\App\Http\Controllers\Admin\LeaderboardController::class, 'index'])->name('leaderboard');
-        Route::get('commissions', [\App\Http\Controllers\Admin\CommissionController::class, 'index'])->name('commissions.index');
-        Route::post('commissions/calculate', [\App\Http\Controllers\Admin\CommissionController::class, 'calculate'])->name('commissions.calculate');
-        Route::get('commissions/export-pdf', [\App\Http\Controllers\Admin\CommissionController::class, 'exportPdf'])->name('commissions.export-pdf');
-        Route::post('commissions/{commission}/mark-paid', [\App\Http\Controllers\Admin\CommissionController::class, 'markPaid'])->name('commissions.mark-paid');
 
         // Resource Library
         Route::get('resources', [\App\Http\Controllers\Admin\ResourceFileController::class, 'index'])->name('resources.index');

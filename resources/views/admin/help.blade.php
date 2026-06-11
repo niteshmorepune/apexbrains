@@ -100,13 +100,12 @@
                     <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
                         <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.bar-chart')</svg>
                     </div>
-                    <span class="font-semibold text-admin">Finance & Commissions</span>
+                    <span class="font-semibold text-admin">Finance & Revenue</span>
                 </div>
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'finance' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'finance'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-admin">Revenue dashboard:</span> Finance shows total revenue, monthly trends, and per-franchise breakdowns. Filter by date range.</p>
-                <p><span class="font-semibold text-admin">Commissions:</span> Go to Finance → Commissions. Calculate commissions for a given month and mark them as paid once transferred to the franchise owner.</p>
+                <p><span class="font-semibold text-admin">Revenue dashboard:</span> Finance shows total revenue (collected payments), monthly trends, and per-franchise breakdowns. Filter by date range and export to PDF.</p>
             </div>
         </div>
 
