@@ -43,7 +43,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('competitions/{competition}/papers', [\App\Http\Controllers\Admin\CompetitionQuestionPaperController::class, 'store'])->name('competitions.papers.store');
         Route::delete('competitions/{competition}/papers/{paper}', [\App\Http\Controllers\Admin\CompetitionQuestionPaperController::class, 'destroy'])->name('competitions.papers.destroy');
         Route::resource('competitions', \App\Http\Controllers\Admin\CompetitionController::class);
-        Route::resource('competition-papers', \App\Http\Controllers\Admin\CompetitionPaperController::class);
 
         // Exams (authored centrally by Admin, global to all franchises)
         Route::resource('exams', \App\Http\Controllers\Admin\ExamController::class);

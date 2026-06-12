@@ -80,6 +80,24 @@ class CertificateController extends Controller
                 ->with('success', "Certificate {$certificate->certificate_number} generated and sent for {$student->full_name}.");
         }
 
+        // A level-completion certificate may only be issued once the student has
+        // actually PASSED the level-up exam for that level. Merit / excellence
+        // certificates are discretionary and not gated.
+        $targetLevelId = $data['level_id'] ?? $student->current_level_id;
+
+        if ($data['type'] === 'level_completion') {
+            $passedExam = \App\Models\ExamAttempt::where('student_id', $student->id)
+                ->where('is_passed', true)
+                ->whereHas('exam', fn ($q) => $q->where('level_id', $targetLevelId))
+                ->exists();
+
+            if (! $passedExam) {
+                return back()
+                    ->withErrors(['level_id' => "{$student->full_name} has not passed the level-up exam for this level yet. A level-completion certificate can only be issued after the exam is passed."])
+                    ->withInput();
+            }
+        }
+
         // Internal level-completion / merit / excellence certificate.
         $certNumber       = 'CERT-' . strtoupper(Str::random(8));
         $verificationCode = Str::uuid()->toString();
@@ -87,7 +105,7 @@ class CertificateController extends Controller
         $certificate = Certificate::create([
             'franchise_id'      => $franchiseId,
             'student_id'        => $student->id,
-            'level_id'          => $data['level_id'] ?? $student->current_level_id,
+            'level_id'          => $targetLevelId,
             'competition_id'    => null,
             'certificate_number'=> $certNumber,
             'verification_code' => $verificationCode,

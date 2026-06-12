@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Revenue Report</title>
+    <title>Fees Collected Report</title>
     <style>
         body  { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1A2332; margin: 0; padding: 20px; }
         h1    { font-size: 18px; color: #1A2332; margin-bottom: 4px; }
@@ -23,7 +23,7 @@
 <body>
     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
         <div>
-            <h1>Revenue Analytics Report</h1>
+            <h1>Fees Collected Report</h1>
             <p class="sub">Period: {{ \Carbon\Carbon::parse($from)->format('d M Y') }} — {{ \Carbon\Carbon::parse($to)->format('d M Y') }}</p>
         </div>
         <div style="text-align:right;">
@@ -34,7 +34,7 @@
 
     <div class="kpi-row">
         <div class="kpi">
-            <div class="kpi-label">Total Revenue (Period)</div>
+            <div class="kpi-label">Total Fees Collected (Period)</div>
             <div class="kpi-value">&#8377;{{ number_format($totalRevenue) }}</div>
         </div>
         <div class="kpi">
@@ -42,7 +42,7 @@
             <div class="kpi-value" style="color:#1A2332;">{{ $branchRevenue->count() }}</div>
         </div>
         <div class="kpi">
-            <div class="kpi-label">Avg Revenue / Franchise</div>
+            <div class="kpi-label">Avg Collected / Franchise</div>
             <div class="kpi-value" style="color:#2ECC71;">&#8377;{{ $branchRevenue->count() > 0 ? number_format($totalRevenue / $branchRevenue->count()) : 0 }}</div>
         </div>
     </div>
@@ -53,8 +53,8 @@
                 <th>#</th>
                 <th>Franchise</th>
                 <th>City</th>
-                <th class="right">Revenue (Period)</th>
-                <th class="right">Revenue Share</th>
+                <th class="right">Fees Collected (Period)</th>
+                <th class="right">Collection Share</th>
             </tr>
         </thead>
         <tbody>

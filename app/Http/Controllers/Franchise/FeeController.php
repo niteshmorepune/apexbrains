@@ -85,7 +85,11 @@ class FeeController extends Controller
             ->orderBy('due_date');
 
         $fees = $allFees->get()->map(function ($fee) {
-            $fee->overdue_days = $fee->due_date ? now()->diffInDays($fee->due_date, false) * -1 : 0;
+            // Carbon 3 diffInDays() returns a float; compare whole days only so
+            // the UI shows "3 days" not "3.1287… days".
+            $fee->overdue_days = $fee->due_date
+                ? (int) $fee->due_date->copy()->startOfDay()->diffInDays(now()->startOfDay(), false)
+                : 0;
             $fee->priority = match(true) {
                 $fee->overdue_days > 60  => 'critical',
                 $fee->overdue_days > 30  => 'high',

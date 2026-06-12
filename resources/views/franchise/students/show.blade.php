@@ -34,9 +34,15 @@
 
     {{-- Header card --}}
     <div class="bg-white rounded-2xl border border-border p-6 flex items-start gap-4 mb-4">
-        <div class="w-14 h-14 rounded-2xl bg-fran flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
-            {{ strtoupper(substr($student->first_name, 0, 1)) }}
-        </div>
+        @if($student->photo)
+            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($student->photo) }}"
+                 alt="{{ $student->full_name }}"
+                 class="w-14 h-14 rounded-2xl object-cover border border-border flex-shrink-0">
+        @else
+            <div class="w-14 h-14 rounded-2xl bg-fran flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                {{ strtoupper(substr($student->first_name, 0, 1)) }}
+            </div>
+        @endif
         <div class="flex-1">
             <h2 class="text-lg font-bold text-fran">{{ $student->full_name }}</h2>
             <p class="text-xs text-gray-500 font-mono mt-0.5">{{ $student->student_code }}</p>

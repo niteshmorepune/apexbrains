@@ -87,7 +87,7 @@
             </button>
             <div x-show="open === 'competitions'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
                 <p><span class="font-semibold text-admin">Create a competition:</span> Competitions → New Competition. Set the title, date range, max participants per franchise, and registration fee.</p>
-                <p><span class="font-semibold text-admin">Practice papers:</span> Competition Papers → New Paper. Add questions to each paper via the paper questions section. Papers are available to all students (internal and external) for practice.</p>
+                <p><span class="font-semibold text-admin">Level-wise question papers:</span> Open a competition → Add Paper. Upload a separate paper (CSV/Excel) for each level, so a Level 5 student sits the Level 5 paper, a Level 3 student the Level 3 paper, and so on. Students are automatically served the paper matching their current level.</p>
                 <p><span class="font-semibold text-admin">Registrations:</span> Franchise admins register their students for competitions. You can view registrations from the competition detail page.</p>
             </div>
         </div>
@@ -100,12 +100,12 @@
                     <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
                         <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.bar-chart')</svg>
                     </div>
-                    <span class="font-semibold text-admin">Finance & Revenue</span>
+                    <span class="font-semibold text-admin">Fees Collected</span>
                 </div>
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'finance' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'finance'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-admin">Revenue dashboard:</span> Finance shows total revenue (collected payments), monthly trends, and per-franchise breakdowns. Filter by date range and export to PDF.</p>
+                <p><span class="font-semibold text-admin">Fees Collected:</span> Shows the total student fees collected, monthly collection trends, and per-franchise breakdowns. Filter by date range and export to PDF. (This reflects actual payments collected — it is not a commission figure.)</p>
             </div>
         </div>
 

@@ -17,7 +17,7 @@
     </a>
     <a href="{{ route('admin.revenue') }}"
        class="inline-flex items-center gap-2 border border-border text-gray-600 text-sm font-semibold px-4 py-2 rounded-xl hover:bg-bg-light transition-colors">
-        Revenue Report →
+        Fees Report →
     </a>
 @endsection
 
@@ -65,7 +65,7 @@
     <div class="bg-white rounded-2xl border border-border p-5">
         <div class="flex items-start justify-between">
             <div>
-                <p class="text-sm text-gray-500 mb-1">Monthly Revenue</p>
+                <p class="text-sm text-gray-500 mb-1">Fees Collected (This Month)</p>
                 <p class="text-2xl font-bold text-fran">₹{{ number_format($monthlyRevenue) }}</p>
                 <p class="text-xs mt-1 {{ $revenueGrowth >= 0 ? 'text-stu' : 'text-red-500' }}">
                     {{ $revenueGrowth >= 0 ? '+' : '' }}{{ $revenueGrowth }}% vs last month
@@ -103,7 +103,7 @@
 
     {{-- Monthly Revenue Trend --}}
     <div class="col-span-2 bg-white rounded-2xl border border-border p-5">
-        <h2 class="text-sm font-semibold text-admin mb-4">Monthly Revenue Trend</h2>
+        <h2 class="text-sm font-semibold text-admin mb-4">Monthly Fees Collected</h2>
         @if($monthlyTrend->isNotEmpty())
             <div class="h-48">
                 <canvas id="revenueChart"></canvas>
@@ -174,7 +174,7 @@
                         <th class="text-left px-4 py-3 text-xs font-semibold text-white">Branch</th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-white">City</th>
                         <th class="text-right px-4 py-3 text-xs font-semibold text-white">Students</th>
-                        <th class="text-right px-4 py-3 text-xs font-semibold text-white">Revenue</th>
+                        <th class="text-right px-4 py-3 text-xs font-semibold text-white">Fees Collected</th>
                         <th class="text-right px-4 py-3 text-xs font-semibold text-white">Avg Score</th>
                         <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-white">Actions</th>

@@ -91,6 +91,7 @@ class StudentController extends Controller
             'student_type'  => ['required', 'in:internal,external'],
             'first_name'    => ['required', 'string', 'max:100'],
             'last_name'     => ['required', 'string', 'max:100'],
+            'photo'         => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'date_of_birth' => ['required', 'date', 'before:today'],
             'gender'        => ['required', 'in:male,female,other'],
             'enrollment_date' => ['required', 'date'],
@@ -118,7 +119,11 @@ class StudentController extends Controller
 
         $franchiseId = Auth::user()->franchise_id;
 
-        DB::transaction(function () use ($data, $franchiseId, $isInternal, &$student) {
+        $photoPath = $request->hasFile('photo')
+            ? $request->file('photo')->store('student-photos', 'public')
+            : null;
+
+        DB::transaction(function () use ($data, $franchiseId, $isInternal, $photoPath, &$student) {
             $user = User::create([
                 'name'         => $data['first_name'] . ' ' . $data['last_name'],
                 'email'        => $data['email'],
@@ -141,6 +146,7 @@ class StudentController extends Controller
                 'student_type'     => $isInternal ? 'internal' : 'external',
                 'first_name'       => $data['first_name'],
                 'last_name'        => $data['last_name'],
+                'photo'            => $photoPath,
                 'date_of_birth'    => $data['date_of_birth'],
                 'gender'           => $data['gender'],
                 'current_level_id' => $isInternal ? ($data['current_level_id'] ?? null) : null,
@@ -191,6 +197,10 @@ class StudentController extends Controller
             }
         });
 
+        // Internal students: seed the enrollment-month tuition fee so the recurring
+        // monthly cycle starts (next month rolls forward when this one is paid).
+        app(\App\Services\MonthlyFeeService::class)->ensureFirstFee($student);
+
         AuditLogger::log('student_registered', 'Student', $student->id);
 
         $tab = $isInternal ? 'internal' : 'external';
@@ -211,25 +221,72 @@ class StudentController extends Controller
 
     public function edit(Student $student): View
     {
+        $student->load('user', 'primaryParent');
         $levels = Level::where('is_active', true)->orderBy('number')->get();
         return view('franchise.students.edit', compact('student', 'levels'));
     }
 
     public function update(Request $request, Student $student): RedirectResponse
     {
+        $userId = $student->user_id;
+
         $data = $request->validate([
-            'first_name'       => ['required', 'string', 'max:100'],
-            'last_name'        => ['required', 'string', 'max:100'],
-            'date_of_birth'    => ['required', 'date'],
-            'gender'           => ['required', 'in:male,female,other'],
-            'current_level_id' => ['required', 'exists:levels,id'],
-            'address'          => ['nullable', 'string', 'max:300'],
-            'city'             => ['nullable', 'string', 'max:100'],
-            'pincode'          => ['nullable', 'string', 'max:10'],
-            'is_active'        => ['boolean'],
+            'first_name'          => ['required', 'string', 'max:100'],
+            'last_name'           => ['required', 'string', 'max:100'],
+            'photo'               => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'date_of_birth'       => ['required', 'date'],
+            'gender'              => ['required', 'in:male,female,other'],
+            'current_level_id'    => ['required', 'exists:levels,id'],
+            'enrollment_date'     => ['required', 'date'],
+            'email'               => ['required', 'email', 'max:150', 'unique:users,email,' . $userId],
+            'address'             => ['nullable', 'string', 'max:300'],
+            'city'                => ['nullable', 'string', 'max:100'],
+            'pincode'             => ['nullable', 'string', 'max:10'],
+            'is_active'           => ['boolean'],
+            'parent_name'         => ['required', 'string', 'max:100'],
+            'parent_relationship' => ['nullable', 'in:father,mother,guardian'],
+            'parent_phone'        => ['required', 'string', 'max:15'],
+            'parent_whatsapp'     => ['nullable', 'string', 'max:15'],
+            'parent_email'        => ['nullable', 'email', 'max:150'],
         ]);
 
-        $student->update($data);
+        DB::transaction(function () use ($request, $data, $student) {
+            $studentData = collect($data)->only([
+                'first_name', 'last_name', 'date_of_birth', 'gender',
+                'current_level_id', 'enrollment_date', 'address', 'city', 'pincode',
+            ])->all();
+            $studentData['is_active'] = $request->boolean('is_active');
+
+            if ($request->hasFile('photo')) {
+                if ($student->photo) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($student->photo);
+                }
+                $studentData['photo'] = $request->file('photo')->store('student-photos', 'public');
+            }
+
+            $student->update($studentData);
+
+            // Keep the linked login email in sync.
+            if ($student->user) {
+                $student->user->update([
+                    'name'  => $data['first_name'] . ' ' . $data['last_name'],
+                    'email' => $data['email'],
+                ]);
+            }
+
+            // Update (or create) the primary parent/guardian record.
+            $student->parents()->updateOrCreate(
+                ['is_primary' => true],
+                [
+                    'name'         => $data['parent_name'],
+                    'relationship' => $data['parent_relationship'] ?? 'guardian',
+                    'phone'        => $data['parent_phone'],
+                    'whatsapp'     => $data['parent_whatsapp'] ?? $data['parent_phone'],
+                    'email'        => $data['parent_email'] ?? null,
+                ]
+            );
+        });
+
         AuditLogger::log('student_updated', 'Student', $student->id);
 
         return redirect()->route('franchise.students.show', $student)

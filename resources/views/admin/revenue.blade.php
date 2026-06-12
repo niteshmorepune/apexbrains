@@ -1,6 +1,6 @@
 @extends('layouts.admin')
-@section('title', 'Revenue Analytics')
-@section('page-title', 'Revenue Analytics')
+@section('title', 'Fees Collected')
+@section('page-title', 'Fees Collected')
 
 @push('head')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -36,7 +36,7 @@
 {{-- KPI Cards --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-2xl border border-border p-5">
-        <p class="text-xs text-gray-500 mb-1">Total Revenue (Period)</p>
+        <p class="text-xs text-gray-500 mb-1">Total Fees Collected (Period)</p>
         <p class="text-2xl font-bold text-fran">₹{{ number_format($totalRevenue) }}</p>
         <p class="text-xs text-gray-400 mt-1">{{ \Carbon\Carbon::parse($from)->format('d M') }} – {{ \Carbon\Carbon::parse($to)->format('d M Y') }}</p>
     </div>
@@ -67,7 +67,7 @@
 {{-- Charts --}}
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     <div class="col-span-2 bg-white rounded-2xl border border-border p-5">
-        <h2 class="text-sm font-semibold text-admin mb-4">Monthly Revenue Trend — {{ now()->format('Y') }}</h2>
+        <h2 class="text-sm font-semibold text-admin mb-4">Monthly Fees Collected — {{ now()->format('Y') }}</h2>
         @if($monthlyTrend->isNotEmpty())
             <div class="h-52">
                 <canvas id="trendChart"></canvas>
@@ -83,7 +83,7 @@
         @endif
     </div>
     <div class="bg-white rounded-2xl border border-border p-5">
-        <h2 class="text-sm font-semibold text-admin mb-4">Branch Revenue Share</h2>
+        <h2 class="text-sm font-semibold text-admin mb-4">Branch Collection Share</h2>
         @if($branchRevenue->sum('revenue') > 0)
             <div class="h-52">
                 <canvas id="shareChart"></canvas>
@@ -103,7 +103,7 @@
 {{-- Revenue by franchise (collected payments) --}}
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="px-5 py-4 border-b border-border">
-        <h2 class="text-sm font-semibold text-admin">Revenue by Franchise</h2>
+        <h2 class="text-sm font-semibold text-admin">Fees Collected by Franchise</h2>
     </div>
     <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
@@ -111,7 +111,7 @@
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Franchise</th>
                 <th class="text-left px-4 py-3 text-xs font-semibold text-white">City</th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-white">Students</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Collected Revenue</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-white">Fees Collected</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-border">

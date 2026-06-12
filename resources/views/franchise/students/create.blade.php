@@ -88,6 +88,13 @@
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                         @error('last_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Profile Photo</label>
+                        <input type="file" name="photo" accept="image/png,image/jpeg"
+                               class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-fran hover:file:bg-blue-100">
+                        <p class="text-xs text-gray-400 mt-1">Optional. JPG or PNG, up to 2 MB.</p>
+                        @error('photo')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth <span class="text-red-500">*</span></label>
                         <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required

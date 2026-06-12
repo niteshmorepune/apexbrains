@@ -52,10 +52,17 @@ class PaymentController extends Controller
         ]);
 
         $totalPaid = $existingPaid + $data['amount'];
+        $isFullyPaid = $totalPaid >= $fee->amount;
         $fee->update([
             'paid_amount' => $totalPaid,
-            'status'      => $totalPaid >= $fee->amount ? 'paid' : 'partial',
+            'status'      => $isFullyPaid ? 'paid' : 'partial',
         ]);
+
+        // Once a monthly tuition fee is fully paid, roll the next month's pending
+        // fee forward automatically so collection continues without manual setup.
+        if ($isFullyPaid) {
+            app(\App\Services\MonthlyFeeService::class)->createNextMonthFee($fee->fresh());
+        }
 
         AuditLogger::log('payment_recorded', 'Payment', $payment->id);
 

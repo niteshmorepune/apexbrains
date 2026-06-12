@@ -50,10 +50,9 @@
             <x-admin-nav-item route="admin.resources.index"   label="Resources"       icon="file-text" />
             <x-admin-nav-item route="admin.leaderboard"       label="Leaderboard"     icon="trophy" />
             <x-admin-nav-item route="admin.competitions.index" label="Competitions"   icon="award" />
-            <x-admin-nav-item route="admin.competition-papers.index" label="Practice Papers" icon="layers" />
             <x-admin-nav-item route="admin.exams.index"      label="Exams"          icon="monitor" />
             <x-admin-nav-item route="admin.settings"         label="Settings"      icon="settings" />
-            <x-admin-nav-item route="admin.revenue"          label="Finance"       icon="bar-chart" />
+            <x-admin-nav-item route="admin.revenue"          label="Fees Collected" icon="bar-chart" />
         </nav>
 
         {{-- User area --}}

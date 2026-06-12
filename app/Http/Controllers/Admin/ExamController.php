@@ -110,7 +110,7 @@ class ExamController extends Controller
             'total_questions'  => ['required', 'integer', 'min:1', 'max:100'],
             'duration_minutes' => ['required', 'integer', 'min:5', 'max:180'],
             'pass_percentage'  => ['required', 'numeric', 'min:1', 'max:100'],
-            'max_attempts'     => ['nullable', 'integer', 'min:1'],
+            'max_attempts'     => ['nullable', 'integer', 'min:1', 'max:255'],
             'scheduled_at'     => ['nullable', 'date'],
             'expires_at'       => ['nullable', 'date', 'after:scheduled_at'],
             'description'      => ['nullable', 'string', 'max:500'],
