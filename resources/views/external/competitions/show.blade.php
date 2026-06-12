@@ -46,12 +46,42 @@
         </ol>
     </div>
 
-    {{-- Registration status --}}
+    @if(session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl px-4 py-3">{{ session('error') }}</div>
+    @endif
+
+    {{-- Registration status + exam CTA --}}
+    @php
+        $today = now()->toDateString();
+        $notStarted = $competition->start_date && $competition->start_date->toDateString() > $today;
+        $ended      = $competition->end_date && $competition->end_date->toDateString() < $today;
+    @endphp
     @if($myRegistration)
         <div class="bg-stu-light border border-stu/30 rounded-2xl p-4 text-center">
             <p class="text-stu-dark font-bold text-sm">✓ You are registered</p>
             @if($competition->start_date)<p class="text-gray-500 text-xs mt-1">Competition date: {{ $competition->start_date->format('d M Y') }}</p>@endif
         </div>
+
+        @if($myAttempts->isNotEmpty())
+            <a href="{{ route('external.competitions.result', $competition) }}" class="block w-full py-3.5 bg-stu text-white rounded-2xl text-sm font-bold text-center">View My Result</a>
+        @elseif($notStarted)
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center">
+                <p class="text-sm text-fran font-medium">This competition starts on {{ $competition->start_date->format('d M Y') }}. The exam will open then.</p>
+            </div>
+        @elseif($ended)
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+                <p class="text-sm text-amber-700 font-medium">This competition has ended.</p>
+            </div>
+        @elseif($paper)
+            <form method="POST" action="{{ route('external.competitions.start', $competition) }}">
+                @csrf
+                <button type="submit" class="w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold">I am Ready — Start Exam</button>
+            </form>
+        @else
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+                <p class="text-sm text-amber-700 font-medium">The question paper is not available yet.</p>
+            </div>
+        @endif
     @else
         <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
             <p class="text-amber-700 text-sm font-medium">Not registered</p>
@@ -59,7 +89,7 @@
         </div>
     @endif
 
-    <a href="{{ route('external.practice.index') }}" class="block w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold text-center">Practice for this Competition</a>
+    <a href="{{ route('external.practice.index') }}" class="block w-full py-3.5 border border-fran text-fran rounded-2xl text-sm font-bold text-center">Practice from Question Bank</a>
     <a href="{{ route('external.competitions.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">Go Back</a>
 
 </div>

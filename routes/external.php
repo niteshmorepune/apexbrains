@@ -8,21 +8,25 @@ Route::prefix('external')->name('external.')->middleware(['auth', 'external.stud
     // Help Guide
     Route::view('help', 'external.help')->name('help');
 
-    // Competition Practice Papers (all 50 papers)
-    Route::get('practice/hub', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'hub'])->name('practice.hub');
-    Route::get('practice', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'index'])->name('practice.index');
-    Route::post('practice/{paper}/start', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'start'])->name('practice.start');
-    Route::get('practice/{paper}/attempt', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'attempt'])->name('practice.attempt');
-    Route::post('practice/{paper}/answer', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'saveAnswer'])->name('practice.answer');
-    Route::post('practice/{paper}/submit', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'submit'])->name('practice.submit');
-    Route::get('practice/{paper}/result', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'result'])->name('practice.result');
+    // Practice — random questions generated from the Question Bank (by difficulty)
+    Route::get('practice', [\App\Http\Controllers\External\PracticeController::class, 'index'])->name('practice.index');
+    Route::post('practice/start', [\App\Http\Controllers\External\PracticeController::class, 'start'])->name('practice.start');
+    Route::get('practice/{session}', [\App\Http\Controllers\External\PracticeController::class, 'session'])->name('practice.session');
+    Route::post('practice/{session}/answer', [\App\Http\Controllers\External\PracticeController::class, 'answer'])->name('practice.answer');
+    Route::post('practice/{session}/submit', [\App\Http\Controllers\External\PracticeController::class, 'submit'])->name('practice.submit');
+    Route::get('practice/{session}/results', [\App\Http\Controllers\External\PracticeController::class, 'results'])->name('practice.results');
 
-    // Results (past practice attempts)
-    Route::get('results', [\App\Http\Controllers\External\CompetitionPracticeController::class, 'resultHistory'])->name('results');
+    // Results (past practice sessions)
+    Route::get('results', [\App\Http\Controllers\External\PracticeController::class, 'history'])->name('results');
 
-    // Competitions
+    // Competitions — external students can now sit them in-app
     Route::get('competitions', [\App\Http\Controllers\External\CompetitionController::class, 'index'])->name('competitions.index');
-    Route::get('competitions/{competition}', [\App\Http\Controllers\External\CompetitionController::class, 'show'])->name('competitions.show');
+    Route::get('competitions/{competition}/show', [\App\Http\Controllers\External\CompetitionController::class, 'show'])->name('competitions.show');
+    Route::post('competitions/{competition}/start', [\App\Http\Controllers\External\CompetitionController::class, 'startExam'])->name('competitions.start');
+    Route::get('competitions/{competition}/attempt', [\App\Http\Controllers\External\CompetitionController::class, 'attempt'])->name('competitions.attempt');
+    Route::post('competitions/{competition}/answer', [\App\Http\Controllers\External\CompetitionController::class, 'saveAnswer'])->name('competitions.answer')->middleware('throttle:120,1');
+    Route::post('competitions/{competition}/submit', [\App\Http\Controllers\External\CompetitionController::class, 'submitExam'])->name('competitions.submit');
+    Route::get('competitions/{competition}/result', [\App\Http\Controllers\External\CompetitionController::class, 'result'])->name('competitions.result');
 
     // Certificates
     Route::get('certificates', [\App\Http\Controllers\External\CertificateController::class, 'index'])->name('certificates.index');

@@ -87,6 +87,14 @@ class CompetitionController extends Controller
             return back()->with('error', 'You are not registered for this competition.');
         }
 
+        $today = now()->toDateString();
+        if ($competition->start_date && $competition->start_date->toDateString() > $today) {
+            return back()->with('error', 'This competition has not started yet. It opens on ' . $competition->start_date->format('d M Y') . '.');
+        }
+        if ($competition->end_date && $competition->end_date->toDateString() < $today) {
+            return back()->with('error', 'This competition has ended.');
+        }
+
         $paper = $this->paperForStudent($competition, $student);
 
         if (! $paper || $paper->items()->count() === 0) {
@@ -228,15 +236,15 @@ class CompetitionController extends Controller
     }
 
     /**
-     * The active competition paper matching the student's current level, falling
-     * back to any active paper for the competition.
+     * The active competition paper for the student's exact level. Papers are
+     * authored per level, so a Level 5 student only ever sits the Level 5 paper —
+     * no fallback to another level's paper.
      */
     protected function paperForStudent(Competition $competition, $student): ?CompetitionQuestionPaper
     {
         return CompetitionQuestionPaper::where('competition_id', $competition->id)
             ->where('is_active', true)
-            ->orderByRaw('level_id = ? DESC', [$student->current_level_id])
-            ->orderBy('level_id')
+            ->where('level_id', $student->current_level_id)
             ->first();
     }
 

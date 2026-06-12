@@ -25,10 +25,7 @@
                     @if(in_array($comp->id, $myRegistrationIds))
                         <a href="{{ route('student.competitions.show', $comp) }}" class="text-[11px] bg-stu-light text-stu px-2.5 py-1 rounded-full font-bold flex-shrink-0">Registered ✓</a>
                     @else
-                        <form method="POST" action="{{ route('student.competitions.register', $comp) }}" class="flex-shrink-0">
-                            @csrf
-                            <button type="submit" class="text-xs bg-fran text-white px-4 py-1.5 rounded-lg font-bold">Register</button>
-                        </form>
+                        <a href="{{ route('student.competitions.show', $comp) }}" class="text-[11px] bg-bg-mid text-gray-500 px-2.5 py-1 rounded-full font-medium flex-shrink-0">View</a>
                     @endif
                 </div>
             </div>

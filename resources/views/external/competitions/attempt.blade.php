@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $paper->title }} — Apex Brains Competition</title>
+    <title>{{ $competition->title }} — Apex Brains</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>body{font-family:'Inter',ui-sans-serif,system-ui,sans-serif}[x-cloak]{display:none!important}</style>
 </head>
-<body class="bg-stu-bg min-h-screen" x-data="paperEngine()" x-init="init()">
+<body class="bg-stu-bg min-h-screen" x-data="examEngine()" x-init="init()">
 
 <div class="max-w-md mx-auto min-h-screen">
 
@@ -25,10 +25,10 @@
 
     {{-- Header --}}
     <div class="px-4 pt-5 pb-2 flex items-center gap-2">
-        <button @click="confirmSubmit()" class="w-8 h-8 -ml-1 flex items-center justify-center text-gray-700">
+        <button @click="doSubmit()" class="w-8 h-8 -ml-1 flex items-center justify-center text-gray-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
-        <h1 class="flex-1 text-center pr-7 text-[17px] font-bold text-gray-900 truncate">{{ $paper->title }}</h1>
+        <h1 class="flex-1 text-center pr-7 text-[17px] font-bold text-gray-900 truncate">{{ $competition->title }}</h1>
     </div>
 
     {{-- Timer pills --}}
@@ -37,30 +37,13 @@
         <span class="text-white text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 animate-pulse' : 'bg-red-500'" x-text="formatTime(timeLeft)"></span>
     </div>
 
-    {{-- Warning --}}
-    <div class="px-4 mt-2">
-        <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center">
-            <p class="text-[11px] text-amber-700 font-medium">Warning — Do not switch tabs — session will be flagged</p>
-        </div>
-    </div>
-
     <template x-if="questions.length > 0">
         <div>
-            {{-- Question strip --}}
-            <div class="px-4 mt-3 overflow-x-auto">
-                <div class="flex gap-2 w-max">
-                    <template x-for="(q, i) in questions" :key="i">
-                        <button @click="currentIndex = i" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                :class="i === currentIndex ? 'bg-fran text-white' : (answers[q.question?.id] ? 'bg-stu-light text-stu' : 'bg-white border border-border text-gray-400')"
-                                x-text="i + 1"></button>
-                    </template>
-                </div>
-            </div>
-
             {{-- Calculate prompt --}}
             <div class="px-4 mt-5 flex items-center justify-between">
                 <p class="text-sm text-gray-500">Calculate mentally :</p>
-                <span class="text-gray-400">🔊</span>
+                <button type="button" @click="speak()" aria-label="Play audio"
+                        class="w-9 h-9 -mr-1 rounded-full bg-fran-light text-fran flex items-center justify-center text-lg active:scale-95">🔊</button>
             </div>
 
             {{-- Big number display --}}
@@ -88,35 +71,43 @@
                 </div>
             </div>
 
-            {{-- Navigation --}}
-            <div class="px-4 mt-5 flex items-center gap-3">
-                <button @click="currentIndex--" x-show="currentIndex > 0" class="px-5 py-3 border border-border rounded-xl text-sm font-semibold text-gray-600">← Prev</button>
-                <template x-if="currentIndex < questions.length - 1">
-                    <button @click="currentIndex++" class="flex-1 py-3 bg-fran text-white rounded-xl text-sm font-bold">Next →</button>
-                </template>
+            {{-- Submit appears on the final question — questions advance automatically --}}
+            <div class="px-4 mt-6 min-h-[52px]">
                 <template x-if="currentIndex === questions.length - 1">
-                    <button @click="confirmSubmit()" class="flex-1 py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit</button>
+                    <button @click="doSubmit()" class="w-full py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit</button>
                 </template>
             </div>
-            <div class="pb-6"></div>
+            <p class="text-center text-xs text-gray-400 mt-3 pb-6">
+                <span x-text="Object.keys(answers).length"></span> of <span x-text="questions.length"></span> answered
+            </p>
         </div>
     </template>
 
 </div>
 
-<form id="submitForm" method="POST" action="{{ route('external.practice.submit', $paper) }}" class="hidden">@csrf</form>
+<form id="submitForm" method="POST" action="{{ route('external.competitions.submit', $competition) }}" class="hidden">@csrf</form>
 
 </body>
+@include('partials.speak-script')
 <script>
-function paperEngine() {
+function examEngine() {
     return {
         questions: @json($questions),
-        answers: @json((object)($savedAnswers ?: [])),
+        answers: @json(array_map(fn($v) => $v, $savedAnswers ?: [])),
         currentIndex: 0,
         timeLeft: {{ $remaining }},
         timeUp: false,
 
-        init() { this.startTimer(); },
+        init() {
+            this.startTimer();
+            this.$nextTick(() => this.speak());
+            this.$watch('currentIndex', () => this.speak());
+        },
+
+        speak() {
+            const q = this.questions[this.currentIndex];
+            if (q?.question && window.ApexSpeak) window.ApexSpeak.speak(q.question.question_text);
+        },
 
         startTimer() {
             const tick = setInterval(() => {
@@ -126,30 +117,27 @@ function paperEngine() {
         },
 
         formatTime(secs) {
-            return String(Math.floor(secs / 60)).padStart(2,'0') + ':' + String(secs % 60).padStart(2,'0');
+            const m = Math.floor(secs / 60).toString().padStart(2, '0');
+            const s = (secs % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
         },
 
         selectAnswer(opt) {
             const q = this.questions[this.currentIndex];
             if (!q?.question) return;
             this.answers[q.question.id] = opt;
-            fetch('{{ route('external.practice.answer', $paper) }}', {
+            fetch('{{ route('external.competitions.answer', $competition) }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
                 body: JSON.stringify({ question_id: q.question.id, selected_answer: opt }),
             });
-        },
-
-        confirmSubmit() {
-            const unanswered = this.questions.length - Object.keys(this.answers).length;
-            if (unanswered > 0 && !confirm(`${unanswered} question${unanswered > 1 ? 's' : ''} unanswered. Submit anyway?`)) return;
-            this.doSubmit();
+            if (this.currentIndex < this.questions.length - 1) {
+                setTimeout(() => { this.currentIndex++; }, 350);
+            }
         },
 
         doSubmit() { document.getElementById('submitForm').submit(); },
 
-        // Render an arithmetic expression as a right-aligned vertical column
-        // (abacus sum layout). Numbers stack; operators sit to the left.
         verticalSum(text) {
             if (!text) return '';
             const clean = String(text).replace(/=\s*\?|\?/g, '');

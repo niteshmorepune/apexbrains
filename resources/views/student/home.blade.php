@@ -79,7 +79,14 @@
             <p class="text-sm font-bold text-gray-800 mt-1.5">Next Exam</p>
             @if($upcomingExam)
                 <p class="text-xs text-gray-400 mt-0.5">
-                    {{ $daysLeft === 0 ? 'Today' : $daysLeft.' day'.($daysLeft === 1 ? '' : 's').' left' }} · {{ \Illuminate\Support\Str::limit($upcomingExam->title, 18) }}
+                    @if($daysLeft === null)
+                        Available now
+                    @elseif($daysLeft === 0)
+                        Today
+                    @else
+                        {{ $daysLeft.' day'.($daysLeft === 1 ? '' : 's').' left' }}
+                    @endif
+                    · {{ \Illuminate\Support\Str::limit($upcomingExam->title, 18) }}
                 </p>
             @else
                 <p class="text-xs text-gray-400 mt-0.5">None scheduled</p>

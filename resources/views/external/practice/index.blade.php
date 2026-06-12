@@ -2,80 +2,60 @@
 @section('title', 'Practice')
 
 @section('content')
-<div x-data="{ view: 'menu' }">
+<div>
+    <x-student-header title="Competition Practice" :back="route('external.home')" />
 
-    {{-- ===== E41: type selector (Class/Exam locked, Competition unlocked) ===== --}}
-    <template x-if="view === 'menu'">
-        <div>
-            <x-student-header title="Practice" :back="route('external.home')" />
-            <div class="px-4 pb-4 space-y-3">
-                {{-- Locked options --}}
-                @foreach([['📘','Class Practice','Build speed, accuracy, and confidence through guided exercises'],['📝','Exam Practice','Evaluate your calculation skills and track your learning progress']] as [$emoji,$t,$sub])
-                    <div class="w-full bg-bg-light rounded-2xl border border-border p-4 flex items-center gap-3 opacity-60">
-                        <span class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-2xl flex-shrink-0 grayscale">{{ $emoji }}</span>
-                        <div class="min-w-0">
-                            <p class="font-bold text-gray-500">{{ $t }}</p>
-                            <p class="text-xs text-gray-400 mt-0.5 leading-snug">{{ $sub }}</p>
-                        </div>
-                        <span class="ml-auto text-gray-400">🔒</span>
-                    </div>
-                @endforeach
-                {{-- Unlocked --}}
-                <button type="button" @click="view = 'papers'" class="w-full bg-white rounded-2xl border border-border p-4 flex items-center gap-3 text-left">
-                    <span class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl flex-shrink-0">🏆</span>
-                    <div class="min-w-0">
-                        <p class="font-bold text-gray-800">Competition Practice</p>
-                        <p class="text-xs text-gray-400 mt-0.5 leading-snug">Challenge your abilities and compete with top performers</p>
-                    </div>
-                </button>
-            </div>
+    <div class="px-4 pb-4 space-y-5">
+        @error('difficulty')
+            <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{{ $message }}</div>
+        @enderror
+
+        <div class="bg-fran-light rounded-2xl p-4">
+            <p class="text-sm font-bold text-fran">Practice from the Question Bank</p>
+            <p class="text-xs text-gray-500 mt-0.5">Each session pulls a fresh random set of questions. Pick a difficulty to begin.</p>
         </div>
-    </template>
 
-    {{-- ===== Competition practice papers list ===== --}}
-    <template x-if="view === 'papers'">
-        <div>
-            <div class="px-4 pt-5 pb-3 flex items-center gap-2">
-                <button type="button" @click="view = 'menu'" class="w-8 h-8 -ml-1 flex items-center justify-center text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        {{-- Pick a difficulty — tapping it starts the session immediately --}}
+        <form method="POST" action="{{ route('external.practice.start') }}" class="space-y-3">
+            @csrf
+            <input type="hidden" name="count" value="20">
+
+            @foreach([
+                ['value' => 'easy',   'emoji' => '🟢', 'title' => 'Easy',   'sub' => 'Build confidence with simpler sums',    'bg' => 'bg-stu-light'],
+                ['value' => 'medium', 'emoji' => '🟡', 'title' => 'Medium', 'sub' => 'Sharpen your speed and accuracy',        'bg' => 'bg-amber-50'],
+                ['value' => 'hard',   'emoji' => '🔴', 'title' => 'Hard',   'sub' => 'Challenge yourself with tougher drills', 'bg' => 'bg-red-50'],
+                ['value' => 'all',    'emoji' => '🎯', 'title' => 'Mixed',  'sub' => 'A blend of all difficulties',            'bg' => 'bg-fran-light'],
+            ] as $diff)
+                <button type="submit" name="difficulty" value="{{ $diff['value'] }}"
+                        class="w-full bg-white rounded-2xl border border-border p-4 flex items-center gap-3 text-left">
+                    <span class="w-12 h-12 rounded-xl {{ $diff['bg'] }} flex items-center justify-center text-2xl flex-shrink-0">{{ $diff['emoji'] }}</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold text-gray-800">{{ $diff['title'] }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5 leading-snug">{{ $diff['sub'] }}</p>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
-                <h1 class="flex-1 text-center pr-7 text-[17px] font-bold text-gray-900">Competition Practice</h1>
-            </div>
-            <div class="px-4 pb-4 space-y-3">
-                <div class="bg-fran-light rounded-2xl p-4">
-                    <p class="text-sm font-bold text-fran">Competition Practice Papers</p>
-                    <p class="text-xs text-gray-500 mt-0.5">{{ $papers->count() }} papers available — practise to prepare</p>
-                </div>
+            @endforeach
+        </form>
 
-                @forelse($papers as $paper)
-                    @php $myAttempt = $attemptMap->get($paper->id); @endphp
-                    <div class="bg-white rounded-2xl border border-border p-4">
-                        <div class="flex items-start gap-3">
-                            <span class="w-10 h-10 rounded-xl bg-fran flex items-center justify-center text-white font-black text-sm flex-shrink-0">{{ $paper->paper_number }}</span>
+        {{-- Recent Sessions --}}
+        @if($pastSessions->isNotEmpty())
+            <div>
+                <p class="text-sm font-bold text-gray-800 mb-2">Recent Sessions</p>
+                <div class="space-y-2.5">
+                    @foreach($pastSessions as $ps)
+                        <div class="bg-white rounded-2xl border border-border p-3.5 flex items-center gap-3">
+                            <span class="text-fran">📅</span>
                             <div class="flex-1 min-w-0">
-                                <p class="font-bold text-gray-800 text-sm">{{ $paper->title }}</p>
-                                <p class="text-xs text-gray-400 mt-0.5">{{ $paper->total_questions }}Q · {{ $paper->duration_minutes }}min @if($paper->difficulty) · <span class="capitalize">{{ $paper->difficulty }}</span>@endif</p>
+                                <p class="text-sm font-semibold text-gray-800">{{ $ps->completed_at?->format('d M, g:i A') ?? 'In progress' }}</p>
+                                <p class="text-xs text-gray-400">{{ $ps->questions_correct ?? 0 }}/{{ $ps->total_questions }} correct · {{ number_format($ps->accuracy ?? 0, 0) }}% accuracy</p>
                             </div>
-                            @if($myAttempt)
-                                <div class="text-right flex-shrink-0"><p class="text-sm font-black text-fran">{{ number_format($myAttempt->percentage, 0) }}%</p><p class="text-[11px] text-gray-400">Best</p></div>
-                            @endif
+                            <span class="text-base font-black text-fran">{{ number_format($ps->accuracy ?? 0, 0) }}%</span>
                         </div>
-                        <div class="mt-3 flex items-center gap-2">
-                            @if($myAttempt)
-                                <a href="{{ route('external.practice.result', $paper) }}" class="flex-1 text-center text-xs border border-border text-gray-600 py-2 rounded-xl">View Result</a>
-                            @endif
-                            <form method="POST" action="{{ route('external.practice.start', $paper) }}" class="{{ $myAttempt ? '' : 'flex-1' }}">
-                                @csrf
-                                <button type="submit" class="w-full text-xs bg-fran text-white py-2 px-4 rounded-xl font-bold">{{ $myAttempt ? 'Retry' : 'Start →' }}</button>
-                            </form>
-                        </div>
-                    </div>
-                @empty
-                    <div class="bg-white rounded-2xl border border-border p-10 text-center text-gray-400"><p class="text-sm">No practice papers available yet.</p></div>
-                @endforelse
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </template>
-
+        @endif
+    </div>
 </div>
 @endsection

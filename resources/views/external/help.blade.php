@@ -24,9 +24,9 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>The <strong>Practice</strong> tile opens your <em>Practice Hub</em> — it shows how many of the 50 papers you've completed and your milestones. Tap <em>Practice Papers</em> to see the full list.</p>
-                <p>Each paper has a set number of questions and a time limit. Start a paper and answer before the timer runs out.</p>
-                <p>After submitting you'll see your accuracy, average speed, and a review of any questions you got wrong. Re-attempt any paper as often as you like — your best score shows on the list.</p>
+                <p>The <strong>Practice</strong> tile generates a fresh set of questions from the Question Bank each time. Pick a difficulty (Easy / Medium / Hard / Mixed) and the session starts immediately.</p>
+                <p>Each session is timed. Tap the 🔊 speaker to hear the sum read aloud. Answer each question to move to the next; the timer runs across the whole session and doesn't reset per question.</p>
+                <p>After submitting you'll see your accuracy and average speed. Your past sessions are listed under <em>Results</em>.</p>
             </div>
         </div>
 

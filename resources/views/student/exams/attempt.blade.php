@@ -61,22 +61,11 @@
 
     <template x-if="questions.length > 0">
         <div>
-            {{-- Question strip --}}
-            <div class="px-4 mt-3 overflow-x-auto">
-                <div class="flex gap-2 w-max">
-                    <template x-for="(q, i) in questions" :key="i">
-                        <button @click="currentIndex = i"
-                                class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                :class="i === currentIndex ? 'bg-fran text-white' : (answers[q.id] ? 'bg-stu-light text-stu' : 'bg-white border border-border text-gray-400')"
-                                x-text="i + 1"></button>
-                    </template>
-                </div>
-            </div>
-
             {{-- Calculate prompt --}}
             <div class="px-4 mt-5 flex items-center justify-between">
                 <p class="text-sm text-gray-500">Calculate mentally :</p>
-                <span class="text-gray-400">🔊</span>
+                <button type="button" @click="speak()" aria-label="Play audio"
+                        class="w-9 h-9 -mr-1 rounded-full bg-stu-light text-stu flex items-center justify-center text-lg active:scale-95">🔊</button>
             </div>
 
             {{-- Big number display --}}
@@ -105,14 +94,11 @@
                 </div>
             </div>
 
-            {{-- Navigation --}}
-            <div class="px-4 mt-5 flex items-center gap-3">
-                <button @click="prevQuestion()" x-show="currentIndex > 0" class="px-5 py-3 border border-border rounded-xl text-sm font-semibold text-gray-600">← Prev</button>
-                <template x-if="currentIndex < questions.length - 1">
-                    <button @click="nextQuestion()" class="flex-1 py-3 bg-fran text-white rounded-xl text-sm font-bold">Next →</button>
-                </template>
+            {{-- Submit appears on the final question — questions advance automatically
+                 as they are answered; there is no manual back/next navigation. --}}
+            <div class="px-4 mt-6 min-h-[52px]">
                 <template x-if="currentIndex === questions.length - 1">
-                    <button @click="confirmSubmit()" class="flex-1 py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit Exam</button>
+                    <button @click="confirmSubmit()" class="w-full py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit Exam</button>
                 </template>
             </div>
 
@@ -131,6 +117,7 @@
 </form>
 
 </body>
+@include('partials.speak-script')
 <script>
 function examEngine() {
     return {
@@ -142,7 +129,18 @@ function examEngine() {
         tabSwitchWarning: false,
         timeUp: false,
 
-        init() { this.startTimer(); this.requestFullscreen(); },
+        init() {
+            this.startTimer();
+            this.requestFullscreen();
+            this.$nextTick(() => this.speak());
+            // Read each new question aloud as it appears.
+            this.$watch('currentIndex', () => this.speak());
+        },
+
+        speak() {
+            const q = this.questions[this.currentIndex];
+            if (q && window.ApexSpeak) window.ApexSpeak.speak(q.question_text);
+        },
 
         startTimer() {
             const tick = setInterval(() => {
@@ -187,6 +185,10 @@ function examEngine() {
             if (!q) return;
             this.answers[q.id] = opt;
             this.saveAnswer(q.id, opt);
+            // Auto-advance to the next question — no manual navigation.
+            if (this.currentIndex < this.questions.length - 1) {
+                setTimeout(() => { this.currentIndex++; }, 350);
+            }
         },
 
         saveAnswer(questionId, answer) {
@@ -196,9 +198,6 @@ function examEngine() {
                 body: JSON.stringify({ question_id: questionId, selected_answer: answer, tab_switches: this.tabSwitches }),
             });
         },
-
-        nextQuestion() { if (this.currentIndex < this.questions.length - 1) this.currentIndex++; },
-        prevQuestion() { if (this.currentIndex > 0) this.currentIndex--; },
 
         confirmSubmit() {
             const unanswered = this.questions.length - Object.keys(this.answers).length;

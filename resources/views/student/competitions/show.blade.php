@@ -49,9 +49,22 @@
     @endif
 
     {{-- CTA --}}
+    @php
+        $today = now()->toDateString();
+        $notStarted = $competition->start_date && $competition->start_date->toDateString() > $today;
+        $ended      = $competition->end_date && $competition->end_date->toDateString() < $today;
+    @endphp
     @if($registration)
         @if($myAttempts->isEmpty())
-            @if($paper)
+            @if($notStarted)
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center">
+                    <p class="text-sm text-fran font-medium">This competition starts on {{ $competition->start_date->format('d M Y') }}. The exam will open then.</p>
+                </div>
+            @elseif($ended)
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+                    <p class="text-sm text-amber-700 font-medium">This competition has ended.</p>
+                </div>
+            @elseif($paper)
                 <form method="POST" action="{{ route('student.competitions.start', $competition) }}">
                     @csrf
                     <button type="submit" class="w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold">I am Ready — Start Exam</button>

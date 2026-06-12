@@ -38,10 +38,10 @@
         <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Quick Actions</p>
         <div class="grid grid-cols-2 gap-3">
             @foreach([
-                ['route' => 'external.practice.hub',        'emoji' => '🎯', 'label' => 'Practice',            'bg' => 'bg-stu-light',  'border' => '#2ECC71'],
-                ['route' => 'external.practice.index',      'emoji' => '📝', 'label' => 'Practice Papers',     'bg' => 'bg-fran-light', 'border' => '#1A73E8'],
+                ['route' => 'external.practice.index',      'emoji' => '🎯', 'label' => 'Practice',            'bg' => 'bg-stu-light',  'border' => '#2ECC71'],
                 ['route' => 'external.competitions.index',  'emoji' => '🏆', 'label' => 'Competitions',        'bg' => 'bg-amber-50',   'border' => '#F5A623'],
-                ['route' => 'external.certificates.index',  'emoji' => '🎓', 'label' => 'Results & Certificate','bg' => 'bg-pink-50',    'border' => '#D42B2B'],
+                ['route' => 'external.results',             'emoji' => '📊', 'label' => 'Results',             'bg' => 'bg-fran-light', 'border' => '#1A73E8'],
+                ['route' => 'external.certificates.index',  'emoji' => '🎓', 'label' => 'Certificates',        'bg' => 'bg-pink-50',    'border' => '#D42B2B'],
             ] as $a)
                 <a href="{{ route($a['route']) }}" class="bg-white rounded-2xl border border-border overflow-hidden flex items-stretch">
                     <span class="w-1.5 flex-shrink-0" style="background-color: {{ $a['border'] }}"></span>
@@ -58,21 +58,21 @@
     </div>
 
     {{-- Recent Activity --}}
-    @if($recentAttempts->isNotEmpty())
+    @if($recentSessions->isNotEmpty())
         <div>
             <div class="flex items-center justify-between mb-2">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Recent Activity</p>
                 <a href="{{ route('external.results') }}" class="text-xs font-semibold text-fran">View All</a>
             </div>
             <div class="bg-white rounded-2xl border border-border divide-y divide-border overflow-hidden">
-                @foreach($recentAttempts as $att)
+                @foreach($recentSessions as $s)
                     <div class="px-4 py-3 flex items-center gap-3">
                         <span class="w-2.5 h-2.5 rounded-full bg-fran flex-shrink-0"></span>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate">{{ $att->paper?->title ?? 'Practice Paper' }}</p>
-                            <p class="text-xs text-gray-400">{{ $att->submitted_at?->diffForHumans() }}</p>
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ ucfirst($s->difficulty ?? 'Mixed') }} Practice</p>
+                            <p class="text-xs text-gray-400">{{ $s->completed_at?->diffForHumans() }}</p>
                         </div>
-                        <span class="text-sm font-bold text-fran">{{ number_format($att->percentage, 0) }}%</span>
+                        <span class="text-sm font-bold text-fran">{{ number_format($s->accuracy ?? 0, 0) }}%</span>
                     </div>
                 @endforeach
             </div>

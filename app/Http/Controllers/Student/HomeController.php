@@ -30,6 +30,9 @@ class HomeController extends Controller
                 ->count()
             : 0;
 
+        // Next exam = the soonest upcoming exam for the student's level. Many
+        // admin-authored exams have no scheduled date, so include those too
+        // (future-scheduled first, then undated) instead of hiding the card.
         $upcomingExam = $student
             ? Exam::where(function ($q) use ($student) {
                     // Admin-authored global exams plus any legacy franchise exams.
@@ -39,7 +42,10 @@ class HomeController extends Controller
                     $q->whereNull('level_id')->orWhere('level_id', $student->current_level_id);
                 })
                 ->where('is_active', true)
-                ->where('scheduled_at', '>=', now())
+                ->where(function ($q) {
+                    $q->whereNull('scheduled_at')->orWhere('scheduled_at', '>=', now());
+                })
+                ->orderByRaw('scheduled_at IS NULL')
                 ->orderBy('scheduled_at')
                 ->first()
             : null;
