@@ -71,4 +71,4 @@ jobs:
               -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
               -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 \
               "${{ secrets.HOSTINGER_SSH_USERNAME }}@${{ secrets.HOSTINGER_SSH_HOST }}" \
-              "set -e; cd ${{ secrets.DEPLOY_PATH }} && git fetch origin main && git reset --hard origin/main && composer install --no-dev --optimize-autoloader --no-interaction && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:clear && php artisan view:cache && php artisan event:cache && php artisan queue:restart && chmod -R 755 storage bootstrap/cache"
+              "set -e; cd ${{ secrets.DEPLOY_PATH }} && git fetch origin main && git reset --hard origin/main && composer install --no-dev --optimize-autoloader --no-interaction && php artisan migrate --force && (php artisan storage:link || true) && php artisan config:cache && php artisan route:cache && php artisan view:clear && php artisan view:cache && php artisan event:cache && php artisan queue:restart && chmod -R 755 storage bootstrap/cache"
