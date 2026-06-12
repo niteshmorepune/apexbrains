@@ -25,8 +25,9 @@
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
                 <p>Tap <strong>Practice</strong> in the bottom menu, then pick a type: <em>Exam Practice</em> or <em>Competition Practice</em>.</p>
-                <p>Choose a <em>difficulty</em> (Easy / Medium / Hard) and your session starts straight away. Numbers appear large on screen for mental-math drills.</p>
-                <p>After each session you'll see your accuracy, average speed, and a speed-improvement chart, plus a review of any questions you got wrong.</p>
+                <p>Choose a <em>difficulty</em> (Easy / Medium / Hard) and your session starts straight away. Numbers appear large on screen for mental-math drills, and you can tap the 🔊 speaker to hear the sum read aloud.</p>
+                <p>One question shows at a time. Tap your answer to move to the next — there's a single timer for the whole session that keeps running between questions.</p>
+                <p>After each session you'll see your accuracy, average speed, and a speed-improvement chart.</p>
             </div>
         </div>
 
@@ -44,9 +45,9 @@
             </button>
             <div x-show="open === 'exams'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
                 <p>Tap <strong>Exams</strong> to see available exams assigned by your franchise.</p>
-                <p>Once you start an exam, the timer begins immediately. Do not switch tabs — tab switches are recorded.</p>
-                <p>Your score and pass/fail result are shown immediately after submission.</p>
-                <p>You can review your answers on the result page. Past attempts are listed on the exam detail page.</p>
+                <p>Once you start an exam, the timer begins immediately and runs for the whole exam. Do not switch tabs — tab switches are recorded.</p>
+                <p>Questions appear one at a time and move on automatically when you answer — there are no back/next buttons. Tap the 🔊 speaker to hear the sum read aloud. <strong>Submit Exam</strong> appears on the last question.</p>
+                <p>Your score and pass/fail result are shown immediately after submission. Past attempts are listed on the exam detail page.</p>
             </div>
         </div>
 
@@ -63,9 +64,9 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'competitions' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'competitions'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>Tap <strong>Exams</strong> and switch to the <em>Competition</em> tab to see competitions your franchise has registered you for.</p>
-                <p>Practice papers (under Practice → Competition Practice) help you prepare — attempt each one as many times as you like.</p>
-                <p>Your best score for each practice paper is displayed on the practice list.</p>
+                <p>Open <strong>Competitions</strong> to see the competitions your franchise has registered you for. You don't register yourself — your branch does that for you.</p>
+                <p>Open a competition for its rules and your level's question paper. When the competition's start date has arrived and you're registered, tap <em>I am Ready — Start Exam</em>. Before the start date it shows when it opens.</p>
+                <p>Each level sits its own paper, so you'll always get the paper for your current level. Use Practice → Competition Practice to prepare beforehand.</p>
             </div>
         </div>
 

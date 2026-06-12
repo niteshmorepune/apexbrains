@@ -19,7 +19,7 @@
                     <div class="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
                         <svg class="w-4 h-4 text-fran" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.zap')</svg>
                     </div>
-                    <span class="font-semibold text-gray-800">Practice Papers</span>
+                    <span class="font-semibold text-gray-800">Practice</span>
                 </div>
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
@@ -63,11 +63,12 @@
             </button>
             <div x-show="open === 'attempt'" x-collapse class="border-t border-border px-5 pb-5 pt-4 text-sm text-text-muted">
                 <ul class="space-y-2 list-disc list-inside">
-                    <li>Your answer is saved automatically when you tap an option — no submit button per question.</li>
-                    <li>A countdown timer is shown at the top. The paper auto-submits when time runs out.</li>
-                    <li>You can change your answer any time before submitting.</li>
-                    <li>Tap <strong>Submit Paper</strong> when you're done. You cannot change answers after submission.</li>
-                    <li>Your score and correct answers are shown on the results page.</li>
+                    <li>Your answer is saved automatically when you tap an option.</li>
+                    <li>Questions appear one at a time and move on automatically once you answer — there are no back/next buttons.</li>
+                    <li>Tap the 🔊 speaker to hear the sum read aloud.</li>
+                    <li>One countdown timer runs for the whole paper (it doesn't reset per question) and auto-submits when time runs out.</li>
+                    <li><strong>Submit</strong> appears on the last question. You cannot change answers after submitting.</li>
+                    <li>Your score is shown on the results page.</li>
                 </ul>
             </div>
         </div>
