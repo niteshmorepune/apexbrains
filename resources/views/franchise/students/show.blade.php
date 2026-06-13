@@ -166,11 +166,12 @@
                 </div>
             </div>
 
-            {{-- Practice Sessions (all students) --}}
+            {{-- Practice Sessions (all students — completed only) --}}
             <div x-show="tab === 'practice'" x-cloak>
+                @php $completedSessions = $student->practiceSessions->filter(fn($ps) => $ps->completed_at !== null)->sortByDesc('completed_at'); @endphp
                 <div class="bg-white rounded-2xl border border-border overflow-hidden">
                     <div class="px-5 py-4 border-b border-border"><h3 class="text-sm font-bold text-fran">Practice Sessions</h3></div>
-                    @if($student->practiceSessions->isNotEmpty())
+                    @if($completedSessions->isNotEmpty())
                         <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
                             <thead>
                                 <tr class="bg-fran">
@@ -181,9 +182,9 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-border">
-                                @foreach($student->practiceSessions->sortByDesc('completed_at') as $ps)
+                                @foreach($completedSessions as $ps)
                                     <tr class="hover:bg-bg-light">
-                                        <td class="px-5 py-3 text-xs text-gray-600">{{ $ps->completed_at?->format('d M Y') ?? '—' }}</td>
+                                        <td class="px-5 py-3 text-xs text-gray-600">{{ $ps->completed_at->format('d M Y') }}</td>
                                         <td class="px-4 py-3 text-center text-xs capitalize text-gray-600">{{ $ps->difficulty ?? 'Mixed' }}</td>
                                         <td class="px-4 py-3 text-center text-xs text-gray-600">{{ $ps->questions_correct }}/{{ $ps->total_questions }}</td>
                                         <td class="px-5 py-3 text-right font-bold {{ $ps->accuracy >= 75 ? 'text-stu' : 'text-logo-amber' }}">{{ number_format((float) $ps->accuracy, 0) }}%</td>
@@ -192,38 +193,37 @@
                             </tbody>
                         </table></div>
                     @else
-                        <p class="px-5 py-6 text-sm text-gray-400">No practice sessions recorded for this student yet.</p>
+                        <p class="px-5 py-6 text-sm text-gray-400">No completed practice sessions for this student yet.</p>
                     @endif
                 </div>
             </div>
 
-            {{-- Competition Practice --}}
+            {{-- Competition Practice (submitted only) --}}
             <div x-show="tab === 'comp-practice'" x-cloak>
+                @php $submittedAttempts = $student->competitionPracticeAttempts->where('status', 'submitted')->sortByDesc('submitted_at'); @endphp
                 <div class="bg-white rounded-2xl border border-border overflow-hidden">
                     <div class="px-5 py-4 border-b border-border"><h3 class="text-sm font-bold text-fran">Competition Practice Papers</h3></div>
-                    @if($student->competitionPracticeAttempts->isNotEmpty())
+                    @if($submittedAttempts->isNotEmpty())
                         <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
                             <thead>
                                 <tr class="bg-fran">
                                     <th class="text-left px-5 py-3 text-xs font-semibold text-white">Paper</th>
                                     <th class="text-center px-4 py-3 text-xs font-semibold text-white">Date</th>
-                                    <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
                                     <th class="text-right px-5 py-3 text-xs font-semibold text-white">Score</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-border">
-                                @foreach($student->competitionPracticeAttempts->sortByDesc('submitted_at') as $att)
+                                @foreach($submittedAttempts as $att)
                                     <tr class="hover:bg-bg-light">
                                         <td class="px-5 py-3 font-medium text-gray-800">{{ $att->paper?->title ?? 'Paper #' . $att->paper_id }}</td>
-                                        <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $att->submitted_at?->format('d M Y') ?? '—' }}</td>
-                                        <td class="px-4 py-3 text-center"><span class="text-xs capitalize px-2 py-0.5 rounded-full bg-bg-mid text-gray-600">{{ $att->status ?? '—' }}</span></td>
-                                        <td class="px-5 py-3 text-right font-bold {{ $att->percentage >= 75 ? 'text-stu' : ($att->percentage >= 50 ? 'text-logo-amber' : 'text-red-500') }}">{{ $att->submitted_at ? number_format((float) $att->percentage, 0) . '%' : '—' }}</td>
+                                        <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $att->submitted_at->format('d M Y') }}</td>
+                                        <td class="px-5 py-3 text-right font-bold {{ $att->percentage >= 75 ? 'text-stu' : ($att->percentage >= 50 ? 'text-logo-amber' : 'text-red-500') }}">{{ number_format((float) $att->percentage, 0) }}%</td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table></div>
                     @else
-                        <p class="px-5 py-6 text-sm text-gray-400">No competition practice attempts for this student yet.</p>
+                        <p class="px-5 py-6 text-sm text-gray-400">No competition practice papers submitted by this student yet.</p>
                     @endif
                 </div>
             </div>
