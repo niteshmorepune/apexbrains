@@ -168,10 +168,19 @@
 
             {{-- Practice Sessions (all students — completed only) --}}
             <div x-show="tab === 'practice'" x-cloak>
-                @php $completedSessions = $student->practiceSessions->filter(fn($ps) => $ps->completed_at !== null)->sortByDesc('completed_at'); @endphp
+                @php
+                    $completedSessions = $student->practiceSessions->filter(fn($ps) => $ps->completed_at !== null)->sortByDesc('completed_at');
+                    $totalSessions = $completedSessions->count();
+                    $displaySessions = $completedSessions->take(50);
+                @endphp
                 <div class="bg-white rounded-2xl border border-border overflow-hidden">
-                    <div class="px-5 py-4 border-b border-border"><h3 class="text-sm font-bold text-fran">Practice Sessions</h3></div>
-                    @if($completedSessions->isNotEmpty())
+                    <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-fran">Practice Sessions</h3>
+                        @if($totalSessions > 0)
+                            <span class="text-xs text-gray-400">{{ $totalSessions }} total</span>
+                        @endif
+                    </div>
+                    @if($displaySessions->isNotEmpty())
                         <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
                             <thead>
                                 <tr class="bg-fran">
@@ -182,7 +191,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-border">
-                                @foreach($completedSessions as $ps)
+                                @foreach($displaySessions as $ps)
                                     <tr class="hover:bg-bg-light">
                                         <td class="px-5 py-3 text-xs text-gray-600">{{ $ps->completed_at->format('d M Y') }}</td>
                                         <td class="px-4 py-3 text-center text-xs capitalize text-gray-600">{{ $ps->difficulty ?? 'Mixed' }}</td>
@@ -192,6 +201,9 @@
                                 @endforeach
                             </tbody>
                         </table></div>
+                        @if($totalSessions > 50)
+                            <p class="px-5 py-3 text-xs text-gray-400 border-t border-border">Showing 50 most recent of {{ $totalSessions }} sessions.</p>
+                        @endif
                     @else
                         <p class="px-5 py-6 text-sm text-gray-400">No completed practice sessions for this student yet.</p>
                     @endif
