@@ -23,10 +23,10 @@ window.ApexSpeak = (function () {
     function spoken(text) {
         return String(text == null ? '' : text)
             .replace(/[\n\r]+/g, ' , ')
-            .replace(/[×x*]/g, ' times ')
+            .replace(/[×x*]/g, ' multiplied by ')
             .replace(/[÷\/]/g, ' divided by ')
-            .replace(/[−–\-]/g, ' minus ')
-            .replace(/\+/g, ' plus ')
+            .replace(/[−–\-]/g, ' less ')
+            .replace(/\+/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
     }

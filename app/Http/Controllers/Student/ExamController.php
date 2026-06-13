@@ -75,6 +75,7 @@ class ExamController extends Controller
             ->get();
 
         $canAttempt = $exam->is_active
+            && (is_null($exam->scheduled_at) || $exam->scheduled_at->lte(now()))
             && (is_null($exam->max_attempts) || $attempts->count() < $exam->max_attempts)
             && (is_null($exam->expires_at) || $exam->expires_at->isFuture());
 
@@ -90,6 +91,10 @@ class ExamController extends Controller
         $attemptCount = ExamAttempt::where('exam_id', $exam->id)
             ->where('student_id', $student->id)
             ->count();
+
+        if ($exam->scheduled_at && $exam->scheduled_at->isFuture()) {
+            return back()->with('error', 'This exam has not started yet. It opens on ' . $exam->scheduled_at->format('d M Y \a\t g:i A') . '.');
+        }
 
         if ($exam->max_attempts && $attemptCount >= $exam->max_attempts) {
             return back()->with('error', 'Maximum attempts reached for this exam.');

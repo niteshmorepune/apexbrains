@@ -65,7 +65,7 @@ class CompetitionPracticeController extends Controller
         $savedAnswers = Cache::get("cp_attempt_{$attempt->id}_answers", []);
 
         $durationSeconds = $paper->duration_minutes * 60;
-        $elapsed         = now()->diffInSeconds($attempt->started_at);
+        $elapsed         = (int) now()->diffInSeconds($attempt->started_at);
         $remaining       = max(0, $durationSeconds - $elapsed);
 
         if ($remaining === 0) {
@@ -73,7 +73,7 @@ class CompetitionPracticeController extends Controller
         }
 
         return view('student.competitions.practice.attempt', compact(
-            'paper', 'attempt', 'questions', 'savedAnswers', 'remaining'
+            'paper', 'attempt', 'questions', 'savedAnswers', 'elapsed'
         ));
     }
 

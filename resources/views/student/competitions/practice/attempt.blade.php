@@ -11,15 +11,6 @@
       x-data="paperEngine()"
       x-init="init()">
 
-    {{-- Time up overlay --}}
-    <div x-show="timeUp" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6" x-cloak>
-        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
-            <p class="font-bold text-gray-800 mb-2">Time's Up!</p>
-            <p class="text-sm text-gray-500 mb-4">Submitting your answers...</p>
-            <div class="w-6 h-6 border-2 border-fran border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </div>
-    </div>
-
     {{-- Header --}}
     <div class="bg-fran text-white px-4 py-3 flex items-center justify-between sticky top-0 z-20">
         <div>
@@ -27,8 +18,8 @@
             <p class="text-white/70 text-xs" x-text="`Q${currentIndex + 1} of ${questions.length}`"></p>
         </div>
         <div class="text-center">
-            <p class="text-xl font-black tabular-nums" :class="timeLeft <= 60 ? 'text-red-300' : ''" x-text="formatTime(timeLeft)"></p>
-            <p class="text-white/60 text-xs">remaining</p>
+            <p class="text-xl font-black tabular-nums" x-text="formatTime(elapsed)"></p>
+            <p class="text-white/60 text-xs">elapsed</p>
         </div>
     </div>
 
@@ -111,29 +102,21 @@ function paperEngine() {
         questions: @json($questions),
         answers: @json(array_map(fn($v) => $v, $savedAnswers ?: [])),
         currentIndex: 0,
-        timeLeft: {{ $remaining }},
-        timeUp: false,
+        elapsed: {{ $elapsed }},
 
         init() {
             this.startTimer();
         },
 
         startTimer() {
-            const tick = setInterval(() => {
-                if (this.timeLeft > 0) {
-                    this.timeLeft--;
-                } else {
-                    clearInterval(tick);
-                    this.timeUp = true;
-                    setTimeout(() => this.doSubmit(), 2000);
-                }
-            }, 1000);
+            setInterval(() => { this.elapsed++; }, 1000);
         },
 
         formatTime(secs) {
-            const m = Math.floor(secs / 60).toString().padStart(2, '0');
-            const s = (secs % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
+            secs = Math.floor(secs);
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
         },
 
         selectAnswer(opt) {

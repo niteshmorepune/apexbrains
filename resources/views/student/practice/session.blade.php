@@ -5,27 +5,19 @@
 @php
     $isAnzan = isset($question['question_type']) && in_array($question['question_type'], ['audio', 'anzan']);
     $diffLabel = ucfirst($session->difficulty ?? 'Practice');
-    // Anchor the countdown to the session's real start so it keeps ticking
-    // across question reloads instead of resetting to full duration each time.
-    $totalSeconds = (int) (($session->duration_minutes ?? 10) * 60);
     $elapsedSeconds = (int) abs($session->created_at->diffInSeconds(now()));
-    $remaining = max(0, $totalSeconds - $elapsedSeconds);
 @endphp
 
 <div x-data="{
         selected: null,
-        remaining: {{ $remaining }},
+        elapsed: {{ $elapsedSeconds }},
         questionText: @js($question['question_text']),
         tick() {
-            if (this.remaining > 0) {
-                this.remaining--;
-                setTimeout(() => this.tick(), 1000);
-            } else {
-                document.getElementById('exitForm').submit();
-            }
+            this.elapsed++;
+            setTimeout(() => this.tick(), 1000);
         },
         speak() { if (window.ApexSpeak) window.ApexSpeak.speak(this.questionText); },
-        get clock() { const m = Math.floor(this.remaining/60), s = this.remaining%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+        get clock() { const m = Math.floor(this.elapsed/60), s = this.elapsed%60; return m+':'+(s<10?'0':'')+s; }
      }" x-init="tick(); $nextTick(() => speak())">
 
     {{-- Header --}}
@@ -42,7 +34,7 @@
     {{-- Timer pills --}}
     <div class="px-4 flex items-center justify-between">
         <span class="bg-fran text-white text-xs font-bold px-3 py-1.5 rounded-full">Q{{ $index + 1 }} of {{ $totalCount }}</span>
-        <span class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="clock"></span>
+        <span class="bg-gray-500 text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="clock"></span>
     </div>
 
     {{-- Warning --}}

@@ -88,14 +88,10 @@
                 </div>
             </div>
 
-            {{-- Navigation --}}
-            <div class="px-4 mt-5 flex items-center gap-3">
-                <button @click="currentIndex--" x-show="currentIndex > 0" class="px-5 py-3 border border-border rounded-xl text-sm font-semibold text-gray-600">← Prev</button>
-                <template x-if="currentIndex < questions.length - 1">
-                    <button @click="currentIndex++" class="flex-1 py-3 bg-fran text-white rounded-xl text-sm font-bold">Next →</button>
-                </template>
+            {{-- Submit on last question only --}}
+            <div class="px-4 mt-5 min-h-[52px]">
                 <template x-if="currentIndex === questions.length - 1">
-                    <button @click="doSubmit()" class="flex-1 py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit</button>
+                    <button @click="doSubmit()" class="w-full py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit</button>
                 </template>
             </div>
             <div class="pb-6"></div>
@@ -126,9 +122,10 @@ function examEngine() {
         },
 
         formatTime(secs) {
-            const m = Math.floor(secs / 60).toString().padStart(2, '0');
-            const s = (secs % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
+            secs = Math.floor(secs);
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
         },
 
         selectAnswer(opt) {
@@ -140,6 +137,9 @@ function examEngine() {
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
                 body: JSON.stringify({ question_id: q.question.id, selected_answer: opt }),
             });
+            if (this.currentIndex < this.questions.length - 1) {
+                setTimeout(() => { this.currentIndex++; }, 350);
+            }
         },
 
         doSubmit() { document.getElementById('submitForm').submit(); },
