@@ -124,8 +124,8 @@ class ClassPracticeController extends Controller
     {
         $data = $request->validate([
             'level_id'                  => ['required', 'exists:levels,id'],
-            'total_questions'           => ['required', 'in:100,120,150'],
-            'time_per_question_seconds' => ['required', 'in:1,2,3,4,5'],
+            'total_questions'           => ['required', 'in:10,20,30'],
+            'time_per_question_seconds' => ['required', 'in:0.5,1,1.5,2,2.5,3'],
             'audio_dictation'           => ['nullable', 'boolean'],
             'batch_id'                  => ['nullable', 'exists:batches,id'],
         ]);

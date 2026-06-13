@@ -13,10 +13,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('franchise.class-practice.store') }}" class="space-y-8"
-              x-data="{
-                  time: '{{ old('time_per_question_seconds', '2') }}'
-              }">
+        <form method="POST" action="{{ route('franchise.class-practice.store') }}" class="space-y-8">
             @csrf
 
             {{-- Select Level --}}
@@ -41,16 +38,16 @@
             {{-- Time per number (flash speed) --}}
             <div>
                 <label class="block text-lg font-semibold text-gray-800 mb-3">Time per number</label>
-                <div class="grid grid-cols-5 gap-3">
-                    @foreach(['1' => '1 Sec', '2' => '2 Sec', '3' => '3 Sec', '4' => '4 Sec', '5' => '5 Sec'] as $val => $lbl)
-                        <label class="cursor-pointer">
-                            <input type="radio" name="time_per_question_seconds" value="{{ $val }}" x-model="time" class="sr-only">
-                            <span class="block text-center py-4 rounded-xl border text-base font-medium transition-colors"
-                                  :class="time === '{{ $val }}'
-                                      ? 'bg-blue-50 border-fran text-fran font-semibold'
-                                      : 'bg-white border-border text-gray-700 hover:border-fran'">{{ $lbl }}</span>
-                        </label>
-                    @endforeach
+                <div class="relative">
+                    <select name="time_per_question_seconds" required
+                            class="w-full appearance-none border border-border rounded-xl px-4 py-3.5 text-base text-gray-700 bg-bg-light focus:outline-none focus:ring-2 focus:ring-fran focus:bg-white">
+                        @foreach(['3' => '3 Sec', '2.5' => '2.5 Sec', '2' => '2 Sec', '1.5' => '1.5 Sec', '1' => '1 Sec', '0.5' => '0.5 Sec'] as $val => $lbl)
+                            <option value="{{ $val }}" @selected(old('time_per_question_seconds', '2') == $val)>{{ $lbl }}</option>
+                        @endforeach
+                    </select>
+                    <svg class="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
                 </div>
             </div>
 
@@ -60,8 +57,8 @@
                 <div class="relative">
                     <select name="total_questions" required
                             class="w-full appearance-none border border-border rounded-xl px-4 py-3.5 text-base text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-fran">
-                        @foreach(['100', '120', '150'] as $opt)
-                            <option value="{{ $opt }}" @selected(old('total_questions', '150') == $opt)>{{ $opt }} Questions</option>
+                        @foreach(['10', '20', '30'] as $opt)
+                            <option value="{{ $opt }}" @selected(old('total_questions', '10') == $opt)>{{ $opt }} Questions</option>
                         @endforeach
                     </select>
                     <svg class="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
