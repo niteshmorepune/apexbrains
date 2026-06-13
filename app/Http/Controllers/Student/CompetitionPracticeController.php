@@ -22,11 +22,16 @@ class CompetitionPracticeController extends Controller
 
         $student = Auth::user()->student()->firstOrFail();
 
-        $attemptedPaperIds = CompetitionPracticeAttempt::where('student_id', $student->id)
-            ->pluck('paper_id')
-            ->toArray();
+        $latestAttempts = CompetitionPracticeAttempt::where('student_id', $student->id)
+            ->whereNotNull('submitted_at')
+            ->orderByDesc('submitted_at')
+            ->get()
+            ->unique('paper_id')
+            ->keyBy('paper_id');
 
-        return view('student.competitions.practice.index', compact('papers', 'attemptedPaperIds'));
+        $attemptedPaperIds = $latestAttempts->keys()->toArray();
+
+        return view('student.competitions.practice.index', compact('papers', 'attemptedPaperIds', 'latestAttempts'));
     }
 
     public function start(Request $request, CompetitionPracticePaper $paper): RedirectResponse

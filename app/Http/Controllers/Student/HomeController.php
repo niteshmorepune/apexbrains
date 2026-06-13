@@ -24,6 +24,14 @@ class HomeController extends Controller
                 ->get()
             : collect();
 
+        $recentPractice = $student
+            ? PracticeSession::where('student_id', $student->id)
+                ->whereNotNull('completed_at')
+                ->latest('completed_at')
+                ->limit(3)
+                ->get()
+            : collect();
+
         $practiceThisWeek = $student
             ? PracticeSession::where('student_id', $student->id)
                 ->where('created_at', '>=', now()->startOfWeek())
@@ -101,6 +109,7 @@ class HomeController extends Controller
         return view('student.home', compact(
             'student',
             'recentAttempts',
+            'recentPractice',
             'practiceThisWeek',
             'upcomingExam',
             'streak',

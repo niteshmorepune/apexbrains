@@ -32,7 +32,15 @@
             </div>
             <div class="mt-3 flex items-center justify-between">
                 @if($attempted)
-                    <span class="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full">Attempted</span>
+                    @php $att = $latestAttempts[$paper->id] ?? null; @endphp
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full">Attempted</span>
+                        @if($att)
+                            <span class="text-xs font-bold {{ $att->percentage >= 75 ? 'text-stu' : ($att->percentage >= 50 ? 'text-logo-amber' : 'text-red-500') }}">
+                                {{ number_format($att->percentage, 0) }}%
+                            </span>
+                        @endif
+                    </div>
                     <div class="flex gap-2">
                         <a href="{{ route('student.competitions.practice.result', $paper) }}"
                            class="text-xs text-gray-500 border border-border px-3 py-1.5 rounded-lg hover:bg-bg-light">

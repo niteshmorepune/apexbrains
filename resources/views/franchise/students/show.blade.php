@@ -21,7 +21,7 @@
 
     // Tabs vary by student type
     $tabs = ['overview' => 'Overview', 'fees' => 'Fees & Payments'];
-    if ($student->student_type === 'internal') $tabs['class-practice'] = 'Class Practice';
+    $tabs['practice'] = 'Practice Sessions';
     $tabs['comp-practice'] = 'Competition Practice';
     if ($student->student_type === 'external' || $student->competitionRegistrations->isNotEmpty()) {
         $tabs['comp-reg'] = 'Competition Registrations';
@@ -166,38 +166,36 @@
                 </div>
             </div>
 
-            {{-- Class Practice (internal) --}}
-            @if($student->student_type === 'internal')
-                <div x-show="tab === 'class-practice'" x-cloak>
-                    <div class="bg-white rounded-2xl border border-border overflow-hidden">
-                        <div class="px-5 py-4 border-b border-border"><h3 class="text-sm font-bold text-fran">Class Practice Sessions</h3></div>
-                        @if($student->practiceSessions->isNotEmpty())
-                            <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
-                                <thead>
-                                    <tr class="bg-fran">
-                                        <th class="text-left px-5 py-3 text-xs font-semibold text-white">Date</th>
-                                        <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
-                                        <th class="text-center px-4 py-3 text-xs font-semibold text-white">Questions</th>
-                                        <th class="text-right px-5 py-3 text-xs font-semibold text-white">Accuracy</th>
+            {{-- Practice Sessions (all students) --}}
+            <div x-show="tab === 'practice'" x-cloak>
+                <div class="bg-white rounded-2xl border border-border overflow-hidden">
+                    <div class="px-5 py-4 border-b border-border"><h3 class="text-sm font-bold text-fran">Practice Sessions</h3></div>
+                    @if($student->practiceSessions->isNotEmpty())
+                        <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
+                            <thead>
+                                <tr class="bg-fran">
+                                    <th class="text-left px-5 py-3 text-xs font-semibold text-white">Date</th>
+                                    <th class="text-center px-4 py-3 text-xs font-semibold text-white">Difficulty</th>
+                                    <th class="text-center px-4 py-3 text-xs font-semibold text-white">Questions</th>
+                                    <th class="text-right px-5 py-3 text-xs font-semibold text-white">Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                @foreach($student->practiceSessions->sortByDesc('completed_at') as $ps)
+                                    <tr class="hover:bg-bg-light">
+                                        <td class="px-5 py-3 text-xs text-gray-600">{{ $ps->completed_at?->format('d M Y') ?? '—' }}</td>
+                                        <td class="px-4 py-3 text-center text-xs capitalize text-gray-600">{{ $ps->difficulty ?? 'Mixed' }}</td>
+                                        <td class="px-4 py-3 text-center text-xs text-gray-600">{{ $ps->questions_correct }}/{{ $ps->total_questions }}</td>
+                                        <td class="px-5 py-3 text-right font-bold {{ $ps->accuracy >= 75 ? 'text-stu' : 'text-logo-amber' }}">{{ number_format((float) $ps->accuracy, 0) }}%</td>
                                     </tr>
-                                </thead>
-                                <tbody class="divide-y divide-border">
-                                    @foreach($student->practiceSessions->sortByDesc('completed_at') as $ps)
-                                        <tr class="hover:bg-bg-light">
-                                            <td class="px-5 py-3 text-xs text-gray-600">{{ $ps->completed_at?->format('d M Y') ?? '—' }}</td>
-                                            <td class="px-4 py-3 text-center text-xs">{{ $ps->level ? 'L' . $ps->level->number : '—' }}</td>
-                                            <td class="px-4 py-3 text-center text-xs text-gray-600">{{ $ps->questions_correct }}/{{ $ps->total_questions }}</td>
-                                            <td class="px-5 py-3 text-right font-bold {{ $ps->accuracy >= 75 ? 'text-stu' : 'text-logo-amber' }}">{{ number_format((float) $ps->accuracy, 0) }}%</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table></div>
-                        @else
-                            <p class="px-5 py-6 text-sm text-gray-400">No practice sessions recorded for this student yet.</p>
-                        @endif
-                    </div>
+                                @endforeach
+                            </tbody>
+                        </table></div>
+                    @else
+                        <p class="px-5 py-6 text-sm text-gray-400">No practice sessions recorded for this student yet.</p>
+                    @endif
                 </div>
-            @endif
+            </div>
 
             {{-- Competition Practice --}}
             <div x-show="tab === 'comp-practice'" x-cloak>

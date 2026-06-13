@@ -132,11 +132,11 @@
         </div>
     </div>
 
-    {{-- Recent Activity --}}
+    {{-- Recent Activity (exams) --}}
     @if($recentAttempts->isNotEmpty())
         <div>
             <div class="flex items-center justify-between mb-2">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Recent Activity</p>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Recent Exams</p>
                 <a href="{{ route('student.results') }}" class="text-xs font-semibold text-fran">View All</a>
             </div>
             <div class="bg-white rounded-2xl border border-border divide-y divide-border overflow-hidden">
@@ -148,6 +148,28 @@
                             <p class="text-xs text-gray-400">{{ $attempt->submitted_at?->diffForHumans() }}</p>
                         </div>
                         <span class="text-sm font-bold {{ $attempt->is_passed ? 'text-stu' : 'text-red-500' }}">{{ number_format($attempt->percentage, 0) }}%</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    {{-- Recent Practice --}}
+    @if($recentPractice->isNotEmpty())
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Recent Practice</p>
+                <a href="{{ route('student.practice.index') }}" class="text-xs font-semibold text-fran">View All</a>
+            </div>
+            <div class="bg-white rounded-2xl border border-border divide-y divide-border overflow-hidden">
+                @foreach($recentPractice as $ps)
+                    <div class="px-4 py-3 flex items-center gap-3">
+                        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-fran"></span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ ucfirst($ps->difficulty ?? 'Mixed') }} Practice</p>
+                            <p class="text-xs text-gray-400">{{ $ps->completed_at?->diffForHumans() }}</p>
+                        </div>
+                        <span class="text-sm font-bold {{ $ps->accuracy >= 75 ? 'text-stu' : ($ps->accuracy >= 50 ? 'text-logo-amber' : 'text-red-500') }}">{{ number_format((float) $ps->accuracy, 0) }}%</span>
                     </div>
                 @endforeach
             </div>
