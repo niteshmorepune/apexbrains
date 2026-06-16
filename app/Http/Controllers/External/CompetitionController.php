@@ -129,15 +129,16 @@ class CompetitionController extends Controller
             ->get(['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d'])
             ->map(fn ($item) => ['question' => $item]);
 
-        $savedAnswers = Cache::get("ext_comp_{$attempt->id}_answers", []);
-        $remaining    = max(0, ($paper->duration_minutes * 60) - now()->diffInSeconds($attempt->started_at));
+        $savedAnswers    = Cache::get("ext_comp_{$attempt->id}_answers", []);
+        $durationSeconds = $paper->duration_minutes * 60;
+        $remaining       = max(0, $durationSeconds - now()->diffInSeconds($attempt->started_at));
 
         if ($remaining === 0) {
             return $this->doSubmit($attempt, $paper);
         }
 
         return view('external.competitions.attempt', compact(
-            'competition', 'paper', 'attempt', 'questions', 'savedAnswers', 'remaining'
+            'competition', 'paper', 'attempt', 'questions', 'savedAnswers', 'remaining', 'durationSeconds'
         ));
     }
 

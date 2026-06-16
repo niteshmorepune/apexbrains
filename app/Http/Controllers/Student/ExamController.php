@@ -154,7 +154,7 @@ class ExamController extends Controller
         }
 
         return view('student.exams.attempt', compact(
-            'exam', 'attempt', 'questions', 'savedAnswers', 'remaining'
+            'exam', 'attempt', 'questions', 'savedAnswers', 'remaining', 'durationSeconds'
         ));
     }
 

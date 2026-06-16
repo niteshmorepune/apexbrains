@@ -152,7 +152,7 @@ class CompetitionController extends Controller
         }
 
         return view('student.competitions.attempt', compact(
-            'competition', 'paper', 'attempt', 'questions', 'savedAnswers', 'remaining'
+            'competition', 'paper', 'attempt', 'questions', 'savedAnswers', 'remaining', 'durationSeconds'
         ));
     }
 
