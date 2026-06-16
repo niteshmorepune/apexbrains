@@ -146,7 +146,7 @@ class ExamController extends Controller
             ->toArray();
 
         $durationSeconds = $exam->duration_minutes * 60;
-        $elapsed = now()->diffInSeconds($attempt->started_at);
+        $elapsed = now()->diffInSeconds($attempt->started_at, true);
         $remaining = max(0, $durationSeconds - $elapsed);
 
         if ($remaining === 0) {
@@ -249,7 +249,7 @@ class ExamController extends Controller
 
         // Time taken
         $timeTaken = $attempt->started_at && $attempt->submitted_at
-            ? $attempt->submitted_at->diffInSeconds($attempt->started_at) : 0;
+            ? $attempt->submitted_at->diffInSeconds($attempt->started_at, true) : 0;
 
         // Skipped = questions with no answer submitted
         $answeredCount = $attempt->answers->count();

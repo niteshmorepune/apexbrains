@@ -188,7 +188,7 @@ class PracticeController extends Controller
 
         // Avg speed per question (session duration / questions)
         $durationSec    = $session->created_at && $session->completed_at
-            ? $session->completed_at->diffInSeconds($session->created_at) : 0;
+            ? $session->completed_at->diffInSeconds($session->created_at, true) : 0;
         $avgSpeed       = $session->total_questions > 0 ? round($durationSec / $session->total_questions, 1) : null;
 
         // Last 7 days accuracy for chart

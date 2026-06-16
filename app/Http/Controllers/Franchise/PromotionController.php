@@ -39,7 +39,7 @@ class PromotionController extends Controller
                     ->first();
 
                 $s->exam_score    = $latest?->percentage ?? 0;
-                $s->exam_speed    = $latest ? round($latest->submitted_at?->diffInSeconds($latest->started_at) ?? 0) : null;
+                $s->exam_speed    = $latest ? round($latest->submitted_at?->diffInSeconds($latest->started_at, true) ?? 0) : null;
                 $s->exam_accuracy = $latest?->percentage ?? 0;
                 $s->exam_attempts = $s->examAttempts->where('status', 'submitted')->count();
                 return $s;

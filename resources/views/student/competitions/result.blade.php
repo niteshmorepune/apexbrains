@@ -10,7 +10,7 @@
             $passed     = $attempt->percentage >= $passMark;
             $pct        = (int) round($attempt->percentage);
             $ringColor  = $passed ? '#2ECC71' : '#EF4444';
-            $durationSec = $attempt->started_at && $attempt->submitted_at ? $attempt->submitted_at->diffInSeconds($attempt->started_at) : 0;
+            $durationSec = $attempt->started_at && $attempt->submitted_at ? $attempt->submitted_at->diffInSeconds($attempt->started_at, true) : 0;
             $timeMins   = $durationSec > 0 ? floor($durationSec/60).':'.str_pad($durationSec%60, 2, '0', STR_PAD_LEFT) : '—';
             $totalQ     = $attempt->paper?->total_questions ?? 0;
             $wrong      = max(0, $totalQ - (int) $attempt->score);

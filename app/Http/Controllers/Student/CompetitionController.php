@@ -144,7 +144,7 @@ class CompetitionController extends Controller
 
         $savedAnswers    = Cache::get("comp_exam_{$attempt->id}_answers", []);
         $durationSeconds = $paper->duration_minutes * 60;
-        $elapsed         = now()->diffInSeconds($attempt->started_at);
+        $elapsed         = now()->diffInSeconds($attempt->started_at, true);
         $remaining       = max(0, $durationSeconds - $elapsed);
 
         if ($remaining === 0) {

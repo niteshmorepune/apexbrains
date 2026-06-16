@@ -94,7 +94,7 @@ class HomeController extends Controller
                     $best = $current = 0;
                     $prev = null;
                     foreach ($dates as $date) {
-                        if ($prev && \Carbon\Carbon::parse($date)->diffInDays(\Carbon\Carbon::parse($prev)) === 1) {
+                        if ($prev && \Carbon\Carbon::parse($date)->diffInDays(\Carbon\Carbon::parse($prev), true) == 1) {
                             $current++;
                         } else {
                             $current = 1;

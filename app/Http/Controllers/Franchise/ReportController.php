@@ -47,7 +47,7 @@ class ReportController extends Controller
             $s->last_score       = $lastAttempt?->percentage ?? 0;
             $s->last_exam_date   = $lastAttempt?->submitted_at;
             $s->avg_speed        = $s->examAttempts->filter(fn($a) => $a->submitted_at && $a->started_at)
-                ->avg(fn($a) => $a->submitted_at->diffInSeconds($a->started_at));
+                ->avg(fn($a) => $a->submitted_at->diffInSeconds($a->started_at, true));
             $s->eligible         = $s->avg_score >= 80 && $s->currentLevel && $s->currentLevel->number < 14;
             return $s;
         })->sortByDesc($sort === 'best_score' ? 'avg_score' : 'first_name');

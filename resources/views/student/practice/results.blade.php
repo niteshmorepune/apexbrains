@@ -11,7 +11,7 @@
     $total   = $session->total_questions ?: 1;
     $pct     = round($correct / $total * 100);
     $mins    = $session->created_at && $session->completed_at
-        ? (int) ceil($session->completed_at->diffInSeconds($session->created_at) / 60) : ($session->duration_minutes ?? 0);
+        ? (int) ceil($session->completed_at->diffInSeconds($session->created_at, true) / 60) : ($session->duration_minutes ?? 0);
     $rating = match(true) {
         $session->accuracy >= 95 => ['label' => 'Excellent!',  'emoji' => '🏆', 'color' => 'text-stu'],
         $session->accuracy >= 80 => ['label' => 'Very good',   'emoji' => '🏆', 'color' => 'text-logo-amber'],

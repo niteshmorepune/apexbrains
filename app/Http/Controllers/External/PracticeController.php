@@ -177,7 +177,7 @@ class PracticeController extends Controller
         }
 
         $durationSec = $session->created_at && $session->completed_at
-            ? $session->completed_at->diffInSeconds($session->created_at) : 0;
+            ? $session->completed_at->diffInSeconds($session->created_at, true) : 0;
         $avgSpeed = $session->total_questions > 0 ? round($durationSec / $session->total_questions, 1) : null;
 
         return view('external.practice.results', compact('session', 'avgSpeed'));
