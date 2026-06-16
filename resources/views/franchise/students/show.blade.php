@@ -21,7 +21,7 @@
 
     // Tabs vary by student type
     $tabs = ['overview' => 'Overview', 'fees' => 'Fees & Payments'];
-    $tabs['practice'] = 'Practice Sessions';
+    $tabs['practice'] = 'Question Bank Practice';
     $tabs['comp-practice'] = 'Competition Practice';
     if ($student->student_type === 'external' || $student->competitionRegistrations->isNotEmpty()) {
         $tabs['comp-reg'] = 'Competition Registrations';
@@ -175,7 +175,7 @@
                 @endphp
                 <div class="bg-white rounded-2xl border border-border overflow-hidden">
                     <div class="px-5 py-4 border-b border-border flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-fran">Practice Sessions</h3>
+                        <h3 class="text-sm font-bold text-fran">Question Bank Practice</h3>
                         @if($totalSessions > 0)
                             <span class="text-xs text-gray-400">{{ $totalSessions }} total</span>
                         @endif
