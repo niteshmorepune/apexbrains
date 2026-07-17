@@ -12,17 +12,39 @@ use Illuminate\Support\Facades\Schema;
  *
  * Drops whatever FK actually exists on the column rather than assuming
  * Laravel's default naming convention — see 2026_07_17_120011 for why.
+ *
+ * level_id/question_ids are added nullable (not the originally-planned
+ * NOT NULL) because production has pre-existing rows (June testing) that
+ * can't populate a NOT NULL column with no default. level_id is then
+ * backfilled from the old paper's level while competition_practice_papers
+ * still exists (it's dropped in the next migration) — real historical data
+ * preserved, not just discarded. question_ids has no equivalent old data
+ * (the old schema never snapshotted per-attempt questions), so it stays null
+ * for historical rows.
  */
 return new class extends Migration
 {
     public function up(): void
     {
+        Schema::table('competition_practice_attempts', function (Blueprint $table) {
+            $table->foreignId('level_id')->nullable()->after('id')->constrained()->nullOnDelete();
+            $table->json('question_ids')->nullable()->after('level_id');
+        });
+
+        if (Schema::hasTable('competition_practice_papers')) {
+            $fallbackLevelId = DB::table('levels')->orderBy('number')->value('id');
+
+            DB::statement('
+                UPDATE competition_practice_attempts cpa
+                LEFT JOIN competition_practice_papers cpp ON cpp.id = cpa.paper_id
+                SET cpa.level_id = COALESCE(cpp.level_id, ?)
+            ', [$fallbackLevelId]);
+        }
+
         $this->dropForeignKeysOn('competition_practice_attempts', 'paper_id');
 
         Schema::table('competition_practice_attempts', function (Blueprint $table) {
             $table->dropColumn('paper_id');
-            $table->foreignId('level_id')->after('id')->constrained()->restrictOnDelete();
-            $table->json('question_ids')->after('level_id');
         });
     }
 

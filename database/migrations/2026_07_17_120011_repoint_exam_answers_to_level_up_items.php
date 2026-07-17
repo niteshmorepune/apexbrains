@@ -14,16 +14,20 @@ use Illuminate\Support\Facades\Schema;
  * Laravel's default naming convention — production's constraint name didn't
  * match `exam_answers_question_id_foreign` (drift from an earlier deploy),
  * so a hardcoded dropForeign(['question_id']) failed with error 1091.
+ *
+ * Does NOT re-add a strict FK to level_up_exam_paper_items: production has
+ * pre-existing exam_answers rows (from June testing) whose question_id
+ * still points to the old question_banks ids, which don't exist in the new
+ * table. Those rows keep their score/correctness; only their per-question
+ * detail becomes unresolvable. Adding a strict FK here would block the
+ * migration on that historical data (confirmed low-value test data, not
+ * live customer history) for no real integrity benefit going forward.
  */
 return new class extends Migration
 {
     public function up(): void
     {
         $this->dropForeignKeysOn('exam_answers', 'question_id');
-
-        Schema::table('exam_answers', function (Blueprint $table) {
-            $table->foreign('question_id')->references('id')->on('level_up_exam_paper_items')->cascadeOnDelete();
-        });
     }
 
     public function down(): void

@@ -11,16 +11,17 @@ use Illuminate\Support\Facades\Schema;
  *
  * Drops whatever FK actually exists on the column rather than assuming
  * Laravel's default naming convention — see 2026_07_17_120011 for why.
+ *
+ * Does NOT re-add a strict FK to regular_question_banks: production has
+ * ~700 pre-existing rows (June testing) whose question_id points to the old
+ * question_banks ids, which don't exist in the new table. Same tradeoff as
+ * 2026_07_17_120011 — confirmed low-value test data, not live customer data.
  */
 return new class extends Migration
 {
     public function up(): void
     {
         $this->dropForeignKeysOn('class_practice_session_questions', 'question_id');
-
-        Schema::table('class_practice_session_questions', function (Blueprint $table) {
-            $table->foreign('question_id')->references('id')->on('regular_question_banks')->cascadeOnDelete();
-        });
     }
 
     public function down(): void
