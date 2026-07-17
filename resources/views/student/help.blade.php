@@ -24,10 +24,11 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>Tap <strong>Practice</strong> in the bottom menu, then pick a type: <em>Exam Practice</em> or <em>Competition Practice</em>.</p>
-                <p>Choose a <em>difficulty</em> (Easy / Medium / Hard) and your session starts straight away. Numbers appear large on screen for mental-math drills, and you can tap the 🔊 speaker to hear the sum read aloud.</p>
-                <p>One question shows at a time. Tap your answer to move to the next — there's a single timer for the whole session that keeps running between questions.</p>
-                <p>After each session you'll see your accuracy, average speed, and a speed-improvement chart.</p>
+                <p>Tap <strong>Practice</strong> in the bottom menu, then pick a type: <em>Regular Practice</em> or <em>Competition Practice</em>.</p>
+                <p><strong>Regular Practice:</strong> pick a category, then a type within it (only the ones unlocked for your level appear), then how many questions (10 / 20 / 30) — your session starts right away. Numbers appear large on screen for mental-math drills, and you can tap the 🔊 speaker to hear the sum read aloud.</p>
+                <p><strong>Competition Practice:</strong> no picking at all — tap Start and your full question set is generated automatically to match your level, with a countdown timer.</p>
+                <p>One question shows at a time. Tap your answer to move to the next.</p>
+                <p>After each session you'll see your accuracy, average speed (Regular Practice), or score and time (Competition Practice).</p>
             </div>
         </div>
 
@@ -125,7 +126,7 @@
                     <li>During exams, stay on the exam tab. Tab switches are recorded.</li>
                     <li>Read all four options before selecting an answer.</li>
                     <li>Check your result immediately after an exam to see which questions you got wrong.</li>
-                    <li>Use the practice papers to prepare before competitions.</li>
+                    <li>Use Competition Practice to prepare before competitions.</li>
                 </ul>
             </div>
         </div>

@@ -67,8 +67,8 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'exams' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'exams'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-gray-700">Create an exam:</span> Exams → New Exam. Set title, level, number of questions, duration (minutes), pass percentage, and optional schedule/expiry dates.</p>
-                <p><span class="font-semibold text-gray-700">Questions are auto-assigned:</span> When a student starts the exam, questions are randomly selected from the approved question bank for their level.</p>
+                <p><span class="font-semibold text-gray-700">Create an exam:</span> Admin sets title, level, duration (minutes), pass percentage, and optional schedule/expiry dates, then uploads a question paper (CSV) for that level. Franchise can view exams here but they're authored centrally by Admin.</p>
+                <p><span class="font-semibold text-gray-700">Questions come from the uploaded paper:</span> an exam isn't attemptable by students until Admin uploads its question paper — the total question count comes from that file, not a manual entry.</p>
                 <p><span class="font-semibold text-gray-700">View results:</span> Open any exam to see all student attempts, scores, and pass/fail status. Tab-switch counts are recorded for integrity monitoring.</p>
                 <p><span class="font-semibold text-gray-700">Max attempts:</span> Set a maximum attempt limit on the exam. Leave blank for unlimited attempts.</p>
             </div>
@@ -87,11 +87,9 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-gray-700">Two tabs:</span> Class Practice has a <strong>Sessions</strong> tab (live drills you run) and a <strong>Practice Papers</strong> tab (ready-made papers per level). Switch between them with the pills at the top.</p>
-                <p><span class="font-semibold text-gray-700">Set up a session:</span> Sessions → New Session. Choose the level, time per step, number of questions, session length, and whether to play <em>Audio Dictation</em> automatically.</p>
+                <p><span class="font-semibold text-gray-700">Set up a session:</span> Class Practice → New Session. Choose the level, then a <em>Category</em> and a <em>Type</em> within it (only the ones unlocked for that level appear), the number of questions (10 / 20 / 30), time per step, and whether to play <em>Audio Dictation</em> automatically.</p>
                 <p><span class="font-semibold text-gray-700">Run the player:</span> Open a session → <strong>Project</strong> opens the flashcard player. Each question's numbers flash <em>one at a time</em> (abacus style); the speaker icon replays the audio and the pause icon holds the flow. Use <strong>Restart Question</strong> to replay, <strong>Next Question</strong> to advance, and <strong>End Practice</strong> to finish.</p>
-                <p><span class="font-semibold text-gray-700">After completion:</span> a <em>Well Done</em> screen shows the questions covered and level. From there use <strong>Replay Same Set</strong> (same questions again), <strong>New Practice</strong> (fresh questions, same settings), or <strong>Return to Setup</strong>. (It is a teacher-led drill, so no per-student score is recorded.)</p>
-                <p><span class="font-semibold text-gray-700">Practice Papers:</span> the Practice Papers tab lists papers like <em>Abacus Level 1 (Paper 1)</em>. <strong>Attempt</strong> launches the player from that paper's fixed questions; <strong>Download Answer Pdf</strong> gives the answer key.</p>
+                <p><span class="font-semibold text-gray-700">After completion:</span> a <em>Well Done</em> screen shows the questions covered and level. From there use <strong>Replay Same Set</strong> (same questions again), <strong>New Practice</strong> (fresh questions, same category/type/settings), or <strong>Return to Setup</strong>. (It is a teacher-led drill, so no per-student score is recorded.)</p>
                 <p><span class="font-semibold text-gray-700">Filter:</span> use the level tabs on the Sessions list to view sessions for a specific level.</p>
             </div>
         </div>

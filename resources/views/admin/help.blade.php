@@ -43,15 +43,37 @@
                     <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
                         <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.help-circle')</svg>
                     </div>
-                    <span class="font-semibold text-admin">Question Bank</span>
+                    <span class="font-semibold text-admin">Question Banks</span>
                 </div>
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'questions' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'questions'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-admin">Add questions manually:</span> Question Bank → New Question. Select a level, enter the question text, four options (A–D), and mark the correct answer.</p>
-                <p><span class="font-semibold text-admin">Audio Question Generator:</span> Question Bank → Generate Audio Questions. Enter the question text, level, and answer to add an <em>audio-type</em> question to the bank. Review and approve before it appears in exams. <span class="text-xs text-text-muted">(Automatic text-to-speech audio is planned — generated questions currently use a placeholder audio file.)</span></p>
-                <p><span class="font-semibold text-admin">Approve / Reject:</span> New questions are in <em>pending</em> status. Use the Approve or Reject action on each question. Only approved questions appear in student exams.</p>
-                <p><span class="font-semibold text-admin">Bulk import:</span> Question Bank → Import. Download the CSV template, fill in your questions, and upload it (<strong>CSV or Excel</strong>) to add many questions at once.</p>
+                <p><span class="font-semibold text-admin">Two independent banks:</span> <em>Regular Questions</em> feeds Regular Practice + Class Practice; <em>Competition Questions</em> feeds Competition Practice only. Questions belong to a <strong>Category → Type</strong> (e.g. "Grouping" → "2 Digit - 5 Rows"), never to a Level directly.</p>
+                <p><span class="font-semibold text-admin">Add questions manually:</span> Regular Questions (or Competition Questions) → New Question. Pick a category, then a type within it, enter the question text, four options (A–D), and mark the correct answer.</p>
+                <p><span class="font-semibold text-admin">Audio Question Generator:</span> Question Banks → Generate Audio Questions. Enter the question text, category/type, and answer to add an <em>audio-type</em> question to the Regular bank (audio is a Regular Practice / Class Practice concept only — the Competition bank is MCQ-only). Review and approve before it appears in practice. <span class="text-xs text-text-muted">(Automatic text-to-speech audio is planned — generated questions currently use a placeholder audio file.)</span></p>
+                <p><span class="font-semibold text-admin">Bulk import:</span> Regular Questions → Import (or Competition Questions → Import). Category and Type are read directly from the CSV — download the template, fill in your questions, and upload it (<strong>CSV or Excel</strong>) to add many at once. Unknown categories/types are skipped as row errors, not guessed.</p>
+                <p><span class="font-semibold text-admin">Categories &amp; Types:</span> manage the taxonomy itself from each bank's <em>Categories &amp; Types</em> page.</p>
+                <p><span class="font-semibold text-admin">Level access:</span> which categories/types each Level can use for Regular Practice/Class Practice is controlled by <em>Regular Practice Config</em> in the sidebar (re-upload the client's Excel to update it). <em>Competition Practice Config</em> similarly controls each level's Competition Practice question distribution and per-level duration.</p>
+            </div>
+        </div>
+
+        {{-- Exams (Level-Up) --}}
+        <div class="bg-white rounded-xl border border-border overflow-hidden">
+            <button @click="open = open === 'exams' ? null : 'exams'"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.file-text')</svg>
+                    </div>
+                    <span class="font-semibold text-admin">Exams (Level-Up)</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'exams' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'exams'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
+                <p><span class="font-semibold text-admin">Create an exam:</span> Exams → New Exam. Set title, level, duration, pass percentage, max attempts, and optional schedule/expiry dates.</p>
+                <p><span class="font-semibold text-admin">Upload a question paper — required:</span> a new exam has no questions until you upload one. Open the exam → <strong>Upload Question Paper</strong> and add a CSV (question_text, option_a–d, correct_answer). The question count is taken from the file. Students can't start the exam until this is done.</p>
+                <p><span class="font-semibold text-admin">Replacing a paper:</span> uploading a new file replaces the active paper for that exam.</p>
+                <p><span class="font-semibold text-admin">View results:</span> Open any exam to see all student attempts, scores, and pass/fail status. Tab-switch counts are recorded for integrity monitoring.</p>
             </div>
         </div>
 
