@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\Level;
 use App\Models\PracticeSession;
-use App\Models\QuestionBank;
+use App\Services\RegularQuestionPoolService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,57 +13,70 @@ use Illuminate\View\View;
 
 class PracticeController extends Controller
 {
+    public function __construct(private RegularQuestionPoolService $pool)
+    {
+    }
+
     public function index(): View
     {
         $student = Auth::user()->student()->with('currentLevel')->first();
 
         $pastSessions = $student
             ? PracticeSession::where('student_id', $student->id)
-                ->with('level')
+                ->with(['level', 'category', 'type'])
                 ->latest()
                 ->limit(10)
                 ->get()
             : collect();
 
-        $levels = Level::where('is_active', true)->orderBy('number')->get();
+        $categories = collect();
+        if ($student?->current_level_id) {
+            $categories = $this->pool->accessibleCategories($student->current_level_id)
+                ->map(function ($category) use ($student) {
+                    $category->setRelation('types', $this->pool->accessibleTypes($student->current_level_id, $category->id));
 
-        return view('student.practice.index', compact('student', 'pastSessions', 'levels'));
+                    return $category;
+                });
+        }
+
+        return view('student.practice.index', compact('student', 'pastSessions', 'categories'));
     }
 
     public function start(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'level_id'               => ['required', 'exists:levels,id'],
-            'difficulty'             => ['nullable', 'in:easy,medium,hard,all'],
-            'count'                  => ['required', 'integer', 'min:5', 'max:300'],
-            'session_length_minutes' => ['nullable', 'integer', 'min:0'],
+            'category_id' => ['required', 'exists:regular_question_categories,id'],
+            'type_id' => ['required', 'exists:regular_question_types,id'],
+            'count' => ['required', 'in:10,20,30'],
         ]);
 
         $student = Auth::user()->student()->firstOrFail();
 
-        $difficulty = $data['difficulty'] ?? null;
+        if (! $student->current_level_id || ! $this->pool->hasAccess($student->current_level_id, (int) $data['type_id'])) {
+            return back()
+                ->withErrors(['type_id' => 'This type is not available for your level.'])
+                ->withInput();
+        }
 
-        // Questions may be authored against a specific level or globally (level_id null),
-        // so include both — mirrors how ExamController::start pulls its question pool.
-        $questions = QuestionBank::where('status', 'approved')
-            ->where(fn ($q) => $q->where('level_id', $data['level_id'])->orWhereNull('level_id'))
-            ->when($difficulty && $difficulty !== 'all', fn($q) => $q->where('difficulty', $difficulty))
-            ->inRandomOrder()
-            ->limit($data['count'])
-            ->get(['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty']);
+        $questions = $this->pool->randomFor(
+            (int) $data['category_id'],
+            (int) $data['type_id'],
+            (int) $data['count'],
+            ['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty']
+        );
 
         if ($questions->isEmpty()) {
             return back()
-                ->withErrors(['level_id' => 'No questions available for this level and difficulty.'])
+                ->withErrors(['type_id' => 'No questions available for this type yet.'])
                 ->withInput();
         }
 
         $session = PracticeSession::create([
-            'student_id'       => $student->id,
-            'level_id'         => $data['level_id'],
-            'difficulty'       => $difficulty === 'all' ? null : $difficulty,
-            'total_questions'  => $questions->count(),
-            'duration_minutes' => $data['session_length_minutes'] ?? null,
+            'student_id' => $student->id,
+            'level_id' => $student->current_level_id,
+            'category_id' => $data['category_id'],
+            'type_id' => $data['type_id'],
+            'total_questions' => $questions->count(),
         ]);
 
         Cache::put("practice_{$session->id}_questions", $questions->values()->toArray(), now()->addHours(2));
@@ -184,7 +196,7 @@ class PracticeController extends Controller
             abort(403);
         }
 
-        $session->load('level');
+        $session->load('level', 'category', 'type');
 
         // Avg speed per question (session duration / questions)
         $durationSec    = $session->created_at && $session->completed_at

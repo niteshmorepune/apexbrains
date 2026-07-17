@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $paper->title }} — Apex Brains</title>
+    <title>Competition Practice — Apex Brains</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-bg-light font-sans min-h-screen"
-      x-data="paperEngine()"
+      x-data="practiceEngine()"
       x-init="init()">
 
     {{-- Header --}}
     <div class="bg-fran text-white px-4 py-3 flex items-center justify-between sticky top-0 z-20">
         <div>
-            <p class="font-semibold text-sm">{{ $paper->title }}</p>
+            <p class="font-semibold text-sm">Competition Practice</p>
             <p class="text-white/70 text-xs" x-text="`Q${currentIndex + 1} of ${questions.length}`"></p>
         </div>
         <div class="text-center">
-            <p class="text-xl font-black tabular-nums" x-text="formatTime(elapsed)"></p>
-            <p class="text-white/60 text-xs">elapsed</p>
+            <p class="text-xl font-black tabular-nums" :class="{ 'text-red-200': remaining <= 30 }" x-text="formatTime(remaining)"></p>
+            <p class="text-white/60 text-xs">remaining</p>
         </div>
     </div>
 
@@ -33,37 +33,34 @@
             <div>
                 <div class="bg-white rounded-2xl border border-border p-5 mb-4 text-center">
                     <div class="text-gray-900" style="font-size:30px"
-                         x-html="verticalSum(questions[currentIndex]?.question?.question_text)"></div>
+                         x-html="verticalSum(questions[currentIndex]?.question_text)"></div>
                 </div>
 
                 <div class="space-y-3">
                     <template x-for="opt in ['a','b','c','d']" :key="opt">
-                        <template x-if="questions[currentIndex]?.question?.['option_' + opt]">
+                        <template x-if="questions[currentIndex]?.['option_' + opt]">
                             <button @click="selectAnswer(opt)"
                                     :class="{
-                                        'border-fran bg-fran/5': answers[questions[currentIndex]?.question?.id] === opt,
-                                        'border-border bg-white': answers[questions[currentIndex]?.question?.id] !== opt
+                                        'border-fran bg-fran/5': answers[questions[currentIndex]?.id] === opt,
+                                        'border-border bg-white': answers[questions[currentIndex]?.id] !== opt
                                     }"
                                     class="w-full flex items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left transition-colors">
                                 <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                                       :class="{
-                                          'bg-fran text-white': answers[questions[currentIndex]?.question?.id] === opt,
-                                          'bg-bg-mid text-gray-500': answers[questions[currentIndex]?.question?.id] !== opt
+                                          'bg-fran text-white': answers[questions[currentIndex]?.id] === opt,
+                                          'bg-bg-mid text-gray-500': answers[questions[currentIndex]?.id] !== opt
                                       }"
                                       x-text="opt.toUpperCase()"></span>
-                                <span class="text-sm text-gray-700" x-text="questions[currentIndex]?.question?.['option_' + opt]"></span>
+                                <span class="text-sm text-gray-700" x-text="questions[currentIndex]?.['option_' + opt]"></span>
                             </button>
                         </template>
                     </template>
                 </div>
 
                 <div class="flex items-center justify-between mt-5">
-                    <button @click="currentIndex--" x-show="currentIndex > 0"
-                            class="px-4 py-2 border border-border rounded-xl text-sm text-gray-600">← Prev</button>
-                    <div x-show="currentIndex === 0"></div>
-
+                    <div></div>
                     <template x-if="currentIndex < questions.length - 1">
-                        <button @click="currentIndex++" class="px-5 py-2 bg-fran text-white rounded-xl text-sm font-semibold">
+                        <button @click="next()" class="px-5 py-2 bg-fran text-white rounded-xl text-sm font-semibold">
                             Next →
                         </button>
                     </template>
@@ -80,8 +77,8 @@
                                 class="w-7 h-7 rounded-lg text-xs font-bold"
                                 :class="{
                                     'bg-fran text-white': i === currentIndex,
-                                    'bg-green-500 text-white': answers[q.question?.id] && i !== currentIndex,
-                                    'bg-bg-mid text-gray-500': !answers[q.question?.id] && i !== currentIndex
+                                    'bg-green-500 text-white': answers[q.id] && i !== currentIndex,
+                                    'bg-bg-mid text-gray-500': !answers[q.id] && i !== currentIndex
                                 }"
                                 x-text="i + 1"></button>
                     </template>
@@ -90,46 +87,56 @@
         </template>
     </div>
 
-    <form id="submitForm" method="POST" action="{{ route('student.competitions.practice.submit', $paper) }}" class="hidden">
+    <form id="submitForm" method="POST" action="{{ route('student.competitions.practice.submit', $attempt) }}" class="hidden">
         @csrf
     </form>
 
 </body>
 
 <script>
-function paperEngine() {
+function practiceEngine() {
     return {
         questions: @json($questions),
         answers: @json(array_map(fn($v) => $v, $savedAnswers ?: [])),
         currentIndex: 0,
-        elapsed: {{ $elapsed }},
+        remaining: {{ $remaining }},
 
         init() {
             this.startTimer();
         },
 
         startTimer() {
-            setInterval(() => { this.elapsed++; }, 1000);
+            setInterval(() => {
+                if (this.remaining > 0) {
+                    this.remaining--;
+                } else {
+                    this.doSubmit();
+                }
+            }, 1000);
         },
 
         formatTime(secs) {
-            secs = Math.floor(secs);
+            secs = Math.max(0, Math.floor(secs));
             const m = Math.floor(secs / 60);
             const s = secs % 60;
             return `${m}:${s.toString().padStart(2, '0')}`;
         },
 
+        next() {
+            this.currentIndex++;
+        },
+
         selectAnswer(opt) {
             const q = this.questions[this.currentIndex];
-            if (!q?.question) return;
-            this.answers[q.question.id] = opt;
-            fetch('{{ route('student.competitions.practice.answer', $paper) }}', {
+            if (!q) return;
+            this.answers[q.id] = opt;
+            fetch('{{ route('student.competitions.practice.answer', $attempt) }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
                 },
-                body: JSON.stringify({ question_id: q.question.id, selected_answer: opt }),
+                body: JSON.stringify({ question_id: q.id, selected_answer: opt }),
             });
         },
 

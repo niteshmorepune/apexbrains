@@ -77,11 +77,6 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
             Route::get('create', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'create'])->name('create');
             Route::post('/', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'store'])->name('store');
 
-            // Practice papers (static segment — must precede the {session} routes)
-            Route::get('papers', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'papers'])->name('papers');
-            Route::post('papers/{paper}/attempt', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'attemptPaper'])->name('papers.attempt');
-            Route::get('papers/{paper}/answers', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'paperAnswers'])->name('papers.answers');
-
             Route::get('{session}', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'show'])->name('show');
             Route::get('{session}/project', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'project'])->name('project');
             Route::get('{session}/state', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'state'])->name('state');

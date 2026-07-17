@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Level extends Model
 {
@@ -52,8 +53,18 @@ class Level extends Model
         return $this->hasMany(Exam::class);
     }
 
-    public function questionBanks(): HasMany
+    public function regularPracticeAccess(): HasMany
     {
-        return $this->hasMany(QuestionBank::class);
+        return $this->hasMany(RegularPracticeAccess::class);
+    }
+
+    public function competitionPracticeConfigs(): HasMany
+    {
+        return $this->hasMany(CompetitionPracticeConfig::class);
+    }
+
+    public function competitionPracticeSetting(): HasOne
+    {
+        return $this->hasOne(CompetitionPracticeLevel::class);
     }
 }

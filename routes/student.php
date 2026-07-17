@@ -33,6 +33,17 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'internal.studen
     Route::get('exams/{exam}/result', [\App\Http\Controllers\Student\ExamController::class, 'result'])->name('exams.result');
 
     // Competitions
+    // Competition Practice (static "practice" segment) must be registered BEFORE
+    // the competitions/{competition}/* dynamic routes below — otherwise
+    // "competitions/practice/start" collides with "competitions/{competition}/start"
+    // (same 3-segment shape) and Laravel tries to bind {competition} = "practice".
+    Route::get('competitions/practice', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'index'])->name('competitions.practice');
+    Route::post('competitions/practice/start', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'start'])->name('competitions.practice.start');
+    Route::get('competitions/practice/{attempt}', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'attempt'])->name('competitions.practice.attempt');
+    Route::post('competitions/practice/{attempt}/answer', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'saveAnswer'])->name('competitions.practice.answer');
+    Route::post('competitions/practice/{attempt}/submit', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'submit'])->name('competitions.practice.submit');
+    Route::get('competitions/practice/{attempt}/result', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'result'])->name('competitions.practice.result');
+
     Route::get('competitions', [\App\Http\Controllers\Student\CompetitionController::class, 'index'])->name('competitions.index');
     Route::post('competitions/{competition}/register', [\App\Http\Controllers\Student\CompetitionController::class, 'register'])->name('competitions.register');
     Route::get('competitions/{competition}/show', [\App\Http\Controllers\Student\CompetitionController::class, 'show'])->name('competitions.show');
@@ -41,12 +52,6 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'internal.studen
     Route::post('competitions/{competition}/answer', [\App\Http\Controllers\Student\CompetitionController::class, 'saveAnswer'])->name('competitions.answer')->middleware('throttle:120,1');
     Route::post('competitions/{competition}/submit', [\App\Http\Controllers\Student\CompetitionController::class, 'submitExam'])->name('competitions.submit');
     Route::get('competitions/{competition}/result', [\App\Http\Controllers\Student\CompetitionController::class, 'result'])->name('competitions.result');
-    Route::get('competitions/practice', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'index'])->name('competitions.practice');
-    Route::post('competitions/practice/{paper}/start', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'start'])->name('competitions.practice.start');
-    Route::get('competitions/practice/{paper}/attempt', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'attempt'])->name('competitions.practice.attempt');
-    Route::post('competitions/practice/{paper}/answer', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'saveAnswer'])->name('competitions.practice.answer');
-    Route::post('competitions/practice/{paper}/submit', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'submit'])->name('competitions.practice.submit');
-    Route::get('competitions/practice/{paper}/result', [\App\Http\Controllers\Student\CompetitionPracticeController::class, 'result'])->name('competitions.practice.result');
 
     // Certificates
     Route::get('certificates', [\App\Http\Controllers\Student\CertificateController::class, 'index'])->name('certificates.index');

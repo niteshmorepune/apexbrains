@@ -62,6 +62,11 @@
     {{-- Action --}}
     @if($inProgress)
         <a href="{{ route('student.exams.attempt', $exam) }}" class="block w-full py-3.5 bg-amber-500 text-white rounded-2xl text-sm font-bold text-center">Resume Attempt →</a>
+    @elseif(! $hasPaper)
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl py-4 px-5 text-center">
+            <p class="text-sm font-bold text-amber-700">Not Available Yet</p>
+            <p class="text-xs text-amber-600 mt-1">The question paper hasn't been published yet.</p>
+        </div>
     @elseif($exam->scheduled_at && $exam->scheduled_at->isFuture())
         <div class="bg-amber-50 border border-amber-200 rounded-2xl py-4 px-5 text-center">
             <p class="text-sm font-bold text-amber-700">Exam Not Started Yet</p>

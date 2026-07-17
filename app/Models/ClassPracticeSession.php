@@ -12,7 +12,7 @@ class ClassPracticeSession extends Model
 {
     protected $fillable = [
         'franchise_id', 'batch_id', 'teacher_id', 'title', 'level_id',
-        'question_category', 'total_questions', 'time_per_question_seconds',
+        'category_id', 'type_id', 'total_questions', 'time_per_question_seconds',
         'audio_dictation',
         'status', 'current_question_index', 'started_at', 'ended_at', 'session_code',
     ];
@@ -61,7 +61,17 @@ class ClassPracticeSession extends Model
         return $this->hasOne(ClassPracticeResult::class, 'session_id');
     }
 
-    public function currentQuestion(): ?QuestionBank
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(RegularQuestionCategory::class, 'category_id');
+    }
+
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(RegularQuestionType::class, 'type_id');
+    }
+
+    public function currentQuestion(): ?RegularQuestionBank
     {
         $sessionQuestion = $this->sessionQuestions()
             ->where('sort_order', $this->current_question_index)

@@ -25,15 +25,43 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Level management
         Route::resource('levels', \App\Http\Controllers\Admin\LevelController::class);
 
-        // Question Bank — audio/generate must come BEFORE resource to avoid {question} param conflict
+        // Audio question generator (Regular bank only) — must come before the resource below to avoid {question} conflict
         Route::get('questions/audio/generate', [\App\Http\Controllers\Admin\AudioQuestionController::class, 'index'])->name('questions.audio');
         Route::post('questions/audio/generate', [\App\Http\Controllers\Admin\AudioQuestionController::class, 'generate'])->name('questions.audio.generate');
-        Route::get('questions/import', [\App\Http\Controllers\Admin\QuestionImportController::class, 'index'])->name('questions.import');
-        Route::post('questions/import', [\App\Http\Controllers\Admin\QuestionImportController::class, 'store'])->name('questions.import.store');
-        Route::get('questions/import/template', [\App\Http\Controllers\Admin\QuestionImportController::class, 'template'])->name('questions.import.template');
-        Route::resource('questions', \App\Http\Controllers\Admin\QuestionBankController::class);
-        Route::post('questions/{question}/approve', [\App\Http\Controllers\Admin\QuestionBankController::class, 'approve'])->name('questions.approve');
-        Route::post('questions/{question}/reject', [\App\Http\Controllers\Admin\QuestionBankController::class, 'reject'])->name('questions.reject');
+
+        // Regular Question Bank (Regular Practice + Class Practice) — Category -> Type taxonomy
+        Route::get('regular-questions/import', [\App\Http\Controllers\Admin\RegularQuestionImportController::class, 'index'])->name('regular-questions.import');
+        Route::post('regular-questions/import', [\App\Http\Controllers\Admin\RegularQuestionImportController::class, 'store'])->name('regular-questions.import.store');
+        Route::get('regular-questions/import/template', [\App\Http\Controllers\Admin\RegularQuestionImportController::class, 'template'])->name('regular-questions.import.template');
+        Route::get('regular-questions/taxonomy', [\App\Http\Controllers\Admin\RegularQuestionTaxonomyController::class, 'index'])->name('regular-questions.taxonomy');
+        Route::post('regular-questions/taxonomy/categories', [\App\Http\Controllers\Admin\RegularQuestionTaxonomyController::class, 'storeCategory'])->name('regular-questions.taxonomy.categories.store');
+        Route::post('regular-questions/taxonomy/categories/{category}/types', [\App\Http\Controllers\Admin\RegularQuestionTaxonomyController::class, 'storeType'])->name('regular-questions.taxonomy.types.store');
+        Route::delete('regular-questions/taxonomy/types/{type}', [\App\Http\Controllers\Admin\RegularQuestionTaxonomyController::class, 'destroyType'])->name('regular-questions.taxonomy.types.destroy');
+        Route::resource('regular-questions', \App\Http\Controllers\Admin\RegularQuestionBankController::class)->parameters(['regular-questions' => 'question']);
+        Route::post('regular-questions/{question}/approve', [\App\Http\Controllers\Admin\RegularQuestionBankController::class, 'approve'])->name('regular-questions.approve');
+        Route::post('regular-questions/{question}/reject', [\App\Http\Controllers\Admin\RegularQuestionBankController::class, 'reject'])->name('regular-questions.reject');
+
+        // Competition Question Bank (Competition Practice only) — Category -> Type taxonomy
+        Route::get('competition-questions/import', [\App\Http\Controllers\Admin\CompetitionQuestionImportController::class, 'index'])->name('competition-questions.import');
+        Route::post('competition-questions/import', [\App\Http\Controllers\Admin\CompetitionQuestionImportController::class, 'store'])->name('competition-questions.import.store');
+        Route::get('competition-questions/import/template', [\App\Http\Controllers\Admin\CompetitionQuestionImportController::class, 'template'])->name('competition-questions.import.template');
+        Route::get('competition-questions/taxonomy', [\App\Http\Controllers\Admin\CompetitionQuestionTaxonomyController::class, 'index'])->name('competition-questions.taxonomy');
+        Route::post('competition-questions/taxonomy/categories', [\App\Http\Controllers\Admin\CompetitionQuestionTaxonomyController::class, 'storeCategory'])->name('competition-questions.taxonomy.categories.store');
+        Route::post('competition-questions/taxonomy/categories/{category}/types', [\App\Http\Controllers\Admin\CompetitionQuestionTaxonomyController::class, 'storeType'])->name('competition-questions.taxonomy.types.store');
+        Route::delete('competition-questions/taxonomy/types/{type}', [\App\Http\Controllers\Admin\CompetitionQuestionTaxonomyController::class, 'destroyType'])->name('competition-questions.taxonomy.types.destroy');
+        Route::resource('competition-questions', \App\Http\Controllers\Admin\CompetitionQuestionBankController::class)->parameters(['competition-questions' => 'question']);
+        Route::post('competition-questions/{question}/approve', [\App\Http\Controllers\Admin\CompetitionQuestionBankController::class, 'approve'])->name('competition-questions.approve');
+        Route::post('competition-questions/{question}/reject', [\App\Http\Controllers\Admin\CompetitionQuestionBankController::class, 'reject'])->name('competition-questions.reject');
+
+        // Level access configuration — sourced from the client's two practice-type Excels
+        Route::get('regular-practice-access', [\App\Http\Controllers\Admin\RegularPracticeAccessController::class, 'index'])->name('regular-practice-access.index');
+        Route::post('regular-practice-access/import', [\App\Http\Controllers\Admin\RegularPracticeAccessController::class, 'store'])->name('regular-practice-access.store');
+        Route::get('regular-practice-access/template', [\App\Http\Controllers\Admin\RegularPracticeAccessController::class, 'template'])->name('regular-practice-access.template');
+
+        Route::get('competition-practice-config', [\App\Http\Controllers\Admin\CompetitionPracticeConfigController::class, 'index'])->name('competition-practice-config.index');
+        Route::post('competition-practice-config/import', [\App\Http\Controllers\Admin\CompetitionPracticeConfigController::class, 'store'])->name('competition-practice-config.store');
+        Route::get('competition-practice-config/template', [\App\Http\Controllers\Admin\CompetitionPracticeConfigController::class, 'template'])->name('competition-practice-config.template');
+        Route::patch('competition-practice-levels/{level}', [\App\Http\Controllers\Admin\CompetitionPracticeConfigController::class, 'updateDuration'])->name('competition-practice-levels.update');
 
         // Competition management
         // Per-competition question papers (CSV upload, level-wise, deletable) —
@@ -46,6 +74,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Exams (authored centrally by Admin, global to all franchises)
         Route::resource('exams', \App\Http\Controllers\Admin\ExamController::class);
+        Route::get('level-up-exam-papers/template', [\App\Http\Controllers\Admin\LevelUpExamPaperController::class, 'template'])->name('level-up-exam-papers.template');
+        Route::post('exams/{exam}/papers', [\App\Http\Controllers\Admin\LevelUpExamPaperController::class, 'store'])->name('exams.papers.store');
+        Route::delete('exams/{exam}/papers/{paper}', [\App\Http\Controllers\Admin\LevelUpExamPaperController::class, 'destroy'])->name('exams.papers.destroy');
 
         // Analytics & reports
         Route::get('revenue', [\App\Http\Controllers\Admin\RevenueController::class, 'index'])->name('revenue');

@@ -45,7 +45,11 @@
                 @endif
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500">Category</span>
-                    <span class="font-medium capitalize">{{ str_replace('_', ' ', $session->question_category) }}</span>
+                    <span class="font-medium">{{ $session->category?->name ?? '—' }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Type</span>
+                    <span class="font-medium">{{ $session->type?->name ?? '—' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500">Questions</span>

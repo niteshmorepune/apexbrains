@@ -29,25 +29,18 @@
                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran resize-none">{{ old('description') }}</textarea>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
-                    <select name="level_id" required
-                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                        <option value="">Select Level</option>
-                        @foreach($levels as $level)
-                            <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
-                                Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif
-                            </option>
-                        @endforeach
-                    </select>
-                    <p class="text-xs text-gray-400 mt-1">Questions are pulled from the approved Question Bank for this level.</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Questions <span class="text-red-500">*</span></label>
-                    <input type="number" name="total_questions" value="{{ old('total_questions', 20) }}" min="1" max="100" required
-                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Level <span class="text-red-500">*</span></label>
+                <select name="level_id" required
+                        class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                    <option value="">Select Level</option>
+                    @foreach($levels as $level)
+                        <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
+                            Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif
+                        </option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-400 mt-1">Upload a question paper for this level after creating the exam.</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

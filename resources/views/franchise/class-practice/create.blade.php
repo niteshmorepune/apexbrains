@@ -4,7 +4,17 @@
 
 @section('content')
 
-<div class="max-w-3xl mx-auto">
+<div class="max-w-3xl mx-auto"
+     x-data="{
+        accessByLevel: @js($accessByLevel),
+        levelId: '{{ old('level_id') }}',
+        categoryId: '{{ old('category_id') }}',
+        get categories() { return this.accessByLevel[this.levelId] || []; },
+        get types() {
+            const cat = this.categories.find(c => c.id == this.categoryId);
+            return cat ? cat.types : [];
+        },
+     }">
     <div class="bg-white rounded-2xl border border-border shadow-sm p-8 sm:p-10">
 
         @if($errors->any())
@@ -20,7 +30,7 @@
             <div>
                 <label class="block text-lg font-semibold text-gray-800 mb-3">Select Level</label>
                 <div class="relative">
-                    <select name="level_id" required
+                    <select name="level_id" x-model="levelId" @change="categoryId = ''" required
                             class="w-full appearance-none border border-border rounded-xl px-4 py-3.5 text-base text-gray-700 bg-bg-light focus:outline-none focus:ring-2 focus:ring-fran focus:bg-white">
                         <option value="">Choose a level…</option>
                         @foreach($levels as $level)
@@ -32,6 +42,30 @@
                     <svg class="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
+                </div>
+            </div>
+
+            {{-- Category / Type (accessible for the selected level) --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" x-show="levelId">
+                <div>
+                    <label class="block text-lg font-semibold text-gray-800 mb-3">Category</label>
+                    <select name="category_id" x-model="categoryId" required
+                            class="w-full appearance-none border border-border rounded-xl px-4 py-3.5 text-base text-gray-700 bg-bg-light focus:outline-none focus:ring-2 focus:ring-fran focus:bg-white">
+                        <option value="">Choose a category…</option>
+                        <template x-for="cat in categories" :key="cat.id">
+                            <option :value="cat.id" x-text="cat.name"></option>
+                        </template>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-lg font-semibold text-gray-800 mb-3">Type</label>
+                    <select name="type_id" required
+                            class="w-full appearance-none border border-border rounded-xl px-4 py-3.5 text-base text-gray-700 bg-bg-light focus:outline-none focus:ring-2 focus:ring-fran focus:bg-white">
+                        <option value="">Choose a type…</option>
+                        <template x-for="t in types" :key="t.id">
+                            <option :value="t.id" x-text="t.name" :selected="t.id == {{ old('type_id', 0) }}"></option>
+                        </template>
+                    </select>
                 </div>
             </div>
 

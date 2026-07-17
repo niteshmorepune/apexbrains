@@ -5,12 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use App\Models\Level;
-use App\Models\QuestionBank;
 use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ExamController extends Controller
@@ -33,11 +31,10 @@ class ExamController extends Controller
     {
         $data = $this->validateExam($request);
 
-        $this->guardQuestionPool($data);
-
         $exam = Exam::create([
             ...$data,
             'franchise_id' => null, // global — applies to all franchises
+            'total_questions' => 0, // derived once a question paper is uploaded
             'is_active'    => $request->boolean('is_active', true),
             'created_by'   => Auth::id(),
         ]);
@@ -45,12 +42,12 @@ class ExamController extends Controller
         AuditLogger::log('exam_created', 'Exam', $exam->id);
 
         return redirect()->route('admin.exams.show', $exam)
-            ->with('success', "Exam '{$exam->title}' created.");
+            ->with('success', "Exam '{$exam->title}' created. Upload a question paper to make it attemptable.");
     }
 
     public function show(Exam $exam): View
     {
-        $exam->load('level');
+        $exam->load('level', 'activePaper');
 
         $attemptCount = $exam->attempts()->count();
         $passCount    = $exam->attempts()->where('is_passed', true)->count();
@@ -76,8 +73,6 @@ class ExamController extends Controller
     public function update(Request $request, Exam $exam): RedirectResponse
     {
         $data = $this->validateExam($request);
-
-        $this->guardQuestionPool($data);
 
         $exam->update([
             ...$data,
@@ -107,7 +102,6 @@ class ExamController extends Controller
         return $request->validate([
             'title'            => ['required', 'string', 'max:150'],
             'level_id'         => ['required', 'exists:levels,id'],
-            'total_questions'  => ['required', 'integer', 'min:1', 'max:100'],
             'duration_minutes' => ['required', 'integer', 'min:5', 'max:180'],
             'pass_percentage'  => ['required', 'numeric', 'min:1', 'max:100'],
             'max_attempts'     => ['nullable', 'integer', 'min:1', 'max:255'],
@@ -115,25 +109,5 @@ class ExamController extends Controller
             'expires_at'       => ['nullable', 'date', 'after:scheduled_at'],
             'description'      => ['nullable', 'string', 'max:500'],
         ]);
-    }
-
-    /**
-     * Exam questions are drawn from the approved Question Bank for the level at
-     * attempt time, so ensure enough exist up front.
-     */
-    private function guardQuestionPool(array $data): void
-    {
-        // Prefer questions tagged to the level, but fall back to the general
-        // approved pool (the seeded bank is not level-tagged) — same rule the
-        // Practice Papers and Class Practice modules use.
-        $available = QuestionBank::where('status', 'approved')
-            ->where(fn ($q) => $q->where('level_id', $data['level_id'])->orWhereNull('level_id'))
-            ->count();
-
-        if ($available < $data['total_questions']) {
-            throw ValidationException::withMessages([
-                'total_questions' => "Only {$available} approved questions available for this level.",
-            ]);
-        }
     }
 }

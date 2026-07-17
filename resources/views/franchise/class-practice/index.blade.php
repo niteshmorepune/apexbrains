@@ -29,18 +29,6 @@
 
 @section('content')
 
-{{-- Sessions / Papers tabs --}}
-<div class="inline-flex items-center gap-1 bg-bg-light border border-border rounded-full p-1 mb-5">
-    <a href="{{ route('franchise.class-practice.index') }}"
-       class="px-4 py-1.5 rounded-full text-sm font-semibold bg-white text-fran shadow-sm">
-        Sessions
-    </a>
-    <a href="{{ route('franchise.class-practice.papers') }}"
-       class="px-4 py-1.5 rounded-full text-sm font-semibold text-gray-500 hover:text-gray-700">
-        Practice Papers
-    </a>
-</div>
-
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="px-5 py-4 border-b border-border flex items-center justify-between">
         <h2 class="text-sm font-semibold text-fran">All Sessions</h2>

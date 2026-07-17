@@ -7,7 +7,8 @@ use App\Models\ExamAttempt;
 use App\Models\Exam;
 use App\Models\Franchise;
 use App\Models\Level;
-use App\Models\QuestionBank;
+use App\Models\LevelUpExamPaper;
+use App\Models\LevelUpExamPaperItem;
 use App\Models\Student;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
@@ -48,17 +49,21 @@ class ExamScoringTest extends TestCase
 
     private function makeAttemptWithAnswers(int $correct, int $total): ExamAttempt
     {
+        $paper = LevelUpExamPaper::create([
+            'exam_id' => $this->exam->id,
+            'title' => 'Test Paper',
+            'is_active' => true,
+        ]);
+
         $questions = [];
         for ($i = 1; $i <= $total; $i++) {
-            $q = QuestionBank::create([
-                'level_id'       => $this->level->id,
+            $q = LevelUpExamPaperItem::create([
+                'paper_id'       => $paper->id,
                 'question_text'  => "Question {$i}",
-                'type'           => 'mcq',
                 'option_a'       => 'A', 'option_b' => 'B',
                 'option_c'       => 'C', 'option_d'  => 'D',
-                'correct_answer'    => 'a',
-                'question_category'=> 'level_practice',
-                'status'           => 'approved',
+                'correct_answer' => 'a',
+                'sort_order'     => $i,
             ]);
             $questions[] = $q->id;
         }

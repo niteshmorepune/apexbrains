@@ -3,7 +3,7 @@
 @section('page-title', 'Audio Mental Math Question Generator')
 
 @section('page-actions')
-    <a href="{{ route('admin.questions.index') }}"
+    <a href="{{ route('admin.regular-questions.index') }}"
        class="px-4 py-2 border border-border rounded-xl text-sm text-gray-600 hover:bg-bg-light transition-colors">
         ← Question Bank
     </a>
@@ -18,7 +18,11 @@
         <div class="bg-white rounded-2xl border border-border p-6">
             <h2 class="text-sm font-bold text-admin mb-5">Generate New Audio Question</h2>
 
-            <form method="POST" action="{{ route('admin.questions.audio.generate') }}">
+            <form method="POST" action="{{ route('admin.questions.audio.generate') }}"
+                  x-data="{
+                     categories: @js($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'types' => $c->types->map(fn($t) => ['id' => $t->id, 'name' => $t->name])])),
+                     categoryId: '{{ old('category_id') }}',
+                  }">
                 @csrf
 
                 <div class="mb-4">
@@ -28,16 +32,29 @@
                     @error('question_text')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign to Level <span class="text-red-500">*</span></label>
-                    <select name="level_id" required
-                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                        <option value="">Select Level</option>
-                        @foreach($levels as $level)
-                            <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>Level {{ $level->number }} — {{ $level->title }}</option>
-                        @endforeach
-                    </select>
-                    @error('level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Category <span class="text-red-500">*</span></label>
+                        <select name="category_id" x-model="categoryId" required
+                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                            <option value="">Select…</option>
+                            <template x-for="cat in categories" :key="cat.id">
+                                <option :value="cat.id" x-text="cat.name"></option>
+                            </template>
+                        </select>
+                        @error('category_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Type <span class="text-red-500">*</span></label>
+                        <select name="type_id" required
+                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                            <option value="">Select…</option>
+                            <template x-for="t in (categories.find(c => c.id == categoryId)?.types || [])" :key="t.id">
+                                <option :value="t.id" x-text="t.name" :selected="t.id == {{ old('type_id', 0) }}"></option>
+                            </template>
+                        </select>
+                        @error('type_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
                 </div>
 
                 {{-- Voice settings --}}
@@ -113,23 +130,21 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-0.5">
                         <span class="text-xs font-mono text-gray-400 flex-shrink-0">Q-{{ str_pad($q->id, 4, '0', STR_PAD_LEFT) }}</span>
-                        @if($q->level)
-                            <span class="text-xs bg-fran-light text-fran px-1.5 py-0.5 rounded-full font-medium">L{{ $q->level->number }}</span>
-                        @endif
+                        <span class="text-xs bg-fran-light text-fran px-1.5 py-0.5 rounded-full font-medium">{{ $q->category->name }}</span>
                     </div>
                     <p class="text-sm text-gray-800 line-clamp-2">{{ $q->question_text }}</p>
                     <div class="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                        <span>{{ $q->speed ?? '1' }}x speed</span>
+                        <span>{{ $q->type->name }}</span>
                         <span>·</span>
                         <span>{{ $q->created_at->diffForHumans() }}</span>
                     </div>
                 </div>
                 <div class="flex gap-2 flex-shrink-0 items-center">
-                    <a href="{{ route('admin.questions.edit', $q) }}"
+                    <a href="{{ route('admin.regular-questions.edit', $q) }}"
                        class="text-xs border border-border text-gray-500 px-2.5 py-1 rounded-lg hover:bg-bg-light transition-colors">
                         Save
                     </a>
-                    <form method="POST" action="{{ route('admin.questions.destroy', $q) }}"
+                    <form method="POST" action="{{ route('admin.regular-questions.destroy', $q) }}"
                           onsubmit="return confirm('Delete this question?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>

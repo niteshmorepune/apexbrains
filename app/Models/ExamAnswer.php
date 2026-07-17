@@ -24,6 +24,6 @@ class ExamAnswer extends Model
 
     public function question(): BelongsTo
     {
-        return $this->belongsTo(QuestionBank::class, 'question_id');
+        return $this->belongsTo(LevelUpExamPaperItem::class, 'question_id');
     }
 }

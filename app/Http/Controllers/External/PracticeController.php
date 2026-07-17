@@ -5,7 +5,7 @@ namespace App\Http\Controllers\External;
 use App\Http\Controllers\Controller;
 use App\Models\Level;
 use App\Models\PracticeSession;
-use App\Models\QuestionBank;
+use App\Services\CompetitionQuestionPoolService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,13 +13,17 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 /**
- * External competition practice. Unlike internal students, external students
- * have no curriculum level, so questions are drawn randomly from the approved
- * Question Bank (across all levels) by difficulty — "generated from the Question
- * Bank" just like internal Exam Practice, rather than from fixed papers.
+ * External competition practice. External students have no curriculum level,
+ * so questions are drawn randomly from the Competition Question Bank (across
+ * all categories/types) by difficulty — matches CLAUDE.md's framing of
+ * External as the "competition-only" portal.
  */
 class PracticeController extends Controller
 {
+    public function __construct(private CompetitionQuestionPoolService $pool)
+    {
+    }
+
     public function index(): View
     {
         $student = Auth::user()->student()->first();
@@ -44,11 +48,11 @@ class PracticeController extends Controller
         $student    = Auth::user()->student()->firstOrFail();
         $difficulty = $data['difficulty'] ?? null;
 
-        $questions = QuestionBank::where('status', 'approved')
-            ->when($difficulty && $difficulty !== 'all', fn ($q) => $q->where('difficulty', $difficulty))
-            ->inRandomOrder()
-            ->limit($data['count'])
-            ->get(['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty']);
+        $questions = $this->pool->randomAny(
+            $data['count'],
+            $difficulty,
+            ['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty']
+        );
 
         if ($questions->isEmpty()) {
             return back()->withErrors(['difficulty' => 'No questions available for this difficulty yet.']);

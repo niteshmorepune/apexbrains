@@ -60,6 +60,47 @@
                 <p class="text-xs text-gray-400 mt-0.5">Avg Score</p>
             </div>
         </div>
+
+        <div class="bg-white rounded-2xl border border-border p-5">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Question Paper</h2>
+            @if($exam->activePaper)
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">{{ $exam->activePaper->title ?: 'Question paper' }}</p>
+                        <p class="text-xs text-gray-400">{{ $exam->activePaper->total_questions }} questions</p>
+                    </div>
+                    <form method="POST" action="{{ route('admin.exams.papers.destroy', [$exam, $exam->activePaper]) }}"
+                          onsubmit="return confirm('Delete this question paper?')">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
+                    </form>
+                </div>
+                <p class="text-xs text-gray-400 mb-3">Uploading a new file below will replace this paper.</p>
+            @else
+                <p class="text-xs text-amber-600 mb-3">No question paper uploaded yet — students can't attempt this exam.</p>
+            @endif
+
+            @if(session('importErrors') && count(session('importErrors')))
+                <div class="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl px-3 py-2 mb-3">
+                    <p class="font-semibold mb-1">Skipped rows:</p>
+                    <ul class="list-disc list-inside space-y-0.5 max-h-32 overflow-y-auto">
+                        @foreach(array_slice(session('importErrors'), 0, 10) as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('admin.exams.papers.store', $exam) }}" enctype="multipart/form-data" class="space-y-2">
+                @csrf
+                <input type="file" name="file" accept=".csv,.txt,.xlsx,.xls" required
+                       class="w-full text-xs text-gray-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-fran-light file:text-fran">
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="px-4 py-2 bg-fran text-white rounded-xl text-xs font-semibold hover:bg-fran-dark">Upload Paper</button>
+                    <a href="{{ route('admin.level-up-exam-papers.template') }}" class="text-xs text-fran hover:underline">Download template</a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="col-span-2 bg-white rounded-2xl border border-border overflow-hidden">

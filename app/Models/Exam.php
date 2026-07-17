@@ -6,6 +6,7 @@ use App\Models\Scopes\ExamTenantScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Exam extends Model
 {
@@ -45,5 +46,15 @@ class Exam extends Model
     public function attempts(): HasMany
     {
         return $this->hasMany(ExamAttempt::class);
+    }
+
+    public function papers(): HasMany
+    {
+        return $this->hasMany(LevelUpExamPaper::class);
+    }
+
+    public function activePaper(): HasOne
+    {
+        return $this->hasOne(LevelUpExamPaper::class)->where('is_active', true)->latestOfMany();
     }
 }

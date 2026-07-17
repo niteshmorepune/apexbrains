@@ -11,8 +11,9 @@ use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Fee;
 use App\Models\Level;
+use App\Models\LevelUpExamPaper;
+use App\Models\LevelUpExamPaperItem;
 use App\Models\Payment;
-use App\Models\QuestionBank;
 use App\Models\Student;
 use App\Models\StudentParent;
 use App\Models\User;
@@ -164,7 +165,6 @@ class FranchiseWalkthroughSeeder extends Seeder
                 'teacher_id'                => $admin->id,
                 'title'                     => 'Level ' . $level->number . ' Practice — Demo',
                 'level_id'                  => $level->id,
-                'question_category'         => 'level_practice',
                 'total_questions'           => 20,
                 'time_per_question_seconds' => 2,
                 'audio_dictation'           => true,
@@ -195,7 +195,24 @@ class FranchiseWalkthroughSeeder extends Seeder
                 'created_by'       => $admin->id,
             ]
         );
-        $qids = QuestionBank::where('status', 'approved')->inRandomOrder()->limit(10)->pluck('id')->toArray();
+        $demoPaper = LevelUpExamPaper::firstOrCreate(
+            ['exam_id' => $exam->id],
+            ['title' => 'Demo Paper', 'is_active' => true, 'created_by' => $admin->id]
+        );
+        if ($demoPaper->items()->count() === 0) {
+            for ($i = 1; $i <= 10; $i++) {
+                LevelUpExamPaperItem::create([
+                    'paper_id' => $demoPaper->id,
+                    'question_text' => "Demo question {$i}: 2 + 3 = ?",
+                    'option_a' => '4', 'option_b' => '5', 'option_c' => '6', 'option_d' => '7',
+                    'correct_answer' => 'b',
+                    'sort_order' => $i,
+                ]);
+            }
+            $demoPaper->update(['total_questions' => 10]);
+            $exam->update(['total_questions' => 10]);
+        }
+        $qids = $demoPaper->items()->orderBy('sort_order')->pluck('id')->toArray();
         ExamAttempt::firstOrCreate(
             ['exam_id' => $exam->id, 'student_id' => $promoStudent->id],
             [

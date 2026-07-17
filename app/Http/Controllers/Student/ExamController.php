@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use App\Models\ExamAnswer;
 use App\Models\ExamAttempt;
-use App\Models\QuestionBank;
+use App\Models\LevelUpExamPaperItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -74,14 +74,17 @@ class ExamController extends Controller
             ->latest()
             ->get();
 
-        $canAttempt = $exam->is_active
+        $hasPaper = $exam->activePaper()->exists();
+
+        $canAttempt = $hasPaper
+            && $exam->is_active
             && (is_null($exam->scheduled_at) || $exam->scheduled_at->lte(now()))
             && (is_null($exam->max_attempts) || $attempts->count() < $exam->max_attempts)
             && (is_null($exam->expires_at) || $exam->expires_at->isFuture());
 
         $inProgress = $attempts->where('status', 'in_progress')->first();
 
-        return view('student.exams.show', compact('exam', 'attempts', 'canAttempt', 'inProgress'));
+        return view('student.exams.show', compact('exam', 'attempts', 'canAttempt', 'inProgress', 'hasPaper'));
     }
 
     public function start(Request $request, Exam $exam): RedirectResponse
@@ -100,12 +103,13 @@ class ExamController extends Controller
             return back()->with('error', 'Maximum attempts reached for this exam.');
         }
 
-        $questions = QuestionBank::where('status', 'approved')
-            ->where(fn ($q) => $q->where('level_id', $exam->level_id)->orWhereNull('level_id'))
-            ->inRandomOrder()
-            ->limit($exam->total_questions)
-            ->pluck('id')
-            ->toArray();
+        $paper = $exam->activePaper;
+
+        if (! $paper) {
+            return back()->with('error', 'No question paper is available for this exam yet. Please check back later.');
+        }
+
+        $questions = $paper->items()->orderBy('sort_order')->pluck('id')->toArray();
 
         $attempt = ExamAttempt::create([
             'exam_id'        => $exam->id,
@@ -136,7 +140,7 @@ class ExamController extends Controller
 
         $questionIds = $attempt->question_ids ?? [];
 
-        $questions = QuestionBank::whereIn('id', $questionIds)
+        $questions = LevelUpExamPaperItem::whereIn('id', $questionIds)
             ->get(['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d'])
             ->sortBy(fn($q) => array_search($q->id, $questionIds))
             ->values();
@@ -169,12 +173,12 @@ class ExamController extends Controller
             ->firstOrFail();
 
         $data = $request->validate([
-            'question_id'     => ['required', 'exists:question_banks,id'],
+            'question_id'     => ['required', 'exists:level_up_exam_paper_items,id'],
             'selected_answer' => ['required', 'in:a,b,c,d'],
             'tab_switches'    => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $question = QuestionBank::findOrFail($data['question_id']);
+        $question = LevelUpExamPaperItem::findOrFail($data['question_id']);
         $isCorrect = strtolower($data['selected_answer']) === strtolower($question->correct_answer);
 
         ExamAnswer::updateOrCreate(

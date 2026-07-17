@@ -16,6 +16,6 @@ class ClassPracticeSessionQuestion extends Model
 
     public function question(): BelongsTo
     {
-        return $this->belongsTo(QuestionBank::class, 'question_id');
+        return $this->belongsTo(RegularQuestionBank::class, 'question_id');
     }
 }

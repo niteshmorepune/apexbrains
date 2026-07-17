@@ -5,16 +5,15 @@ namespace Database\Seeders;
 use App\Models\ApexNotification;
 use App\Models\Certificate;
 use App\Models\Competition;
-use App\Models\CompetitionPracticeAttempt;
-use App\Models\CompetitionPracticePaper;
 use App\Models\CompetitionQuestionPaper;
 use App\Models\CompetitionRegistration;
 use App\Models\Exam;
 use App\Models\ExamAnswer;
 use App\Models\ExamAttempt;
 use App\Models\Level;
+use App\Models\LevelUpExamPaper;
+use App\Models\LevelUpExamPaperItem;
 use App\Models\PracticeSession;
-use App\Models\QuestionBank;
 use App\Models\Student;
 use App\Models\StudentLevel;
 use App\Models\User;
@@ -125,7 +124,6 @@ class StudentWalkthroughSeeder extends Seeder
         }
 
         // 7) Practice sessions across recent days (streak + recent list + chart).
-        $approved = QuestionBank::where('status', 'approved')->count();
         foreach (range(0, 4) as $d) {
             $code = 'ARJ-PS-' . $d;
             if (PracticeSession::where('student_id', $student->id)->where('difficulty', $code)->exists()) continue;
@@ -221,18 +219,23 @@ class StudentWalkthroughSeeder extends Seeder
         $extStudent = $extUser?->student()->withoutGlobalScopes()->first();
         if ($extStudent) {
             $efid   = $extStudent->franchise_id;
-            $papers = CompetitionPracticePaper::where('is_active', true)->orderBy('paper_number')->take(3)->get();
-            foreach ($papers as $idx => $paper) {
-                if (CompetitionPracticeAttempt::where('student_id', $extStudent->id)->where('paper_id', $paper->id)->exists()) continue;
-                $tot = $paper->total_questions ?: 10;
+            // External students have no curriculum level, so their practice
+            // history is PracticeSession rows (External\PracticeController),
+            // not level-keyed CompetitionPracticeAttempt rows.
+            $placeholderLevel = Level::orderBy('number')->value('id');
+            foreach (range(0, 2) as $idx) {
+                $completedAt = now()->subDays(3 - $idx)->setTime(11, 10);
+                if (PracticeSession::where('student_id', $extStudent->id)->whereDate('completed_at', $completedAt->toDateString())->exists()) continue;
+                $tot = 10;
                 $sc  = min($tot, 8 + $idx);
-                CompetitionPracticeAttempt::create([
-                    'paper_id' => $paper->id, 'student_id' => $extStudent->id,
-                    'started_at' => now()->subDays(3 - $idx)->setTime(11, 0), 'status' => 'submitted',
-                    'score' => $sc, 'percentage' => round($sc / $tot * 100, 2),
-                    'submitted_at' => now()->subDays(3 - $idx)->setTime(11, 10),
-                    'ip_address' => '127.0.0.1', 'user_agent' => 'StudentWalkthroughSeeder',
+                $ps = PracticeSession::create([
+                    'student_id' => $extStudent->id, 'level_id' => $placeholderLevel,
+                    'difficulty' => null, 'total_questions' => $tot,
+                    'questions_correct' => $sc, 'accuracy' => round($sc / $tot * 100, 2),
+                    'avg_speed_seconds' => 5.0, 'duration_minutes' => 10,
+                    'completed_at' => now()->subDays(3 - $idx)->setTime(11, 10),
                 ]);
+                $ps->forceFill(['created_at' => now()->subDays(3 - $idx)->setTime(11, 0)])->save();
             }
 
             CompetitionRegistration::firstOrCreate(
@@ -283,7 +286,25 @@ class StudentWalkthroughSeeder extends Seeder
         $existing = ExamAttempt::where('exam_id', $exam->id)->where('student_id', $student->id)->first();
         if ($existing) return;
 
-        $questions = QuestionBank::where('status', 'approved')->inRandomOrder()->limit(10)->get(['id', 'correct_answer']);
+        $paper = LevelUpExamPaper::firstOrCreate(
+            ['exam_id' => $exam->id],
+            ['title' => 'Demo Paper', 'is_active' => true, 'created_by' => $admin?->id]
+        );
+        if ($paper->items()->count() === 0) {
+            for ($i = 1; $i <= 10; $i++) {
+                LevelUpExamPaperItem::create([
+                    'paper_id' => $paper->id,
+                    'question_text' => "Demo question {$i}",
+                    'option_a' => '1', 'option_b' => '2', 'option_c' => '3', 'option_d' => '4',
+                    'correct_answer' => 'a',
+                    'sort_order' => $i,
+                ]);
+            }
+            $paper->update(['total_questions' => 10]);
+            $exam->update(['total_questions' => 10]);
+        }
+
+        $questions = $paper->items()->orderBy('sort_order')->limit(10)->get(['id', 'correct_answer']);
         if ($questions->isEmpty()) return;
 
         $correct = (int) round($pct / 10);

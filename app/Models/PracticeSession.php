@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PracticeSession extends Model
 {
     protected $fillable = [
-        'student_id', 'level_id', 'difficulty', 'total_questions',
+        'student_id', 'level_id', 'category_id', 'type_id', 'difficulty', 'total_questions',
         'questions_correct', 'accuracy', 'avg_speed_seconds', 'duration_minutes', 'completed_at',
     ];
 
@@ -26,5 +26,15 @@ class PracticeSession extends Model
     public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(RegularQuestionCategory::class, 'category_id');
+    }
+
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(RegularQuestionType::class, 'type_id');
     }
 }
