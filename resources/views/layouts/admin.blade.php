@@ -45,7 +45,10 @@
         <nav @click="sidebarOpen = false" class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
             <x-admin-nav-item route="admin.dashboard"          label="Dashboard"     icon="grid" />
             <x-admin-nav-item route="admin.franchises.index" label="Franchises"    icon="building" />
-            <x-admin-nav-item route="admin.questions.index"  label="Question Bank" icon="help-circle" />
+            <x-admin-nav-item route="admin.regular-questions.index"     label="Regular Questions"     icon="help-circle" />
+            <x-admin-nav-item route="admin.competition-questions.index" label="Competition Questions" icon="help-circle" />
+            <x-admin-nav-item route="admin.regular-practice-access.index"   label="Regular Practice Config"     icon="layers" />
+            <x-admin-nav-item route="admin.competition-practice-config.index" label="Competition Practice Config" icon="layers" />
             <x-admin-nav-item route="admin.levels.index"       label="Curriculum"      icon="layers" />
             <x-admin-nav-item route="admin.resources.index"   label="Resources"       icon="file-text" />
             <x-admin-nav-item route="admin.leaderboard"       label="Leaderboard"     icon="trophy" />
