@@ -22,7 +22,7 @@
             this.elapsed++;
             setTimeout(() => this.tick(), 1000);
         },
-        speak() { if (window.ApexSpeak) window.ApexSpeak.speak(this.questionText); },
+        speak(text) { if (window.ApexSpeak) window.ApexSpeak.speak(text); },
         get clock() { const m = Math.floor(this.elapsed/60), s = this.elapsed%60; return m+':'+(s<10?'0':'')+s; },
 
         // 1 Digit Popup — flash each term of the sum on its own, one at a
@@ -56,7 +56,9 @@
                 this.display = '= ?';
                 return;
             }
-            this.display = this.numericPart(this.terms[this.termIndex]);
+            const term = this.terms[this.termIndex];
+            this.display = this.numericPart(term);
+            this.speak(term);
             const flashMs = Math.max(400, this.flashSpeed * 1000);
             const gapMs = Math.min(260, flashMs * 0.18);
             this.flashTimer = setTimeout(() => {
@@ -67,7 +69,7 @@
                 }, gapMs);
             }, flashMs - gapMs);
         },
-     }" x-init="tick(); $nextTick(() => speak()); startFlash()">
+     }" x-init="tick(); startFlash()">
 
     {{-- Header --}}
     <div class="px-4 pt-5 pb-2 flex items-center gap-2">
@@ -110,7 +112,7 @@
     {{-- Calculate prompt --}}
     <div class="px-4 mt-5 flex items-center justify-between">
         <p class="text-sm text-gray-500">Calculate mentally :</p>
-        <button type="button" @click="speak(); startFlash()" aria-label="Replay"
+        <button type="button" @click="startFlash()" aria-label="Replay"
                 class="w-9 h-9 -mr-1 rounded-full bg-stu-light text-stu flex items-center justify-center text-lg active:scale-95">🔊</button>
     </div>
 
