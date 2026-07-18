@@ -58,29 +58,13 @@
                 </div>
 
                 <div class="flex items-center justify-between mt-5">
-                    <div></div>
+                    <button @click="confirmSubmit()" class="px-5 py-2 border border-green-600 text-green-600 rounded-xl text-sm font-semibold hover:bg-green-50">
+                        Submit
+                    </button>
                     <template x-if="currentIndex < questions.length - 1">
                         <button @click="next()" class="px-5 py-2 bg-fran text-white rounded-xl text-sm font-semibold">
                             Next →
                         </button>
-                    </template>
-                    <template x-if="currentIndex === questions.length - 1">
-                        <button @click="doSubmit()" class="px-5 py-2 bg-green-600 text-white rounded-xl text-sm font-semibold">
-                            Submit
-                        </button>
-                    </template>
-                </div>
-
-                <div class="flex flex-wrap gap-1.5 mt-4 justify-center">
-                    <template x-for="(q, i) in questions" :key="i">
-                        <button @click="currentIndex = i"
-                                class="w-7 h-7 rounded-lg text-xs font-bold"
-                                :class="{
-                                    'bg-fran text-white': i === currentIndex,
-                                    'bg-green-500 text-white': answers[q.id] && i !== currentIndex,
-                                    'bg-bg-mid text-gray-500': !answers[q.id] && i !== currentIndex
-                                }"
-                                x-text="i + 1"></button>
                     </template>
                 </div>
             </div>
@@ -142,6 +126,14 @@ function practiceEngine() {
 
         doSubmit() {
             document.getElementById('submitForm').submit();
+        },
+
+        confirmSubmit() {
+            const unanswered = this.questions.length - Object.keys(this.answers).length;
+            if (unanswered > 0 && !confirm(`You still have ${unanswered} unanswered question(s). Submit anyway?`)) {
+                return;
+            }
+            this.doSubmit();
         },
 
         // Render an arithmetic expression as a right-aligned vertical column
