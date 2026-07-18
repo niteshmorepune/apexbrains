@@ -16,13 +16,14 @@ class Student extends Model
         'franchise_id', 'user_id', 'student_code', 'student_type',
         'first_name', 'last_name', 'date_of_birth', 'gender', 'photo',
         'address', 'city', 'pincode', 'enrollment_date', 'is_active',
-        'current_level_id', 'notes',
+        'current_level_id', 'monthly_fee', 'notes',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
         'enrollment_date' => 'date',
         'is_active' => 'boolean',
+        'monthly_fee' => 'decimal:2',
     ];
 
     protected static function booted(): void

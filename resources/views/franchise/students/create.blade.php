@@ -20,7 +20,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="col-span-2">
         <form method="POST" action="{{ route('franchise.students.store') }}" enctype="multipart/form-data"
-              x-data="{ studentType: '{{ old('student_type', 'internal') }}', levelFee: 0 }">
+              x-data="{ studentType: '{{ old('student_type', 'internal') }}', levelFee: 0, monthlyFee: '{{ old('monthly_fee') }}', feeManuallyEdited: {{ old('monthly_fee') ? 'true' : 'false' }} }">
             @csrf
 
             {{-- Validation error summary --}}
@@ -161,7 +161,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign Level <span class="text-red-500">*</span></label>
                         <select name="current_level_id" required
-                                x-on:change="levelFee = $event.target.options[$event.target.selectedIndex].dataset.fee || 0"
+                                x-on:change="levelFee = $event.target.options[$event.target.selectedIndex].dataset.fee || 0; if (!feeManuallyEdited) monthlyFee = levelFee"
                                 class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="">Select Level</option>
                             @foreach($levels as $level)
@@ -175,8 +175,11 @@
                     </div>
                     <div x-show="studentType === 'internal'">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Monthly Fee (₹)</label>
-                        <input type="text" readonly :value="levelFee > 0 ? '₹' + Number(levelFee).toLocaleString('en-IN') : '— Select level —'"
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-bg-light text-gray-500 cursor-default">
+                        <input type="number" name="monthly_fee" x-model="monthlyFee" x-on:input="feeManuallyEdited = true" min="0" step="1"
+                               placeholder="Auto-filled from level — editable"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('monthly_fee') border-red-400 @enderror">
+                        <p class="text-xs text-gray-400 mt-1">Defaults to the level's fee — change it to set a custom rate for this student.</p>
+                        @error('monthly_fee')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                 </div>
             </div>

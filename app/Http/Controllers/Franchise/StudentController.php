@@ -108,6 +108,7 @@ class StudentController extends Controller
             'parent_whatsapp' => ['nullable', 'string', 'max:15'],
             'parent_email'  => ['nullable', 'email', 'max:150'],
             'current_level_id' => ['required', 'exists:levels,id'],
+            'monthly_fee'   => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ];
 
         if (! $isInternal) {
@@ -150,6 +151,7 @@ class StudentController extends Controller
                 'date_of_birth'    => $data['date_of_birth'],
                 'gender'           => $data['gender'],
                 'current_level_id' => $data['current_level_id'],
+                'monthly_fee'      => $isInternal ? ($data['monthly_fee'] ?? null) : null,
                 'enrollment_date'  => $data['enrollment_date'],
                 'address'          => $data['address'] ?? null,
                 'city'             => $data['city'] ?? null,

@@ -58,7 +58,9 @@ class MonthlyFeeService
 
     /**
      * Idempotently create a monthly fee for the given month (no duplicate per
-     * student + month). Amount comes from the student's current level.
+     * student + month). Amount is the student's own custom monthly_fee if
+     * set at registration (or since, e.g. a discounted rate), otherwise it
+     * falls back to the assigned level's default fee.
      */
     private function createFeeForMonth(Student $student, string $month, string $dueDate): ?Fee
     {
@@ -71,7 +73,7 @@ class MonthlyFeeService
             return null;
         }
 
-        $amount = (float) ($student->currentLevel->fee_per_month ?? 0);
+        $amount = (float) ($student->monthly_fee ?? $student->currentLevel->fee_per_month ?? 0);
 
         return Fee::create([
             'franchise_id' => $student->franchise_id,
