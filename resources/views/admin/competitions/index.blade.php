@@ -17,7 +17,7 @@
 {{-- Filters --}}
 <div class="bg-white rounded-2xl border border-border p-4 mb-4 flex items-center gap-3">
     <form method="GET" action="{{ route('admin.competitions.index') }}" class="flex items-center gap-3">
-        @foreach(['all' => 'All', 'local' => 'Local', 'regional' => 'Regional', 'national' => 'National'] as $val => $label)
+        @foreach(['all' => 'All', 'zonal' => 'Zonal', 'regional' => 'Regional', 'national' => 'National'] as $val => $label)
             <button type="submit" name="type" value="{{ $val === 'all' ? '' : $val }}"
                     class="px-4 py-2 rounded-xl text-sm font-medium transition-colors
                            {{ request('type', '') === ($val === 'all' ? '' : $val)
@@ -61,7 +61,7 @@
                     </td>
                     <td class="px-4 py-3 text-center">
                         @php
-                            $typeColor = ['local' => 'bg-stu-light text-stu-dark', 'regional' => 'bg-blue-50 text-fran', 'national' => 'bg-yellow-50 text-yellow-700'][$c->competition_type] ?? 'bg-bg-mid text-gray-600';
+                            $typeColor = ['zonal' => 'bg-stu-light text-stu-dark', 'regional' => 'bg-blue-50 text-fran', 'national' => 'bg-yellow-50 text-yellow-700'][$c->competition_type] ?? 'bg-bg-mid text-gray-600';
                         @endphp
                         <span class="text-xs px-2 py-0.5 rounded-full font-medium {{ $typeColor }} capitalize">
                             {{ $c->competition_type }}

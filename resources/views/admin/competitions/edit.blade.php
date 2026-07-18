@@ -29,7 +29,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Type <span class="text-red-500">*</span></label>
                             <select name="competition_type" required
                                     class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                                @foreach(['local', 'regional', 'national'] as $type)
+                                @foreach(['zonal', 'regional', 'national'] as $type)
                                     <option value="{{ $type }}" @selected(old('competition_type', $competition->competition_type) === $type)>
                                         {{ ucfirst($type) }}
                                     </option>

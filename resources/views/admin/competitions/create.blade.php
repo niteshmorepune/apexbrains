@@ -37,7 +37,7 @@
                             </label>
                             <select name="competition_type" required
                                     class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                                <option value="local"     @selected(old('competition_type') === 'local')>Local</option>
+                                <option value="zonal"     @selected(old('competition_type') === 'zonal')>Zonal</option>
                                 <option value="regional"  @selected(old('competition_type', 'regional') === 'regional')>Regional</option>
                                 <option value="national"  @selected(old('competition_type') === 'national')>National</option>
                             </select>
@@ -140,7 +140,7 @@
             <h3 class="text-sm font-bold mb-3">Competition Types</h3>
             <dl class="space-y-3 text-xs">
                 <div>
-                    <dt class="text-stu font-semibold">Local</dt>
+                    <dt class="text-stu font-semibold">Zonal</dt>
                     <dd class="text-gray-400 mt-0.5">Single franchise — internal students only</dd>
                 </div>
                 <div>
