@@ -23,7 +23,7 @@
                     @error('question_text')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Category <span class="text-red-500">*</span></label>
                         <select name="category_id" x-model="categoryId" required
@@ -50,15 +50,6 @@
                                 class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="mcq">MCQ</option>
                             <option value="audio">Audio</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Difficulty <span class="text-red-500">*</span></label>
-                        <select name="difficulty" required
-                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                            <option value="easy" @selected(old('difficulty') === 'easy')>Easy</option>
-                            <option value="medium" @selected(old('difficulty', 'medium') === 'medium')>Medium</option>
-                            <option value="hard" @selected(old('difficulty') === 'hard')>Hard</option>
                         </select>
                     </div>
                 </div>

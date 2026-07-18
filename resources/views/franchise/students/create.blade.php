@@ -154,13 +154,13 @@
                 </div>
             </div>
 
-            {{-- Course Enrollment (internal only) --}}
-            <div x-show="studentType === 'internal'" class="bg-white rounded-2xl border border-border p-6 mb-4">
-                <h2 class="text-sm font-bold text-fran mb-4">Course Enrollment</h2>
+            {{-- Level Assignment (both types — Competition Practice access is now Level-gated for external too) --}}
+            <div class="bg-white rounded-2xl border border-border p-6 mb-4">
+                <h2 class="text-sm font-bold text-fran mb-4">Level Assignment</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Assign Level <span class="text-red-500">*</span></label>
-                        <select name="current_level_id"
+                        <select name="current_level_id" required
                                 x-on:change="levelFee = $event.target.options[$event.target.selectedIndex].dataset.fee || 0"
                                 class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="">Select Level</option>
@@ -173,6 +173,18 @@
                         </select>
                         @error('current_level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
+                    <div x-show="studentType === 'internal'">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Monthly Fee (₹)</label>
+                        <input type="text" readonly :value="levelFee > 0 ? '₹' + Number(levelFee).toLocaleString('en-IN') : '— Select level —'"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-bg-light text-gray-500 cursor-default">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Course Enrollment (internal only) --}}
+            <div x-show="studentType === 'internal'" class="bg-white rounded-2xl border border-border p-6 mb-4">
+                <h2 class="text-sm font-bold text-fran mb-4">Course Enrollment</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Class Schedule</label>
                         <input type="text" name="class_schedule" value="{{ old('class_schedule') }}"
@@ -183,11 +195,6 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Start Date</label>
                         <input type="date" name="enrollment_date" value="{{ old('enrollment_date', now()->toDateString()) }}"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Monthly Fee (₹)</label>
-                        <input type="text" readonly :value="levelFee > 0 ? '₹' + Number(levelFee).toLocaleString('en-IN') : '— Select level —'"
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-bg-light text-gray-500 cursor-default">
                     </div>
                 </div>
             </div>

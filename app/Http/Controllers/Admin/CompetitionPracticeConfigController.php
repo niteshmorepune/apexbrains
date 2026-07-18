@@ -76,8 +76,8 @@ class CompetitionPracticeConfigController extends Controller
 
         $columns = ['level', 'category', 'type', 'question_count'];
         $samples = [
-            ['1', 'Without Partners', '1 Digit - 5 Rows', '100'],
-            ['2', 'Without Partners', '1 Digit - 5 Rows', '50'],
+            ['Junior 1', 'Without Partners', '1 Digit - 5 Rows', '100'],
+            ['Junior 2', 'Without Partners', '1 Digit - 5 Rows', '50'],
         ];
 
         return response()->stream(function () use ($columns, $samples) {

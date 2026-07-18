@@ -52,10 +52,10 @@ class RegularQuestionImportController extends Controller
             'Content-Disposition' => 'attachment; filename="regular-question-import-template.csv"',
         ];
 
-        $columns = ['category', 'type', 'question_text', 'answer_format', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty'];
+        $columns = ['category', 'type', 'question_text', 'answer_format', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer'];
         $samples = [
-            ['Without Partners', '1 Digit - 5 Rows', '2 + 3 + 1 + 4 + 2 = ?', 'mcq', '12', '13', '11', '14', 'a', 'easy'],
-            ['Grouping', '2 Digit - 5 Rows', 'Listen and write the sum', 'audio', '', '', '', '', '', 'medium'],
+            ['Without Partners', '1 Digit - 5 Rows', '2 + 3 + 1 + 4 + 2 = ?', 'mcq', '12', '13', '11', '14', 'a'],
+            ['Grouping', '2 Digit - 5 Rows', 'Listen and write the sum', 'audio', '', '', '', '', ''],
         ];
 
         return response()->stream(function () use ($columns, $samples) {

@@ -52,9 +52,9 @@ class CompetitionQuestionImportController extends Controller
             'Content-Disposition' => 'attachment; filename="competition-question-import-template.csv"',
         ];
 
-        $columns = ['category', 'type', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty'];
+        $columns = ['category', 'type', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer'];
         $samples = [
-            ['Without Partners', '1 Digit - 5 Rows', '2 + 3 + 1 + 4 + 2 = ?', '12', '13', '11', '14', 'a', 'easy'],
+            ['Without Partners', '1 Digit - 5 Rows', '2 + 3 + 1 + 4 + 2 = ?', '12', '13', '11', '14', 'a'],
         ];
 
         return response()->stream(function () use ($columns, $samples) {

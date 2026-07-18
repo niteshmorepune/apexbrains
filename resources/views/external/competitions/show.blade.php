@@ -89,7 +89,7 @@
         </div>
     @endif
 
-    <a href="{{ route('external.practice.index') }}" class="block w-full py-3.5 border border-fran text-fran rounded-2xl text-sm font-bold text-center">Practice from Question Bank</a>
+    <a href="{{ route('external.practice.index') }}" class="block w-full py-3.5 border border-fran text-fran rounded-2xl text-sm font-bold text-center">Competition Practice</a>
     <a href="{{ route('external.competitions.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">Go Back</a>
 
 </div>

@@ -11,8 +11,8 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 /**
- * Columns: category, type, question_text, option_a..d, correct_answer,
- * difficulty. No answer_format — the Competition bank is MCQ-only. Unknown
+ * Columns: category, type, question_text, option_a..d, correct_answer.
+ * No answer_format — the Competition bank is MCQ-only. Unknown
  * category/type is a row-level error, never auto-created.
  */
 class CompetitionQuestionBankImport implements ToCollection, WithHeadingRow
@@ -66,12 +66,6 @@ class CompetitionQuestionBankImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            $difficulty = strtolower(trim((string) ($row['difficulty'] ?? 'medium'))) ?: 'medium';
-            if (! in_array($difficulty, ['easy', 'medium', 'hard'], true)) {
-                $this->errors[] = "Row {$line}: difficulty must be easy, medium or hard.";
-                continue;
-            }
-
             $optionA = trim((string) ($row['option_a'] ?? '')) ?: null;
             $optionB = trim((string) ($row['option_b'] ?? '')) ?: null;
             $optionC = trim((string) ($row['option_c'] ?? '')) ?: null;
@@ -101,7 +95,6 @@ class CompetitionQuestionBankImport implements ToCollection, WithHeadingRow
                 'option_c' => $optionC,
                 'option_d' => $optionD,
                 'correct_answer' => $correct,
-                'difficulty' => $difficulty,
                 'status' => 'approved',
                 'approved_by' => $userId,
                 'approved_at' => $now,

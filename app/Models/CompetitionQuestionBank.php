@@ -13,7 +13,7 @@ class CompetitionQuestionBank extends Model
     protected $fillable = [
         'category_id', 'type_id', 'question_text',
         'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer',
-        'difficulty', 'status', 'source_file', 'imported_at', 'approved_by', 'approved_at',
+        'status', 'source_file', 'imported_at', 'approved_by', 'approved_at',
     ];
 
     protected $casts = [

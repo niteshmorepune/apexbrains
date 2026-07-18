@@ -27,7 +27,6 @@
     @endif
 
     <dl class="grid grid-cols-2 gap-3 text-xs text-gray-500 border-t border-border pt-4">
-        <div><dt class="font-medium text-gray-400">Difficulty</dt><dd class="text-gray-700 capitalize">{{ $question->difficulty }}</dd></div>
         <div><dt class="font-medium text-gray-400">Status</dt><dd class="text-gray-700 capitalize">{{ $question->status }}</dd></div>
         <div><dt class="font-medium text-gray-400">Approved by</dt><dd class="text-gray-700">{{ $question->approvedBy?->name ?? '—' }}</dd></div>
         <div><dt class="font-medium text-gray-400">Approved at</dt><dd class="text-gray-700">{{ $question->approved_at?->format('d M Y') ?? '—' }}</dd></div>

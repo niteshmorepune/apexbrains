@@ -68,8 +68,8 @@ class RegularPracticeAccessController extends Controller
 
         $columns = ['level', 'category', 'type'];
         $samples = [
-            ['1', 'Without Partners', '1 Digit - 5 Rows'],
-            ['1', 'Without Partners', '1 Digit - 8 Rows'],
+            ['Junior 1', 'Without Partners', '1 Digit - 5 Rows'],
+            ['Junior 1', 'Without Partners', '1 Digit - 8 Rows'],
         ];
 
         return response()->stream(function () use ($columns, $samples) {

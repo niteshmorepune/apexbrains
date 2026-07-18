@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 /**
  * Columns: category, type, question_text, answer_format, option_a..d,
- * correct_answer, difficulty. No `level` column — questions are never tied
+ * correct_answer. No `level` column — questions are never tied
  * to a level directly. category/type must already exist in the taxonomy;
  * unknown values are a row-level error, never auto-created (a typo must
  * surface, not silently pollute the taxonomy).
@@ -74,12 +74,6 @@ class RegularQuestionBankImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            $difficulty = strtolower(trim((string) ($row['difficulty'] ?? 'medium'))) ?: 'medium';
-            if (! in_array($difficulty, ['easy', 'medium', 'hard'], true)) {
-                $this->errors[] = "Row {$line}: difficulty must be easy, medium or hard.";
-                continue;
-            }
-
             $optionA = trim((string) ($row['option_a'] ?? '')) ?: null;
             $optionB = trim((string) ($row['option_b'] ?? '')) ?: null;
             $optionC = trim((string) ($row['option_c'] ?? '')) ?: null;
@@ -114,7 +108,6 @@ class RegularQuestionBankImport implements ToCollection, WithHeadingRow
                 'option_c' => $optionC,
                 'option_d' => $optionD,
                 'correct_answer' => $correct,
-                'difficulty' => $difficulty,
                 'status' => 'approved',
                 'approved_by' => $userId,
                 'approved_at' => $now,

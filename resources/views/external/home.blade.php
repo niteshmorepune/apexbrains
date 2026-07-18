@@ -58,21 +58,21 @@
     </div>
 
     {{-- Recent Activity --}}
-    @if($recentSessions->isNotEmpty())
+    @if($recentAttempts->isNotEmpty())
         <div>
             <div class="flex items-center justify-between mb-2">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Recent Activity</p>
                 <a href="{{ route('external.results') }}" class="text-xs font-semibold text-fran">View All</a>
             </div>
             <div class="bg-white rounded-2xl border border-border divide-y divide-border overflow-hidden">
-                @foreach($recentSessions as $s)
+                @foreach($recentAttempts as $a)
                     <div class="px-4 py-3 flex items-center gap-3">
                         <span class="w-2.5 h-2.5 rounded-full bg-fran flex-shrink-0"></span>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate">{{ ucfirst($s->difficulty ?? 'Mixed') }} Practice</p>
-                            <p class="text-xs text-gray-400">{{ $s->completed_at?->diffForHumans() }}</p>
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ $a->level?->title }} Competition Practice</p>
+                            <p class="text-xs text-gray-400">{{ $a->submitted_at?->diffForHumans() }}</p>
                         </div>
-                        <span class="text-sm font-bold text-fran">{{ number_format($s->accuracy ?? 0, 0) }}%</span>
+                        <span class="text-sm font-bold text-fran">{{ number_format($a->percentage ?? 0, 0) }}%</span>
                     </div>
                 @endforeach
             </div>

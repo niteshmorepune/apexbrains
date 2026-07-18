@@ -132,7 +132,6 @@ class RegularQuestionBankController extends Controller
             'option_c' => ['nullable', 'string', 'max:500'],
             'option_d' => ['nullable', 'string', 'max:500'],
             'correct_answer' => ['nullable', 'in:A,B,C,D,a,b,c,d'],
-            'difficulty' => ['required', 'in:easy,medium,hard'],
         ]);
     }
 }

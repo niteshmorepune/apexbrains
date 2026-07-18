@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\External;
 
 use App\Http\Controllers\Controller;
-use App\Models\PracticeSession;
+use App\Models\CompetitionPracticeAttempt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -13,14 +13,15 @@ class HomeController extends Controller
     {
         $student = Auth::user()->student()->first();
 
-        $recentSessions = $student
-            ? PracticeSession::where('student_id', $student->id)
-                ->whereNotNull('completed_at')
-                ->latest('completed_at')
+        $recentAttempts = $student
+            ? CompetitionPracticeAttempt::where('student_id', $student->id)
+                ->whereNotNull('submitted_at')
+                ->with('level')
+                ->latest('submitted_at')
                 ->limit(3)
                 ->get()
             : collect();
 
-        return view('external.home', compact('student', 'recentSessions'));
+        return view('external.home', compact('student', 'recentAttempts'));
     }
 }

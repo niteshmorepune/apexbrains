@@ -62,7 +62,7 @@ class PracticeController extends Controller
             (int) $data['category_id'],
             (int) $data['type_id'],
             (int) $data['count'],
-            ['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty']
+            ['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer']
         );
 
         if ($questions->isEmpty()) {

@@ -13,7 +13,7 @@ class RegularQuestionBank extends Model
     protected $fillable = [
         'category_id', 'type_id', 'question_text', 'answer_format',
         'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer',
-        'difficulty', 'status', 'audio_file_path', 'source_file',
+        'status', 'audio_file_path', 'source_file',
         'imported_at', 'approved_by', 'approved_at',
     ];
 

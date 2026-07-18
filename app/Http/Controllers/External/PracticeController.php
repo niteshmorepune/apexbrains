@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\External;
 
 use App\Http\Controllers\Controller;
-use App\Models\Level;
-use App\Models\PracticeSession;
-use App\Services\CompetitionQuestionPoolService;
+use App\Models\CompetitionPracticeAttempt;
+use App\Models\CompetitionPracticeConfig;
+use App\Models\CompetitionPracticeLevel;
+use App\Models\CompetitionQuestionBank;
+use App\Services\CompetitionPracticeGenerator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,192 +16,181 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 /**
- * External competition practice. External students have no curriculum level,
- * so questions are drawn randomly from the Competition Question Bank (across
- * all categories/types) by difficulty — matches CLAUDE.md's framing of
- * External as the "competition-only" portal.
+ * External Competition Practice — same mechanics as Student\CompetitionPracticeController:
+ * the student's assigned Level determines the whole auto-generated question set via
+ * competition_practice_configs, with no manual category/type/difficulty picking.
  */
 class PracticeController extends Controller
 {
-    public function __construct(private CompetitionQuestionPoolService $pool)
+    public function __construct(private CompetitionPracticeGenerator $generator)
     {
     }
 
     public function index(): View
     {
-        $student = Auth::user()->student()->first();
+        $student = Auth::user()->student()->with('currentLevel')->firstOrFail();
 
-        $pastSessions = $student
-            ? PracticeSession::where('student_id', $student->id)
-                ->latest()
-                ->limit(10)
-                ->get()
-            : collect();
+        $totalQuestions = $student->current_level_id
+            ? CompetitionPracticeConfig::where('level_id', $student->current_level_id)->sum('question_count')
+            : 0;
 
-        return view('external.practice.index', compact('student', 'pastSessions'));
+        $durationMinutes = $student->current_level_id
+            ? (CompetitionPracticeLevel::where('level_id', $student->current_level_id)->value('duration_minutes') ?? 10)
+            : 10;
+
+        $pastAttempts = CompetitionPracticeAttempt::where('student_id', $student->id)
+            ->whereNotNull('submitted_at')
+            ->with('level')
+            ->latest('submitted_at')
+            ->limit(10)
+            ->get();
+
+        return view('external.practice.index', compact('student', 'totalQuestions', 'durationMinutes', 'pastAttempts'));
     }
 
     public function start(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'difficulty' => ['nullable', 'in:easy,medium,hard,all'],
-            'count'      => ['required', 'integer', 'min:5', 'max:100'],
-        ]);
+        $student = Auth::user()->student()->firstOrFail();
 
-        $student    = Auth::user()->student()->firstOrFail();
-        $difficulty = $data['difficulty'] ?? null;
+        if (! $student->current_level_id) {
+            return back()->with('error', 'Your level has not been set yet. Please contact your branch.');
+        }
 
-        $questions = $this->pool->randomAny(
-            $data['count'],
-            $difficulty,
-            ['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'difficulty']
-        );
+        $questions = $this->generator->generateForLevel($student->current_level_id);
 
         if ($questions->isEmpty()) {
-            return back()->withErrors(['difficulty' => 'No questions available for this difficulty yet.']);
+            return back()->with('error', 'No practice questions are ready for your level yet. Please contact your branch.');
         }
 
-        // practice_sessions.level_id is NOT NULL; external students have no level,
-        // so record the session against the first curriculum level as a placeholder.
-        $placeholderLevel = Level::orderBy('number')->value('id');
-
-        $session = PracticeSession::create([
-            'student_id'       => $student->id,
-            'level_id'         => $placeholderLevel,
-            'difficulty'       => $difficulty === 'all' ? null : $difficulty,
-            'total_questions'  => $questions->count(),
-            'duration_minutes' => 10,
+        $attempt = CompetitionPracticeAttempt::create([
+            'level_id' => $student->current_level_id,
+            'question_ids' => $questions->pluck('id')->values()->all(),
+            'student_id' => $student->id,
+            'started_at' => now(),
+            'status' => 'in_progress',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
 
-        Cache::put("practice_{$session->id}_questions", $questions->values()->toArray(), now()->addHours(2));
-        Cache::put("practice_{$session->id}_index", 0, now()->addHours(2));
-        Cache::put("practice_{$session->id}_answers", [], now()->addHours(2));
+        Cache::put("cp_attempt_{$attempt->id}_answers", [], now()->addHours(3));
 
-        return redirect()->route('external.practice.session', $session);
+        return redirect()->route('external.practice.attempt', $attempt);
     }
 
-    public function session(PracticeSession $session): View|RedirectResponse
+    public function attempt(CompetitionPracticeAttempt $attempt): View|RedirectResponse
     {
         $student = Auth::user()->student()->firstOrFail();
+        abort_unless($attempt->student_id === $student->id, 403);
 
-        if ($session->student_id !== $student->id) {
-            abort(403);
+        if ($attempt->status !== 'in_progress') {
+            return redirect()->route('external.practice.result', $attempt);
         }
 
-        if ($session->completed_at) {
-            return redirect()->route('external.practice.results', $session);
+        $questionIds = $attempt->question_ids ?? [];
+
+        $questions = CompetitionQuestionBank::whereIn('id', $questionIds)
+            ->get(['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d'])
+            ->sortBy(fn ($q) => array_search($q->id, $questionIds))
+            ->values();
+
+        $savedAnswers = Cache::get("cp_attempt_{$attempt->id}_answers", []);
+
+        $durationMinutes = CompetitionPracticeLevel::where('level_id', $attempt->level_id)->value('duration_minutes') ?? 10;
+        $durationSeconds = $durationMinutes * 60;
+        $elapsed = (int) now()->diffInSeconds($attempt->started_at, true);
+        $remaining = max(0, $durationSeconds - $elapsed);
+
+        if ($remaining === 0) {
+            return $this->doSubmit($attempt, $questions);
         }
 
-        $questions = Cache::get("practice_{$session->id}_questions", []);
-        $index     = Cache::get("practice_{$session->id}_index", 0);
-        $answered  = Cache::get("practice_{$session->id}_answers", []);
-
-        if (empty($questions) || $index >= count($questions) || count($answered) >= count($questions)) {
-            return $this->finalize($session, $student);
-        }
-
-        $question   = $questions[$index];
-        $totalCount = count($questions);
-
-        return view('external.practice.session', compact('session', 'question', 'index', 'totalCount', 'answered'));
+        return view('external.practice.attempt', compact(
+            'attempt', 'questions', 'savedAnswers', 'elapsed', 'remaining'
+        ));
     }
 
-    public function answer(Request $request, PracticeSession $session): RedirectResponse
+    public function saveAnswer(Request $request, CompetitionPracticeAttempt $attempt): JsonResponse
     {
         $student = Auth::user()->student()->firstOrFail();
+        abort_unless($attempt->student_id === $student->id, 403);
 
-        if ($session->student_id !== $student->id) {
-            abort(403);
-        }
-
-        $data = $request->validate(['answer' => ['required', 'in:a,b,c,d']]);
-
-        $questions = Cache::get("practice_{$session->id}_questions", []);
-        $index     = Cache::get("practice_{$session->id}_index", 0);
-        $answers   = Cache::get("practice_{$session->id}_answers", []);
-
-        if (isset($questions[$index])) {
-            $q = $questions[$index];
-            $answers[$index] = [
-                'selected'   => $data['answer'],
-                'correct'    => strtolower($q['correct_answer']),
-                'is_correct' => strtolower($data['answer']) === strtolower($q['correct_answer']),
-            ];
-            Cache::put("practice_{$session->id}_answers", $answers, now()->addHours(2));
-            Cache::put("practice_{$session->id}_index", $index + 1, now()->addHours(2));
-        }
-
-        if ($index + 1 >= count($questions)) {
-            return $this->finalize($session, $student);
-        }
-
-        return redirect()->route('external.practice.session', $session);
-    }
-
-    public function submit(Request $request, PracticeSession $session): RedirectResponse
-    {
-        $student = Auth::user()->student()->firstOrFail();
-
-        if ($session->student_id !== $student->id) {
-            abort(403);
-        }
-
-        return $this->finalize($session, $student);
-    }
-
-    private function finalize(PracticeSession $session, $student): RedirectResponse
-    {
-        if ($session->completed_at) {
-            return redirect()->route('external.practice.results', $session);
-        }
-
-        $questions = Cache::get("practice_{$session->id}_questions", []);
-        $answers   = Cache::get("practice_{$session->id}_answers", []);
-
-        $correct  = collect($answers)->where('is_correct', true)->count();
-        $total    = count($questions);
-        $accuracy = $total > 0 ? round(($correct / $total) * 100, 2) : 0;
-
-        $session->update([
-            'questions_correct' => $correct,
-            'accuracy'          => $accuracy,
-            'completed_at'      => now(),
+        $data = $request->validate([
+            'question_id' => ['required', 'integer'],
+            'selected_answer' => ['required', 'in:a,b,c,d'],
         ]);
 
-        Cache::forget("practice_{$session->id}_questions");
-        Cache::forget("practice_{$session->id}_index");
-        Cache::forget("practice_{$session->id}_answers");
+        $answers = Cache::get("cp_attempt_{$attempt->id}_answers", []);
+        $answers[$data['question_id']] = $data['selected_answer'];
+        Cache::put("cp_attempt_{$attempt->id}_answers", $answers, now()->addHours(3));
 
-        return redirect()->route('external.practice.results', $session);
+        return response()->json(['saved' => true]);
     }
 
-    public function results(PracticeSession $session): View
+    public function submit(Request $request, CompetitionPracticeAttempt $attempt): RedirectResponse
     {
         $student = Auth::user()->student()->firstOrFail();
+        abort_unless($attempt->student_id === $student->id, 403);
 
-        if ($session->student_id !== $student->id) {
-            abort(403);
+        $questions = CompetitionQuestionBank::whereIn('id', $attempt->question_ids ?? [])->get(['id', 'correct_answer']);
+
+        return $this->doSubmit($attempt, $questions);
+    }
+
+    private function doSubmit(CompetitionPracticeAttempt $attempt, $questions): RedirectResponse
+    {
+        if ($attempt->status === 'submitted') {
+            return redirect()->route('external.practice.result', $attempt);
         }
 
-        $durationSec = $session->created_at && $session->completed_at
-            ? $session->completed_at->diffInSeconds($session->created_at, true) : 0;
-        $avgSpeed = $session->total_questions > 0 ? round($durationSec / $session->total_questions, 1) : null;
+        $answers = Cache::get("cp_attempt_{$attempt->id}_answers", []);
+        $correct = 0;
 
-        return view('external.practice.results', compact('session', 'avgSpeed'));
+        foreach ($questions as $q) {
+            if (isset($answers[$q->id]) && strtolower($answers[$q->id]) === strtolower($q->correct_answer)) {
+                $correct++;
+            }
+        }
+
+        $total = count($attempt->question_ids ?? []);
+        $pct = $total > 0 ? round(($correct / $total) * 100, 2) : 0;
+
+        $attempt->update([
+            'score' => $correct,
+            'percentage' => $pct,
+            'status' => 'submitted',
+            'submitted_at' => now(),
+        ]);
+
+        Cache::forget("cp_attempt_{$attempt->id}_answers");
+
+        return redirect()->route('external.practice.result', $attempt);
+    }
+
+    public function result(CompetitionPracticeAttempt $attempt): View
+    {
+        $student = Auth::user()->student()->firstOrFail();
+        abort_unless($attempt->student_id === $student->id, 403);
+
+        $attempt->load('level');
+
+        $questions = CompetitionQuestionBank::whereIn('id', $attempt->question_ids ?? [])->get();
+
+        return view('external.practice.result', compact('attempt', 'questions'));
     }
 
     public function history(): View
     {
         $student = Auth::user()->student()->firstOrFail();
 
-        $sessions = PracticeSession::where('student_id', $student->id)
-            ->whereNotNull('completed_at')
-            ->latest('completed_at')
+        $attempts = CompetitionPracticeAttempt::where('student_id', $student->id)
+            ->whereNotNull('submitted_at')
+            ->with('level')
+            ->latest('submitted_at')
             ->paginate(20);
 
-        $avgScore  = (float) (PracticeSession::where('student_id', $student->id)->whereNotNull('completed_at')->avg('accuracy') ?? 0);
-        $totalDone = PracticeSession::where('student_id', $student->id)->whereNotNull('completed_at')->count();
+        $avgScore  = (float) (CompetitionPracticeAttempt::where('student_id', $student->id)->whereNotNull('submitted_at')->avg('percentage') ?? 0);
+        $totalDone = CompetitionPracticeAttempt::where('student_id', $student->id)->whereNotNull('submitted_at')->count();
 
-        return view('external.results', compact('student', 'sessions', 'avgScore', 'totalDone'));
+        return view('external.results', compact('student', 'attempts', 'avgScore', 'totalDone'));
     }
 }

@@ -7,7 +7,6 @@ use App\Models\RegularPracticeAccess;
 use App\Models\RegularQuestionCategory;
 use App\Models\RegularQuestionType;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -24,7 +23,8 @@ class RegularPracticeAccessImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows): void
     {
-        $levelMap = Level::pluck('id', 'number');
+        $levelByNumber = Level::pluck('id', 'number');
+        $levelByTitle = Level::get()->mapWithKeys(fn ($level) => [strtolower($level->title) => $level->id]);
         $batch = [];
         $now = now();
 
@@ -39,8 +39,9 @@ class RegularPracticeAccessImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            $levelNumber = (int) $levelRaw;
-            if (! $levelMap->has($levelNumber)) {
+            $levelId = $levelByTitle->get(strtolower($levelRaw))
+                ?? (ctype_digit($levelRaw) ? $levelByNumber->get((int) $levelRaw) : null);
+            if (! $levelId) {
                 $this->errors[] = "Row {$line}: level '{$levelRaw}' does not exist.";
                 continue;
             }
@@ -60,7 +61,7 @@ class RegularPracticeAccessImport implements ToCollection, WithHeadingRow
             }
 
             $batch[] = [
-                'level_id' => $levelMap->get($levelNumber),
+                'level_id' => $levelId,
                 'type_id' => $type->id,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -72,11 +73,14 @@ class RegularPracticeAccessImport implements ToCollection, WithHeadingRow
             return;
         }
 
-        DB::transaction(function () use ($batch) {
-            RegularPracticeAccess::truncate();
-            foreach (array_chunk($batch, 500) as $chunk) {
-                RegularPracticeAccess::insert($chunk);
-            }
-        });
+        // A plain delete, not truncate() — Excel::import() already wraps this
+        // whole collection() call in a transaction (see config/excel.php's
+        // transaction handler), and MySQL's TRUNCATE is an implicit commit
+        // that breaks that surrounding transaction ("There is no active
+        // transaction" on the next statement, despite the import succeeding).
+        RegularPracticeAccess::query()->delete();
+        foreach (array_chunk($batch, 500) as $chunk) {
+            RegularPracticeAccess::insert($chunk);
+        }
     }
 }

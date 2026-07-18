@@ -118,6 +118,12 @@
                             @if($s->student_type === 'internal')
                                 <a href="{{ route('franchise.promotions.index') }}" class="text-xs text-fran hover:underline">Promote</a>
                             @endif
+                            <form method="POST" action="{{ route('franchise.students.destroy', $s) }}"
+                                  onsubmit="return confirm('Delete {{ $s->full_name }}? This removes them from your roster.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
+                            </form>
                         </div>
                     </td>
                 </tr>

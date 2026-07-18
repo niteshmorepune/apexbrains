@@ -106,11 +106,10 @@ class StudentController extends Controller
             'parent_phone'  => ['required', 'string', 'max:15'],
             'parent_whatsapp' => ['nullable', 'string', 'max:15'],
             'parent_email'  => ['nullable', 'email', 'max:150'],
+            'current_level_id' => ['required', 'exists:levels,id'],
         ];
 
-        if ($isInternal) {
-            $rules['current_level_id'] = ['required', 'exists:levels,id'];
-        } else {
+        if (! $isInternal) {
             $rules['competition_id']    = ['nullable', 'exists:competitions,id'];
             $rules['registration_fee']  = ['nullable', 'numeric', 'min:0'];
         }
@@ -149,7 +148,7 @@ class StudentController extends Controller
                 'photo'            => $photoPath,
                 'date_of_birth'    => $data['date_of_birth'],
                 'gender'           => $data['gender'],
-                'current_level_id' => $isInternal ? ($data['current_level_id'] ?? null) : null,
+                'current_level_id' => $data['current_level_id'],
                 'enrollment_date'  => $data['enrollment_date'],
                 'address'          => $data['address'] ?? null,
                 'city'             => $data['city'] ?? null,
@@ -295,11 +294,11 @@ class StudentController extends Controller
 
     public function destroy(Student $student): RedirectResponse
     {
-        $student->update(['is_active' => false]);
-        AuditLogger::log('student_deactivated', 'Student', $student->id);
+        AuditLogger::log('student_deleted', 'Student', $student->id);
+        $student->delete();
 
         return redirect()->route('franchise.students.index')
-            ->with('success', 'Student deactivated.');
+            ->with('success', 'Student deleted.');
     }
 
     public function importPage(): \Illuminate\View\View

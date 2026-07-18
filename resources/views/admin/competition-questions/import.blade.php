@@ -63,7 +63,6 @@
                 <li><span class="font-semibold text-gray-700">question_text</span> — required</li>
                 <li><span class="font-semibold text-gray-700">option_a … option_d</span> — required</li>
                 <li><span class="font-semibold text-gray-700">correct_answer</span> — a, b, c or d</li>
-                <li><span class="font-semibold text-gray-700">difficulty</span> — easy, medium or hard (default medium)</li>
             </ul>
         </div>
     </div>

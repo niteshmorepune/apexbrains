@@ -64,7 +64,6 @@
                 <li><span class="font-semibold text-gray-700">answer_format</span> — mcq or audio (default mcq)</li>
                 <li><span class="font-semibold text-gray-700">option_a … option_d</span> — MCQ choices</li>
                 <li><span class="font-semibold text-gray-700">correct_answer</span> — a, b, c or d (MCQ only)</li>
-                <li><span class="font-semibold text-gray-700">difficulty</span> — easy, medium or hard (default medium)</li>
             </ul>
         </div>
         <div class="bg-white rounded-2xl border border-border p-5">

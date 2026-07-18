@@ -7,7 +7,6 @@ use App\Models\CompetitionQuestionCategory;
 use App\Models\CompetitionQuestionType;
 use App\Models\Level;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -23,7 +22,8 @@ class CompetitionPracticeConfigImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows): void
     {
-        $levelMap = Level::pluck('id', 'number');
+        $levelByNumber = Level::pluck('id', 'number');
+        $levelByTitle = Level::get()->mapWithKeys(fn ($level) => [strtolower($level->title) => $level->id]);
         $batch = [];
         $now = now();
 
@@ -39,8 +39,9 @@ class CompetitionPracticeConfigImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            $levelNumber = (int) $levelRaw;
-            if (! $levelMap->has($levelNumber)) {
+            $levelId = $levelByTitle->get(strtolower($levelRaw))
+                ?? (ctype_digit($levelRaw) ? $levelByNumber->get((int) $levelRaw) : null);
+            if (! $levelId) {
                 $this->errors[] = "Row {$line}: level '{$levelRaw}' does not exist.";
                 continue;
             }
@@ -66,7 +67,7 @@ class CompetitionPracticeConfigImport implements ToCollection, WithHeadingRow
             }
 
             $batch[] = [
-                'level_id' => $levelMap->get($levelNumber),
+                'level_id' => $levelId,
                 'category_id' => $category->id,
                 'type_id' => $type->id,
                 'question_count' => $count,
@@ -81,11 +82,14 @@ class CompetitionPracticeConfigImport implements ToCollection, WithHeadingRow
             return;
         }
 
-        DB::transaction(function () use ($batch) {
-            CompetitionPracticeConfig::truncate();
-            foreach (array_chunk($batch, 500) as $chunk) {
-                CompetitionPracticeConfig::insert($chunk);
-            }
-        });
+        // A plain delete, not truncate() — Excel::import() already wraps this
+        // whole collection() call in a transaction (see config/excel.php's
+        // transaction handler), and MySQL's TRUNCATE is an implicit commit
+        // that breaks that surrounding transaction ("There is no active
+        // transaction" on the next statement, despite the import succeeding).
+        CompetitionPracticeConfig::query()->delete();
+        foreach (array_chunk($batch, 500) as $chunk) {
+            CompetitionPracticeConfig::insert($chunk);
+        }
     }
 }

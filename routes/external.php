@@ -8,15 +8,15 @@ Route::prefix('external')->name('external.')->middleware(['auth', 'external.stud
     // Help Guide
     Route::view('help', 'external.help')->name('help');
 
-    // Practice — random questions generated from the Question Bank (by difficulty)
+    // Competition Practice — auto-generated per the student's assigned Level, same as internal
     Route::get('practice', [\App\Http\Controllers\External\PracticeController::class, 'index'])->name('practice.index');
     Route::post('practice/start', [\App\Http\Controllers\External\PracticeController::class, 'start'])->name('practice.start');
-    Route::get('practice/{session}', [\App\Http\Controllers\External\PracticeController::class, 'session'])->name('practice.session');
-    Route::post('practice/{session}/answer', [\App\Http\Controllers\External\PracticeController::class, 'answer'])->name('practice.answer');
-    Route::post('practice/{session}/submit', [\App\Http\Controllers\External\PracticeController::class, 'submit'])->name('practice.submit');
-    Route::get('practice/{session}/results', [\App\Http\Controllers\External\PracticeController::class, 'results'])->name('practice.results');
+    Route::get('practice/{attempt}', [\App\Http\Controllers\External\PracticeController::class, 'attempt'])->name('practice.attempt');
+    Route::post('practice/{attempt}/answer', [\App\Http\Controllers\External\PracticeController::class, 'saveAnswer'])->name('practice.answer');
+    Route::post('practice/{attempt}/submit', [\App\Http\Controllers\External\PracticeController::class, 'submit'])->name('practice.submit');
+    Route::get('practice/{attempt}/result', [\App\Http\Controllers\External\PracticeController::class, 'result'])->name('practice.result');
 
-    // Results (past practice sessions)
+    // Results (past practice attempts)
     Route::get('results', [\App\Http\Controllers\External\PracticeController::class, 'history'])->name('results');
 
     // Competitions — external students can now sit them in-app
