@@ -34,13 +34,17 @@
     </div>
 @endif
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Registrations</p>
         <p class="text-2xl font-bold text-fran">{{ $competition->registrations_count }}</p>
         @if($competition->max_participants)
             <p class="text-xs text-gray-400 mt-1">of {{ $competition->max_participants }} max</p>
         @endif
+    </div>
+    <div class="bg-white rounded-2xl border border-border p-5">
+        <p class="text-xs text-gray-500 mb-1">Submitted Attempts</p>
+        <p class="text-2xl font-bold text-admin">{{ $attempts->count() }}</p>
     </div>
     <div class="bg-white rounded-2xl border border-border p-5">
         <p class="text-xs text-gray-500 mb-1">Entry Fee</p>
@@ -112,6 +116,54 @@
                                 <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
                             </form>
                         </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table></div>
+    @endif
+</div>
+
+{{-- Results declaration --}}
+<div class="bg-white rounded-2xl border border-border p-6 mt-4">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-admin">Results</h2>
+        @if($competition->results_declared_at)
+            <span class="text-xs font-medium text-stu bg-stu-light px-3 py-1.5 rounded-full">
+                Declared {{ $competition->results_declared_at->format('d M Y, g:i A') }}
+            </span>
+        @elseif($attempts->isNotEmpty())
+            <form method="POST" action="{{ route('admin.competitions.declare-results', $competition) }}"
+                  onsubmit="return confirm('Declare results for {{ $attempts->count() }} submitted attempt(s)? Students will immediately see their score, rank, and certificate. This cannot be undone.');">
+                @csrf
+                <button type="submit" class="inline-flex items-center gap-2 bg-stu text-white text-xs font-semibold px-3 py-2 rounded-xl hover:bg-stu-dark transition-colors">
+                    Declare Results
+                </button>
+            </form>
+        @endif
+    </div>
+
+    @if($attempts->isEmpty())
+        <p class="text-sm text-gray-400 py-6 text-center">No submitted attempts yet.</p>
+    @else
+        @unless($competition->results_declared_at)
+            <p class="text-xs text-gray-500 mb-3">Students see only a "submitted successfully" message until you declare results.</p>
+        @endunless
+        <div class="overflow-x-auto"><table class="w-full min-w-[480px] text-sm">
+            <thead>
+                <tr class="border-b border-border text-left text-xs text-gray-500">
+                    <th class="py-2 pr-4 font-semibold">Rank</th>
+                    <th class="py-2 px-4 font-semibold">Student</th>
+                    <th class="py-2 px-4 font-semibold text-center">Score</th>
+                    <th class="py-2 pl-4 font-semibold text-center">Submitted</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+                @foreach($attempts as $i => $attempt)
+                    <tr>
+                        <td class="py-3 pr-4 font-semibold text-admin">#{{ $i + 1 }}</td>
+                        <td class="py-3 px-4 text-gray-700">{{ $attempt->student?->full_name ?? '—' }}</td>
+                        <td class="py-3 px-4 text-center font-medium text-gray-700">{{ number_format($attempt->percentage, 0) }}%</td>
+                        <td class="py-3 pl-4 text-center text-gray-500">{{ $attempt->submitted_at?->format('d M Y, g:i A') }}</td>
                     </tr>
                 @endforeach
             </tbody>

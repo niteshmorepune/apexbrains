@@ -7,7 +7,6 @@ use App\Models\Competition;
 use App\Models\CompetitionExamAttempt;
 use App\Models\CompetitionQuestionPaper;
 use App\Models\CompetitionRegistration;
-use App\Services\CertificateIssuer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -188,14 +187,32 @@ class CompetitionController extends Controller
             ->latest('submitted_at')
             ->first();
 
-        $certificate = \App\Models\Certificate::where('student_id', $student->id)
-            ->where('competition_id', $competition->id)
-            ->where('type', 'competition')
-            ->where('is_revoked', false)
-            ->latest()
-            ->first();
+        $certificate = null;
+        $rank = null;
 
-        return view('external.competitions.result', compact('competition', 'attempt', 'certificate'));
+        // Score, rank, and the participation certificate only surface once the
+        // admin has declared results for this competition.
+        if ($attempt && $competition->results_declared_at) {
+            $certificate = \App\Models\Certificate::where('student_id', $student->id)
+                ->where('competition_id', $competition->id)
+                ->where('type', 'competition')
+                ->where('is_revoked', false)
+                ->latest()
+                ->first();
+
+            $rank = CompetitionExamAttempt::where('competition_id', $competition->id)
+                ->where('status', 'submitted')
+                ->where(function ($q) use ($attempt) {
+                    $q->where('percentage', '>', $attempt->percentage)
+                      ->orWhere(function ($q2) use ($attempt) {
+                          $q2->where('percentage', $attempt->percentage)
+                             ->where('submitted_at', '<', $attempt->submitted_at);
+                      });
+                })
+                ->count() + 1;
+        }
+
+        return view('external.competitions.result', compact('competition', 'attempt', 'certificate', 'rank'));
     }
 
     /**
@@ -245,12 +262,8 @@ class CompetitionController extends Controller
 
         Cache::forget("ext_comp_{$attempt->id}_answers");
 
-        $student = $attempt->student;
-        if ($student && $attempt->competition) {
-            app(CertificateIssuer::class)->issueForCompetition(
-                $student, $attempt->competition, $student->user_id
-            );
-        }
+        // Certificate issuance now happens when the admin declares results
+        // (Admin\CompetitionController::declareResults), not at submit time.
 
         return redirect()->route('external.competitions.result', $attempt->competition_id);
     }

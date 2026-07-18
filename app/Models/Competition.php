@@ -12,6 +12,7 @@ class Competition extends Model
         'franchise_id', 'title', 'description', 'competition_type',
         'start_date', 'end_date', 'registration_deadline', 'max_participants',
         'fee_amount', 'is_active', 'is_open_to_external', 'created_by',
+        'results_declared_at',
     ];
 
     protected $casts = [
@@ -21,6 +22,7 @@ class Competition extends Model
         'fee_amount' => 'decimal:2',
         'is_active' => 'boolean',
         'is_open_to_external' => 'boolean',
+        'results_declared_at' => 'datetime',
     ];
 
     public function franchise(): BelongsTo
@@ -41,5 +43,10 @@ class Competition extends Model
     public function questionPapers(): HasMany
     {
         return $this->hasMany(CompetitionQuestionPaper::class);
+    }
+
+    public function examAttempts(): HasMany
+    {
+        return $this->hasMany(CompetitionExamAttempt::class);
     }
 }

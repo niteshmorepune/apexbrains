@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
+use App\Models\CompetitionExamAttempt;
 use App\Services\AuditLogger;
+use App\Services\CertificateIssuer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,7 +63,43 @@ class CompetitionController extends Controller
         $competition->loadCount('registrations');
         $competition->load(['questionPapers' => fn ($q) => $q->with('level')->withCount('items')->orderBy('level_id')]);
 
-        return view('admin.competitions.show', compact('competition'));
+        $attempts = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('status', 'submitted')
+            ->with('student')
+            ->orderByDesc('percentage')
+            ->orderBy('submitted_at')
+            ->get();
+
+        return view('admin.competitions.show', compact('competition', 'attempts'));
+    }
+
+    public function declareResults(Competition $competition): RedirectResponse
+    {
+        if ($competition->results_declared_at) {
+            return back()->with('error', 'Results have already been declared for this competition.');
+        }
+
+        $attempts = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('status', 'submitted')
+            ->with('student')
+            ->get();
+
+        if ($attempts->isEmpty()) {
+            return back()->with('error', 'No submitted attempts yet — nothing to declare.');
+        }
+
+        $competition->update(['results_declared_at' => now()]);
+
+        $issuer = app(CertificateIssuer::class);
+        foreach ($attempts as $attempt) {
+            if ($attempt->student) {
+                $issuer->issueForCompetition($attempt->student, $competition, Auth::id());
+            }
+        }
+
+        AuditLogger::log('competition_results_declared', 'Competition', $competition->id);
+
+        return back()->with('success', "Results declared for {$attempts->count()} student(s). Certificates issued.");
     }
 
     public function edit(Competition $competition): View

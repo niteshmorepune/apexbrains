@@ -70,6 +70,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('competitions/{competition}/papers/create', [\App\Http\Controllers\Admin\CompetitionQuestionPaperController::class, 'create'])->name('competitions.papers.create');
         Route::post('competitions/{competition}/papers', [\App\Http\Controllers\Admin\CompetitionQuestionPaperController::class, 'store'])->name('competitions.papers.store');
         Route::delete('competitions/{competition}/papers/{paper}', [\App\Http\Controllers\Admin\CompetitionQuestionPaperController::class, 'destroy'])->name('competitions.papers.destroy');
+        Route::post('competitions/{competition}/declare-results', [\App\Http\Controllers\Admin\CompetitionController::class, 'declareResults'])->name('competitions.declare-results');
         Route::resource('competitions', \App\Http\Controllers\Admin\CompetitionController::class);
 
         // Exams (authored centrally by Admin, global to all franchises)
