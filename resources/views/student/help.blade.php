@@ -25,7 +25,7 @@
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
                 <p>Tap <strong>Practice</strong> in the bottom menu, then pick a type: <em>Regular Practice</em> or <em>Competition Practice</em>.</p>
-                <p><strong>Regular Practice:</strong> pick a category, then a type within it (only the ones unlocked for your level appear), then how many questions (10 / 20 / 30) — your session starts right away. Numbers appear large on screen for mental-math drills, and you can tap the 🔊 speaker to hear the sum read aloud.</p>
+                <p><strong>Regular Practice:</strong> pick a category, then a type within it (only the ones unlocked for your level appear), then a <em>Popup Speed</em> — how long each number stays on screen — then how many questions (10 / 20 / 30) and your session starts right away. Each sum is shown one number at a time (the <em>1 Digit Popup</em>), with the voice reading that same number out loud the instant it appears — tap the 🔊 speaker to replay a question from the start.</p>
                 <p><strong>Competition Practice:</strong> no picking at all — tap Start and your full question set is generated automatically to match your level, with a countdown timer.</p>
                 <p>One question shows at a time. Tap your answer to move to the next.</p>
                 <p>After each session you'll see your accuracy, average speed (Regular Practice), or score and time (Competition Practice).</p>

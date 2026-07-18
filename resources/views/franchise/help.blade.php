@@ -91,6 +91,7 @@
                 <p><span class="font-semibold text-gray-700">Run the player:</span> Open a session → <strong>Project</strong> opens the flashcard player. Each question's numbers flash <em>one at a time</em> (abacus style); the speaker icon replays the audio and the pause icon holds the flow. Use <strong>Restart Question</strong> to replay, <strong>Next Question</strong> to advance, and <strong>End Practice</strong> to finish.</p>
                 <p><span class="font-semibold text-gray-700">After completion:</span> a <em>Well Done</em> screen shows the questions covered and level. From there use <strong>Replay Same Set</strong> (same questions again), <strong>New Practice</strong> (fresh questions, same category/type/settings), or <strong>Return to Setup</strong>. (It is a teacher-led drill, so no per-student score is recorded.)</p>
                 <p><span class="font-semibold text-gray-700">Filter:</span> use the level tabs on the Sessions list to view sessions for a specific level.</p>
+                <p><span class="font-semibold text-gray-700">Delete a session:</span> use the <strong>Delete</strong> button on a session row (or <strong>Delete Session</strong> on its detail page) to permanently remove it, including its questions and any recorded result.</p>
             </div>
         </div>
 

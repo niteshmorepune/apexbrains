@@ -24,8 +24,8 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'practice' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'practice'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
-                <p>The <strong>Practice</strong> tile generates a fresh set of questions from the Competition Question Bank each time. Pick a difficulty (Easy / Medium / Hard / Mixed) and the session starts immediately.</p>
-                <p>Each session is timed. Tap the 🔊 speaker to hear the sum read aloud. Answer each question to move to the next; the timer runs across the whole session and doesn't reset per question.</p>
+                <p>The <strong>Practice</strong> tile generates your full question set automatically to match your assigned Level — no picking a difficulty or count, just tap Start. (If you don't have a Level yet, ask your institute/centre to assign one.)</p>
+                <p>Each session has a countdown timer set for your Level. Tap the 🔊 speaker to hear the sum read aloud. Answer each question to move to the next; the timer runs across the whole session and doesn't reset per question, and auto-submits when time runs out.</p>
                 <p>After submitting you'll see your accuracy and average speed. Your past sessions are listed under <em>Results</em>.</p>
             </div>
         </div>
