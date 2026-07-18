@@ -86,6 +86,7 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
             Route::get('{session}/results', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'results'])->name('results');
             Route::post('{session}/replay', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'replay'])->name('replay');
             Route::post('{session}/again', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'again'])->name('again');
+            Route::delete('{session}', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'destroy'])->name('destroy');
         });
     });
 });

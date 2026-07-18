@@ -110,6 +110,12 @@
                     @endif
                     <a href="{{ route('franchise.class-practice.show', $session) }}"
                        class="text-xs text-gray-400 hover:text-gray-600">View</a>
+                    <form method="POST" action="{{ route('franchise.class-practice.destroy', $session) }}"
+                          onsubmit="return confirm('Delete this class practice session? This cannot be undone.');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
+                    </form>
                 </div>
             </div>
         @empty

@@ -91,6 +91,17 @@
                     </a>
                 </div>
             @endif
+
+            <div class="mt-3 pt-3 border-t border-border">
+                <form method="POST" action="{{ route('franchise.class-practice.destroy', $session) }}"
+                      onsubmit="return confirm('Delete this class practice session? This cannot be undone.');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="block w-full text-center py-2.5 border border-red-200 text-red-500 rounded-xl text-sm font-semibold hover:bg-red-50">
+                        Delete Session
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

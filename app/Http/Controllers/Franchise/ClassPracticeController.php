@@ -245,6 +245,16 @@ class ClassPracticeController extends Controller
         return view('franchise.class-practice.results', compact('session'));
     }
 
+    public function destroy(ClassPracticeSession $session): RedirectResponse
+    {
+        AuditLogger::log('class_practice_deleted', 'ClassPracticeSession', $session->id);
+
+        $session->delete();
+
+        return redirect()->route('franchise.class-practice.index')
+            ->with('success', 'Class practice session deleted.');
+    }
+
     /**
      * Replay the exact same question set (same order) as a fresh session,
      * preserving the completed session as history.
