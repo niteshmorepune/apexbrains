@@ -25,7 +25,12 @@ class CompetitionRegistrationController extends Controller
                 $q->whereNull('franchise_id')
                   ->orWhere('franchise_id', $franchiseId);
             })
-            ->with(['registrations.student'])
+            // A global competition can be registered into by many franchises —
+            // each franchise must only see its own registrations/count, never
+            // another franchise's students.
+            ->with(['registrations' => function ($q) use ($franchiseId) {
+                $q->where('franchise_id', $franchiseId)->with('student');
+            }])
             ->orderByDesc('start_date')
             ->get();
 
