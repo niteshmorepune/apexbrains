@@ -54,7 +54,7 @@
                                 <div class="flex-1 min-w-0">
                                     <p class="font-bold text-gray-800 text-sm">{{ $exam->title }}</p>
                                     <p class="text-xs text-gray-400 mt-0.5">
-                                        @if($exam->scheduled_at){{ $exam->scheduled_at->format('d M Y · g:i A') }} · @endif{{ $exam->total_questions }} Questions
+                                        @if($exam->scheduled_at){{ $exam->scheduled_at_ist->format('d M Y · g:i A') }} · @endif{{ $exam->total_questions }} Questions
                                     </p>
                                 </div>
                                 <span class="text-[11px] bg-bg-mid text-gray-500 px-2.5 py-1 rounded-full font-medium flex-shrink-0">Registered</span>

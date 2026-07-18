@@ -41,7 +41,7 @@
                     <td class="px-5 py-3">
                         <p class="font-medium text-admin">{{ $exam->title }}</p>
                         @if($exam->scheduled_at)
-                            <p class="text-xs text-gray-400">{{ $exam->scheduled_at->format('d M Y, H:i') }}</p>
+                            <p class="text-xs text-gray-400">{{ $exam->scheduled_at_ist->format('d M Y, H:i') }}</p>
                         @endif
                     </td>
                     <td class="px-4 py-3 text-center text-gray-600">Level {{ $exam->level?->number }}</td>

@@ -30,10 +30,10 @@
                 <div class="flex justify-between"><span class="text-gray-500">Max Attempts</span><span class="font-medium">{{ $exam->max_attempts ?? 'Unlimited' }}</span></div>
                 <div class="flex justify-between"><span class="text-gray-500">Audience</span><span class="font-medium">{{ $exam->franchise_id ? 'Single franchise' : 'All franchises' }}</span></div>
                 @if($exam->scheduled_at)
-                    <div class="flex justify-between"><span class="text-gray-500">Scheduled</span><span class="font-medium text-fran">{{ $exam->scheduled_at->format('d M Y, H:i') }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500">Scheduled</span><span class="font-medium text-fran">{{ $exam->scheduled_at_ist->format('d M Y, H:i') }}</span></div>
                 @endif
                 @if($exam->expires_at)
-                    <div class="flex justify-between"><span class="text-gray-500">Expires</span><span class="font-medium">{{ $exam->expires_at->format('d M Y') }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500">Expires</span><span class="font-medium">{{ $exam->expires_at_ist->format('d M Y') }}</span></div>
                 @endif
                 <div class="flex justify-between">
                     <span class="text-gray-500">Status</span>

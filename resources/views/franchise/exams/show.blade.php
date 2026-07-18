@@ -41,13 +41,13 @@
                 @if($exam->scheduled_at)
                     <div class="flex justify-between">
                         <span class="text-gray-500">Scheduled</span>
-                        <span class="font-medium text-fran">{{ $exam->scheduled_at->format('d M Y, H:i') }}</span>
+                        <span class="font-medium text-fran">{{ $exam->scheduled_at_ist->format('d M Y, H:i') }}</span>
                     </div>
                 @endif
                 @if($exam->expires_at)
                     <div class="flex justify-between">
                         <span class="text-gray-500">Expires</span>
-                        <span class="font-medium">{{ $exam->expires_at->format('d M Y') }}</span>
+                        <span class="font-medium">{{ $exam->expires_at_ist->format('d M Y') }}</span>
                     </div>
                 @endif
                 <div class="flex justify-between">

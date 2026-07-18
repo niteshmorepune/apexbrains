@@ -23,7 +23,7 @@
                         @if($exam->max_attempts) · Max {{ $exam->max_attempts }} attempts @endif
                     </p>
                     @if($exam->scheduled_at)
-                        <p class="text-xs text-fran mt-0.5">{{ $exam->scheduled_at->format('d M Y, H:i') }}</p>
+                        <p class="text-xs text-fran mt-0.5">{{ $exam->scheduled_at_ist->format('d M Y, H:i') }}</p>
                     @endif
                 </div>
 

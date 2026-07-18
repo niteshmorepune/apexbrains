@@ -99,7 +99,7 @@ class ExamController extends Controller
 
     private function validateExam(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title'            => ['required', 'string', 'max:150'],
             'level_id'         => ['required', 'exists:levels,id'],
             'duration_minutes' => ['required', 'integer', 'min:5', 'max:180'],
@@ -109,5 +109,17 @@ class ExamController extends Controller
             'expires_at'       => ['nullable', 'date', 'after:scheduled_at'],
             'description'      => ['nullable', 'string', 'max:500'],
         ]);
+
+        // The datetime-local inputs carry no timezone — the admin enters IST
+        // wall-clock time, but the app stores/compares in UTC. Convert here
+        // so scheduled_at/expires_at are true UTC instants, not IST numbers
+        // mislabeled as UTC (which silently pushed "now open" ~5.5h late).
+        foreach (['scheduled_at', 'expires_at'] as $field) {
+            if (! empty($data[$field])) {
+                $data[$field] = \Illuminate\Support\Carbon::parse($data[$field], 'Asia/Kolkata')->setTimezone('UTC');
+            }
+        }
+
+        return $data;
     }
 }

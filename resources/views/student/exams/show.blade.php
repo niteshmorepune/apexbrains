@@ -12,8 +12,8 @@
         <p class="font-black text-gray-900 text-lg mt-1">{{ $exam->title }}</p>
         <div class="flex items-center justify-center gap-3 text-xs text-gray-500 mt-2">
             @if($exam->scheduled_at)
-                <span>📅 {{ $exam->scheduled_at->format('d M Y') }}</span>
-                <span>🕐 {{ $exam->scheduled_at->format('g:i A') }}</span>
+                <span>📅 {{ $exam->scheduled_at_ist->format('d M Y') }}</span>
+                <span>🕐 {{ $exam->scheduled_at_ist->format('g:i A') }}</span>
             @endif
         </div>
         <p class="text-xs text-gray-400 mt-1">Scheduled by: <span class="font-semibold text-gray-600">{{ $exam->franchise?->name ?? 'Apex Brains Academy' }}</span></p>
@@ -70,7 +70,7 @@
     @elseif($exam->scheduled_at && $exam->scheduled_at->isFuture())
         <div class="bg-amber-50 border border-amber-200 rounded-2xl py-4 px-5 text-center">
             <p class="text-sm font-bold text-amber-700">Exam Not Started Yet</p>
-            <p class="text-xs text-amber-600 mt-1">Opens on {{ $exam->scheduled_at->format('d M Y \a\t g:i A') }}</p>
+            <p class="text-xs text-amber-600 mt-1">Opens on {{ $exam->scheduled_at_ist->format('d M Y \a\t g:i A') }}</p>
         </div>
     @elseif($canAttempt)
         <form method="POST" action="{{ route('student.exams.start', $exam) }}">

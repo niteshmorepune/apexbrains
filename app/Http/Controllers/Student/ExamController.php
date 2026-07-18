@@ -96,7 +96,7 @@ class ExamController extends Controller
             ->count();
 
         if ($exam->scheduled_at && $exam->scheduled_at->isFuture()) {
-            return back()->with('error', 'This exam has not started yet. It opens on ' . $exam->scheduled_at->format('d M Y \a\t g:i A') . '.');
+            return back()->with('error', 'This exam has not started yet. It opens on ' . $exam->scheduled_at_ist->format('d M Y \a\t g:i A') . '.');
         }
 
         if ($exam->max_attempts && $attemptCount >= $exam->max_attempts) {

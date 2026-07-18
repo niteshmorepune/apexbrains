@@ -60,9 +60,9 @@
                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Scheduled Date/Time</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Scheduled Date/Time (IST)</label>
                     <input type="datetime-local" name="scheduled_at"
-                           value="{{ old('scheduled_at', $exam->scheduled_at?->format('Y-m-d\TH:i')) }}"
+                           value="{{ old('scheduled_at', $exam->scheduled_at_ist?->format('Y-m-d\TH:i')) }}"
                            class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                 </div>
             </div>
@@ -70,7 +70,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Expires At</label>
                 <input type="datetime-local" name="expires_at"
-                       value="{{ old('expires_at', $exam->expires_at?->format('Y-m-d\TH:i')) }}"
+                       value="{{ old('expires_at', $exam->expires_at_ist?->format('Y-m-d\TH:i')) }}"
                        class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
             </div>
 

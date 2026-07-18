@@ -57,4 +57,20 @@ class Exam extends Model
     {
         return $this->hasOne(LevelUpExamPaper::class)->where('is_active', true)->latestOfMany();
     }
+
+    /**
+     * scheduled_at/expires_at are stored as true UTC instants, but the admin
+     * form (and every student/franchise/admin display) works in IST — the
+     * app runs on config('app.timezone')=UTC, so display code must convert
+     * explicitly rather than printing the raw UTC-labeled value.
+     */
+    public function getScheduledAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->scheduled_at?->copy()->timezone('Asia/Kolkata');
+    }
+
+    public function getExpiresAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->expires_at?->copy()->timezone('Asia/Kolkata');
+    }
 }
