@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class FranchiseController extends Controller
@@ -56,7 +57,11 @@ class FranchiseController extends Controller
         $data = $request->validate([
             'name'                 => ['required', 'string', 'max:150'],
             'owner_name'           => ['required', 'string', 'max:100'],
-            'email'                => ['required', 'email', 'unique:franchises,email', 'unique:users,email'],
+            'email'                => [
+                'required', 'email',
+                Rule::unique('franchises', 'email')->whereNull('deleted_at'),
+                Rule::unique('users', 'email')->whereNull('deleted_at'),
+            ],
             'phone'                => ['required', 'string', 'max:15'],
             'whatsapp'             => ['nullable', 'string', 'max:15'],
             'address'              => ['required', 'string', 'max:300'],
@@ -74,11 +79,16 @@ class FranchiseController extends Controller
 
         $data['status'] = 'pending';
         $data['slug'] = Str::slug($data['name']) . '-' . Str::random(4);
+        // withTrashed() — both franchise_code and franchise_number are unique
+        // at the DB level, and a soft-deleted franchise still occupies its
+        // value. Scoping the count/max to active rows only would regenerate
+        // a value that collides with a deleted franchise's row and 500 on
+        // every subsequent creation attempt.
         $data['franchise_code'] = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $data['name']), 0, 3))
             . '-' . strtoupper(substr($data['city'], 0, 3))
-            . '-' . str_pad(Franchise::count() + 1, 3, '0', STR_PAD_LEFT);
+            . '-' . str_pad(Franchise::withTrashed()->count() + 1, 3, '0', STR_PAD_LEFT);
         // Sequential 2-digit franchise number used in the 8-digit student ID (YY+FF+SSSS).
-        $data['franchise_number'] = (Franchise::max('franchise_number') ?? 0) + 1;
+        $data['franchise_number'] = (Franchise::withTrashed()->max('franchise_number') ?? 0) + 1;
 
         $franchise = Franchise::create($data);
 
@@ -180,7 +190,7 @@ class FranchiseController extends Controller
         $data = $request->validate([
             'name'       => ['required', 'string', 'max:150'],
             'owner_name' => ['required', 'string', 'max:100'],
-            'email'      => ['required', 'email', 'unique:franchises,email,' . $franchise->id],
+            'email'      => ['required', 'email', Rule::unique('franchises', 'email')->ignore($franchise->id)->whereNull('deleted_at')],
             'phone'      => ['required', 'string', 'max:15'],
             'whatsapp'   => ['nullable', 'string', 'max:15'],
             'address'    => ['required', 'string', 'max:300'],
