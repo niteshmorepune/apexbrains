@@ -29,9 +29,10 @@ class ExamController extends Controller
                 $q->whereNull('level_id')
                   ->orWhere('level_id', $student->current_level_id);
             })
-            ->where(function ($q) {
-                $q->whereNull('scheduled_at')->orWhere('scheduled_at', '>=', now());
-            })
+            // Deliberately NOT filtering out already-started exams here —
+            // scheduled_at is an OPEN time, not a visibility cutoff. An exam
+            // that has already opened must stay visible (and attemptable)
+            // until it expires; only expires_at should remove it from the list.
             ->where(function ($q) {
                 $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
             })
