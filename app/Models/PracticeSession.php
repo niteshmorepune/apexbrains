@@ -9,10 +9,12 @@ class PracticeSession extends Model
 {
     protected $fillable = [
         'student_id', 'level_id', 'category_id', 'type_id', 'difficulty', 'total_questions',
-        'questions_correct', 'accuracy', 'avg_speed_seconds', 'duration_minutes', 'completed_at',
+        'flash_speed_seconds', 'questions_correct', 'accuracy', 'avg_speed_seconds',
+        'duration_minutes', 'completed_at',
     ];
 
     protected $casts = [
+        'flash_speed_seconds' => 'float',
         'accuracy' => 'decimal:2',
         'avg_speed_seconds' => 'decimal:2',
         'completed_at' => 'datetime',

@@ -12,13 +12,62 @@
         selected: null,
         elapsed: {{ $elapsedSeconds }},
         questionText: @js($question['question_text']),
+        flashSpeed: {{ (float) ($session->flash_speed_seconds ?? 2) }},
+        terms: [],
+        termIndex: 0,
+        display: '',
+        finished: false,
+        flashTimer: null,
         tick() {
             this.elapsed++;
             setTimeout(() => this.tick(), 1000);
         },
         speak() { if (window.ApexSpeak) window.ApexSpeak.speak(this.questionText); },
-        get clock() { const m = Math.floor(this.elapsed/60), s = this.elapsed%60; return m+':'+(s<10?'0':'')+s; }
-     }" x-init="tick(); $nextTick(() => speak())">
+        get clock() { const m = Math.floor(this.elapsed/60), s = this.elapsed%60; return m+':'+(s<10?'0':'')+s; },
+
+        // 1 Digit Popup — flash each term of the sum on its own, one at a
+        // time, instead of showing the whole vertical sum at once.
+        parseTerms(text) {
+            if (!text) return [];
+            const cleaned = String(text).replace(/=\s*\?|\?/g, '');
+            const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '-': '−', '–': '−' };
+            const re = /([+\-−–×xX*÷/])?\s*(\d+(?:\.\d+)?)/g;
+            const out = []; let m, first = true;
+            while ((m = re.exec(cleaned)) !== null) {
+                let op = m[1] || '';
+                if (op && opMap[op]) op = opMap[op];
+                out.push(first && !op ? m[2] : (op || '+') + m[2]);
+                first = false;
+            }
+            return out.length ? out : [String(text).trim()];
+        },
+        numericPart(term) { return String(term).replace(/^[+\-−–×xX*÷/]\s*/, '').trim(); },
+        startFlash() {
+            clearTimeout(this.flashTimer);
+            this.terms = this.parseTerms(this.questionText);
+            this.termIndex = 0;
+            this.finished = false;
+            this.showTerm();
+        },
+        showTerm() {
+            clearTimeout(this.flashTimer);
+            if (this.termIndex >= this.terms.length) {
+                this.finished = true;
+                this.display = '= ?';
+                return;
+            }
+            this.display = this.numericPart(this.terms[this.termIndex]);
+            const flashMs = Math.max(400, this.flashSpeed * 1000);
+            const gapMs = Math.min(260, flashMs * 0.18);
+            this.flashTimer = setTimeout(() => {
+                this.display = '';
+                this.flashTimer = setTimeout(() => {
+                    this.termIndex++;
+                    this.showTerm();
+                }, gapMs);
+            }, flashMs - gapMs);
+        },
+     }" x-init="tick(); $nextTick(() => speak()); startFlash()">
 
     {{-- Header --}}
     <div class="px-4 pt-5 pb-2 flex items-center gap-2">
@@ -61,14 +110,14 @@
     {{-- Calculate prompt --}}
     <div class="px-4 mt-5 flex items-center justify-between">
         <p class="text-sm text-gray-500">Calculate mentally :</p>
-        <button type="button" @click="speak()" aria-label="Play audio"
+        <button type="button" @click="speak(); startFlash()" aria-label="Replay"
                 class="w-9 h-9 -mr-1 rounded-full bg-stu-light text-stu flex items-center justify-center text-lg active:scale-95">🔊</button>
     </div>
 
-    {{-- Big number display --}}
+    {{-- Popup display — one number at a time --}}
     <div class="px-4 mt-3">
         <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[180px] flex items-center justify-center">
-            <x-sum-vertical :text="$question['question_text']" :size="40" />
+            <p class="font-mono font-black text-gray-900 tabular-nums" style="font-size: 56px;" x-text="display"></p>
         </div>
     </div>
 

@@ -8,6 +8,7 @@
         categories: @js($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'types' => $c->types->map(fn($t) => ['id' => $t->id, 'name' => $t->name])])),
         categoryId: null,
         typeId: null,
+        flashSpeed: '2',
         get selectedCategory() { return this.categories.find(c => c.id === this.categoryId) || null; },
         get selectedType() {
             const cat = this.selectedCategory;
@@ -93,20 +94,32 @@
 
                 {{-- Count step — tapping starts the session immediately --}}
                 <template x-if="step === 'count'">
-                    <div class="space-y-3">
-                        <p class="text-sm text-gray-500">Choose number of questions.</p>
-                        <form method="POST" action="{{ route('student.practice.start') }}" class="space-y-3">
-                            @csrf
-                            <input type="hidden" name="category_id" :value="categoryId">
-                            <input type="hidden" name="type_id" :value="typeId">
-                            @foreach([10, 20, 30] as $count)
-                                <button type="submit" name="count" value="{{ $count }}"
-                                        class="w-full bg-white rounded-2xl border border-border p-4 flex items-center justify-between text-left">
-                                    <p class="font-bold text-gray-800">{{ $count }} Questions</p>
-                                    <svg class="w-5 h-5 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                </button>
-                            @endforeach
-                        </form>
+                    <div class="space-y-5">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-2">Popup speed — how long each number flashes.</p>
+                            <select x-model="flashSpeed"
+                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stu">
+                                @foreach(['3' => '3 Sec', '2.5' => '2.5 Sec', '2' => '2 Sec', '1.5' => '1.5 Sec', '1' => '1 Sec', '0.5' => '0.5 Sec'] as $val => $label)
+                                    <option value="{{ $val }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="space-y-3">
+                            <p class="text-sm text-gray-500">Choose number of questions.</p>
+                            <form method="POST" action="{{ route('student.practice.start') }}" class="space-y-3">
+                                @csrf
+                                <input type="hidden" name="category_id" :value="categoryId">
+                                <input type="hidden" name="type_id" :value="typeId">
+                                <input type="hidden" name="flash_speed_seconds" :value="flashSpeed">
+                                @foreach([10, 20, 30] as $count)
+                                    <button type="submit" name="count" value="{{ $count }}"
+                                            class="w-full bg-white rounded-2xl border border-border p-4 flex items-center justify-between text-left">
+                                        <p class="font-bold text-gray-800">{{ $count }} Questions</p>
+                                        <svg class="w-5 h-5 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </button>
+                                @endforeach
+                            </form>
+                        </div>
                     </div>
                 </template>
 
