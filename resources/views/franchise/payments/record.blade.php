@@ -22,8 +22,9 @@
             'type'     => $f->fee_type,
             'due'      => round((float) $f->amount - (float) $f->paid_amount, 2),
             'due_date' => $f->due_date?->format('d M Y'),
-            'label'    => ($f->fee_type === 'competition_registration' ? 'Competition Registration' : 'Monthly Fee')
-                          . ' — ' . $f->month?->format('M Y'),
+            'label'    => $f->fee_type === 'competition_registration'
+                          ? 'Competition Registration — ' . ($f->competitionRegistration?->competition?->title ?? $f->month?->format('M Y'))
+                          : 'Monthly Fee — ' . $f->month?->format('M Y'),
         ])->values(),
     ])->values()->toJson() }},
     studentId: '{{ $selectedStudent?->id ?? '' }}',

@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Fee extends Model
 {
     protected $fillable = [
-        'franchise_id', 'student_id', 'level_id', 'student_type', 'amount',
-        'month', 'due_date', 'status', 'paid_amount', 'fee_type',
+        'franchise_id', 'student_id', 'level_id', 'competition_registration_id', 'student_type',
+        'amount', 'month', 'due_date', 'status', 'paid_amount', 'fee_type',
     ];
 
     protected $casts = [
@@ -39,6 +39,11 @@ class Fee extends Model
     public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class);
+    }
+
+    public function competitionRegistration(): BelongsTo
+    {
+        return $this->belongsTo(CompetitionRegistration::class);
     }
 
     public function payments(): HasMany

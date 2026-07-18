@@ -170,8 +170,9 @@ class StudentController extends Controller
             ]);
 
             // External: link to competition
+            $competitionRegistration = null;
             if (!$isInternal && !empty($data['competition_id'])) {
-                CompetitionRegistration::create([
+                $competitionRegistration = CompetitionRegistration::create([
                     'competition_id'    => $data['competition_id'],
                     'student_id'        => $student->id,
                     'franchise_id'      => $franchiseId,
@@ -188,6 +189,7 @@ class StudentController extends Controller
                     'franchise_id' => $franchiseId,
                     'student_id'   => $student->id,
                     'level_id'     => null,
+                    'competition_registration_id' => $competitionRegistration?->id,
                     'student_type' => 'external',
                     'amount'       => $data['registration_fee'],
                     'month'        => now()->startOfMonth()->toDateString(),

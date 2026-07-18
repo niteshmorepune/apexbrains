@@ -7,6 +7,7 @@ use App\Models\Competition;
 use App\Models\CompetitionRegistration;
 use App\Models\Student;
 use App\Services\AuditLogger;
+use App\Services\CompetitionRegistrationFeeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,10 @@ use Illuminate\View\View;
 
 class CompetitionRegistrationController extends Controller
 {
+    public function __construct(private CompetitionRegistrationFeeService $feeService)
+    {
+    }
+
     public function index(): View
     {
         $franchiseId = Auth::user()->franchise_id;
@@ -84,7 +89,7 @@ class CompetitionRegistrationController extends Controller
             }
         }
 
-        CompetitionRegistration::create([
+        $registration = CompetitionRegistration::create([
             'competition_id'    => $competition->id,
             'student_id'        => $student->id,
             'franchise_id'      => $franchiseId,
@@ -94,6 +99,8 @@ class CompetitionRegistrationController extends Controller
             'registered_by'     => Auth::id(),
             'status'            => 'registered',
         ]);
+
+        $this->feeService->createFeeFor($registration, $competition);
 
         AuditLogger::log('competition_student_registered', 'CompetitionRegistration', $competition->id);
 

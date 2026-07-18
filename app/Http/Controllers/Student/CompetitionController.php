@@ -7,6 +7,7 @@ use App\Models\Competition;
 use App\Models\CompetitionExamAttempt;
 use App\Models\CompetitionQuestionPaper;
 use App\Models\CompetitionRegistration;
+use App\Services\CompetitionRegistrationFeeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,10 @@ use Illuminate\View\View;
 
 class CompetitionController extends Controller
 {
+    public function __construct(private CompetitionRegistrationFeeService $feeService)
+    {
+    }
+
     public function index(): View
     {
         $student = Auth::user()->student()->firstOrFail();
@@ -251,7 +256,7 @@ class CompetitionController extends Controller
             return back()->with('error', 'You are already registered.');
         }
 
-        CompetitionRegistration::create([
+        $registration = CompetitionRegistration::create([
             'competition_id'    => $competition->id,
             'student_id'        => $student->id,
             'franchise_id'      => $student->franchise_id,
@@ -261,6 +266,8 @@ class CompetitionController extends Controller
             'registration_date' => now()->toDateString(),
             'registered_by'     => Auth::id(),
         ]);
+
+        $this->feeService->createFeeFor($registration, $competition);
 
         return back()->with('success', "Registered for {$competition->title}!");
     }

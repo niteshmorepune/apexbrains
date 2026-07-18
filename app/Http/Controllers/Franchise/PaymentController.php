@@ -62,6 +62,13 @@ class PaymentController extends Controller
         // fee forward automatically so collection continues without manual setup.
         if ($isFullyPaid) {
             app(\App\Services\MonthlyFeeService::class)->createNextMonthFee($fee->fresh());
+
+            // A competition registration fee, once fully paid, flips the
+            // registration's own status so its "Payment Pending" badge clears.
+            if ($fee->fee_type === 'competition_registration' && $fee->competition_registration_id) {
+                \App\Models\CompetitionRegistration::where('id', $fee->competition_registration_id)
+                    ->update(['payment_status' => 'paid', 'payment_id' => $payment->id]);
+            }
         }
 
         AuditLogger::log('payment_recorded', 'Payment', $payment->id);
@@ -74,7 +81,9 @@ class PaymentController extends Controller
     {
         $students = \App\Models\Student::with([
                 'currentLevel',
-                'fees' => fn($q) => $q->where('status', '!=', 'paid')->orderBy('due_date'),
+                'fees' => fn($q) => $q->where('status', '!=', 'paid')
+                    ->with('competitionRegistration.competition')
+                    ->orderBy('due_date'),
             ])
             ->where('is_active', true)->orderBy('first_name')->get();
 
