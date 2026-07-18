@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -95,7 +96,7 @@ class StudentController extends Controller
             'date_of_birth' => ['required', 'date', 'before:today'],
             'gender'        => ['required', 'in:male,female,other'],
             'enrollment_date' => ['required', 'date'],
-            'email'         => ['required', 'email', 'unique:users,email'],
+            'email'         => ['required', 'email', Rule::unique('users', 'email')->whereNull('deleted_at')],
             'password'      => ['required', 'string', 'min:8', 'confirmed'],
             'phone'         => ['nullable', 'string', 'max:15'],
             'address'       => ['nullable', 'string', 'max:300'],
@@ -212,7 +213,7 @@ class StudentController extends Controller
         $student->load('currentLevel', 'parents', 'examAttempts.exam', 'payments', 'fees',
             'competitionRegistrations.competition',
             'certificates.level',
-            'competitionPracticeAttempts.paper',
+            'competitionPracticeAttempts.level',
             'practiceSessions.level');
         $levels = Level::orderBy('number')->get();
         return view('franchise.students.show', compact('student', 'levels'));
@@ -237,7 +238,7 @@ class StudentController extends Controller
             'gender'              => ['required', 'in:male,female,other'],
             'current_level_id'    => ['required', 'exists:levels,id'],
             'enrollment_date'     => ['required', 'date'],
-            'email'               => ['required', 'email', 'max:150', 'unique:users,email,' . $userId],
+            'email'               => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($userId)->whereNull('deleted_at')],
             'address'             => ['nullable', 'string', 'max:300'],
             'city'                => ['nullable', 'string', 'max:100'],
             'pincode'             => ['nullable', 'string', 'max:10'],

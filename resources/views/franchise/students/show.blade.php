@@ -214,12 +214,12 @@
             <div x-show="tab === 'comp-practice'" x-cloak>
                 @php $submittedAttempts = $student->competitionPracticeAttempts->where('status', 'submitted')->sortByDesc('submitted_at'); @endphp
                 <div class="bg-white rounded-2xl border border-border overflow-hidden">
-                    <div class="px-5 py-4 border-b border-border"><h3 class="text-sm font-bold text-fran">Competition Practice Papers</h3></div>
+                    <div class="px-5 py-4 border-b border-border"><h3 class="text-sm font-bold text-fran">Competition Practice</h3></div>
                     @if($submittedAttempts->isNotEmpty())
                         <div class="overflow-x-auto"><table class="w-full min-w-[560px] text-sm">
                             <thead>
                                 <tr class="bg-fran">
-                                    <th class="text-left px-5 py-3 text-xs font-semibold text-white">Paper</th>
+                                    <th class="text-left px-5 py-3 text-xs font-semibold text-white">Level</th>
                                     <th class="text-center px-4 py-3 text-xs font-semibold text-white">Date</th>
                                     <th class="text-right px-5 py-3 text-xs font-semibold text-white">Score</th>
                                 </tr>
@@ -227,7 +227,7 @@
                             <tbody class="divide-y divide-border">
                                 @foreach($submittedAttempts as $att)
                                     <tr class="hover:bg-bg-light">
-                                        <td class="px-5 py-3 font-medium text-gray-800">{{ $att->paper?->title ?? 'Paper #' . $att->paper_id }}</td>
+                                        <td class="px-5 py-3 font-medium text-gray-800">{{ $att->level?->title ?? '—' }}</td>
                                         <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $att->submitted_at->format('d M Y') }}</td>
                                         <td class="px-5 py-3 text-right font-bold {{ $att->percentage >= 75 ? 'text-stu' : ($att->percentage >= 50 ? 'text-logo-amber' : 'text-red-500') }}">{{ number_format((float) $att->percentage, 0) }}%</td>
                                     </tr>
@@ -235,7 +235,7 @@
                             </tbody>
                         </table></div>
                     @else
-                        <p class="px-5 py-6 text-sm text-gray-400">No competition practice papers submitted by this student yet.</p>
+                        <p class="px-5 py-6 text-sm text-gray-400">No competition practice attempts submitted by this student yet.</p>
                     @endif
                 </div>
             </div>

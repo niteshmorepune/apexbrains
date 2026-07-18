@@ -60,6 +60,11 @@
                         <div class="flex items-center justify-center gap-2">
                             <a href="{{ route('admin.exams.show', $exam) }}" class="text-xs text-fran hover:underline font-medium">View</a>
                             <a href="{{ route('admin.exams.edit', $exam) }}" class="text-xs text-gray-500 hover:underline">Edit</a>
+                            <form method="POST" action="{{ route('admin.exams.destroy', $exam) }}"
+                                  onsubmit="return confirm('Delete exam “{{ $exam->title }}”? This also removes all student attempts and answers for it. This cannot be undone.');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-xs text-red-500 hover:underline">Delete</button>
+                            </form>
                         </div>
                     </td>
                 </tr>

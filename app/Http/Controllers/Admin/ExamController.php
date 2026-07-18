@@ -87,14 +87,18 @@ class ExamController extends Controller
 
     public function destroy(Exam $exam): RedirectResponse
     {
-        if ($exam->attempts()->exists()) {
-            return back()->with('error', 'Cannot delete an exam that has attempts.');
-        }
+        $title = $exam->title;
 
+        // Cascades: exam_attempts -> exam_answers, level_up_exam_papers ->
+        // level_up_exam_paper_items (all cascadeOnDelete). Certificates keep
+        // their own record with exam_attempt_id nulled (nullOnDelete) rather
+        // than being deleted, so certificate history survives.
         $exam->delete();
 
+        AuditLogger::log('exam_deleted', 'Exam', null);
+
         return redirect()->route('admin.exams.index')
-            ->with('success', 'Exam deleted.');
+            ->with('success', "Exam '{$title}' deleted.");
     }
 
     private function validateExam(Request $request): array

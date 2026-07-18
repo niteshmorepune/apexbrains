@@ -6,6 +6,12 @@
     <div class="flex items-center gap-2">
         <a href="{{ route('admin.exams.edit', $exam) }}"
            class="px-4 py-2 bg-fran text-white text-sm font-semibold rounded-xl hover:bg-fran-dark transition-colors">Edit</a>
+        <form method="POST" action="{{ route('admin.exams.destroy', $exam) }}"
+              onsubmit="return confirm('Delete exam “{{ $exam->title }}”? This also removes all student attempts and answers for it. This cannot be undone.');">
+            @csrf @method('DELETE')
+            <button type="submit"
+                    class="px-4 py-2 border border-red-300 text-red-500 text-sm font-semibold rounded-xl hover:bg-red-50 transition-colors">Delete</button>
+        </form>
         <a href="{{ route('admin.exams.index') }}"
            class="px-4 py-2 border border-border text-gray-600 text-sm font-semibold rounded-xl hover:bg-bg-light transition-colors">← Exams</a>
     </div>

@@ -28,6 +28,15 @@ class Student extends Model
     protected static function booted(): void
     {
         static::addGlobalScope(new FranchiseTenantScope());
+
+        // Free the login email for re-registration — soft-deleting a student
+        // must also soft-delete its linked user, since the unique email
+        // constraint lives on `users`, not `students`.
+        static::deleting(function (Student $student) {
+            if (! $student->isForceDeleting()) {
+                $student->user?->delete();
+            }
+        });
     }
 
     public function franchise(): BelongsTo

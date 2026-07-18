@@ -25,6 +25,15 @@ class CompetitionController extends Controller
             ->pluck('competition_id')
             ->toArray();
 
+        // Once the student has submitted their own attempt, the competition
+        // is "Completed" for them regardless of the competition's own
+        // end_date — a student shouldn't see something they already
+        // finished sitting under "Upcoming".
+        $mySubmittedCompetitionIds = CompetitionExamAttempt::where('student_id', $student->id)
+            ->where('status', 'submitted')
+            ->pluck('competition_id')
+            ->toArray();
+
         // Competitions visible to the student: their franchise's own + admin-created
         // global (franchise_id null) competitions, plus anything they're already
         // registered for (e.g. registered by the franchise).
@@ -34,11 +43,13 @@ class CompetitionController extends Controller
               ->orWhereIn('id', $myRegistrationIds);
         };
 
-        // Upcoming = active and not yet ended. Registration may still be open OR
-        // the student is already registered, so franchise-registered competitions
-        // stay visible even after their registration deadline has passed.
+        // Upcoming = active, not yet ended, and not already completed by this
+        // student. Registration may still be open OR the student is already
+        // registered, so franchise-registered competitions stay visible even
+        // after their registration deadline has passed.
         $competitions = Competition::where('is_active', true)
             ->where($visibleScope)
+            ->whereNotIn('id', $mySubmittedCompetitionIds)
             ->where(function ($q) use ($today) {
                 $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
             })
@@ -51,13 +62,16 @@ class CompetitionController extends Controller
             ->get();
 
         $pastCompetitions = Competition::where($visibleScope)
-            ->where('end_date', '<', $today)
+            ->where(function ($q) use ($today, $mySubmittedCompetitionIds) {
+                $q->where('end_date', '<', $today)
+                  ->orWhereIn('id', $mySubmittedCompetitionIds);
+            })
             ->orderByDesc('end_date')
             ->limit(5)
             ->get();
 
         return view('student.competitions.index', compact(
-            'competitions', 'myRegistrationIds', 'pastCompetitions'
+            'competitions', 'myRegistrationIds', 'pastCompetitions', 'mySubmittedCompetitionIds'
         ));
     }
 

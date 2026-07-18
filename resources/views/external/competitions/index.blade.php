@@ -63,20 +63,26 @@
                     @endforelse
                 </div>
 
-                {{-- Past --}}
+                {{-- Completed / Past --}}
                 @if($pastCompetitions->isNotEmpty())
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Past Competitions</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Completed Competitions</p>
                         <div class="space-y-3">
                             @foreach($pastCompetitions as $i => $comp)
-                                @php $participated = in_array($comp->id, $registeredIds); @endphp
+                                @php
+                                    $participated = in_array($comp->id, $registeredIds);
+                                    $completed    = in_array($comp->id, $mySubmittedCompetitionIds);
+                                @endphp
                                 <div class="bg-white rounded-2xl border border-border overflow-hidden flex items-stretch">
                                     <span class="w-1.5 flex-shrink-0" style="background-color: {{ $borderColors[$i % count($borderColors)] }}"></span>
                                     <div class="flex items-center gap-3 p-4 flex-1 min-w-0">
                                         <span class="w-10 h-10 rounded-full bg-bg-light flex items-center justify-center flex-shrink-0">📊</span>
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-bold text-gray-800 truncate">{{ $comp->title }}</p>
-                                            <p class="text-xs text-gray-400">{{ $comp->end_date?->format('d M Y') }}@if($participated) · Participated @endif</p>
+                                            <p class="text-xs text-gray-400">
+                                                {{ $comp->end_date?->format('d M Y') }}
+                                                @if($completed) · Completed ✓ @elseif($participated) · Participated @endif
+                                            </p>
                                         </div>
                                         @if($participated)
                                             <a href="{{ route('external.competitions.show', $comp) }}" class="text-xs text-fran font-semibold flex-shrink-0">View Report</a>

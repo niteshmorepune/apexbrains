@@ -25,10 +25,22 @@ class CompetitionController extends Controller
             ->latest()
             ->get();
 
+        // Once the student has submitted their own attempt, the competition
+        // is "Completed" for them regardless of the competition's own
+        // end_date — a student shouldn't see something they already
+        // finished sitting under "Upcoming".
+        $mySubmittedCompetitionIds = CompetitionExamAttempt::where('student_id', $student->id)
+            ->where('status', 'submitted')
+            ->pluck('competition_id')
+            ->toArray();
+
+        $today = now()->toDateString();
+
         $openCompetitions = Competition::where('is_open_to_external', true)
             ->where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('end_date')->orWhere('end_date', '>=', now()->toDateString());
+            ->whereNotIn('id', $mySubmittedCompetitionIds)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
             })
             ->orderBy('start_date')
             ->get();
@@ -36,13 +48,16 @@ class CompetitionController extends Controller
         $registeredIds = $myRegistrations->pluck('competition_id')->toArray();
 
         $pastCompetitions = Competition::where('is_open_to_external', true)
-            ->where('end_date', '<', now()->toDateString())
+            ->where(function ($q) use ($today, $mySubmittedCompetitionIds) {
+                $q->where('end_date', '<', $today)
+                  ->orWhereIn('id', $mySubmittedCompetitionIds);
+            })
             ->orderByDesc('end_date')
             ->limit(5)
             ->get();
 
         return view('external.competitions.index', compact(
-            'myRegistrations', 'openCompetitions', 'registeredIds', 'pastCompetitions'
+            'myRegistrations', 'openCompetitions', 'registeredIds', 'pastCompetitions', 'mySubmittedCompetitionIds'
         ));
     }
 
