@@ -97,9 +97,13 @@
             @forelse($fees as $fee)
                 <tr class="hover:bg-bg-light">
                     <td class="px-5 py-3 font-medium text-gray-800">
-                        <a href="{{ route('franchise.students.show', $fee->student) }}" class="hover:text-fran hover:underline">
-                            {{ $fee->student?->full_name ?? '—' }}
-                        </a>
+                        @if($fee->student)
+                            <a href="{{ route('franchise.students.show', $fee->student) }}" class="hover:text-fran hover:underline">
+                                {{ $fee->student->full_name }}
+                            </a>
+                        @else
+                            <span class="text-gray-400">—</span>
+                        @endif
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($fee->student_type === 'external')

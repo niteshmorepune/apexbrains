@@ -53,10 +53,14 @@
             @forelse($parents as $parent)
                 <tr class="hover:bg-bg-light">
                     <td class="px-5 py-3">
-                        <a href="{{ route('franchise.students.show', $parent->student) }}"
-                           class="font-medium text-fran hover:underline text-sm">
-                            {{ $parent->student?->full_name ?? '—' }}
-                        </a>
+                        @if($parent->student)
+                            <a href="{{ route('franchise.students.show', $parent->student) }}"
+                               class="font-medium text-fran hover:underline text-sm">
+                                {{ $parent->student->full_name }}
+                            </a>
+                        @else
+                            <span class="text-gray-400">—</span>
+                        @endif
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($parent->student?->currentLevel)
