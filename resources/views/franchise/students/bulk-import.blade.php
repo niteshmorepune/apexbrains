@@ -51,7 +51,7 @@
             </a>
             <div class="mt-4 bg-bg-light rounded-xl p-3 text-xs text-gray-500">
                 <p class="font-semibold mb-1">Required columns:</p>
-                <p>Name, DOB (YYYY-MM-DD), Gender, Parent Name, Mobile, Level (1–14)</p>
+                <p>Name, DOB (YYYY-MM-DD), Gender, Parent Name, Mobile, Level (1–14), Email, Password (min 8 chars)</p>
             </div>
         </div>
 
@@ -108,7 +108,7 @@
     <div class="bg-white rounded-2xl border border-border overflow-hidden mb-5">
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
             <h2 class="text-sm font-semibold text-admin">CSV Preview — {{ count($rows) }} rows</h2>
-            <a href="{{ route('franchise.students.import.page') }}"
+            <a href="{{ route('franchise.students.import.page', ['reset' => 1]) }}"
                class="text-xs text-gray-500 hover:underline">Upload a different file</a>
         </div>
         <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
@@ -155,14 +155,14 @@
                     class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
                 Import {{ $counts['valid'] }} Students
             </button>
-            <a href="{{ route('franchise.students.import.page') }}"
+            <a href="{{ route('franchise.students.import.page', ['reset' => 1]) }}"
                class="px-5 py-2.5 border border-border text-gray-600 rounded-xl text-sm hover:bg-bg-light transition-colors">
                 Cancel
             </a>
         </form>
     @else
         <p class="text-sm text-red-500">No valid rows to import. Please fix your CSV file and try again.</p>
-        <a href="{{ route('franchise.students.import.page') }}"
+        <a href="{{ route('franchise.students.import.page', ['reset' => 1]) }}"
            class="inline-block mt-3 px-5 py-2.5 border border-border text-gray-600 rounded-xl text-sm hover:bg-bg-light transition-colors">
             Try Again
         </a>

@@ -306,41 +306,97 @@ class StudentController extends Controller
             ->with('success', 'Student deleted.');
     }
 
-    public function importPage(): \Illuminate\View\View
+    public function importPage(Request $request): \Illuminate\View\View
     {
+        if ($request->boolean('reset')) {
+            session()->forget(['import_preview', 'import_rows']);
+        }
+
         return view('franchise.students.bulk-import', ['preview' => session('import_preview')]);
     }
 
     public function import(Request $request): RedirectResponse
     {
+        if ($request->boolean('confirm_import')) {
+            return $this->commitImport();
+        }
+
         $request->validate([
             'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:5120'],
         ]);
 
         $file     = $request->file('csv_file');
         $rows     = array_filter(array_map('str_getcsv', file($file->getRealPath())));
-        $header   = array_shift($rows);
-        $required = ['Name', 'DOB', 'Gender', 'Parent Name', 'Mobile', 'Level'];
-        $preview  = [];
+        array_shift($rows); // header
+        $required = ['Name', 'DOB', 'Gender', 'Parent Name', 'Mobile', 'Level', 'Email', 'Password'];
 
-        $existingMobiles = \App\Models\Student::withoutGlobalScopes()
-            ->pluck('parent_mobile')->toArray();
+        $existingMobiles = StudentParent::pluck('phone')->map(fn ($p) => trim((string) $p))->toArray();
+        $existingEmails  = User::withoutGlobalScopes()->pluck('email')
+            ->map(fn ($e) => strtolower(trim($e)))->toArray();
+        $levelIds = Level::where('is_active', true)->pluck('id', 'number');
+
+        $seenMobiles = [];
+        $seenEmails  = [];
+        $preview     = [];
+        $importRows  = [];
 
         foreach ($rows as $i => $row) {
-            $row = array_values($row);
-            $name   = $row[0] ?? '';
-            $mobile = $row[4] ?? '';
-            $level  = $row[5] ?? '';
+            $row        = array_values($row);
+            $name       = trim($row[0] ?? '');
+            $dob        = trim($row[1] ?? '');
+            $gender     = strtolower(trim($row[2] ?? ''));
+            $parentName = trim($row[3] ?? '');
+            $mobile     = trim($row[4] ?? '');
+            $level      = trim($row[5] ?? '');
+            $email      = strtolower(trim($row[6] ?? ''));
+            $password   = (string) ($row[7] ?? '');
 
-            if (count($row) < count($required) || empty($name)) {
+            $issue  = null;
+            $status = 'valid';
+
+            if (count($row) < count($required) || $name === '' || $dob === '' || $parentName === '' || $mobile === '' || $email === '' || $password === '') {
+                $issue = 'Missing required fields';
+            } elseif (! \DateTime::createFromFormat('Y-m-d', $dob)) {
+                $issue = 'Invalid DOB (use YYYY-MM-DD)';
+            } elseif (! in_array($gender, ['male', 'female', 'other'], true)) {
+                $issue = 'Invalid gender';
+            } elseif (! isset($levelIds[(int) $level])) {
+                $issue = 'Invalid level';
+            } elseif (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $issue = 'Invalid email';
+            } elseif (strlen($password) < 8) {
+                $issue = 'Password must be at least 8 characters';
+            }
+
+            if (! $issue) {
+                if (in_array($mobile, $existingMobiles, true) || isset($seenMobiles[$mobile])) {
+                    $issue  = 'Duplicate mobile number';
+                    $status = 'duplicate';
+                } elseif (in_array($email, $existingEmails, true) || isset($seenEmails[$email])) {
+                    $issue  = 'Duplicate email';
+                    $status = 'duplicate';
+                }
+            }
+
+            if ($issue && $status !== 'duplicate') {
                 $status = 'error';
-                $issue  = 'Missing required fields';
-            } elseif (in_array($mobile, $existingMobiles)) {
-                $status = 'duplicate';
-                $issue  = 'Duplicate mobile number';
-            } else {
-                $status = 'valid';
-                $issue  = '';
+            }
+
+            if ($status === 'valid') {
+                $seenMobiles[$mobile] = true;
+                $seenEmails[$email]   = true;
+                [$firstName, $lastName] = array_pad(explode(' ', $name, 2), 2, '');
+                $importRows[] = [
+                    'first_name'    => $firstName,
+                    'last_name'     => $lastName !== '' ? $lastName : '-',
+                    'date_of_birth' => $dob,
+                    'gender'        => $gender,
+                    'parent_name'   => $parentName,
+                    'mobile'        => $mobile,
+                    'level_id'      => $levelIds[(int) $level],
+                    'email'         => $email,
+                    'password'      => $password,
+                ];
             }
 
             $preview[] = [
@@ -349,7 +405,7 @@ class StudentController extends Controller
                 'level'  => $level,
                 'mobile' => $mobile,
                 'status' => $status,
-                'issue'  => $issue,
+                'issue'  => $issue ?? '',
             ];
         }
 
@@ -359,13 +415,78 @@ class StudentController extends Controller
             'duplicate' => collect($preview)->where('status', 'duplicate')->count(),
         ];
 
-        return redirect()->route('franchise.students.import.page')
-            ->with('import_preview', ['rows' => $preview, 'counts' => $counts]);
+        session(['import_preview' => ['rows' => $preview, 'counts' => $counts], 'import_rows' => $importRows]);
+
+        return redirect()->route('franchise.students.import.page');
+    }
+
+    private function commitImport(): RedirectResponse
+    {
+        $importRows = session('import_rows', []);
+
+        if (empty($importRows)) {
+            return redirect()->route('franchise.students.import.page')
+                ->with('error', 'Nothing to import — please upload a CSV first.');
+        }
+
+        $franchiseId = Auth::user()->franchise_id;
+        $franchise   = Auth::user()->franchise;
+        $imported    = 0;
+
+        DB::transaction(function () use ($importRows, $franchiseId, $franchise, &$imported) {
+            foreach ($importRows as $row) {
+                $user = User::create([
+                    'name'         => trim($row['first_name'] . ' ' . $row['last_name']),
+                    'email'        => $row['email'],
+                    'password'     => Hash::make($row['password']),
+                    'franchise_id' => $franchiseId,
+                    'student_type' => 'internal',
+                ]);
+                $user->assignRole('student');
+
+                $studentCode = Student::generateCode($franchise, now());
+
+                $student = Student::create([
+                    'franchise_id'     => $franchiseId,
+                    'user_id'          => $user->id,
+                    'student_code'     => $studentCode,
+                    'student_type'     => 'internal',
+                    'first_name'       => $row['first_name'],
+                    'last_name'        => $row['last_name'],
+                    'date_of_birth'    => $row['date_of_birth'],
+                    'gender'           => $row['gender'],
+                    'current_level_id' => $row['level_id'],
+                    'enrollment_date'  => now()->toDateString(),
+                    'is_active'        => true,
+                ]);
+
+                StudentParent::create([
+                    'student_id'   => $student->id,
+                    'name'         => $row['parent_name'],
+                    'relationship' => 'guardian',
+                    'phone'        => $row['mobile'],
+                    'whatsapp'     => $row['mobile'],
+                    'is_primary'   => true,
+                ]);
+
+                app(\App\Services\MonthlyFeeService::class)->ensureFirstFee($student);
+
+                AuditLogger::log('student_registered', 'Student', $student->id);
+
+                $imported++;
+            }
+        });
+
+        session()->forget(['import_preview', 'import_rows']);
+
+        return redirect()->route('franchise.students.index', ['tab' => 'internal'])
+            ->with('success', "{$imported} students imported successfully.");
     }
 
     public function importTemplate(): Response
     {
-        $csv = "Name,DOB,Gender,Parent Name,Mobile,Level\nArjun Patil,2015-06-15,male,Suresh Patil,9876543210,1\n";
+        $csv = "Name,DOB,Gender,Parent Name,Mobile,Level,Email,Password\n"
+             . "Arjun Patil,2015-06-15,male,Suresh Patil,9876543210,1,arjun.patil@example.com,Passw0rd123\n";
         return response($csv, 200, [
             'Content-Type'        => 'text/csv',
             'Content-Disposition' => 'attachment; filename="student_import_template.csv"',
