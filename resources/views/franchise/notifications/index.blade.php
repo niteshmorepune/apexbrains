@@ -43,7 +43,7 @@
                         <select name="level_id" class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                             <option value="">Select Level</option>
                             @foreach($levels as $level)
-                                <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>Level {{ $level->number }}</option>
+                                <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>{{ $level->title }}</option>
                             @endforeach
                         </select>
                     </div>

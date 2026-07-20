@@ -16,7 +16,7 @@
         'name'  => $s->full_name,
         'code'  => $s->student_code,
         'type'  => $s->student_type,
-        'level' => $s->currentLevel?->number,
+        'level' => $s->currentLevel?->title,
         'fees'  => $s->fees->map(fn($f) => [
             'id'       => $f->id,
             'type'     => $f->fee_type,
@@ -67,7 +67,7 @@
                     <option value="">Search student name or ID...</option>
                     @foreach($students as $s)
                         <option value="{{ $s->id }}" {{ ($selectedStudent?->id === $s->id) ? 'selected' : '' }}>
-                            {{ $s->full_name }} ({{ $s->student_code }}) — {{ ucfirst($s->student_type) }}{{ $s->student_type === 'internal' ? ' · L' . ($s->currentLevel?->number ?? '?') : '' }}
+                            {{ $s->full_name }} ({{ $s->student_code }}) — {{ ucfirst($s->student_type) }}{{ $s->student_type === 'internal' && $s->currentLevel ? ' · ' . $s->currentLevel->title : '' }}
                         </option>
                     @endforeach
                 </select>

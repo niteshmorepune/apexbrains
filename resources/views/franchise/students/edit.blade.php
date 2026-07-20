@@ -72,7 +72,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Current Level</label>
                     <select name="current_level_id" required class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                         @foreach($levels as $level)
-                            <option value="{{ $level->id }}" @selected(old('current_level_id', $student->current_level_id) == $level->id)>Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif</option>
+                            <option value="{{ $level->id }}" @selected(old('current_level_id', $student->current_level_id) == $level->id)>{{ $level->title }}</option>
                         @endforeach
                     </select>
                 </div>

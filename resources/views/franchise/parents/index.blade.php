@@ -64,7 +64,7 @@
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($parent->student?->currentLevel)
-                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">L{{ $parent->student->currentLevel->number }}</span>
+                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">{{ $parent->student->currentLevel->title }}</span>
                         @else
                             <span class="text-xs text-gray-400">—</span>
                         @endif

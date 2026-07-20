@@ -52,12 +52,12 @@
                                 </div>
                                 <div>
                                     <p class="font-medium text-gray-800">{{ $student->full_name }}</p>
-                                    <p class="text-xs text-gray-400">→ {{ $nextLevel?->title ?? ('L' . $nextNum) }} after promotion</p>
+                                    <p class="text-xs text-gray-400">→ {{ $nextLevel?->title ?? 'Max level' }} after promotion</p>
                                 </div>
                             </div>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">L{{ $student->currentLevel->number }}</span>
+                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">{{ $student->currentLevel->title }}</span>
                         </td>
                         <td class="px-4 py-3 text-right font-semibold {{ $student->exam_score >= 80 ? 'text-stu' : 'text-logo-amber' }}">
                             {{ number_format($student->exam_score, 1) }}%
@@ -75,12 +75,12 @@
                         <td class="px-4 py-3 text-center">
                             @if($nextLevel)
                                 <form method="POST" action="{{ route('franchise.promotions.promote', $student) }}"
-                                      onsubmit="return confirm('Promote {{ $student->full_name }} to Level {{ $nextLevel->number }}?')">
+                                      onsubmit="return confirm('Promote {{ $student->full_name }} to {{ $nextLevel->title }}?')">
                                     @csrf
                                     <input type="hidden" name="new_level_id" value="{{ $nextLevel->id }}">
                                     <button type="submit"
                                             class="inline-flex items-center gap-1 px-3 py-1.5 bg-fran text-white rounded-lg text-xs font-semibold hover:bg-fran-dark transition-colors">
-                                        Promote → L{{ $nextLevel->number }}
+                                        Promote → {{ $nextLevel->title }}
                                     </button>
                                 </form>
                             @else

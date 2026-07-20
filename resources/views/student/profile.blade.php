@@ -16,7 +16,7 @@
                 <p class="font-black text-lg text-gray-900 truncate">{{ $user->name }}</p>
                 <p class="text-gray-400 text-xs truncate">{{ $user->email }}</p>
                 @if($student?->currentLevel)
-                    <span class="mt-1 inline-block bg-stu-light text-stu text-xs px-2 py-0.5 rounded-full font-bold">Level {{ $student->currentLevel->number }} Student</span>
+                    <span class="mt-1 inline-block bg-stu-light text-stu text-xs px-2 py-0.5 rounded-full font-bold">{{ $student->currentLevel->title }} Student</span>
                 @endif
             </div>
         </div>

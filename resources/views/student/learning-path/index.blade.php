@@ -21,13 +21,13 @@
         <div class="bg-white rounded-2xl border border-border p-4">
             <div class="flex items-center justify-between mb-1">
                 <p class="text-sm font-bold text-gray-800">Overall Progress</p>
-                <p class="text-sm font-bold text-fran">L{{ $student->currentLevel->number }} / L{{ $totalLevels }}</p>
+                <p class="text-sm font-bold text-fran">{{ $student->currentLevel->title }}</p>
             </div>
             <div class="h-2 bg-bg-mid rounded-full overflow-hidden mb-1.5">
                 <div class="h-full bg-fran rounded-full" style="width: {{ max(3, $overallPct) }}%"></div>
             </div>
             <div class="flex items-center justify-between text-xs text-gray-400">
-                <span>Level {{ $student->currentLevel->number }} of {{ $totalLevels }} total levels</span>
+                <span>{{ $student->currentLevel->title }} of {{ $totalLevels }} total levels</span>
                 <span>{{ $overallPct }}% complete</span>
             </div>
         </div>
@@ -49,9 +49,9 @@
                 <div class="w-16 h-16 rounded-full flex items-center justify-center font-black text-lg shadow-sm
                             {{ $isCurrent ? 'ring-4 ring-offset-2' : '' }}"
                      style="{{ $isLocked ? 'background:#E5E9F0;color:#A8B0BE' : 'background:'.$color.';color:#fff' }}{{ $isCurrent ? ';--tw-ring-color:'.$color : '' }}">
-                    @if($isLocked) 🔒 @else L{{ $level->number }} @endif
+                    @if($isLocked) 🔒 @else {{ strtoupper(substr($level->title, 0, 1)) }}-{{ $level->number }} @endif
                 </div>
-                <p class="text-[11px] font-semibold text-gray-700 mt-1.5 leading-tight">{{ \Illuminate\Support\Str::limit($level->title ?? ('Level '.$level->number), 14) }}</p>
+                <p class="text-[11px] font-semibold text-gray-700 mt-1.5 leading-tight">{{ \Illuminate\Support\Str::limit($level->title, 14) }}</p>
                 @if($isCompleted)
                     <span class="text-[10px] font-bold text-stu">✓ Cert</span>
                 @elseif($isCurrent)
@@ -67,7 +67,7 @@
     @if($student?->currentLevel)
         <a href="{{ route('student.levels.show', $student->currentLevel) }}"
            class="block bg-fran text-white text-center font-bold py-3.5 rounded-2xl text-sm">
-            Continue Level {{ $student->currentLevel->number }}
+            Continue {{ $student->currentLevel->title }}
         </a>
     @endif
 

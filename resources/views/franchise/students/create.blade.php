@@ -167,7 +167,7 @@
                             @foreach($levels as $level)
                                 <option value="{{ $level->id }}" data-fee="{{ $level->fee_per_month }}"
                                         @selected(old('current_level_id') == $level->id)>
-                                    Level {{ $level->number }} — {{ $level->title }}
+                                    {{ $level->title }}
                                 </option>
                             @endforeach
                         </select>

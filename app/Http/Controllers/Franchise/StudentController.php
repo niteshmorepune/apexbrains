@@ -345,37 +345,45 @@ class StudentController extends Controller
         array_shift($rows); // header
         $required = ['Name', 'DOB', 'Gender', 'Parent Name', 'Mobile', 'Level', 'Email', 'Password'];
 
-        $existingMobiles = StudentParent::pluck('phone')->map(fn ($p) => trim((string) $p))->toArray();
-        $existingEmails  = User::withoutGlobalScopes()->pluck('email')
+        $existingEmails = User::withoutGlobalScopes()->pluck('email')
             ->map(fn ($e) => strtolower(trim($e)))->toArray();
-        $levelIds = Level::where('is_active', true)->pluck('id', 'number');
 
-        $seenMobiles = [];
-        $seenEmails  = [];
-        $preview     = [];
-        $importRows  = [];
+        // Match a Level by its name (e.g. "Junior-1", "Junior 1", "junior1") or, for
+        // backward compatibility with older templates, by its raw number ("1").
+        $levelsByName = Level::where('is_active', true)->get()
+            ->keyBy(fn ($l) => $this->normalizeLevelKey($l->title));
+        $levelsByNumber = Level::where('is_active', true)->pluck('id', 'number');
+
+        $seenEmails = [];
+        $preview    = [];
+        $importRows = [];
 
         foreach ($rows as $i => $row) {
-            $row        = array_values($row);
-            $name       = trim($row[0] ?? '');
-            $dob        = trim($row[1] ?? '');
-            $gender     = strtolower(trim($row[2] ?? ''));
-            $parentName = trim($row[3] ?? '');
-            $mobile     = trim($row[4] ?? '');
-            $level      = trim($row[5] ?? '');
-            $email      = strtolower(trim($row[6] ?? ''));
-            $password   = (string) ($row[7] ?? '');
+            $row         = array_values($row);
+            $name        = trim($row[0] ?? '');
+            $dob         = trim($row[1] ?? '');
+            $gender      = strtolower(trim($row[2] ?? ''));
+            $parentName  = trim($row[3] ?? '');
+            $mobile      = trim($row[4] ?? '');
+            $level       = trim($row[5] ?? '');
+            $email       = strtolower(trim($row[6] ?? ''));
+            $password    = (string) ($row[7] ?? '');
+            $studentType = strtolower(trim($row[8] ?? '')) ?: 'internal';
 
-            $issue  = null;
-            $status = 'valid';
+            $issue    = null;
+            $status   = 'valid';
+            $dobParsed = $this->parseFlexibleDate($dob);
+            $levelId   = $this->resolveLevelId($level, $levelsByName, $levelsByNumber);
 
             if (count($row) < count($required) || $name === '' || $dob === '' || $parentName === '' || $mobile === '' || $email === '' || $password === '') {
                 $issue = 'Missing required fields';
-            } elseif (! \DateTime::createFromFormat('Y-m-d', $dob)) {
-                $issue = 'Invalid DOB (use YYYY-MM-DD)';
+            } elseif (! $dobParsed) {
+                $issue = 'Invalid DOB (use e.g. 2015-06-15, 15-06-2015, or 15/06/2015)';
             } elseif (! in_array($gender, ['male', 'female', 'other'], true)) {
                 $issue = 'Invalid gender';
-            } elseif (! isset($levelIds[(int) $level])) {
+            } elseif (! in_array($studentType, ['internal', 'external'], true)) {
+                $issue = 'Invalid student type (use Internal or External)';
+            } elseif (! $levelId) {
                 $issue = 'Invalid level';
             } elseif (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $issue = 'Invalid email';
@@ -384,10 +392,7 @@ class StudentController extends Controller
             }
 
             if (! $issue) {
-                if (in_array($mobile, $existingMobiles, true) || isset($seenMobiles[$mobile])) {
-                    $issue  = 'Duplicate mobile number';
-                    $status = 'duplicate';
-                } elseif (in_array($email, $existingEmails, true) || isset($seenEmails[$email])) {
+                if (in_array($email, $existingEmails, true) || isset($seenEmails[$email])) {
                     $issue  = 'Duplicate email';
                     $status = 'duplicate';
                 }
@@ -398,19 +403,19 @@ class StudentController extends Controller
             }
 
             if ($status === 'valid') {
-                $seenMobiles[$mobile] = true;
-                $seenEmails[$email]   = true;
+                $seenEmails[$email] = true;
                 [$firstName, $lastName] = array_pad(explode(' ', $name, 2), 2, '');
                 $importRows[] = [
                     'first_name'    => $firstName,
                     'last_name'     => $lastName !== '' ? $lastName : '-',
-                    'date_of_birth' => $dob,
+                    'date_of_birth' => $dobParsed,
                     'gender'        => $gender,
                     'parent_name'   => $parentName,
                     'mobile'        => $mobile,
-                    'level_id'      => $levelIds[(int) $level],
+                    'level_id'      => $levelId,
                     'email'         => $email,
                     'password'      => $password,
+                    'student_type'  => $studentType,
                 ];
             }
 
@@ -455,7 +460,7 @@ class StudentController extends Controller
                     'email'        => $row['email'],
                     'password'     => Hash::make($row['password']),
                     'franchise_id' => $franchiseId,
-                    'student_type' => 'internal',
+                    'student_type' => $row['student_type'],
                 ]);
                 $user->assignRole('student');
 
@@ -465,7 +470,7 @@ class StudentController extends Controller
                     'franchise_id'     => $franchiseId,
                     'user_id'          => $user->id,
                     'student_code'     => $studentCode,
-                    'student_type'     => 'internal',
+                    'student_type'     => $row['student_type'],
                     'first_name'       => $row['first_name'],
                     'last_name'        => $row['last_name'],
                     'date_of_birth'    => $row['date_of_birth'],
@@ -494,14 +499,66 @@ class StudentController extends Controller
 
         session()->forget(['import_preview', 'import_rows']);
 
-        return redirect()->route('franchise.students.index', ['tab' => 'internal'])
+        return redirect()->route('franchise.students.index', ['tab' => 'all'])
             ->with('success', "{$imported} students imported successfully.");
+    }
+
+    /**
+     * Normalize a level name for matching: lowercase, spaces/hyphens collapsed to a single hyphen.
+     * Lets "Junior-1", "Junior 1", and "junior1" all match the same level.
+     */
+    private function normalizeLevelKey(string $value): string
+    {
+        return strtolower(preg_replace('/[\s\-]+/', '-', trim($value)));
+    }
+
+    /**
+     * Resolve a CSV "Level" cell to a level ID — by name (e.g. "Junior-1") first,
+     * falling back to a raw numeric level number for older import templates.
+     */
+    private function resolveLevelId(string $level, \Illuminate\Support\Collection $levelsByName, \Illuminate\Support\Collection $levelsByNumber): ?int
+    {
+        if ($level === '') {
+            return null;
+        }
+
+        $byName = $levelsByName->get($this->normalizeLevelKey($level));
+        if ($byName) {
+            return $byName->id;
+        }
+
+        if (ctype_digit($level)) {
+            return $levelsByNumber->get((int) $level);
+        }
+
+        return null;
+    }
+
+    /**
+     * Parse a DOB cell in any common format (ISO, DD-MM-YYYY, DD/MM/YYYY, etc.)
+     * and return it as a Y-m-d string, or null if unparseable.
+     */
+    private function parseFlexibleDate(string $value): ?string
+    {
+        if ($value === '') {
+            return null;
+        }
+
+        $formats = ['Y-m-d', 'd-m-Y', 'd/m/Y', 'Y/m/d', 'd.m.Y', 'm/d/Y', 'j-n-Y', 'j/n/Y'];
+        foreach ($formats as $format) {
+            $date = \DateTime::createFromFormat('!' . $format, $value);
+            if ($date && $date->format($format) === $value) {
+                return $date->format('Y-m-d');
+            }
+        }
+
+        return null;
     }
 
     public function importTemplate(): Response
     {
-        $csv = "Name,DOB,Gender,Parent Name,Mobile,Level,Email,Password\n"
-             . "Arjun Patil,2015-06-15,male,Suresh Patil,9876543210,1,arjun.patil@example.com,Passw0rd123\n";
+        $csv = "Name,DOB,Gender,Parent Name,Mobile,Level,Email,Password,Student Type\n"
+             . "Arjun Patil,15-06-2015,male,Suresh Patil,9876543210,Junior-1,arjun.patil@example.com,Passw0rd123,Internal\n";
         return response($csv, 200, [
             'Content-Type'        => 'text/csv',
             'Content-Disposition' => 'attachment; filename="student_import_template.csv"',

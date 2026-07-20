@@ -16,7 +16,7 @@
                 <div class="flex-1 min-w-0">
                     <p class="font-semibold text-gray-800 text-sm">{{ $exam->title }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">
-                        Level {{ $exam->level?->number }}
+                        {{ $exam->level?->title ?? '—' }}
                         · {{ $exam->total_questions }}Q
                         · {{ $exam->duration_minutes }}min
                         · Pass {{ number_format($exam->pass_percentage, 0) }}%

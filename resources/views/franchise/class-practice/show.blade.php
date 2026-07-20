@@ -35,7 +35,7 @@
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500">Level</span>
-                    <span class="font-medium">Level {{ $session->level?->number }}</span>
+                    <span class="font-medium">{{ $session->level?->title ?? '—' }}</span>
                 </div>
                 @if($session->batch)
                     <div class="flex justify-between text-sm">

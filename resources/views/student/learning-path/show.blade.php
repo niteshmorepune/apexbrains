@@ -1,5 +1,5 @@
 @extends('layouts.student')
-@section('title', 'Level ' . $level->number)
+@section('title', $level->title)
 
 @section('content')
 @php
@@ -17,8 +17,8 @@
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
     </a>
     <div class="flex items-center gap-2">
-        <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black" style="background-color: {{ $color }}">L{{ $level->number }}</span>
-        <h1 class="text-lg font-black text-gray-900">Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif</h1>
+        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: {{ $color }}"></span>
+        <h1 class="text-lg font-black text-gray-900">{{ $level->title }}</h1>
     </div>
     @if($level->description)
         <p class="text-xs text-gray-400 mt-1">{{ $level->description }}</p>

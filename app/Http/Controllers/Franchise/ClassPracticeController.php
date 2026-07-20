@@ -92,7 +92,7 @@ class ClassPracticeController extends Controller
         $session = ClassPracticeSession::create([
             'franchise_id'              => Auth::user()->franchise_id,
             'teacher_id'                => Auth::id(),
-            'title'                     => 'Level ' . $level->number . ' Practice — ' . now()->format('d M Y, g:i A'),
+            'title'                     => $level->title . ' Practice — ' . now()->format('d M Y, g:i A'),
             'level_id'                  => $data['level_id'],
             'category_id'               => $data['category_id'],
             'type_id'                   => $data['type_id'],
@@ -304,7 +304,7 @@ class ClassPracticeController extends Controller
         $new = ClassPracticeSession::create([
             'franchise_id'              => $session->franchise_id,
             'teacher_id'                => Auth::id(),
-            'title'                     => 'Level ' . $session->level?->number . ' Practice — ' . now()->format('d M Y, g:i A'),
+            'title'                     => ($session->level?->title ? $session->level->title . ' Practice' : 'Practice') . ' — ' . now()->format('d M Y, g:i A'),
             'level_id'                  => $session->level_id,
             'category_id'               => $session->category_id,
             'type_id'                   => $session->type_id,

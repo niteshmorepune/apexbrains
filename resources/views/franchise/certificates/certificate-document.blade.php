@@ -9,7 +9,7 @@
     $compDate    = $competition?->start_date?->format('d F Y');
 
     $levelLine = $certificate->level
-        ? 'Level ' . $certificate->level->number . ' — ' . ($certificate->level->title ?: 'Abacus Mental Math')
+        ? ($certificate->level->title ?: 'Abacus Mental Math')
         : 'Abacus Programme';
     $typeLine  = ucwords(str_replace('_', ' ', $certificate->type)) . ' Certificate';
 

@@ -30,12 +30,9 @@ $levelColors = [
             <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
                  style="background-color: {{ $color }}"></div>
 
-            {{-- Level badge --}}
+            {{-- Level color indicator --}}
             <div class="flex items-start justify-between mb-3 mt-1">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm"
-                     style="background-color: {{ $color }}">
-                    L{{ $level->number }}
-                </div>
+                <div class="w-3 h-3 rounded-full" style="background-color: {{ $color }}"></div>
                 @if(!$level->is_active)
                     <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>
                 @endif

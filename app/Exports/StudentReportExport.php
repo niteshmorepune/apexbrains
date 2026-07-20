@@ -45,7 +45,7 @@ class StudentReportExport implements FromCollection, WithHeadings, WithMapping, 
         return [
             $row->student_code,
             $row->full_name,
-            $row->currentLevel ? 'Level ' . $row->currentLevel->number : '—',
+            $row->currentLevel?->title ?? '—',
             $row->exam_count,
             $row->exam_count ? $row->avg_score : '—',
             $row->exam_count ? $row->last_score : '—',

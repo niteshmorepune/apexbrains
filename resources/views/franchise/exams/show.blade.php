@@ -20,7 +20,7 @@
             <div class="space-y-3 text-sm">
                 <div class="flex justify-between">
                     <span class="text-gray-500">Level</span>
-                    <span class="font-medium">Level {{ $exam->level?->number }}</span>
+                    <span class="font-medium">{{ $exam->level?->title ?? '—' }}</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-500">Questions</span>

@@ -9,6 +9,7 @@
         11=>'#FF6F00', 12=>'#AD1457', 13=>'#283593', 14=>'#212121',
     ];
     $lvlNum   = $student?->currentLevel?->number;
+    $lvlTitle = $student?->currentLevel?->title;
     $lvlColor = $lvlNum ? ($levelColors[$lvlNum] ?? '#2ECC71') : '#2ECC71';
     $hour     = now()->hour;
     $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening');
@@ -54,11 +55,11 @@
         <p class="text-sm text-gray-500">{{ $greeting }},</p>
         <h1 class="text-2xl font-black text-gray-900 -mt-0.5">{{ $firstName }}!</h1>
         <div class="flex items-center gap-2 mt-1.5">
-            @if($lvlNum)
-                <span class="text-[11px] font-bold text-white px-2.5 py-0.5 rounded-full" style="background-color: {{ $lvlColor }}">L{{ $lvlNum }}</span>
+            @if($lvlTitle)
+                <span class="text-[11px] font-bold text-white px-2.5 py-0.5 rounded-full" style="background-color: {{ $lvlColor }}">{{ $lvlTitle }}</span>
             @endif
             <p class="text-xs text-gray-500">
-                {{ $lvlNum ? 'Level '.$lvlNum.' Student' : '' }}{{ $student?->franchise ? ' · '.$student->franchise->name : '' }}
+                {{ $lvlTitle ? $lvlTitle.' Student' : '' }}{{ $student?->franchise ? ' · '.$student->franchise->name : '' }}
             </p>
         </div>
     </div>
@@ -98,7 +99,7 @@
     @if($lvlNum)
         <div class="bg-white rounded-2xl border border-border p-4">
             <div class="flex items-center justify-between mb-2">
-                <p class="text-sm font-bold text-gray-800">Level {{ $lvlNum }} Progress</p>
+                <p class="text-sm font-bold text-gray-800">{{ $lvlTitle }} Progress</p>
                 <span class="text-sm font-bold text-stu">{{ $levelProgress }}%</span>
             </div>
             <div class="h-2 bg-bg-mid rounded-full overflow-hidden">

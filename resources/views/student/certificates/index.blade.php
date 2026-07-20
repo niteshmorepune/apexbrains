@@ -51,7 +51,7 @@
                                 <span class="w-11 h-11 rounded-xl {{ $kind === 'competition' ? 'bg-amber-50' : 'bg-stu-light' }} flex items-center justify-center text-xl flex-shrink-0">{{ $kind === 'competition' ? '🏆' : '🎓' }}</span>
                                 <div class="flex-1 min-w-0">
                                     <p class="font-bold text-gray-800 text-sm truncate">
-                                        @if($cert->level) Level {{ $cert->level->number }}@if($cert->level->title) — {{ $cert->level->title }}@endif
+                                        @if($cert->level) {{ $cert->level->title }}
                                         @else {{ $cert->title ?? 'Certificate' }} @endif
                                     </p>
                                     <p class="text-xs text-gray-400">{{ $cert->issued_at?->format('d M Y') }}</p>

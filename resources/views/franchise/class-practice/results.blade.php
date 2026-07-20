@@ -71,7 +71,7 @@
                     </div>
                     <div class="py-6 px-4">
                         <p class="text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1">Level</p>
-                        <p class="text-3xl font-extrabold text-gray-900">L{{ $session->level?->number ?? '—' }}</p>
+                        <p class="text-3xl font-extrabold text-gray-900">{{ $session->level?->title ?? '—' }}</p>
                     </div>
                 </div>
 

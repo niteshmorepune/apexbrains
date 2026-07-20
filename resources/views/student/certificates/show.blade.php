@@ -1,8 +1,8 @@
 @extends('layouts.student')
-@section('title', 'Level ' . ($certificate->level?->number ?? '') . ' Certificate')
+@section('title', ($certificate->level?->title ?? '') . ' Certificate')
 
 @section('content')
-<x-student-header :title="($certificate->level ? 'Level '.$certificate->level->number : '').' Certificate'" :back="route('student.certificates.index')" />
+<x-student-header :title="($certificate->level?->title ?? '').' Certificate'" :back="route('student.certificates.index')" />
 
 <div class="px-4 pb-4 space-y-4">
 
@@ -17,7 +17,7 @@
         <p class="text-center text-xl font-black text-gray-900 mb-1">{{ $certificate->student?->full_name }}</p>
         <p class="text-center text-xs text-gray-400 mb-1">has successfully completed</p>
         <p class="text-center text-base font-bold text-fran mb-3">
-            @if($certificate->level)Level {{ $certificate->level->number }}@if($certificate->level->title) — {{ $certificate->level->title }}@endif
+            @if($certificate->level){{ $certificate->level->title }}
             @else{{ $certificate->title }}@endif
         </p>
 
@@ -38,7 +38,7 @@
 
         @php $whatsapp = $certificate->student?->primaryParent?->whatsapp ?? $certificate->student?->parent_whatsapp; @endphp
         @if($whatsapp)
-            <a href="https://wa.me/91{{ preg_replace('/\D/', '', $whatsapp) }}?text={{ urlencode('🎓 Certificate of Completion — ' . ($certificate->student?->full_name) . ' | Level ' . ($certificate->level?->number) . ' | Apex Brains Academy | Verify: ' . route('certificate.verify', $certificate->verification_code)) }}"
+            <a href="https://wa.me/91{{ preg_replace('/\D/', '', $whatsapp) }}?text={{ urlencode('🎓 Certificate of Completion — ' . ($certificate->student?->full_name) . ' | ' . ($certificate->level?->title) . ' | Apex Brains Academy | Verify: ' . route('certificate.verify', $certificate->verification_code)) }}"
                target="_blank" class="block w-full py-3.5 border border-stu text-stu rounded-2xl text-sm font-bold text-center">Share via WhatsApp</a>
         @endif
 

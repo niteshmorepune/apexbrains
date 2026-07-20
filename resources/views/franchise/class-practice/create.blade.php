@@ -35,7 +35,7 @@
                         <option value="">Choose a level…</option>
                         @foreach($levels as $level)
                             <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
-                                @if($level->title){{ $level->title }} (L{{ $level->number }})@else Level {{ $level->number }}@endif
+                                {{ $level->title }}
                             </option>
                         @endforeach
                     </select>

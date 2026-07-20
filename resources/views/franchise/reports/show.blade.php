@@ -56,7 +56,7 @@
                                 <span class="w-5 h-5 rounded-full border-2 border-gray-200 flex-shrink-0"></span>
                             @endif
                             <span class="text-sm flex-1 {{ $state === 'upcoming' ? 'text-gray-400' : 'text-gray-800 font-medium' }}">
-                                Level {{ $lvl->number }} — {{ $lvl->title }}
+                                {{ $lvl->title }}
                             </span>
                             @if($state === 'done')
                                 <span class="text-xs text-stu">Completed</span>
@@ -68,7 +68,7 @@
                 </ul>
                 @if($student->currentLevel && filled($student->currentLevel->learning_objectives))
                     <div class="mt-4 pt-4 border-t border-border">
-                        <p class="text-xs font-semibold text-gray-600 mb-2">Focus areas — Level {{ $student->currentLevel->number }} {{ $student->currentLevel->title }}</p>
+                        <p class="text-xs font-semibold text-gray-600 mb-2">Focus areas — {{ $student->currentLevel->title }}</p>
                         <ul class="space-y-1">
                             @foreach($student->currentLevel->learning_objectives as $obj)
                                 <li class="flex items-start gap-2 text-xs text-gray-600"><span class="text-fran mt-0.5">•</span><span>{{ $obj }}</span></li>
@@ -135,7 +135,7 @@
         <div class="bg-white rounded-2xl border border-border p-5">
             <h3 class="text-sm font-bold text-fran mb-3">Student Info</h3>
             <dl class="space-y-2 text-sm">
-                <div class="flex justify-between"><dt class="text-gray-500">Level</dt><dd class="font-medium">{{ $student->currentLevel ? 'Level ' . $student->currentLevel->number : '—' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Level</dt><dd class="font-medium">{{ $student->currentLevel?->title ?? '—' }}</dd></div>
                 <div class="flex justify-between"><dt class="text-gray-500">Enrolled</dt><dd>{{ $student->enrollment_date?->format('d M Y') }}</dd></div>
                 <div class="flex justify-between"><dt class="text-gray-500">Total Exams</dt><dd class="font-bold text-fran">{{ $attempts->count() }}</dd></div>
                 <div class="flex justify-between"><dt class="text-gray-500">Avg Score</dt><dd class="font-bold {{ $attempts->avg('percentage') >= 75 ? 'text-stu' : 'text-logo-amber' }}">{{ $attempts->count() ? number_format($attempts->avg('percentage'), 1) . '%' : '—' }}</dd></div>

@@ -14,8 +14,5 @@ $sizeClass = $size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-3 py-1';
 
 <span class="{{ $sizeClass }} rounded-full font-semibold inline-flex items-center gap-1"
       style="background-color: {{ $color }}20; color: {{ $color }}; border: 1px solid {{ $color }}40">
-    L{{ $num }}
-    @if(is_object($level) && isset($level->title))
-        <span class="hidden sm:inline">{{ $level->title }}</span>
-    @endif
+    {{ is_object($level) && isset($level->title) ? $level->title : 'L' . $num }}
 </span>

@@ -12,6 +12,7 @@
         'type'        => $s->student_type,
         'levelId'     => (string) ($s->current_level_id ?? ''),
         'levelNumber' => $s->currentLevel?->number,
+        'levelName'   => $s->currentLevel?->title,
         // Competitions this student is registered for (for participation certs).
         'comps'       => $s->competitionRegistrations
             ->filter(fn ($r) => $r->competition)
@@ -69,7 +70,7 @@
                                 class="w-full appearance-none border border-border rounded-xl pl-10 pr-4 py-3 text-sm text-gray-700 bg-bg-light focus:outline-none focus:ring-2 focus:ring-fran focus:bg-white">
                             <option value="">Search student name or ID...</option>
                             @foreach($students as $s)
-                                <option value="{{ $s->id }}">{{ $s->full_name }} — Level {{ $s->currentLevel?->number ?? '—' }} — ID: {{ $s->student_code }}</option>
+                                <option value="{{ $s->id }}">{{ $s->full_name }} — {{ $s->currentLevel?->title ?? 'No level' }} — ID: {{ $s->student_code }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -84,15 +85,15 @@
                                     class="w-full appearance-none border border-fran rounded-xl px-4 py-3 text-sm text-fran font-medium bg-blue-50 focus:outline-none focus:ring-2 focus:ring-fran">
                                 <option value="">Auto (student's current level)</option>
                                 @foreach($levels as $level)
-                                    <option value="{{ $level->id }}">Level {{ $level->number }} — Completed</option>
+                                    <option value="{{ $level->id }}">{{ $level->title }} — Completed</option>
                                 @endforeach
                             </select>
                             <svg class="w-4 h-4 text-fran absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                         </div>
-                        <span x-show="levelNumber" x-cloak
+                        <span x-show="levelName" x-cloak
                               class="flex-shrink-0 px-5 py-2.5 rounded-xl text-white text-sm font-bold"
                               :style="`background:${badgeColor}`"
-                              x-text="`L${levelNumber}`"></span>
+                              x-text="levelName"></span>
                     </div>
                 </div>
 
@@ -234,7 +235,7 @@
                             <td class="px-5 py-3.5 font-medium text-gray-800">{{ $cert->student?->full_name }}</td>
                             <td class="px-4 py-3.5">
                                 @if($cert->level)
-                                    <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">L{{ $cert->level->number }}</span>
+                                    <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">{{ $cert->level->title }}</span>
                                 @else
                                     <span class="text-gray-300">—</span>
                                 @endif
@@ -328,16 +329,14 @@ function certForm() {
         },
         get levelObj() { return this.levels.find(l => l.id === this.levelId) || null; },
         get levelNumber() { return this.levelObj?.number ?? this.student?.levelNumber ?? null; },
+        get levelName() { return this.levelObj?.title ?? this.student?.levelName ?? ''; },
         get studentName() { return this.student?.name ?? ''; },
         get badgeColor() {
             const n = this.levelNumber;
             return n ? this.colors[(n - 1) % this.colors.length] : '#9ca3af';
         },
         get levelLabel() {
-            const l = this.levelObj;
-            if (l) return `Level ${l.number} — ${l.title || 'Abacus Mental Math'}`;
-            if (this.student?.levelNumber) return `Level ${this.student.levelNumber} — Abacus Mental Math`;
-            return 'Level — Abacus Mental Math';
+            return this.levelName ? `${this.levelName} — Abacus Mental Math` : 'Abacus Mental Math';
         },
         get typeLabel() {
             if (this.isExternal) return 'Participation';

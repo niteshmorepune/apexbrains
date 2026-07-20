@@ -59,13 +59,13 @@ class PromotionController extends Controller
 
         if (! $this->hasPassedCurrentLevel($student)) {
             return back()->with('error',
-                "{$student->full_name} has not passed the Level {$student->currentLevel?->number} exam yet, so cannot be promoted.");
+                "{$student->full_name} has not passed the {$student->currentLevel?->title} exam yet, so cannot be promoted.");
         }
 
         $this->applyPromotion($student, (int) $data['new_level_id']);
 
         return back()->with('success',
-            "{$student->full_name} promoted to Level " . Level::find($data['new_level_id'])->number . '.');
+            "{$student->full_name} promoted to " . Level::find($data['new_level_id'])->title . '.');
     }
 
     /**

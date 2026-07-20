@@ -60,7 +60,7 @@ class DashboardController extends Controller
             ->sortBy(fn($r) => $r->currentLevel->sort_order ?? PHP_INT_MAX)
             ->values()
             ->map(fn($r) => [
-                'label' => $r->currentLevel->title ?? "Level {$r->current_level_id}",
+                'label' => $r->currentLevel->title ?? 'Unknown Level',
                 'total' => $r->total,
             ]);
 

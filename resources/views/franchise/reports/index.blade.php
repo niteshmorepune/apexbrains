@@ -13,7 +13,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
     <div class="bg-white rounded-2xl border border-border p-5">
         <h3 class="text-sm font-semibold text-fran mb-3">
-            {{ $topStudent->full_name }} — L{{ $topStudent->currentLevel?->number ?? '?' }} Performance
+            {{ $topStudent->full_name }} — {{ $topStudent->currentLevel?->title ?? 'Unranked' }} Performance
         </h3>
         <canvas id="radarChart" height="180"></canvas>
     </div>
@@ -96,7 +96,7 @@
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($s->currentLevel)
-                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full">L{{ $s->currentLevel->number }}</span>
+                            <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full">{{ $s->currentLevel->title }}</span>
                         @else
                             <span class="text-xs text-gray-400">—</span>
                         @endif

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('title', 'Edit ' . $level->title)
-@section('page-title', 'Level ' . $level->number . ' — Edit Syllabus')
+@section('page-title', $level->title . ' — Edit Syllabus')
 
 @section('content')
 
@@ -182,10 +182,7 @@
             ];
             $color = $levelColors[$level->number] ?? '#1A73E8';
             @endphp
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg mb-3"
-                 style="background-color: {{ $color }}">
-                L{{ $level->number }}
-            </div>
+            <div class="w-3 h-3 rounded-full mb-3" style="background-color: {{ $color }}"></div>
             <h3 class="font-semibold text-admin mb-3">{{ $level->title }}</h3>
             <div class="space-y-2 text-sm">
                 <div class="flex justify-between">

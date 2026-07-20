@@ -26,7 +26,7 @@
                 <p class="text-xs text-gray-400 mt-0.5">
                     {{ $fee->student?->student_code }}
                     @if($fee->student?->currentLevel)
-                        · Level {{ $fee->student->currentLevel->number }}
+                        · {{ $fee->student->currentLevel->title }}
                     @endif
                 </p>
             </div>

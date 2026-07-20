@@ -45,7 +45,7 @@ class LevelController extends Controller
         AuditLogger::log('level_created', 'Level', $level->id);
 
         return redirect()->route('admin.levels.index')
-            ->with('success', "Level {$level->number} created successfully.");
+            ->with('success', "{$level->title} created successfully.");
     }
 
     public function show(Level $level): View
@@ -104,17 +104,17 @@ class LevelController extends Controller
         AuditLogger::log('level_updated', 'Level', $level->id);
 
         return redirect()->route('admin.levels.index')
-            ->with('success', "Level {$level->number} updated.");
+            ->with('success', "{$level->title} updated.");
     }
 
     public function destroy(Level $level): RedirectResponse
     {
         if ($level->students()->exists()) {
-            return back()->with('error', "Cannot delete Level {$level->number} — it has active students.");
+            return back()->with('error', "Cannot delete {$level->title} — it has active students.");
         }
 
         $level->delete();
         return redirect()->route('admin.levels.index')
-            ->with('success', "Level {$level->number} deleted.");
+            ->with('success', "{$level->title} deleted.");
     }
 }

@@ -44,7 +44,7 @@
                             <p class="text-xs text-gray-400">{{ $exam->scheduled_at_ist->format('d M Y, H:i') }}</p>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-center text-gray-600">Level {{ $exam->level?->number }}</td>
+                    <td class="px-4 py-3 text-center text-gray-600">{{ $exam->level?->title ?? '—' }}</td>
                     <td class="px-4 py-3 text-center font-medium text-gray-700">{{ $exam->total_questions }}</td>
                     <td class="px-4 py-3 text-center text-gray-600">{{ $exam->duration_minutes }} min</td>
                     <td class="px-4 py-3 text-center text-gray-600">{{ number_format($exam->pass_percentage, 0) }}%</td>

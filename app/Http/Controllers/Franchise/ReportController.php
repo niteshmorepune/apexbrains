@@ -74,7 +74,7 @@ class ReportController extends Controller
         [$attempts, $chartData, $radarData] = $this->buildReportData($student);
         $levels = Level::orderBy('number')->get();
 
-        $pdf = Pdf::loadView('franchise.reports.show', compact('student', 'attempts', 'chartData', 'radarData', 'levels'))
+        $pdf = Pdf::loadView('franchise.reports.progress-report-print', compact('student', 'attempts', 'chartData', 'radarData', 'levels'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('progress-report-' . $student->student_code . '.pdf');

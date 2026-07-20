@@ -34,7 +34,7 @@
                         class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     @foreach($levels as $level)
                         <option value="{{ $level->id }}" @selected(old('level_id', $exam->level_id) == $level->id)>
-                            Level {{ $level->number }}@if($level->title) — {{ $level->title }}@endif
+                            {{ $level->title }}
                         </option>
                     @endforeach
                 </select>

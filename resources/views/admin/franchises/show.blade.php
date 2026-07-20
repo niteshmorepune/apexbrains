@@ -224,7 +224,7 @@
                             </td>
                             <td class="px-4 py-2.5 text-center">
                                 @if($s->currentLevel)
-                                    <span class="text-xs bg-bg-mid text-gray-600 px-2 py-0.5 rounded-full font-medium">L{{ $s->currentLevel->number }}</span>
+                                    <span class="text-xs bg-bg-mid text-gray-600 px-2 py-0.5 rounded-full font-medium">{{ $s->currentLevel->title }}</span>
                                 @else
                                     <span class="text-xs text-gray-400">—</span>
                                 @endif

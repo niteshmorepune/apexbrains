@@ -24,8 +24,7 @@ $color = $levelColors[$level->number] ?? '#1A73E8';
     <div class="col-span-2 space-y-4">
         <div class="bg-white rounded-2xl border border-border p-6">
             <div class="flex items-center gap-4 mb-4">
-                <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-xl"
-                     style="background-color: {{ $color }}">L{{ $level->number }}</div>
+                <div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: {{ $color }}"></div>
                 <div>
                     <h2 class="font-bold text-admin text-base">{{ $level->title }}</h2>
                     <p class="text-sm text-gray-400">{{ number_format($level->students_count) }} students enrolled</p>

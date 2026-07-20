@@ -56,7 +56,7 @@
                         <option value="">All Levels</option>
                         @foreach($levels as $level)
                             <option value="{{ $level->id }}" @selected(old('level_id') == $level->id)>
-                                Level {{ $level->number }} — {{ $level->title }}
+                                {{ $level->title }}
                             </option>
                         @endforeach
                     </select>
@@ -160,7 +160,7 @@
                             </td>
                             <td class="px-4 py-3 text-center">
                                 @if($file->level)
-                                    <span class="text-xs bg-fran-light text-fran px-2 py-0.5 rounded-full font-medium">L{{ $file->level->number }}</span>
+                                    <span class="text-xs bg-fran-light text-fran px-2 py-0.5 rounded-full font-medium">{{ $file->level->title }}</span>
                                 @else
                                     <span class="text-xs text-gray-400">All</span>
                                 @endif

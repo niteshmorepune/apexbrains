@@ -95,7 +95,7 @@
             <td class="lbl">Date</td><td class="val">{{ $payment->payment_date?->format('d M Y') }}</td></tr>
         <tr><td class="lbl">Student Name</td><td class="val">{{ $payment->student?->full_name }}</td>
             <td class="lbl">Student ID</td><td class="val">{{ $payment->student?->student_code }}</td></tr>
-        <tr><td class="lbl">Level</td><td class="val">{{ $payment->student?->currentLevel ? 'Level ' . $payment->student->currentLevel->number : '—' }}</td>
+        <tr><td class="lbl">Level</td><td class="val">{{ $payment->student?->currentLevel?->title ?? '—' }}</td>
             <td class="lbl">Academic Year</td><td class="val">{{ $academicYear }}</td></tr>
         <tr><td class="lbl">Fee Type</td><td class="val">{{ $feeTypeLabel }}</td>
             <td class="lbl">Month</td><td class="val">{{ $payment->fee?->month?->format('M Y') ?? '—' }}</td></tr>

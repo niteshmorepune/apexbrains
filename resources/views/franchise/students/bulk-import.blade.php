@@ -51,7 +51,11 @@
             </a>
             <div class="mt-4 bg-bg-light rounded-xl p-3 text-xs text-gray-500">
                 <p class="font-semibold mb-1">Required columns:</p>
-                <p>Name, DOB (YYYY-MM-DD), Gender, Parent Name, Mobile, Level (1–14), Email, Password (min 8 chars)</p>
+                <p>Name, DOB, Gender, Parent Name, Mobile, Level, Email, Password (min 8 chars)</p>
+                <p class="font-semibold mt-2 mb-1">Optional columns:</p>
+                <p>Student Type (Internal/External — defaults to Internal if left blank)</p>
+                <p class="font-semibold mt-2 mb-1">Format notes:</p>
+                <p>DOB accepts common formats (e.g. 2015-06-15, 15-06-2015, 15/06/2015). Level accepts the level name (e.g. Junior-1, Regular-3). Duplicate mobile numbers are allowed (siblings can share a parent number); duplicate emails are not.</p>
             </div>
         </div>
 
@@ -128,7 +132,7 @@
                         <td class="px-4 py-2.5 text-gray-400 text-xs">{{ $row['row'] }}</td>
                         <td class="px-4 py-2.5 font-medium text-admin">{{ $row['name'] }}</td>
                         <td class="px-4 py-2.5 text-center">
-                            <span class="text-xs bg-fran-light text-fran px-2 py-0.5 rounded-full font-medium">L{{ $row['level'] }}</span>
+                            <span class="text-xs bg-fran-light text-fran px-2 py-0.5 rounded-full font-medium">{{ $row['level'] ?: '—' }}</span>
                         </td>
                         <td class="px-4 py-2.5 text-gray-600">{{ $row['mobile'] }}</td>
                         <td class="px-4 py-2.5 text-center">

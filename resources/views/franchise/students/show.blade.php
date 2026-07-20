@@ -53,7 +53,7 @@
                     <span class="text-xs bg-yellow-500 text-white px-2 py-0.5 rounded-full font-semibold">External</span>
                 @endif
                 @if($student->currentLevel)
-                    <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">Level {{ $student->currentLevel->number }} — {{ $student->currentLevel->title }}</span>
+                    <span class="text-xs bg-blue-50 text-fran px-2 py-0.5 rounded-full font-medium">{{ $student->currentLevel->title }}</span>
                 @endif
                 <span class="text-xs capitalize text-gray-500">{{ $student->gender }}</span>
                 <span class="text-xs {{ $student->is_active ? 'text-stu' : 'text-gray-400' }}">{{ $student->is_active ? 'Active' : 'Inactive' }}</span>
@@ -285,7 +285,7 @@
                             @foreach($student->certificates->sortByDesc('issued_at') as $cert)
                                 <div class="px-5 py-3 flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-800 capitalize">{{ str_replace('_', ' ', $cert->type) }}{{ $cert->level ? ' — Level ' . $cert->level->number : '' }}</p>
+                                        <p class="text-sm font-medium text-gray-800 capitalize">{{ str_replace('_', ' ', $cert->type) }}{{ $cert->level ? ' — ' . $cert->level->title : '' }}</p>
                                         <p class="text-xs text-gray-400 mt-0.5 font-mono">{{ $cert->certificate_number }} · {{ $cert->issued_at?->format('d M Y') }}</p>
                                     </div>
                                     @if($cert->is_revoked)
@@ -413,7 +413,7 @@
                                         : null;
                                 @endphp
                                 @foreach($levels as $lvl)
-                                    <option value="{{ $lvl->id }}" @selected($lvl->number === $suggestedNum)>Level {{ $lvl->number }} — {{ $lvl->title }}</option>
+                                    <option value="{{ $lvl->id }}" @selected($lvl->number === $suggestedNum)>{{ $lvl->title }}</option>
                                 @endforeach
                             </select>
                             <button type="submit" class="w-full py-2 bg-fran text-white rounded-lg text-sm font-semibold hover:bg-fran-dark">Promote</button>
@@ -434,7 +434,7 @@
             <div class="bg-white rounded-2xl border border-border p-5">
                 <h3 class="text-sm font-bold text-fran mb-3">At a Glance</h3>
                 <dl class="space-y-2 text-sm">
-                    <div class="flex justify-between"><dt class="text-gray-500">Level</dt><dd class="font-medium">{{ $student->currentLevel ? 'Level ' . $student->currentLevel->number : '—' }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500">Level</dt><dd class="font-medium">{{ $student->currentLevel?->title ?? '—' }}</dd></div>
                     @if($student->student_type === 'internal')
                         <div class="flex justify-between"><dt class="text-gray-500">Avg Score</dt><dd class="font-bold {{ ($avgScore ?? 0) >= 75 ? 'text-stu' : 'text-logo-amber' }}">{{ $avgScore !== null ? number_format($avgScore, 0) . '%' : '—' }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500">Exams Taken</dt><dd class="font-bold text-fran">{{ $examCount }}</dd></div>

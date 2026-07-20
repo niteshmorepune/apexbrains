@@ -64,7 +64,7 @@ class CompetitionPracticeConfigController extends Controller
 
         AuditLogger::log('competition_practice_duration_updated', 'CompetitionPracticeLevel', $level->id);
 
-        return back()->with('success', "Duration updated for Level {$level->number}.");
+        return back()->with('success', "Duration updated for {$level->title}.");
     }
 
     public function template(): StreamedResponse

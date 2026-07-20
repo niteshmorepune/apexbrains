@@ -105,7 +105,7 @@
                 @foreach($competition->questionPapers as $paper)
                     <tr>
                         <td class="py-3 pr-4 font-medium text-admin">{{ $paper->title }}</td>
-                        <td class="py-3 px-4 text-center text-gray-600">{{ $paper->level ? 'Level ' . $paper->level->number : '—' }}</td>
+                        <td class="py-3 px-4 text-center text-gray-600">{{ $paper->level?->title ?? '—' }}</td>
                         <td class="py-3 px-4 text-center font-medium text-gray-700">{{ $paper->items_count }}</td>
                         <td class="py-3 px-4 text-center text-gray-600">{{ $paper->duration_minutes }} min</td>
                         <td class="py-3 px-4 text-center text-gray-600">{{ $paper->pass_percentage }}%</td>

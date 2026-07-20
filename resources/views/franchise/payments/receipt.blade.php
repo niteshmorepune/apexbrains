@@ -87,7 +87,7 @@
                 'Date'           => $payment->payment_date?->format('d M Y'),
                 'Student Name'   => $payment->student?->full_name,
                 'Student ID'     => $payment->student?->student_code,
-                'Level'          => $payment->student?->currentLevel ? 'Level ' . $payment->student->currentLevel->number : '—',
+                'Level'          => $payment->student?->currentLevel?->title ?? '—',
                 'Academic Year'  => $academicYear,
                 'Fee Type'       => $payment->fee?->fee_type
                     ? ucwords(str_replace('_', ' ', $payment->fee->fee_type)) : '—',

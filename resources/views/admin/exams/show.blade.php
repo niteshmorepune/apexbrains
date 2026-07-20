@@ -29,7 +29,7 @@
         <div class="bg-white rounded-2xl border border-border p-5">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Exam Details</h2>
             <div class="space-y-3 text-sm">
-                <div class="flex justify-between"><span class="text-gray-500">Level</span><span class="font-medium">Level {{ $exam->level?->number }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Level</span><span class="font-medium">{{ $exam->level?->title ?? '—' }}</span></div>
                 <div class="flex justify-between"><span class="text-gray-500">Questions</span><span class="font-medium">{{ $exam->total_questions }}</span></div>
                 <div class="flex justify-between"><span class="text-gray-500">Duration</span><span class="font-medium">{{ $exam->duration_minutes }} min</span></div>
                 <div class="flex justify-between"><span class="text-gray-500">Pass Mark</span><span class="font-medium text-fran">{{ number_format($exam->pass_percentage, 0) }}%</span></div>

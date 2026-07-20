@@ -49,7 +49,7 @@
                    class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors
                           {{ $activeLevel === $level->id ? 'bg-fran text-white' : 'bg-bg-light text-gray-600 hover:bg-blue-50' }}">
                     <span class="w-2 h-2 rounded-full {{ $activeLevel === $level->id ? 'bg-white/80' : $lbg }} {{ $activeLevel === $level->id ? '' : 'ring-1 ring-inset' }}"></span>
-                    Level {{ $level->number }}
+                    {{ $level->title }}
                 </a>
             @endforeach
         </div>
@@ -60,18 +60,12 @@
             @php [$lbg, $ltext] = $levelStyle($session->level?->number); @endphp
             <div class="px-5 py-4 hover:bg-bg-light flex items-center gap-4">
                 {{-- Level badge --}}
-                <div class="flex-shrink-0 w-12 h-12 rounded-xl {{ $lbg }} {{ $ltext }} flex flex-col items-center justify-center leading-none">
-                    <span class="text-[9px] font-bold uppercase tracking-wide opacity-70">Lvl</span>
-                    <span class="text-base font-extrabold">{{ $session->level?->number ?? '—' }}</span>
-                </div>
+                <div class="flex-shrink-0 w-3 h-3 rounded-full {{ $lbg }}"></div>
 
                 <div class="flex-1 min-w-0">
                     <p class="font-semibold text-gray-800 text-sm truncate">{{ $session->title }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">
-                        <span class="font-medium {{ $ltext }}">Level {{ $session->level?->number ?? '?' }}</span>
-                        @if($session->level?->title)
-                            · {{ $session->level->title }}
-                        @endif
+                        <span class="font-medium {{ $ltext }}">{{ $session->level?->title ?? 'No level' }}</span>
                         @if($session->batch)
                             · {{ $session->batch->name }}
                         @endif
