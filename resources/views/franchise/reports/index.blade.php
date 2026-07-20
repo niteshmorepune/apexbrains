@@ -161,4 +161,27 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endif
+@if($topStudent && count($topChartData) > 0)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const topChartData = @json($topChartData);
+    new Chart(document.getElementById('historyChart'), {
+        type: 'line',
+        data: {
+            labels: topChartData.map(d => d.label),
+            datasets: [{
+                data: topChartData.map(d => d.score),
+                borderColor: '#1A73E8',
+                backgroundColor: 'rgba(26,115,232,0.08)',
+                borderWidth: 2, fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#1A73E8'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } }
+        }
+    });
+});
+</script>
+@endif
 @endpush

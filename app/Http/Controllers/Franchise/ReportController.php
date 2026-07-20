@@ -58,7 +58,7 @@ class ReportController extends Controller
             ? $this->buildReportData($topStudent)
             : [collect(), [], []];
 
-        return view('franchise.reports.index', compact('students', 'topStudent', 'topRadarData', 'type', 'internalCount', 'externalCount'));
+        return view('franchise.reports.index', compact('students', 'topStudent', 'topChartData', 'topRadarData', 'type', 'internalCount', 'externalCount'));
     }
 
     public function show(Student $student): View
