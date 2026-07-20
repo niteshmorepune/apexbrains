@@ -20,6 +20,7 @@
     <form method="GET" action="{{ route('franchise.students.index') }}" id="studentFilter" class="flex items-center gap-3">
         <input type="hidden" name="level_group" value="{{ request('level_group') }}">
         <input type="hidden" name="tab" value="{{ $tab }}">
+        <input type="hidden" name="status" value="{{ $status }}">
         <div class="relative flex-1">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
@@ -49,6 +50,16 @@
                 {{ $label }}
             </a>
         @endforeach
+        <span class="text-gray-300 text-xs mx-1">|</span>
+        {{-- Status pills --}}
+        <span class="text-xs text-gray-500 mr-1">Status:</span>
+        @foreach(['active' => "Active ({$activeCount})", 'inactive' => "Inactive ({$inactiveCount})", 'all' => 'All'] as $st => $label)
+            <a href="{{ route('franchise.students.index', array_merge(request()->except('status','page'), ['status' => $st])) }}"
+               class="px-3 py-1 rounded-full text-xs font-medium border transition-colors
+                      {{ $status === $st ? 'bg-fran text-white border-fran' : 'border-border text-gray-600 hover:border-fran' }}">
+                {{ $label }}
+            </a>
+        @endforeach
     </div>
 </div>
 
@@ -60,7 +71,7 @@
         </h2>
         <span class="text-xs text-gray-400">{{ $students->total() }} students</span>
     </div>
-    <div class="overflow-x-auto"><table class="w-full min-w-[900px] text-sm">
+    <div class="overflow-x-auto"><table class="w-full min-w-[980px] text-sm">
         <thead>
             <tr class="bg-fran">
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Photo</th>
@@ -70,6 +81,7 @@
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Enrolled</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Last Score</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Student Type</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Status</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Action</th>
             </tr>
         </thead>
@@ -112,6 +124,13 @@
                         @endif
                     </td>
                     <td class="px-4 py-3 text-center">
+                        @if($s->is_active)
+                            <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-medium">Active</span>
+                        @else
+                            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">Inactive</span>
+                        @endif
+                    </td>
+                    <td class="px-4 py-3 text-center">
                         <div class="flex items-center justify-center gap-3">
                             <a href="{{ route('franchise.students.show', $s) }}" class="text-xs text-fran hover:underline">View</a>
                             <a href="{{ route('franchise.fees.record', ['student_id' => $s->id]) }}" class="text-xs text-fran hover:underline">Fee</a>
@@ -129,7 +148,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="px-5 py-10 text-center text-gray-400">
+                    <td colspan="9" class="px-5 py-10 text-center text-gray-400">
                         No students found. <a href="{{ route('franchise.students.create') }}" class="text-fran underline">Register your first student</a>
                     </td>
                 </tr>

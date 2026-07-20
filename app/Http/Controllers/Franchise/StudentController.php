@@ -31,12 +31,20 @@ class StudentController extends Controller
             $tab = 'all';
         }
 
+        $status = $request->get('status', 'active');
+        if (! in_array($status, ['active', 'inactive', 'all'])) {
+            $status = 'active';
+        }
+
         $query = Student::with([
                 'currentLevel',
                 'primaryParent',
                 'examAttempts' => fn ($q) => $q->where('status', 'submitted')->latest('submitted_at')->limit(1),
-            ])
-            ->where('is_active', true);
+            ]);
+
+        if ($status !== 'all') {
+            $query->where('is_active', $status === 'active');
+        }
 
         if ($tab !== 'all') {
             $query->where('student_type', $tab);
@@ -70,7 +78,14 @@ class StudentController extends Controller
         $externalCount = Student::where('is_active', true)->where('student_type', 'external')->count();
         $allCount      = $internalCount + $externalCount;
 
-        return view('franchise.students.index', compact('students', 'levels', 'tab', 'internalCount', 'externalCount', 'allCount'));
+        $activeCount   = Student::where('is_active', true)->count();
+        $inactiveCount = Student::where('is_active', false)->count();
+
+        return view('franchise.students.index', compact(
+            'students', 'levels', 'tab', 'status',
+            'internalCount', 'externalCount', 'allCount',
+            'activeCount', 'inactiveCount'
+        ));
     }
 
     public function create(): View
