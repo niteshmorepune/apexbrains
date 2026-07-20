@@ -20,6 +20,7 @@ class FeeController extends Controller
         $tab = $request->get('tab', 'all');
 
         $query = Fee::with(['student', 'student.currentLevel', 'payments'])
+            ->whereHas('student', fn ($q) => $q->where('is_active', true))
             ->whereYear('month', $year)
             ->whereMonth('month', $mo);
 
@@ -43,7 +44,8 @@ class FeeController extends Controller
         $fees = $query->orderBy('due_date')->paginate(25)->withQueryString();
 
         // KPIs
-        $allFees = Fee::whereYear('month', $year)->whereMonth('month', $mo);
+        $allFees = Fee::whereHas('student', fn ($q) => $q->where('is_active', true))
+            ->whereYear('month', $year)->whereMonth('month', $mo);
         $stats = [
             'collected'      => (clone $allFees)->where('status', 'paid')->sum('paid_amount'),
             'outstanding'    => (clone $allFees)->whereIn('status', ['pending', 'partial', 'overdue'])->sum('amount'),
@@ -81,6 +83,7 @@ class FeeController extends Controller
     public function reminders(): View
     {
         $allFees = Fee::with(['student.currentLevel', 'student.primaryParent'])
+            ->whereHas('student', fn ($q) => $q->where('is_active', true))
             ->whereIn('status', ['pending', 'partial', 'overdue'])
             ->orderBy('due_date');
 
@@ -99,15 +102,16 @@ class FeeController extends Controller
             return $fee;
         })->sortByDesc('overdue_days');
 
+        $activeStudent = fn ($q) => $q->where('is_active', true);
         $stats = [
-            'due_this_month'  => Fee::whereIn('status', ['pending', 'partial'])->whereMonth('due_date', now()->month)->sum('amount'),
-            'due_count'       => Fee::whereIn('status', ['pending', 'partial'])->whereMonth('due_date', now()->month)->count(),
-            'overdue_30'      => Fee::where('status', 'overdue')->where('due_date', '<=', now()->subDays(30))->sum('amount'),
-            'overdue_30_count'=> Fee::where('status', 'overdue')->where('due_date', '<=', now()->subDays(30))->count(),
-            'overdue_60'      => Fee::where('status', 'overdue')->where('due_date', '<=', now()->subDays(60))->sum('amount'),
-            'overdue_60_count'=> Fee::where('status', 'overdue')->where('due_date', '<=', now()->subDays(60))->count(),
-            'total_outstanding'=> Fee::whereIn('status', ['pending', 'partial', 'overdue'])->sum('amount'),
-            'total_count'      => Fee::whereIn('status', ['pending', 'partial', 'overdue'])->count(),
+            'due_this_month'  => Fee::whereHas('student', $activeStudent)->whereIn('status', ['pending', 'partial'])->whereMonth('due_date', now()->month)->sum('amount'),
+            'due_count'       => Fee::whereHas('student', $activeStudent)->whereIn('status', ['pending', 'partial'])->whereMonth('due_date', now()->month)->count(),
+            'overdue_30'      => Fee::whereHas('student', $activeStudent)->where('status', 'overdue')->where('due_date', '<=', now()->subDays(30))->sum('amount'),
+            'overdue_30_count'=> Fee::whereHas('student', $activeStudent)->where('status', 'overdue')->where('due_date', '<=', now()->subDays(30))->count(),
+            'overdue_60'      => Fee::whereHas('student', $activeStudent)->where('status', 'overdue')->where('due_date', '<=', now()->subDays(60))->sum('amount'),
+            'overdue_60_count'=> Fee::whereHas('student', $activeStudent)->where('status', 'overdue')->where('due_date', '<=', now()->subDays(60))->count(),
+            'total_outstanding'=> Fee::whereHas('student', $activeStudent)->whereIn('status', ['pending', 'partial', 'overdue'])->sum('amount'),
+            'total_count'      => Fee::whereHas('student', $activeStudent)->whereIn('status', ['pending', 'partial', 'overdue'])->count(),
         ];
 
         return view('franchise.fees.reminders', compact('fees', 'stats'));
