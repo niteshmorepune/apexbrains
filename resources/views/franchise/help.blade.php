@@ -27,7 +27,7 @@
             <div x-show="open === 'students'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
                 <p><span class="font-semibold text-gray-700">Register a student:</span> Students → Register. Add the photo, personal info, parent contact (with relationship), course enrolment (level, class schedule, auto-filled monthly fee), and any special notes. A login account is created automatically.</p>
                 <p><span class="font-semibold text-gray-700">Bulk import:</span> Students → Bulk Import. Download the CSV template, fill it in, and upload — you get a <em>preview</em> showing valid / error / duplicate rows before confirming the import.</p>
-                <p><span class="font-semibold text-gray-700">Filter the list:</span> Use the Internal/External and level pills to narrow the student list.</p>
+                <p><span class="font-semibold text-gray-700">Filter the list:</span> Use the Internal/External, level, and Active/Inactive/All Status pills to narrow the student list. Deactivating a student (via Edit → uncheck Active Student) keeps their record — switch the Status filter to Inactive or All to find and reactivate them.</p>
                 <p><span class="font-semibold text-gray-700">Edit / deactivate:</span> Click a student's name to open their profile, then Edit to update details or toggle active status.</p>
                 <p><span class="font-semibold text-gray-700">Student login:</span> Internal students log in at <code class="bg-gray-100 px-1 rounded">/login</code> with their registered email and password.</p>
             </div>

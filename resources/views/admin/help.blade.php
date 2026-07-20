@@ -90,7 +90,7 @@
                 <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'curriculum' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open === 'curriculum'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
-                <p><span class="font-semibold text-admin">Levels:</span> The system supports up to 14 levels. Each level has a number (1–14), a title, and an active/inactive toggle.</p>
+                <p><span class="font-semibold text-admin">Levels:</span> The curriculum has 11 levels — Junior-1 through Junior-4, then Regular-1 through Regular-7. Each level has a name, a description, and an active/inactive toggle.</p>
                 <p><span class="font-semibold text-admin">Assigning levels to students:</span> Done by franchise admins via the Promotions section in their panel. Admin sets up the levels; franchise manages student progression.</p>
             </div>
         </div>
@@ -109,7 +109,7 @@
             </button>
             <div x-show="open === 'competitions'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
                 <p><span class="font-semibold text-admin">Create a competition:</span> Competitions → New Competition. Set the title, date range, max participants per franchise, and registration fee.</p>
-                <p><span class="font-semibold text-admin">Level-wise question papers:</span> Open a competition → Add Paper. Upload a separate paper (CSV/Excel) for each level, so a Level 5 student sits the Level 5 paper, a Level 3 student the Level 3 paper, and so on. Students are automatically served the paper matching their current level.</p>
+                <p><span class="font-semibold text-admin">Level-wise question papers:</span> Open a competition → Add Paper. Upload a separate paper (CSV/Excel) for each level, so a Regular-1 student sits the Regular-1 paper, a Junior-3 student the Junior-3 paper, and so on. Students are automatically served the paper matching their current level.</p>
                 <p><span class="font-semibold text-admin">Registrations:</span> Franchise admins register their students for competitions. You can view registrations from the competition detail page.</p>
             </div>
         </div>
