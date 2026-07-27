@@ -44,15 +44,15 @@ class CertificateController extends Controller
             'competition_id' => ['nullable', 'exists:competitions,id'],
             'issued_at'      => ['nullable', 'date'],
             'series'         => ['nullable', 'string', 'max:50'],
-            'type'           => ['required', 'in:level_completion,merit,excellence,competition'],
+            'type'           => ['required', 'in:level_up,level_completion,merit,excellence,competition,participation'],
         ]);
 
         $student     = Student::with('currentLevel')->findOrFail($data['student_id']);
         $franchiseId = Auth::user()->franchise_id;
 
         // External (competition-only) students get a participation certificate tied
-        // to a competition; internal students get a level-completion certificate.
-        $isParticipation = $student->student_type === 'external' || $data['type'] === 'competition';
+        // to a competition; internal students get a level-up certificate.
+        $isParticipation = $student->student_type === 'external' || in_array($data['type'], ['competition', 'participation'], true);
 
         if ($isParticipation) {
             if (empty($data['competition_id'])) {
@@ -67,7 +67,8 @@ class CertificateController extends Controller
 
             // Registration is mandatory before a certificate can be generated.
             $certificate = app(CertificateIssuer::class)->issueForCompetition(
-                $student, $competition, Auth::id(), $data['series'] ?? null, $data['issued_at'] ?? null
+                $student, $competition, Auth::id(), $data['series'] ?? null, $data['issued_at'] ?? null,
+                $data['level_id'] ?? $student->current_level_id
             );
 
             if (! $certificate) {
@@ -80,12 +81,12 @@ class CertificateController extends Controller
                 ->with('success', "Certificate {$certificate->certificate_number} generated and sent for {$student->full_name}.");
         }
 
-        // A level-completion certificate may only be issued once the student has
+        // A level-up certificate may only be issued once the student has
         // actually PASSED the level-up exam for that level. Merit / excellence
         // certificates are discretionary and not gated.
         $targetLevelId = $data['level_id'] ?? $student->current_level_id;
 
-        if ($data['type'] === 'level_completion') {
+        if (in_array($data['type'], ['level_up', 'level_completion'], true)) {
             $passedExam = \App\Models\ExamAttempt::where('student_id', $student->id)
                 ->where('is_passed', true)
                 ->whereHas('exam', fn ($q) => $q->where('level_id', $targetLevelId))
@@ -93,12 +94,12 @@ class CertificateController extends Controller
 
             if (! $passedExam) {
                 return back()
-                    ->withErrors(['level_id' => "{$student->full_name} has not passed the level-up exam for this level yet. A level-completion certificate can only be issued after the exam is passed."])
+                    ->withErrors(['level_id' => "{$student->full_name} has not passed the level-up exam for this level yet. A level-up certificate can only be issued after the exam is passed."])
                     ->withInput();
             }
         }
 
-        // Internal level-completion / merit / excellence certificate.
+        // Internal level-up / merit / excellence certificate.
         $certNumber       = 'CERT-' . strtoupper(Str::random(8));
         $verificationCode = Str::uuid()->toString();
 
@@ -112,6 +113,7 @@ class CertificateController extends Controller
             'type'              => $data['type'],
             'series'            => $data['series'] ?? null,
             'issued_at'         => $data['issued_at'] ?? now(),
+            'place'             => Auth::user()->franchise?->city,
             // "Generate and Send" marks the certificate as delivered immediately.
             'sent_at'           => now(),
             'issued_by'         => Auth::id(),
@@ -137,7 +139,7 @@ class CertificateController extends Controller
 
     public function download(Certificate $certificate): View
     {
-        $certificate->load('student.currentLevel', 'level', 'competition', 'issuedBy');
+        $certificate->load('student.currentLevel', 'level', 'competition', 'issuedBy', 'franchise');
 
         return view('franchise.certificates.certificate-document', [
             'certificate' => $certificate,
@@ -158,13 +160,13 @@ class CertificateController extends Controller
 
     public function downloadPdf(Certificate $certificate): Response
     {
-        $certificate->load('student.currentLevel', 'level', 'competition', 'issuedBy');
+        $certificate->load('student.currentLevel', 'level', 'competition', 'issuedBy', 'franchise');
 
         $pdf = Pdf::loadView('franchise.certificates.certificate-document', [
             'certificate' => $certificate,
             'pdf'         => true,
             'logo'        => Certificate::brandLogoDataUri(),
-        ])->setPaper('a4', 'landscape');
+        ])->setPaper(...Certificate::paperConfigFor($certificate->type));
 
         return $pdf->download('certificate-' . $certificate->certificate_number . '.pdf');
     }

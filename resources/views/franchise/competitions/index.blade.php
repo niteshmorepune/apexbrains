@@ -57,6 +57,12 @@
                         registered
                     @endif
                 </p>
+                @if($competition->results_declared_at)
+                    <a href="{{ route('franchise.competitions.results', $competition) }}"
+                       class="inline-block mt-2 text-xs bg-fran text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-fran-dark">
+                        View Results
+                    </a>
+                @endif
             </div>
         </div>
 

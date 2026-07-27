@@ -3,8 +3,7 @@
 
 @section('content')
 @php
-    $examCerts = $certificates->whereNotIn('type', ['competition']);
-    $compCerts = $certificates->where('type', 'competition');
+    $compCerts = $certificates->whereIn('type', ['competition', 'participation', 'champion', 'winner']);
 @endphp
 
 <div x-data="{ view: 'menu' }">

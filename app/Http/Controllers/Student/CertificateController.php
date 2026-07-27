@@ -41,7 +41,7 @@ class CertificateController extends Controller
             abort(403);
         }
 
-        $certificate->load(['student', 'level', 'issuedBy']);
+        $certificate->load(['student', 'level', 'issuedBy', 'franchise']);
 
         return view('student.certificates.show', compact('certificate'));
     }
@@ -54,7 +54,7 @@ class CertificateController extends Controller
             abort(403);
         }
 
-        $certificate->load(['student', 'level', 'issuedBy']);
+        $certificate->load(['student', 'level', 'issuedBy', 'franchise']);
 
         return view('franchise.certificates.certificate-document', [
             'certificate' => $certificate,
@@ -73,13 +73,13 @@ class CertificateController extends Controller
             abort(403);
         }
 
-        $certificate->load(['student', 'level', 'issuedBy']);
+        $certificate->load(['student', 'level', 'issuedBy', 'franchise']);
 
         $pdf = Pdf::loadView('franchise.certificates.certificate-document', [
             'certificate' => $certificate,
             'pdf'         => true,
             'logo'        => Certificate::brandLogoDataUri(),
-        ])->setPaper('a4', 'landscape');
+        ])->setPaper(...Certificate::paperConfigFor($certificate->type));
 
         return $pdf->download('certificate-' . $certificate->certificate_number . '.pdf');
     }

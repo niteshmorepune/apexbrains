@@ -81,7 +81,7 @@ class CompetitionController extends Controller
 
         $attempts = CompetitionExamAttempt::where('competition_id', $competition->id)
             ->where('status', 'submitted')
-            ->with('student')
+            ->with('student', 'paper')
             ->get();
 
         if ($attempts->isEmpty()) {
@@ -90,10 +90,12 @@ class CompetitionController extends Controller
 
         $competition->update(['results_declared_at' => now()]);
 
+        // Backfill safety net — participation certificates are normally issued
+        // automatically at submission time (Student/External CompetitionController).
         $issuer = app(CertificateIssuer::class);
         foreach ($attempts as $attempt) {
             if ($attempt->student) {
-                $issuer->issueForCompetition($attempt->student, $competition, Auth::id());
+                $issuer->issueForCompetition($attempt->student, $competition, Auth::id(), null, null, $attempt->paper?->level_id);
             }
         }
 

@@ -71,6 +71,12 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
         Route::post('competitions/{competition}/register', [\App\Http\Controllers\Franchise\CompetitionRegistrationController::class, 'store'])->name('competitions.register');
         Route::get('competitions', [\App\Http\Controllers\Franchise\CompetitionRegistrationController::class, 'index'])->name('competitions.index');
 
+        // Competition results — level-wise ranking + Champion/Winner certificate generation
+        Route::get('competitions/{competition}/results', [\App\Http\Controllers\Franchise\CompetitionResultsController::class, 'show'])->name('competitions.results');
+        Route::post('competitions/{competition}/levels/{level}/certificates/{band}', [\App\Http\Controllers\Franchise\CompetitionResultsController::class, 'generate'])
+            ->whereIn('band', ['champion', 'winner'])
+            ->name('competitions.results.generate');
+
         // Class Practice Module
         Route::prefix('class-practice')->name('class-practice.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Franchise\ClassPracticeController::class, 'index'])->name('index');

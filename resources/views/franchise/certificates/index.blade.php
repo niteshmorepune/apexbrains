@@ -56,7 +56,7 @@
 
             <form method="POST" action="{{ route('franchise.certificates.generate') }}" class="space-y-5">
                 @csrf
-                <input type="hidden" name="type" :value="isExternal ? 'competition' : type">
+                <input type="hidden" name="type" :value="isExternal ? 'participation' : type">
 
 
                 {{-- Select Student --}}
@@ -124,18 +124,22 @@
                     </div>
                 </div>
 
-                {{-- Certificate Type pills (internal) --}}
+                {{-- Certificate Type (internal — Level Up is the only manual-generation type;
+                     Participation / Champion / Winner are issued automatically or from the
+                     competition results page). --}}
                 <div x-show="!isExternal">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Certificate Type</label>
-                    <div class="grid grid-cols-3 gap-3">
-                        @foreach(['level_completion' => 'Level Completion', 'merit' => 'Merit Award', 'excellence' => 'Excellence Award'] as $val => $lbl)
-                            <button type="button" @click="type = '{{ $val }}'"
-                                    class="py-2.5 px-2 rounded-xl border text-sm font-medium transition-colors"
-                                    :class="type === '{{ $val }}' ? 'bg-blue-50 border-fran text-fran font-semibold' : 'bg-white border-border text-gray-600 hover:border-fran'">
-                                {{ $lbl }}
-                            </button>
-                        @endforeach
+                    <div class="grid grid-cols-1 gap-3">
+                        <button type="button" @click="type = 'level_up'"
+                                class="py-2.5 px-2 rounded-xl border text-sm font-medium transition-colors bg-blue-50 border-fran text-fran font-semibold">
+                            Level Up Certificate
+                        </button>
                     </div>
+                    <p class="text-xs text-gray-400 mt-1.5">
+                        Issued once the student has passed the Level Up exam for the selected level.
+                        Champion &amp; Winner certificates are generated from a competition's
+                        <a href="{{ route('franchise.competitions.index') }}" class="text-fran hover:underline">Results page</a> after the admin declares results.
+                    </p>
                 </div>
 
                 {{-- Actions --}}
@@ -309,7 +313,7 @@ function certForm() {
         studentId: '',
         levelId: '',
         competitionId: '',
-        type: 'level_completion',
+        type: 'level_up',
         issueDate: '{{ now()->toDateString() }}',
 
         get student() { return this.students.find(s => s.id === this.studentId) || null; },
@@ -340,7 +344,7 @@ function certForm() {
         },
         get typeLabel() {
             if (this.isExternal) return 'Participation';
-            return { level_completion: 'Level Completion', merit: 'Merit Award', excellence: 'Excellence Award' }[this.type] || 'Level Completion';
+            return { level_up: 'Level Up', level_completion: 'Level Up', merit: 'Merit Award', excellence: 'Excellence Award' }[this.type] || 'Level Up';
         },
         get issueDateLabel() {
             if (!this.issueDate) return '';

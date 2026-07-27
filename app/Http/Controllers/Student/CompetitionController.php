@@ -7,6 +7,7 @@ use App\Models\Competition;
 use App\Models\CompetitionExamAttempt;
 use App\Models\CompetitionQuestionPaper;
 use App\Models\CompetitionRegistration;
+use App\Services\CertificateIssuer;
 use App\Services\CompetitionRegistrationFeeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -223,16 +224,19 @@ class CompetitionController extends Controller
         $certificate = null;
         $rank = null;
 
-        // Score, rank, and the participation certificate only surface once the
+        // The participation certificate is available as soon as the student
+        // submits. Rank (and champion/winner status) only surfaces once the
         // admin has declared results for this competition.
-        if ($attempt && $competition->results_declared_at) {
+        if ($attempt) {
             $certificate = \App\Models\Certificate::where('student_id', $student->id)
                 ->where('competition_id', $competition->id)
-                ->where('type', 'competition')
+                ->whereIn('type', [\App\Models\Certificate::TYPE_PARTICIPATION, \App\Models\Certificate::TYPE_COMPETITION])
                 ->where('is_revoked', false)
                 ->latest()
                 ->first();
+        }
 
+        if ($attempt && $competition->results_declared_at) {
             $rank = CompetitionExamAttempt::where('competition_id', $competition->id)
                 ->where('status', 'submitted')
                 ->where(function ($q) use ($attempt) {
@@ -332,8 +336,13 @@ class CompetitionController extends Controller
 
         Cache::forget("comp_exam_{$attempt->id}_answers");
 
-        // Certificate issuance now happens when the admin declares results
-        // (Admin\CompetitionController::declareResults), not at submit time.
+        // Participation certificate is automatic on successful submission — it
+        // does not wait for results to be declared (only rank/champion/winner do).
+        if ($attempt->student) {
+            app(CertificateIssuer::class)->issueForCompetition(
+                $attempt->student, $attempt->competition, null, null, null, $paper->level_id
+            );
+        }
 
         return redirect()->route('student.competitions.result', $attempt->competition_id);
     }

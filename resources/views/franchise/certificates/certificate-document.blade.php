@@ -1,23 +1,10 @@
 @php
+    use App\Models\Certificate;
+
     $isPdf   = $pdf ?? false;
     $student = $certificate->student;
-
-    // External (competition) students get a participation certificate; internal get level completion.
-    $isParticipation = $certificate->type === 'competition';
-    $competition = $certificate->competition;
-    $compTitle   = $competition?->title ?? 'Apex Brains Competition';
-    $compDate    = $competition?->start_date?->format('d F Y');
-
-    $levelLine = $certificate->level
-        ? ($certificate->level->title ?: 'Abacus Mental Math')
-        : 'Abacus Programme';
-    $typeLine  = ucwords(str_replace('_', ' ', $certificate->type)) . ' Certificate';
-
-    $docTitle  = $isParticipation ? 'CERTIFICATE OF PARTICIPATION' : 'CERTIFICATE OF COMPLETION';
-    $verifyUrl = $certificate->qr_data ?: route('certificate.verify', $certificate->verification_code);
-
-    // dompdf does not render inline <svg>; embed the QR as an <img> data URI.
-    $qrData = base64_encode((string) \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->margin(0)->generate($verifyUrl));
+    $type    = $certificate->type;
+    $useFlow = $certificate->usesFlowTemplate() && ! in_array($type, ['merit', 'excellence'], true);
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -26,18 +13,81 @@
     <title>Certificate — {{ $certificate->certificate_number }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        @if($isPdf) @page { margin: 0; } @endif
         body { font-family: 'DejaVu Sans', sans-serif; color: #1f2937; background: #eef2f7; }
 
-        .toolbar {
-            background: #1A73E8; padding: 12px 20px; text-align: center;
-        }
+        .toolbar { background: #1A73E8; padding: 12px 20px; text-align: center; }
         .toolbar a, .toolbar button {
             display: inline-block; margin: 0 4px; padding: 8px 16px; border-radius: 8px;
             font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; border: 1px solid #fff;
         }
         .toolbar .primary { background: #fff; color: #1A73E8; }
         .toolbar .ghost { background: transparent; color: #fff; }
+        @if($isPdf) .toolbar { display: none; } @endif
+    </style>
+</head>
+<body>
 
+@unless($isPdf)
+    <div class="toolbar no-print">
+        @if($pdfUrl ?? false)<a class="primary" href="{{ $pdfUrl }}">Download PDF</a>@endif
+        <button class="ghost" onclick="window.print()">Print</button>
+        @if($backUrl ?? false)<a class="ghost" href="{{ $backUrl }}">&larr; Back</a>@endif
+    </div>
+@endunless
+
+@if($useFlow)
+    @php
+        // dompdf's support for many overlapping absolutely-positioned elements
+        // is unreliable (it silently drops some on denser pages), so the
+        // dynamic fields are composited onto the artwork server-side with GD
+        // and handed to dompdf as a single flattened image.
+        // Sized 1-2px under the exact 96dpi page conversion — dompdf pushes
+        // content to a second page if the box is even fractionally taller
+        // than its actual (sub-pixel) content area.
+        $isPortrait = in_array($type, [Certificate::TYPE_CHAMPION, Certificate::TYPE_WINNER], true);
+        $canvasW    = $isPortrait ? 1052 : 1122;
+        $canvasH    = $isPortrait ? 1490 : 793;
+        $composedUri = app(\App\Services\CertificateImageComposer::class)->composeDataUri($certificate);
+    @endphp
+    <style>
+        .page-scroll { overflow-x: auto; }
+        @if($isPdf)
+            body { background: #fff; margin: 0; }
+            .page-scroll { overflow: visible; padding: 0; }
+        @else
+            .page-scroll { padding: 24px 0; }
+        @endif
+
+        .cert-canvas { width: {{ $canvasW }}px; height: {{ $canvasH }}px; margin: 0 auto; }
+        .cert-canvas img { width: 100%; height: 100%; }
+    </style>
+
+    <div class="page-scroll">
+        <div class="cert-canvas">
+            <img src="{{ $composedUri }}" alt="Certificate">
+        </div>
+    </div>
+
+@else
+    {{-- Legacy generic template (merit / excellence — no bespoke artwork). --}}
+    @php
+        $isParticipation = $certificate->type === 'competition';
+        $competition = $certificate->competition;
+        $compTitle   = $competition?->title ?? 'Apex Brains Competition';
+        $compDate    = $competition?->start_date?->format('d F Y');
+
+        $levelLine = $certificate->level
+            ? ($certificate->level->title ?: 'Abacus Mental Math')
+            : 'Abacus Programme';
+        $typeLine  = ucwords(str_replace('_', ' ', $certificate->type)) . ' Certificate';
+
+        $docTitle  = $isParticipation ? 'CERTIFICATE OF PARTICIPATION' : 'CERTIFICATE OF COMPLETION';
+        $verifyUrl = $certificate->qr_data ?: route('certificate.verify', $certificate->verification_code);
+
+        $qrData = base64_encode((string) \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->margin(0)->generate($verifyUrl));
+    @endphp
+    <style>
         .page { width: 1040px; max-width: 100%; margin: 24px auto; }
         @if($isPdf)
             .page { width: 100%; margin: 0; }
@@ -50,7 +100,6 @@
         }
         .cert-inner { border: 2px solid #bcd3f5; margin: 10px; padding: 34px 48px 30px; text-align: center; }
 
-        /* Decorative corner triangles (border-based — dompdf safe) */
         .corner { position: absolute; width: 0; height: 0; border-style: solid; }
         .c-bl-1 { bottom: 0; left: 0;  border-width: 0 0 90px 90px; border-color: transparent transparent #F59E0B transparent; }
         .c-bl-2 { bottom: 0; left: 0;  border-width: 0 0 60px 60px; border-color: transparent transparent #EF4444 transparent; }
@@ -88,16 +137,6 @@
         .qr { width: 92px; height: 92px; margin: 0 auto; }
         .certno { font-size: 10px; color: #c2c8d0; margin-top: 18px; font-family: 'DejaVu Sans Mono', monospace; }
     </style>
-</head>
-<body>
-
-    @unless($isPdf)
-        <div class="toolbar no-print">
-            @if($pdfUrl ?? false)<a class="primary" href="{{ $pdfUrl }}">Download PDF</a>@endif
-            <button class="ghost" onclick="window.print()">Print</button>
-            @if($backUrl ?? false)<a class="ghost" href="{{ $backUrl }}">&larr; Back</a>@endif
-        </div>
-    @endunless
 
     <div class="page">
         <div class="cert">
@@ -171,6 +210,7 @@
             </div>
         </div>
     </div>
+@endif
 
 </body>
 </html>

@@ -8,10 +8,24 @@ use Illuminate\Support\Facades\Storage;
 
 class Certificate extends Model
 {
+    // Certificate Generation flow types (see Certificate_Generation_Flows doc).
+    public const TYPE_LEVEL_UP = 'level_up';
+
+    public const TYPE_PARTICIPATION = 'participation';
+
+    public const TYPE_CHAMPION = 'champion';
+
+    public const TYPE_WINNER = 'winner';
+
+    // Legacy types, kept for historical rows.
+    public const TYPE_LEVEL_COMPLETION = 'level_completion';
+
+    public const TYPE_COMPETITION = 'competition';
+
     protected $fillable = [
         'franchise_id', 'student_id', 'level_id', 'exam_attempt_id', 'competition_id',
-        'certificate_number', 'verification_code', 'type', 'series', 'issued_at', 'sent_at',
-        'issued_by', 'pdf_path', 'qr_data', 'is_revoked',
+        'certificate_number', 'verification_code', 'type', 'rank', 'series', 'issued_at', 'sent_at',
+        'place', 'issued_by', 'pdf_path', 'qr_data', 'is_revoked',
     ];
 
     protected $casts = [
@@ -88,5 +102,48 @@ class Certificate extends Model
         $mime = (function_exists('mime_content_type') ? mime_content_type($path) : null) ?: 'image/png';
 
         return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
+    }
+
+    /**
+     * Whether this certificate uses one of the 4 exact-design templates
+     * (Certificate_Generation_Flows) rather than the legacy generic layout.
+     */
+    public function usesFlowTemplate(): bool
+    {
+        return in_array($this->type, [
+            self::TYPE_LEVEL_UP, self::TYPE_LEVEL_COMPLETION,
+            self::TYPE_PARTICIPATION, self::TYPE_COMPETITION,
+            self::TYPE_CHAMPION, self::TYPE_WINNER,
+        ], true);
+    }
+
+    /**
+     * The bundled background artwork file for this certificate's type.
+     */
+    public static function backgroundFileFor(string $type): string
+    {
+        return match ($type) {
+            self::TYPE_LEVEL_UP, self::TYPE_LEVEL_COMPLETION => 'level-up.png',
+            self::TYPE_PARTICIPATION, self::TYPE_COMPETITION => 'participation.png',
+            self::TYPE_CHAMPION => 'champion.png',
+            self::TYPE_WINNER => 'winner.png',
+            default => 'participation.png',
+        };
+    }
+
+    /**
+     * dompdf ->setPaper() arguments for this certificate's type. Champion and
+     * Winner artwork is a taller custom page size (not standard A4), so the
+     * PDF page must match it exactly to reproduce the design without cropping
+     * or letterboxing.
+     *
+     * @return array{0: string|array, 1?: string}
+     */
+    public static function paperConfigFor(string $type): array
+    {
+        return match ($type) {
+            self::TYPE_CHAMPION, self::TYPE_WINNER => [[0, 0, 790.5, 1119]],
+            default => ['a4', 'landscape'],
+        };
     }
 }

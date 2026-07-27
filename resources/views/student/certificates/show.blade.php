@@ -7,15 +7,23 @@
 <div class="px-4 pb-4 space-y-4">
 
     {{-- Certificate preview --}}
+    @php
+        $typeCopy = match($certificate->type) {
+            'champion' => ['Certificate of Merit', 'has been awarded Champion ' . $certificate->rank . ' for'],
+            'winner' => ['Certificate of Merit', 'has been awarded Winner for'],
+            'participation', 'competition' => ['Certificate of Participation', 'participated in the competition for'],
+            default => ['Certificate of Completion', 'has successfully completed'],
+        };
+    @endphp
     <div class="bg-white rounded-2xl border-2 border-pink-300 p-6 shadow-sm">
         <div class="text-center mb-4">
             <p class="font-black text-sm"><span class="text-logo-red">Apex</span> <span class="text-fran">Brains</span></p>
-            <p class="text-[10px] text-gray-400 tracking-widest uppercase mt-2">Certificate of Completion</p>
+            <p class="text-[10px] text-gray-400 tracking-widest uppercase mt-2">{{ $typeCopy[0] }}</p>
         </div>
 
         <p class="text-center text-xs text-gray-400 mb-1">This is to certify that</p>
         <p class="text-center text-xl font-black text-gray-900 mb-1">{{ $certificate->student?->full_name }}</p>
-        <p class="text-center text-xs text-gray-400 mb-1">has successfully completed</p>
+        <p class="text-center text-xs text-gray-400 mb-1">{{ $typeCopy[1] }}</p>
         <p class="text-center text-base font-bold text-fran mb-3">
             @if($certificate->level){{ $certificate->level->title }}
             @else{{ $certificate->title }}@endif
