@@ -90,6 +90,25 @@
             </div>
         </div>
 
+        {{-- Notifications --}}
+        <div class="bg-white rounded-2xl border border-border overflow-hidden">
+            <button @click="open = open === 'notifications' ? null : 'notifications'"
+                    class="w-full flex items-center justify-between px-5 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.bell')</svg>
+                    </div>
+                    <span class="font-semibold text-gray-800">Notifications</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'notifications' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'notifications'" x-collapse class="border-t border-border px-5 pb-5 pt-4 space-y-2 text-sm text-text-muted">
+                <p>Tap the 🔔 bell icon on your Home screen to open your <strong>Notifications</strong> list.</p>
+                <p>You'll get a notification whenever: a new exam is scheduled for your level, a new competition opens for registration, a competition you took declares its results, or a certificate is issued to you.</p>
+                <p>Notifications are grouped by Today, Earlier This Week, and Older, with the newest at the top.</p>
+            </div>
+        </div>
+
         {{-- Results --}}
         <div class="bg-white rounded-2xl border border-border overflow-hidden">
             <button @click="open = open === 'results' ? null : 'results'"

@@ -74,6 +74,7 @@
                 <p><span class="font-semibold text-admin">Upload a question paper — required:</span> a new exam has no questions until you upload one. Open the exam → <strong>Upload Question Paper</strong> and add a CSV (question_text, option_a–d, correct_answer). The question count is taken from the file. Students can't start the exam until this is done.</p>
                 <p><span class="font-semibold text-admin">Replacing a paper:</span> uploading a new file replaces the active paper for that exam.</p>
                 <p><span class="font-semibold text-admin">View results:</span> Open any exam to see all student attempts, scores, and pass/fail status. Tab-switch counts are recorded for integrity monitoring.</p>
+                <p class="text-xs text-gray-400">Note: active students at the selected level get an in-app notification the moment you create the exam.</p>
             </div>
         </div>
 
@@ -111,6 +112,8 @@
                 <p><span class="font-semibold text-admin">Create a competition:</span> Competitions → New Competition. Set the title, date range, max participants per franchise, and registration fee.</p>
                 <p><span class="font-semibold text-admin">Level-wise question papers:</span> Open a competition → Add Paper. Upload a separate paper (CSV/Excel) for each level, so a Regular-1 student sits the Regular-1 paper, a Junior-3 student the Junior-3 paper, and so on. Students are automatically served the paper matching their current level.</p>
                 <p><span class="font-semibold text-admin">Registrations:</span> Franchise admins register their students for competitions. You can view registrations from the competition detail page.</p>
+                <p><span class="font-semibold text-admin">Declare Results:</span> once submitted attempts exist, use <strong>Declare Results</strong> on the competition detail page. This locks in participation certificates as a safety net and notifies every student who attempted it — franchise admins then bulk-generate Champion/Winner certificates per level from their own Competitions → Results page.</p>
+                <p class="text-xs text-gray-400">Note: eligible active students get an in-app notification the moment you create the competition (internal always; external too if "Open to External" is checked).</p>
             </div>
         </div>
 
