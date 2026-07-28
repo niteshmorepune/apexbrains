@@ -398,11 +398,10 @@
                                 <p class="text-xs text-amber-600">Register this student for a competition first.</p>
                             @endif
                         @else
-                            <select name="type" required class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                                <option value="level_completion">Level Completion</option>
-                                <option value="merit">Merit</option>
-                                <option value="excellence">Excellence</option>
-                            </select>
+                            {{-- Level Up certificate — only issuable once the student has passed
+                                 the level-up exam for their current level (enforced server-side). --}}
+                            <input type="hidden" name="type" value="level_completion">
+                            <p class="text-xs text-gray-500">Level Up certificate for {{ $student->currentLevel?->title ?? 'the current level' }}. Issued only after the level-up exam is passed.</p>
                         @endif
                         <button type="submit" class="w-full py-2 bg-fran text-white rounded-lg text-sm font-semibold hover:bg-fran-dark">Generate</button>
                     </form>

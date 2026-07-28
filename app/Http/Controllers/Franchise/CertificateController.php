@@ -46,7 +46,10 @@ class CertificateController extends Controller
             'competition_id' => ['nullable', 'exists:competitions,id'],
             'issued_at'      => ['nullable', 'date'],
             'series'         => ['nullable', 'string', 'max:50'],
-            'type'           => ['required', 'in:level_up,level_completion,merit,excellence,competition,participation'],
+            // 'merit'/'excellence' are legacy types retired from generation in the
+            // 2026-07-27 redesign (no artwork, previously ungated) — old rows with
+            // those types still render, but new ones can no longer be created here.
+            'type'           => ['required', 'in:level_up,level_completion,competition,participation'],
         ]);
 
         $student     = Student::with('currentLevel')->findOrFail($data['student_id']);
@@ -84,24 +87,19 @@ class CertificateController extends Controller
         }
 
         // A level-up certificate may only be issued once the student has
-        // actually PASSED the level-up exam for that level. Merit / excellence
-        // certificates are discretionary and not gated.
+        // actually PASSED the level-up exam for that level.
         $targetLevelId = $data['level_id'] ?? $student->current_level_id;
 
-        $passedExamAttempt = null;
+        $passedExamAttempt = \App\Models\ExamAttempt::where('student_id', $student->id)
+            ->where('is_passed', true)
+            ->whereHas('exam', fn ($q) => $q->where('level_id', $targetLevelId))
+            ->latest('submitted_at')
+            ->first();
 
-        if (in_array($data['type'], ['level_up', 'level_completion'], true)) {
-            $passedExamAttempt = \App\Models\ExamAttempt::where('student_id', $student->id)
-                ->where('is_passed', true)
-                ->whereHas('exam', fn ($q) => $q->where('level_id', $targetLevelId))
-                ->latest('submitted_at')
-                ->first();
-
-            if (! $passedExamAttempt) {
-                return back()
-                    ->withErrors(['level_id' => "{$student->full_name} has not passed the level-up exam for this level yet. A level-up certificate can only be issued after the exam is passed."])
-                    ->withInput();
-            }
+        if (! $passedExamAttempt) {
+            return back()
+                ->withErrors(['level_id' => "{$student->full_name} has not passed the level-up exam for this level yet. A level-up certificate can only be issued after the exam is passed."])
+                ->withInput();
         }
 
         // Prevent issuing the same certificate (student + level + type) twice.
@@ -117,7 +115,7 @@ class CertificateController extends Controller
                 ->withInput();
         }
 
-        // Internal level-up / merit / excellence certificate.
+        // Internal level-up / level-completion certificate.
         $certNumber       = 'CERT-' . strtoupper(Str::random(8));
         $verificationCode = Str::uuid()->toString();
 
@@ -158,7 +156,7 @@ class CertificateController extends Controller
             'student_id'     => ['required', 'exists:students,id'],
             'level_id'       => ['nullable', 'exists:levels,id'],
             'competition_id' => ['nullable', 'exists:competitions,id'],
-            'type'           => ['required', 'in:level_up,level_completion,merit,excellence,competition,participation'],
+            'type'           => ['required', 'in:level_up,level_completion,competition,participation'],
             'issued_at'      => ['nullable', 'date'],
         ]);
 
@@ -175,7 +173,7 @@ class CertificateController extends Controller
             'issued_at'      => $data['issued_at'] ?? now(),
         ]);
 
-        if (! $certificate->usesFlowTemplate() || in_array($certificate->type, ['merit', 'excellence'], true)) {
+        if (! $certificate->usesFlowTemplate()) {
             return response()->json(['error' => 'No live preview available for this certificate type.'], 422);
         }
 
