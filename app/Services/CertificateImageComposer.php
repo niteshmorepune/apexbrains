@@ -31,35 +31,56 @@ class CertificateImageComposer
         // 'box' is the mask rectangle erased before drawing (must fully cover
         // the artwork's fill-in blank/underline or placeholder text with no
         // remainder). 'pad' is an additional left-inset applied only to where
-        // the text itself starts, so the value never touches the preceding
-        // static label — independent of how far the mask extends.
+        // the text itself starts — calibrated per field (via pixel-scanning the
+        // artwork's own baked placeholder/underline) so the value starts right
+        // where the original design's placeholder did, no further. Fields that
+        // are followed by more static artwork text on the same line (e.g. "…
+        // level successfully", "… center.", "… Trophy") carry a 'trailing' spec:
+        // the old baked words are masked out too and redrawn immediately after
+        // the dynamic value ends (+ 'gap' px), so spacing stays natural — a
+        // single space — no matter how long or short the value is.
         return match ($type) {
             Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [
-                ['box' => [448, 635, 1442, 692], 'pad' => 16, 'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [400, 695, 1304, 750], 'pad' => 16, 'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [501, 753, 1209, 808], 'pad' => 16, 'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [337, 903, 679, 955],  'pad' => 10, 'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [337, 963, 679, 1015], 'pad' => 10, 'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [448, 635, 1442, 692], 'pad' => 8, 'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
+                [
+                    'box' => [400, 695, 1304, 750], 'pad' => 8, 'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left',
+                    'trailing' => ['box' => [1311, 695, 1435, 750], 'text' => 'Centre for', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14],
+                ],
+                [
+                    'box' => [501, 753, 1209, 808], 'pad' => 8, 'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left',
+                    'trailing' => ['box' => [1215, 753, 1434, 808], 'text' => 'Level Competition', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14],
+                ],
+                ['box' => [337, 903, 679, 955],  'pad' => 8, 'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [337, 963, 679, 1015], 'pad' => 9, 'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
             ],
             Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [
-                ['box' => [433, 635, 1427, 694], 'pad' => 16, 'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [433, 703, 1197, 760], 'pad' => 16, 'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [899, 751, 1339, 818], 'pad' => 16, 'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [315, 873, 551, 922],  'pad' => 10, 'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [316, 926, 550, 975],  'pad' => 10, 'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [433, 635, 1427, 694], 'pad' => 9, 'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
+                [
+                    'box' => [433, 703, 1197, 760], 'pad' => 9, 'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left',
+                    'trailing' => ['box' => [1207, 703, 1422, 760], 'text' => 'level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14],
+                ],
+                [
+                    'box' => [899, 751, 1339, 818], 'pad' => 9, 'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left',
+                    'trailing' => ['box' => [1343, 751, 1422, 818], 'text' => 'center.', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14],
+                ],
+                ['box' => [315, 873, 551, 922],  'pad' => 9,  'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [316, 926, 550, 975],  'pad' => 15, 'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
             ],
             Certificate::TYPE_CHAMPION => [
-                ['box' => [730, 1000, 1520, 1120], 'pad' => 45, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [715, 1108, 1520, 1218], 'pad' => 45, 'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [740, 1250, 1078, 1330], 'baseline' => 1305, 'text' => 'Champion ' . ($certificate->rank ?: ''), 'font' => 'bold', 'size' => 32, 'color' => $gold, 'align' => 'center'],
-                ['box' => [690, 1372, 1520, 1432], 'pad' => 45, 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [742, 1000, 1520, 1120], 'pad' => 10, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [725, 1108, 1520, 1221], 'pad' => 9,  'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                [
+                    'box' => [779, 1250, 1075, 1334], 'pad' => 11, 'baseline' => 1305, 'text' => 'Champion ' . ($certificate->rank ?: ''), 'font' => 'bold', 'size' => 32, 'color' => $gold, 'align' => 'left',
+                    'trailing' => ['box' => [1089, 1250, 1233, 1334], 'text' => 'Trophy', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14, 'baseline' => 1305],
+                ],
+                ['box' => [679, 1372, 1520, 1448], 'pad' => 7, 'baseline' => 1419, 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
                 ['box' => [285, 1722, 645, 1790],  'text' => $placeVal,      'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
                 ['box' => [285, 1842, 645, 1895],  'text' => $dateVal,       'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
             ],
             Certificate::TYPE_WINNER => [
-                ['box' => [730, 1000, 1520, 1120], 'pad' => 45, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [715, 1108, 1520, 1218], 'pad' => 45, 'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [690, 1372, 1520, 1432], 'pad' => 45, 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [742, 1000, 1520, 1120], 'pad' => 10, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [725, 1108, 1520, 1221], 'pad' => 9,  'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [679, 1372, 1520, 1448], 'pad' => 7, 'baseline' => 1419, 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
                 ['box' => [285, 1722, 645, 1790],  'text' => $placeVal,      'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
                 ['box' => [285, 1842, 645, 1895],  'text' => $dateVal,       'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
             ],
@@ -149,6 +170,20 @@ class CertificateImageComposer
             $baselineY = $field['baseline'] ?? ($y0 + (($y1 - $y0) * 0.78));
 
             imagettftext($im, $size, 0, (int) $startX, (int) $baselineY, $textColor, $fontFile, $text);
+
+            if (! empty($field['trailing'])) {
+                $trailing = $field['trailing'];
+                [$tx0, $ty0, $tx1, $ty1] = $trailing['box'];
+                imagefilledrectangle($im, $tx0, $ty0, $tx1, $ty1, $maskColor);
+
+                [$tr, $tg, $tb] = $trailing['color'];
+                $trailingColor = imagecolorallocate($im, $tr, $tg, $tb);
+                $trailingFont  = $this->fontPath($trailing['font']);
+                $trailingX     = $startX + $textWidth + ($trailing['gap'] ?? 14);
+                $trailingBaselineY = $trailing['baseline'] ?? $baselineY;
+
+                imagettftext($im, $trailing['size'], 0, (int) $trailingX, (int) $trailingBaselineY, $trailingColor, $trailingFont, $trailing['text']);
+            }
         }
 
         ob_start();
