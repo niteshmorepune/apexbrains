@@ -75,6 +75,28 @@
         </div>
     @endif
 
+    {{-- Books & Resources for this level --}}
+    @if($level->books->isNotEmpty())
+        <div class="bg-white rounded-2xl border border-border overflow-hidden">
+            <div class="px-4 py-3 border-b border-border">
+                <p class="text-sm font-bold text-gray-800">Books &amp; Resources</p>
+            </div>
+            <div class="divide-y divide-border">
+                @foreach($level->books as $book)
+                    <a href="{{ Storage::url($book->file_path) }}" target="_blank" rel="noopener"
+                       class="px-4 py-3 flex items-center gap-3 hover:bg-bg-light transition-colors">
+                        <span class="w-9 h-9 rounded-xl bg-fran-light text-fran flex items-center justify-center text-lg flex-shrink-0">📘</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ $book->title }}</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ $book->formatted_size }}</p>
+                        </div>
+                        <span class="text-xs text-fran font-semibold flex-shrink-0">View →</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- Exams for this level --}}
     @if($exams->isNotEmpty())
         <div class="bg-white rounded-2xl border border-border overflow-hidden">
@@ -91,8 +113,10 @@
                         </div>
                         @if($myAttempt)
                             <span class="text-xs px-2 py-1 rounded-full font-bold {{ $myAttempt->is_passed ? 'text-stu bg-stu-light' : 'text-red-500 bg-red-50' }}">{{ number_format($myAttempt->percentage, 0) }}%</span>
-                        @else
+                        @elseif($student?->current_level_id === $level->id)
                             <a href="{{ route('student.exams.show', $exam) }}" class="text-xs bg-fran text-white px-3 py-1.5 rounded-lg font-semibold">Take →</a>
+                        @else
+                            <span class="text-xs text-gray-400 px-3 py-1.5">Not your level</span>
                         @endif
                     </div>
                 @endforeach

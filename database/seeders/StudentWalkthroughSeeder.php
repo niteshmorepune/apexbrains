@@ -145,7 +145,6 @@ class StudentWalkthroughSeeder extends Seeder
             ['title' => 'Global Abacus Masters Cup', 'franchise_id' => $fid],
             [
                 'description' => 'Annual national-level abacus championship.',
-                'competition_type' => 'national',
                 'start_date' => now()->addDays(10)->toDateString(),
                 'end_date' => now()->addDays(10)->toDateString(),
                 'registration_deadline' => now()->addDays(5)->toDateString(),
@@ -196,7 +195,7 @@ class StudentWalkthroughSeeder extends Seeder
             $pastComp = Competition::firstOrCreate(
                 ['title' => $title, 'franchise_id' => $fid],
                 [
-                    'description' => 'Past competition.', 'competition_type' => 'regional',
+                    'description' => 'Past competition.',
                     'start_date' => now()->subDays($daysAgo)->toDateString(),
                     'end_date' => now()->subDays($daysAgo)->toDateString(),
                     'registration_deadline' => now()->subDays($daysAgo + 5)->toDateString(),

@@ -33,7 +33,6 @@
                 'Ensure stable internet connection.',
                 'Answer all questions before time runs out.',
                 'Use the question palette to navigate freely.',
-                'Audio questions will play automatically.',
                 'Submit before the timer ends.',
             ] as $i => $rule)
                 <li class="flex items-start gap-3">

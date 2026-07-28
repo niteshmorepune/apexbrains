@@ -50,10 +50,10 @@
                             <div class="flex items-center gap-3 mb-3">
                                 <span class="w-11 h-11 rounded-xl {{ $kind === 'competition' ? 'bg-amber-50' : 'bg-stu-light' }} flex items-center justify-center text-xl flex-shrink-0">{{ $kind === 'competition' ? '🏆' : '🎓' }}</span>
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-bold text-gray-800 text-sm truncate">
-                                        @if($cert->level) {{ $cert->level->title }}
-                                        @else {{ $cert->title ?? 'Certificate' }} @endif
-                                    </p>
+                                    <p class="font-bold text-gray-800 text-sm truncate">{{ $cert->related_title ?? 'Certificate' }}</p>
+                                    @if($cert->level)
+                                        <p class="text-xs text-gray-500 truncate">{{ $cert->level->title }}</p>
+                                    @endif
                                     <p class="text-xs text-gray-400">{{ $cert->issued_at?->format('d M Y') }}</p>
                                 </div>
                             </div>

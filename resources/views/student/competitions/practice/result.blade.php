@@ -35,13 +35,25 @@
         </div>
         <div class="divide-y divide-border">
             @foreach($questions as $i => $q)
-                @php $correct = strtolower($q->correct_answer); @endphp
+                @php
+                    $correct = strtolower($q->correct_answer);
+                    $selected = strtolower($attempt->answers[$q->id] ?? '') ?: null;
+                    $isCorrect = $selected === $correct;
+                @endphp
                 <div class="px-4 py-3">
                     <div class="flex items-start gap-2 mb-2">
                         <span class="text-xs text-gray-400 flex-shrink-0 mt-0.5">{{ $i + 1 }}.</span>
                         <p class="text-sm text-gray-800 flex-1">{{ $q->question_text }}</p>
+                        <span class="text-xs font-semibold flex-shrink-0 {{ $isCorrect ? 'text-green-600' : 'text-red-500' }}">
+                            {{ $isCorrect ? '✓ Correct' : ($selected ? '✗ Wrong' : '— Skipped') }}
+                        </span>
                     </div>
-                    <div class="ml-4 text-xs">
+                    <div class="ml-4 text-xs space-y-1">
+                        @if($selected && ! $isCorrect)
+                            <p class="text-red-500 font-medium">
+                                Your Answer: {{ strtoupper($selected) }}) {{ $q->{'option_' . $selected} }}
+                            </p>
+                        @endif
                         <p class="text-green-600 font-medium">
                             Correct: {{ strtoupper($correct) }}) {{ $q->{'option_' . $correct} }}
                         </p>

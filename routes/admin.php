@@ -21,6 +21,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('franchises/{franchise}/approve', [\App\Http\Controllers\Admin\FranchiseController::class, 'approve'])->name('franchises.approve');
         Route::post('franchises/{franchise}/suspend', [\App\Http\Controllers\Admin\FranchiseController::class, 'suspend'])->name('franchises.suspend');
         Route::post('franchises/{franchise}/reject', [\App\Http\Controllers\Admin\FranchiseController::class, 'reject'])->name('franchises.reject');
+        Route::post('franchises/{franchise}/reset-password', [\App\Http\Controllers\Admin\FranchiseController::class, 'resetPassword'])->name('franchises.reset-password');
 
         // Level management
         Route::resource('levels', \App\Http\Controllers\Admin\LevelController::class);

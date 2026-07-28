@@ -7,38 +7,50 @@
 <div class="px-4 pb-4 space-y-4">
 
     {{-- Certificate preview --}}
-    @php
-        $typeCopy = match($certificate->type) {
-            'champion' => ['Certificate of Merit', 'has been awarded Champion ' . $certificate->rank . ' for'],
-            'winner' => ['Certificate of Merit', 'has been awarded Winner for'],
-            'participation', 'competition' => ['Certificate of Participation', 'participated in the competition for'],
-            default => ['Certificate of Completion', 'has successfully completed'],
-        };
-    @endphp
-    <div class="bg-white rounded-2xl border-2 border-pink-300 p-6 shadow-sm">
-        <div class="text-center mb-4">
-            <p class="font-black text-sm"><span class="text-logo-red">Apex</span> <span class="text-fran">Brains</span></p>
-            <p class="text-[10px] text-gray-400 tracking-widest uppercase mt-2">{{ $typeCopy[0] }}</p>
+    @if($previewUri)
+        @php $isPortrait = in_array($certificate->type, ['champion', 'winner'], true); @endphp
+        <div class="bg-white rounded-2xl border border-border p-3 shadow-sm">
+            <img src="{{ $previewUri }}" alt="Certificate preview"
+                 class="w-full h-auto rounded-lg" style="aspect-ratio: {{ $isPortrait ? '1052 / 1490' : '1122 / 793' }};">
         </div>
-
-        <p class="text-center text-xs text-gray-400 mb-1">This is to certify that</p>
-        <p class="text-center text-xl font-black text-gray-900 mb-1">{{ $certificate->student?->full_name }}</p>
-        <p class="text-center text-xs text-gray-400 mb-1">{{ $typeCopy[1] }}</p>
-        <p class="text-center text-base font-bold text-fran mb-3">
-            @if($certificate->level){{ $certificate->level->title }}
-            @else{{ $certificate->title }}@endif
-        </p>
-
-        @if($certificate->issuedBy?->franchise)
-            <p class="text-center text-xs text-gray-500 mb-1">{{ $certificate->issuedBy->franchise->name }}, {{ $certificate->issuedBy->franchise->city }}</p>
-        @endif
-        <p class="text-center text-[11px] text-gray-400 mb-4">Issued: {{ $certificate->issued_at?->format('F Y') }} · ID: {{ $certificate->certificate_number }}</p>
-
-        <div class="flex justify-center my-3">
-            {!! QrCode::size(80)->generate(route('certificate.verify', $certificate->verification_code)) !!}
+        <div class="flex justify-center">
+            {!! QrCode::size(64)->generate(route('certificate.verify', $certificate->verification_code)) !!}
         </div>
-        <p class="text-center text-[10px] text-gray-300">Scan to verify</p>
-    </div>
+        <p class="text-center text-[10px] text-gray-300 -mt-2">Scan to verify · ID: {{ $certificate->certificate_number }}</p>
+    @else
+        @php
+            $typeCopy = match($certificate->type) {
+                'champion' => ['Certificate of Merit', 'has been awarded Champion ' . $certificate->rank . ' for'],
+                'winner' => ['Certificate of Merit', 'has been awarded Winner for'],
+                'participation', 'competition' => ['Certificate of Participation', 'participated in the competition for'],
+                default => ['Certificate of Completion', 'has successfully completed'],
+            };
+        @endphp
+        <div class="bg-white rounded-2xl border-2 border-pink-300 p-6 shadow-sm">
+            <div class="text-center mb-4">
+                <p class="font-black text-sm"><span class="text-logo-red">Apex</span> <span class="text-fran">Brains</span></p>
+                <p class="text-[10px] text-gray-400 tracking-widest uppercase mt-2">{{ $typeCopy[0] }}</p>
+            </div>
+
+            <p class="text-center text-xs text-gray-400 mb-1">This is to certify that</p>
+            <p class="text-center text-xl font-black text-gray-900 mb-1">{{ $certificate->student?->full_name }}</p>
+            <p class="text-center text-xs text-gray-400 mb-1">{{ $typeCopy[1] }}</p>
+            <p class="text-center text-base font-bold text-fran mb-3">
+                @if($certificate->level){{ $certificate->level->title }}
+                @else Apex Brains Academy @endif
+            </p>
+
+            @if($certificate->issuedBy?->franchise)
+                <p class="text-center text-xs text-gray-500 mb-1">{{ $certificate->issuedBy->franchise->name }}, {{ $certificate->issuedBy->franchise->city }}</p>
+            @endif
+            <p class="text-center text-[11px] text-gray-400 mb-4">Issued: {{ $certificate->issued_at?->format('F Y') }} · ID: {{ $certificate->certificate_number }}</p>
+
+            <div class="flex justify-center my-3">
+                {!! QrCode::size(80)->generate(route('certificate.verify', $certificate->verification_code)) !!}
+            </div>
+            <p class="text-center text-[10px] text-gray-300">Scan to verify</p>
+        </div>
+    @endif
 
     {{-- Actions (Figma order) --}}
     <div class="space-y-3">

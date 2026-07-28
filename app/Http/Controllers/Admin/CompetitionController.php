@@ -16,13 +16,8 @@ class CompetitionController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Competition::withCount(['registrations', 'questionPapers']);
-
-        if ($request->filled('type')) {
-            $query->where('competition_type', $request->type);
-        }
-
-        $competitions = $query->latest()->paginate(15)->withQueryString();
+        $competitions = Competition::withCount(['registrations', 'questionPapers'])
+            ->latest()->paginate(15)->withQueryString();
 
         return view('admin.competitions.index', compact('competitions'));
     }
@@ -37,7 +32,6 @@ class CompetitionController extends Controller
         $data = $request->validate([
             'title'                  => ['required', 'string', 'max:200'],
             'description'            => ['nullable', 'string'],
-            'competition_type'       => ['required', 'in:zonal,regional,national'],
             'start_date'             => ['required', 'date'],
             'end_date'               => ['required', 'date', 'after_or_equal:start_date'],
             'registration_deadline'  => ['required', 'date', 'before_or_equal:start_date'],
@@ -114,7 +108,6 @@ class CompetitionController extends Controller
         $data = $request->validate([
             'title'                  => ['required', 'string', 'max:200'],
             'description'            => ['nullable', 'string'],
-            'competition_type'       => ['required', 'in:zonal,regional,national'],
             'start_date'             => ['required', 'date'],
             'end_date'               => ['required', 'date', 'after_or_equal:start_date'],
             'registration_deadline'  => ['required', 'date', 'before_or_equal:start_date'],

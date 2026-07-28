@@ -19,10 +19,6 @@
 
 @section('content')
 
-@if(session('success'))
-    <div class="bg-stu-light border border-green-200 text-stu-dark text-sm rounded-xl px-4 py-3 mb-4">{{ session('success') }}</div>
-@endif
-
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
 
     <div class="space-y-4">

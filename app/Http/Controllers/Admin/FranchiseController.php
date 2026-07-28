@@ -131,6 +131,7 @@ class FranchiseController extends Controller
         $franchiseStudents = \App\Models\Student::withoutGlobalScopes()
             ->where('franchise_id', $franchise->id)
             ->where('is_active', true)
+            ->whereNull('deleted_at')
             ->with('currentLevel')
             ->orderBy('first_name')
             ->get();
@@ -155,6 +156,7 @@ class FranchiseController extends Controller
             $growthLabels[] = $month->format('M');
             $growthData[]   = \App\Models\Student::withoutGlobalScopes()
                 ->where('franchise_id', $franchise->id)
+                ->whereNull('deleted_at')
                 ->whereYear('enrollment_date', $month->year)
                 ->whereMonth('enrollment_date', $month->month)
                 ->count();
@@ -168,6 +170,7 @@ class FranchiseController extends Controller
         $levelDist = \App\Models\Student::withoutGlobalScopes()
             ->where('students.franchise_id', $franchise->id)
             ->where('students.is_active', true)
+            ->whereNull('students.deleted_at')
             ->join('levels', 'students.current_level_id', '=', 'levels.id')
             ->selectRaw('levels.number, levels.title, COUNT(*) as cnt')
             ->groupBy('levels.number', 'levels.title')
@@ -313,7 +316,7 @@ class FranchiseController extends Controller
                     : 0;
 
                 // Enrollment growth: this month's new students vs last month's.
-                $base = \App\Models\Student::withoutGlobalScopes()->where('franchise_id', $f->id);
+                $base = \App\Models\Student::withoutGlobalScopes()->where('franchise_id', $f->id)->whereNull('deleted_at');
                 $thisMonth = (clone $base)->whereYear('enrollment_date', now()->year)
                     ->whereMonth('enrollment_date', now()->month)->count();
                 $lastMonth = (clone $base)->whereYear('enrollment_date', now()->subMonth()->year)
@@ -345,5 +348,27 @@ class FranchiseController extends Controller
 
         return redirect()->route('admin.franchises.index')
             ->with('success', "Franchise '{$name}' deleted.");
+    }
+
+    public function resetPassword(Request $request, Franchise $franchise): RedirectResponse
+    {
+        $data = $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = $franchise->users()->first();
+
+        if (! $user) {
+            return back()->with('error', 'No login account found for this franchise.');
+        }
+
+        $user->password = $data['password'];
+        $user->save();
+
+        AuditLogger::log('franchise_password_reset', 'Franchise', $franchise->id);
+
+        return redirect()->route('admin.franchises.show', $franchise)
+            ->with('openTab', 'settings')
+            ->with('success', "Password reset for '{$franchise->name}'.");
     }
 }

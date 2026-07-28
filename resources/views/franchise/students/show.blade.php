@@ -11,6 +11,16 @@
 
 @section('content')
 
+@if(session('success'))
+    <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">{{ session('success') }}</div>
+@endif
+@if(session('error'))
+    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{{ session('error') }}</div>
+@endif
+@if($errors->any())
+    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{{ $errors->first() }}</div>
+@endif
+
 @php
     $attempts    = $student->examAttempts->where('status', 'submitted');
     $examCount   = $attempts->count();
@@ -355,7 +365,8 @@
 
         {{-- Sidebar: Actions + at-a-glance --}}
         <div class="space-y-4">
-            <div class="bg-white rounded-2xl border border-border p-5" x-data="{ certOpen: false, promoteOpen: false }">
+            <div class="bg-white rounded-2xl border border-border p-5"
+                 x-data="{ certOpen: {{ $errors->has('competition_id') || $errors->has('level_id') ? 'true' : 'false' }}, promoteOpen: false, resetPwOpen: false }">
                 <h3 class="text-sm font-bold text-fran mb-3">Actions</h3>
                 <div class="space-y-2">
                     {{-- Record Payment --}}
@@ -427,6 +438,22 @@
                             Full Progress Report
                         </a>
                     @endif
+
+                    {{-- Reset Login Password (inline form) --}}
+                    <button type="button" @click="resetPwOpen = !resetPwOpen"
+                            class="w-full text-center py-2 border border-border text-gray-600 rounded-xl text-sm font-medium hover:bg-bg-light transition-colors">
+                        Reset Password
+                    </button>
+                    <form x-show="resetPwOpen" x-cloak method="POST" action="{{ route('franchise.students.reset-password', $student) }}"
+                          class="p-3 bg-bg-light rounded-xl space-y-2"
+                          onsubmit="return confirm('Reset the login password for {{ $student->full_name }}?')">
+                        @csrf
+                        <input type="password" name="password" required minlength="8" placeholder="New password"
+                               class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        <input type="password" name="password_confirmation" required minlength="8" placeholder="Confirm password"
+                               class="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                        <button type="submit" class="w-full py-2 bg-fran text-white rounded-lg text-sm font-semibold hover:bg-fran-dark">Reset Password</button>
+                    </form>
                 </div>
             </div>
 

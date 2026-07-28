@@ -23,8 +23,7 @@
     <div class="grid grid-cols-2 gap-3">
         <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">📅 Start</p><p class="text-base font-black text-gray-800 mt-1">{{ $competition->start_date?->format('d M') ?? 'TBA' }}</p></div>
         <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🏁 End</p><p class="text-base font-black text-gray-800 mt-1">{{ $competition->end_date?->format('d M') ?? 'TBA' }}</p></div>
-        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🌐 Type</p><p class="text-base font-black text-gray-800 mt-1 capitalize">{{ $competition->competition_type }}</p></div>
-        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🎟️ Entry</p><p class="text-base font-black text-gray-800 mt-1">@if($competition->fee_amount > 0)₹{{ number_format($competition->fee_amount, 0) }}@else Free @endif</p></div>
+        <div class="bg-white rounded-2xl border border-border p-4 col-span-2"><p class="text-xs text-gray-400">🎟️ Entry</p><p class="text-base font-black text-gray-800 mt-1">@if($competition->fee_amount > 0)₹{{ number_format($competition->fee_amount, 0) }}@else Free @endif</p></div>
     </div>
 
     {{-- Rules --}}

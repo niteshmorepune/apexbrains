@@ -58,9 +58,8 @@
             </div>
 
             {{-- Calculate prompt --}}
-            <div class="px-4 mt-5 flex items-center justify-between">
+            <div class="px-4 mt-5">
                 <p class="text-sm text-gray-500">Calculate mentally :</p>
-                <span class="text-gray-400">🔊</span>
             </div>
 
             {{-- Big number display --}}

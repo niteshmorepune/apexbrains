@@ -48,7 +48,7 @@
                         <div class="flex items-center gap-3 mb-3">
                             <span class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center text-xl flex-shrink-0">🏆</span>
                             <div class="flex-1 min-w-0">
-                                <p class="font-bold text-gray-800 text-sm truncate">{{ $cert->title ?? 'Competition Certificate' }}</p>
+                                <p class="font-bold text-gray-800 text-sm truncate">{{ $cert->related_title ?? 'Competition Certificate' }}</p>
                                 <p class="text-xs text-gray-400">{{ $cert->issued_at?->format('d M Y') }}</p>
                             </div>
                         </div>

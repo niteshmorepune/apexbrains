@@ -30,25 +30,12 @@
                                   placeholder="Brief description of the competition...">{{ old('description') }}</textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Type <span class="text-red-500">*</span>
-                            </label>
-                            <select name="competition_type" required
-                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                                <option value="zonal"     @selected(old('competition_type') === 'zonal')>Zonal</option>
-                                <option value="regional"  @selected(old('competition_type', 'regional') === 'regional')>Regional</option>
-                                <option value="national"  @selected(old('competition_type') === 'national')>National</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Entry Fee (₹) <span class="text-red-500">*</span>
-                            </label>
-                            <input type="number" name="fee_amount" value="{{ old('fee_amount', 0) }}" min="0" step="50" required
-                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                            Entry Fee (₹) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="fee_amount" value="{{ old('fee_amount', 0) }}" min="0" step="50" required
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     </div>
 
                     <div>
@@ -137,21 +124,8 @@
     {{-- Sidebar --}}
     <div class="space-y-4">
         <div class="bg-admin rounded-2xl p-5 text-white">
-            <h3 class="text-sm font-bold mb-3">Competition Types</h3>
-            <dl class="space-y-3 text-xs">
-                <div>
-                    <dt class="text-stu font-semibold">Zonal</dt>
-                    <dd class="text-gray-400 mt-0.5">Single franchise — internal students only</dd>
-                </div>
-                <div>
-                    <dt class="text-fran font-semibold">Regional</dt>
-                    <dd class="text-gray-400 mt-0.5">Multiple franchises — inter-branch</dd>
-                </div>
-                <div>
-                    <dt class="text-logo-amber font-semibold">National</dt>
-                    <dd class="text-gray-400 mt-0.5">Open to all — external students eligible</dd>
-                </div>
-            </dl>
+            <h3 class="text-sm font-bold mb-3">Tips</h3>
+            <p class="text-xs text-gray-400">Set "Open to External Students" if students outside your franchises should be able to register. Upload level-wise question papers after creating the competition.</p>
         </div>
     </div>
 </div>

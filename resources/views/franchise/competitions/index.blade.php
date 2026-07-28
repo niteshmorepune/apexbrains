@@ -33,7 +33,6 @@
                     @endif
                 </div>
                 <div class="flex items-center gap-4 mt-1.5 text-xs text-gray-500 flex-wrap">
-                    <span>{{ ucfirst($competition->competition_type) }}</span>
                     @if($competition->start_date)
                         <span>{{ $competition->start_date->format('d M Y') }} – {{ $competition->end_date?->format('d M Y') }}</span>
                     @endif

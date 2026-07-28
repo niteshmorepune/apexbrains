@@ -28,35 +28,40 @@ class CertificateImageComposer
         $navyBold   = [18, 24, 47];
         $gold       = [200, 134, 15];
 
+        // 'box' is the mask rectangle erased before drawing (must fully cover
+        // the artwork's fill-in blank/underline or placeholder text with no
+        // remainder). 'pad' is an additional left-inset applied only to where
+        // the text itself starts, so the value never touches the preceding
+        // static label — independent of how far the mask extends.
         return match ($type) {
             Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [
-                ['box' => [638, 635, 1515, 686],  'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [638, 695, 1193, 746],  'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [765, 753, 1193, 803],  'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [318, 903, 758, 950],   'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [318, 963, 758, 1010],  'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [448, 635, 1442, 692], 'pad' => 16, 'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [400, 695, 1304, 750], 'pad' => 16, 'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [501, 753, 1209, 808], 'pad' => 16, 'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [337, 903, 679, 955],  'pad' => 10, 'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [337, 963, 679, 1015], 'pad' => 10, 'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
             ],
             Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [
-                ['box' => [638, 635, 1515, 686],  'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [638, 703, 1170, 752],  'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [908, 751, 1270, 810],  'text' => $franchiseName, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [308, 873, 758, 918],   'text' => $dateVal,       'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [308, 926, 758, 971],   'text' => $placeVal,      'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [433, 635, 1427, 694], 'pad' => 16, 'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [433, 703, 1197, 760], 'pad' => 16, 'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [899, 751, 1339, 818], 'pad' => 16, 'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [315, 873, 551, 922],  'pad' => 10, 'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [316, 926, 550, 975],  'pad' => 10, 'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
             ],
             Certificate::TYPE_CHAMPION => [
-                ['box' => [730, 1000, 1500, 1120], 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [745, 1108, 1500, 1218], 'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [740, 1250, 1060, 1330], 'baseline' => 1305, 'text' => 'Champion ' . ($certificate->rank ?: ''), 'font' => 'bold', 'size' => 32, 'color' => $gold, 'align' => 'center'],
-                ['box' => [690, 1372, 1500, 1432], 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [285, 1722, 645, 1770],  'text' => $placeVal,      'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
-                ['box' => [285, 1842, 645, 1890],  'text' => $dateVal,       'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
+                ['box' => [730, 1000, 1520, 1120], 'pad' => 45, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [715, 1108, 1520, 1218], 'pad' => 45, 'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [740, 1250, 1078, 1330], 'baseline' => 1305, 'text' => 'Champion ' . ($certificate->rank ?: ''), 'font' => 'bold', 'size' => 32, 'color' => $gold, 'align' => 'center'],
+                ['box' => [690, 1372, 1520, 1432], 'pad' => 45, 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [285, 1722, 645, 1790],  'text' => $placeVal,      'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
+                ['box' => [285, 1842, 645, 1895],  'text' => $dateVal,       'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
             ],
             Certificate::TYPE_WINNER => [
-                ['box' => [730, 1000, 1500, 1120], 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [745, 1108, 1500, 1218], 'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [690, 1372, 1500, 1432], 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [285, 1722, 645, 1770],  'text' => $placeVal,      'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
-                ['box' => [285, 1842, 645, 1890],  'text' => $dateVal,       'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
+                ['box' => [730, 1000, 1520, 1120], 'pad' => 45, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [715, 1108, 1520, 1218], 'pad' => 45, 'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [690, 1372, 1520, 1432], 'pad' => 45, 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [285, 1722, 645, 1790],  'text' => $placeVal,      'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
+                ['box' => [285, 1842, 645, 1895],  'text' => $dateVal,       'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
             ],
             default => [],
         };
@@ -118,14 +123,16 @@ class CertificateImageComposer
             $textColor = imagecolorallocate($im, $r, $g, $b);
             $fontFile  = $this->fontPath($field['font']);
             $size      = $field['size'];
+            $pad       = $field['pad'] ?? 0;
+            $textX0    = $x0 + $pad;
 
             $bbox = imagettfbbox($size, 0, $fontFile, $text);
             $textWidth = abs($bbox[2] - $bbox[0]);
 
-            $boxWidth = $x1 - $x0;
+            $boxWidth = $x1 - $textX0;
             $startX = match ($field['align']) {
-                'center' => $x0 + max(0, ($boxWidth - $textWidth) / 2),
-                default => $x0,
+                'center' => $x0 + max(0, (($x1 - $x0) - $textWidth) / 2),
+                default => $textX0,
             };
 
             // Shrink to fit rather than overflow the box for unusually long values.
@@ -134,8 +141,8 @@ class CertificateImageComposer
                 $bbox = imagettfbbox($size, 0, $fontFile, $text);
                 $textWidth = abs($bbox[2] - $bbox[0]);
                 $startX = match ($field['align']) {
-                    'center' => $x0 + max(0, ($boxWidth - $textWidth) / 2),
-                    default => $x0,
+                    'center' => $x0 + max(0, (($x1 - $x0) - $textWidth) / 2),
+                    default => $textX0,
                 };
             }
 

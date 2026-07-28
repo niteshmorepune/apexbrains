@@ -5,11 +5,6 @@
 @section('content')
 <div class="max-w-2xl">
 
-    @if(session('error'))
-        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
     @if(session('importErrors') && count(session('importErrors')))
         <div class="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl px-4 py-3 mb-4">
             <p class="font-semibold mb-1">Skipped rows:</p>

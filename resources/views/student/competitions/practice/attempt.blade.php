@@ -57,15 +57,10 @@
                     </template>
                 </div>
 
-                <div class="flex items-center justify-between mt-5">
+                <div class="flex items-center justify-center mt-5">
                     <button @click="confirmSubmit()" class="px-5 py-2 border border-green-600 text-green-600 rounded-xl text-sm font-semibold hover:bg-green-50">
                         Submit
                     </button>
-                    <template x-if="currentIndex < questions.length - 1">
-                        <button @click="next()" class="px-5 py-2 bg-fran text-white rounded-xl text-sm font-semibold">
-                            Next →
-                        </button>
-                    </template>
                 </div>
             </div>
         </template>
@@ -106,10 +101,6 @@ function practiceEngine() {
             return `${m}:${s.toString().padStart(2, '0')}`;
         },
 
-        next() {
-            this.currentIndex++;
-        },
-
         selectAnswer(opt) {
             const q = this.questions[this.currentIndex];
             if (!q) return;
@@ -122,6 +113,10 @@ function practiceEngine() {
                 },
                 body: JSON.stringify({ question_id: q.id, selected_answer: opt }),
             });
+            // Auto-advance to the next question — no manual navigation.
+            if (this.currentIndex < this.questions.length - 1) {
+                setTimeout(() => { this.currentIndex++; }, 350);
+            }
         },
 
         doSubmit() {

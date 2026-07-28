@@ -24,23 +24,10 @@
                         <textarea name="description" rows="3"
                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran resize-none">{{ old('description', $competition->description) }}</textarea>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Type <span class="text-red-500">*</span></label>
-                            <select name="competition_type" required
-                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                                @foreach(['zonal', 'regional', 'national'] as $type)
-                                    <option value="{{ $type }}" @selected(old('competition_type', $competition->competition_type) === $type)>
-                                        {{ ucfirst($type) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Entry Fee (₹) <span class="text-red-500">*</span></label>
-                            <input type="number" name="fee_amount" value="{{ old('fee_amount', $competition->fee_amount) }}" min="0" step="50" required
-                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Entry Fee (₹) <span class="text-red-500">*</span></label>
+                        <input type="number" name="fee_amount" value="{{ old('fee_amount', $competition->fee_amount) }}" min="0" step="50" required
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Max Participants</label>

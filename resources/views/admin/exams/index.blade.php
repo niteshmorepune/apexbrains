@@ -14,13 +14,6 @@
 
 @section('content')
 
-@if(session('success'))
-    <div class="bg-stu-light border border-green-200 text-stu-dark text-sm rounded-xl px-4 py-3 mb-4">{{ session('success') }}</div>
-@endif
-@if(session('error'))
-    <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">{{ session('error') }}</div>
-@endif
-
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="overflow-x-auto"><table class="w-full min-w-[720px] text-sm">
         <thead>

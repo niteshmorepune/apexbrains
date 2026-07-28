@@ -18,7 +18,7 @@ class CertificateController extends Controller
 
         $certificates = Certificate::where('student_id', $student->id)
             ->where('is_revoked', false)
-            ->with(['level', 'issuedBy'])
+            ->with(['level', 'issuedBy', 'competition', 'examAttempt.exam'])
             ->orderByDesc('issued_at')
             ->get();
 
@@ -41,9 +41,14 @@ class CertificateController extends Controller
             abort(403);
         }
 
-        $certificate->load(['student', 'level', 'issuedBy', 'franchise']);
+        $certificate->load(['student', 'level', 'issuedBy', 'franchise', 'competition', 'examAttempt.exam']);
 
-        return view('student.certificates.show', compact('certificate'));
+        $previewUri = null;
+        if ($certificate->usesFlowTemplate() && ! in_array($certificate->type, ['merit', 'excellence'], true)) {
+            $previewUri = app(\App\Services\CertificateImageComposer::class)->composeDataUri($certificate);
+        }
+
+        return view('student.certificates.show', compact('certificate', 'previewUri'));
     }
 
     public function download(Certificate $certificate): View
@@ -54,7 +59,7 @@ class CertificateController extends Controller
             abort(403);
         }
 
-        $certificate->load(['student', 'level', 'issuedBy', 'franchise']);
+        $certificate->load(['student', 'level', 'issuedBy', 'franchise', 'competition', 'examAttempt.exam']);
 
         return view('franchise.certificates.certificate-document', [
             'certificate' => $certificate,
@@ -73,7 +78,7 @@ class CertificateController extends Controller
             abort(403);
         }
 
-        $certificate->load(['student', 'level', 'issuedBy', 'franchise']);
+        $certificate->load(['student', 'level', 'issuedBy', 'franchise', 'competition', 'examAttempt.exam']);
 
         $pdf = Pdf::loadView('franchise.certificates.certificate-document', [
             'certificate' => $certificate,

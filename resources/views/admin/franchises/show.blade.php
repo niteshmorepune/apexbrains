@@ -350,6 +350,29 @@
             </form>
         </div>
         <div class="bg-white rounded-2xl border border-border p-5">
+            <h3 class="text-sm font-semibold text-admin mb-4">Reset Login Password</h3>
+            <p class="text-xs text-gray-400 mb-3">Sets a new password for this franchise's login account ({{ $franchise->users->first()?->email ?? $franchise->email }}).</p>
+            <form method="POST" action="{{ route('admin.franchises.reset-password', $franchise) }}" class="space-y-3"
+                  onsubmit="return confirm('Reset the login password for this franchise?')">
+                @csrf
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">New Password</label>
+                    <input type="password" name="password" required minlength="8"
+                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('password') border-red-400 @enderror">
+                    @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Confirm Password</label>
+                    <input type="password" name="password_confirmation" required minlength="8"
+                           class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                </div>
+                <button type="submit"
+                        class="w-full bg-admin text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 transition-colors">
+                    Reset Password
+                </button>
+            </form>
+        </div>
+        <div class="bg-white rounded-2xl border border-border p-5">
             <h3 class="text-sm font-semibold text-admin mb-4">Danger Zone</h3>
             <div class="border border-red-200 rounded-xl p-4 bg-red-50">
                 <p class="text-sm font-medium text-red-700 mb-1">Delete Franchise</p>

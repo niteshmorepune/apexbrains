@@ -321,6 +321,27 @@ class StudentController extends Controller
             ->with('success', 'Student deleted.');
     }
 
+    public function resetPassword(Request $request, Student $student): RedirectResponse
+    {
+        $data = $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = $student->user;
+
+        if (! $user) {
+            return back()->with('error', 'No login account found for this student.');
+        }
+
+        $user->password = $data['password'];
+        $user->save();
+
+        AuditLogger::log('student_password_reset', 'Student', $student->id);
+
+        return redirect()->route('franchise.students.show', $student)
+            ->with('success', 'Password reset for ' . $student->full_name . '.');
+    }
+
     public function importPage(Request $request): \Illuminate\View\View
     {
         if ($request->boolean('reset')) {

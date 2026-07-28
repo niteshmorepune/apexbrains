@@ -232,9 +232,6 @@
                     class="px-6 py-2.5 bg-fran text-white rounded-xl text-sm font-semibold hover:bg-fran-dark transition-colors">
                 Save All Settings
             </button>
-            @if(session('success'))
-                <span class="text-sm text-stu font-medium">{{ session('success') }}</span>
-            @endif
         </div>
     </form>
 </div>

@@ -25,6 +25,7 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
         Route::post('students/import', [\App\Http\Controllers\Franchise\StudentController::class, 'import'])->name('students.import');
         Route::get('students/import/template', [\App\Http\Controllers\Franchise\StudentController::class, 'importTemplate'])->name('students.import.template');
         Route::resource('students', \App\Http\Controllers\Franchise\StudentController::class);
+        Route::post('students/{student}/reset-password', [\App\Http\Controllers\Franchise\StudentController::class, 'resetPassword'])->name('students.reset-password');
 
         // Fees & Payments — static routes BEFORE fees/{fee} so they aren't shadowed
         Route::get('fees', [\App\Http\Controllers\Franchise\FeeController::class, 'index'])->name('fees.index');
@@ -44,6 +45,7 @@ Route::prefix('franchise')->name('franchise.')->group(function () {
         // Certificates
         Route::get('certificates', [\App\Http\Controllers\Franchise\CertificateController::class, 'index'])->name('certificates.index');
         Route::post('certificates', [\App\Http\Controllers\Franchise\CertificateController::class, 'generate'])->name('certificates.generate');
+        Route::post('certificates/preview', [\App\Http\Controllers\Franchise\CertificateController::class, 'preview'])->name('certificates.preview');
         Route::get('certificates/{certificate}/download', [\App\Http\Controllers\Franchise\CertificateController::class, 'download'])->name('certificates.download');
         Route::get('certificates/{certificate}/pdf', [\App\Http\Controllers\Franchise\CertificateController::class, 'downloadPdf'])->name('certificates.pdf');
         Route::patch('certificates/{certificate}/revoke', [\App\Http\Controllers\Franchise\CertificateController::class, 'revoke'])->name('certificates.revoke');

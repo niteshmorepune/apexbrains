@@ -77,6 +77,28 @@ class Certificate extends Model
     }
 
     /**
+     * The Exam or Competition name this certificate is tied to, for display
+     * in certificate lists — falls back to the level name, then nothing for
+     * fully discretionary certificates (merit/excellence with no exam link).
+     */
+    public function getRelatedTitleAttribute(): ?string
+    {
+        if ($this->competition) {
+            return $this->competition->title;
+        }
+
+        if ($this->examAttempt?->exam) {
+            return $this->examAttempt->exam->title;
+        }
+
+        if ($this->level) {
+            return $this->level->title . ' Level-Up Exam';
+        }
+
+        return null;
+    }
+
+    /**
      * The brand logo as a base64 data URI so it embeds reliably in dompdf PDFs
      * and the browser alike. Prefers the uploaded logo, falls back to the bundled mark.
      */

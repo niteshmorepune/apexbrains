@@ -14,27 +14,11 @@
 
 @section('content')
 
-{{-- Filters --}}
-<div class="bg-white rounded-2xl border border-border p-4 mb-4 flex items-center gap-3">
-    <form method="GET" action="{{ route('admin.competitions.index') }}" class="flex items-center gap-3">
-        @foreach(['all' => 'All', 'zonal' => 'Zonal', 'regional' => 'Regional', 'national' => 'National'] as $val => $label)
-            <button type="submit" name="type" value="{{ $val === 'all' ? '' : $val }}"
-                    class="px-4 py-2 rounded-xl text-sm font-medium transition-colors
-                           {{ request('type', '') === ($val === 'all' ? '' : $val)
-                               ? 'bg-fran text-white'
-                               : 'bg-bg-light text-gray-600 hover:bg-bg-mid' }}">
-                {{ $label }}
-            </button>
-        @endforeach
-    </form>
-</div>
-
 <div class="bg-white rounded-2xl border border-border overflow-hidden">
     <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
         <thead>
             <tr class="bg-admin">
                 <th class="text-left px-5 py-3 text-xs font-semibold text-white">Competition</th>
-                <th class="text-center px-4 py-3 text-xs font-semibold text-white">Type</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Dates</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">Registrations</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-white">External</th>
@@ -58,14 +42,6 @@
                         @if($c->description)
                             <p class="text-xs text-gray-400 line-clamp-1">{{ $c->description }}</p>
                         @endif
-                    </td>
-                    <td class="px-4 py-3 text-center">
-                        @php
-                            $typeColor = ['zonal' => 'bg-stu-light text-stu-dark', 'regional' => 'bg-blue-50 text-fran', 'national' => 'bg-yellow-50 text-yellow-700'][$c->competition_type] ?? 'bg-bg-mid text-gray-600';
-                        @endphp
-                        <span class="text-xs px-2 py-0.5 rounded-full font-medium {{ $typeColor }} capitalize">
-                            {{ $c->competition_type }}
-                        </span>
                     </td>
                     <td class="px-4 py-3 text-center text-xs text-gray-600">
                         <p>{{ $c->start_date->format('d M Y') }}</p>
@@ -102,7 +78,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="px-5 py-12 text-center text-gray-400">
+                    <td colspan="6" class="px-5 py-12 text-center text-gray-400">
                         No competitions yet.
                         <a href="{{ route('admin.competitions.create') }}" class="text-fran hover:underline ml-1">
                             Create the first one →

@@ -11,17 +11,6 @@
 
 @section('content')
 
-@if(session('success'))
-    <div class="bg-stu-light border border-green-200 text-stu-dark text-sm rounded-xl px-4 py-3 mb-4">
-        {{ session('success') }}
-    </div>
-@endif
-@if(session('error'))
-    <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">
-        {{ session('error') }}
-    </div>
-@endif
-
 @if($competition->questionPapers->isEmpty())
     <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl px-4 py-3 mb-4">
         <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,7 +50,6 @@
 <div class="bg-white rounded-2xl border border-border p-6">
     <h2 class="text-sm font-semibold text-admin mb-4">Details</h2>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-        <div><dt class="text-gray-500 mb-0.5">Type</dt><dd class="capitalize font-medium">{{ $competition->competition_type }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Open to External</dt><dd>{{ $competition->is_open_to_external ? 'Yes' : 'No' }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Registration Deadline</dt><dd>{{ $competition->registration_deadline->format('d M Y') }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Start Date</dt><dd>{{ $competition->start_date->format('d M Y') }}</dd></div>

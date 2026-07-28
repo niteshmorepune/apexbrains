@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Competition extends Model
 {
     protected $fillable = [
-        'franchise_id', 'title', 'description', 'competition_type',
+        'franchise_id', 'title', 'description',
         'start_date', 'end_date', 'registration_deadline', 'max_participants',
         'fee_amount', 'is_active', 'is_open_to_external', 'created_by',
         'results_declared_at',

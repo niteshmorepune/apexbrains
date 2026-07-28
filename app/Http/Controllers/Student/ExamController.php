@@ -77,20 +77,27 @@ class ExamController extends Controller
 
         $hasPaper = $exam->activePaper()->exists();
 
+        $levelMatches = is_null($exam->level_id) || $exam->level_id === $student->current_level_id;
+
         $canAttempt = $hasPaper
             && $exam->is_active
+            && $levelMatches
             && (is_null($exam->scheduled_at) || $exam->scheduled_at->lte(now()))
             && (is_null($exam->max_attempts) || $attempts->count() < $exam->max_attempts)
             && (is_null($exam->expires_at) || $exam->expires_at->isFuture());
 
         $inProgress = $attempts->where('status', 'in_progress')->first();
 
-        return view('student.exams.show', compact('exam', 'attempts', 'canAttempt', 'inProgress', 'hasPaper'));
+        return view('student.exams.show', compact('exam', 'attempts', 'canAttempt', 'inProgress', 'hasPaper', 'levelMatches'));
     }
 
     public function start(Request $request, Exam $exam): RedirectResponse
     {
         $student = Auth::user()->student()->firstOrFail();
+
+        if ($exam->level_id && $exam->level_id !== $student->current_level_id) {
+            return back()->with('error', 'This exam is for a different level and is not available to you at your current level.');
+        }
 
         $attemptCount = ExamAttempt::where('exam_id', $exam->id)
             ->where('student_id', $student->id)

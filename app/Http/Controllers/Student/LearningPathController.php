@@ -25,6 +25,8 @@ class LearningPathController extends Controller
 
     public function levelOverview(Level $level): View
     {
+        $level->load('books');
+
         $student = Auth::user()->student()->with('currentLevel')->first();
 
         $exams = collect();

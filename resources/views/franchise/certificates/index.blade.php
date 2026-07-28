@@ -149,7 +149,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                         Generate and Send
                     </button>
-                    <button type="button" @click="scrollToPreview()"
+                    <button type="button" @click="loadPreview(); scrollToPreview()"
                             class="flex items-center justify-center gap-2 py-3 border border-fran text-fran rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 12S5.5 5 12 5s9.5 7 9.5 7-3 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
                         Preview Certificate
@@ -158,57 +158,20 @@
             </form>
         </div>
 
-        {{-- Certificate Preview --}}
+        {{-- Certificate Preview — renders the actual certificate artwork (same
+             GD compositor used for the final PDF), not an approximation. --}}
         <div class="bg-white rounded-2xl border border-border shadow-sm p-6" x-ref="preview">
             <h2 class="text-base font-bold text-gray-900 mb-4">Certificate Preview</h2>
 
-            <div class="relative bg-white border border-border rounded-xl overflow-hidden shadow-inner aspect-[1.5/1]">
-                {{-- Corner ribbons --}}
-                <div class="absolute -left-8 -bottom-8 w-24 h-24 rotate-45 bg-gradient-to-tr from-orange-400 to-rose-500"></div>
-                <div class="absolute -left-5 -bottom-10 w-24 h-24 rotate-45 bg-fran/80"></div>
-                <div class="absolute -right-8 -bottom-8 w-24 h-24 rotate-45 bg-gradient-to-tl from-blue-500 to-cyan-400"></div>
-
-                <div class="relative h-full flex flex-col items-center justify-center text-center px-6 py-5">
-                    {{-- Header --}}
-                    @php
-                        $logoSrc = !empty($appSettings['logo_path'] ?? null)
-                            ? \Illuminate\Support\Facades\Storage::url($appSettings['logo_path'])
-                            : asset('images/apex-logo.png');
-                    @endphp
-                    <div class="flex items-center justify-between w-full mb-1">
-                        <img src="{{ $logoSrc }}" alt="Apex Brains" class="h-9 w-auto object-contain object-left">
-                        <span class="w-9 h-9 rounded-full border-2 border-gray-300 text-[7px] font-bold text-gray-400 flex items-center justify-center text-center leading-none">ISO<br>9001</span>
-                    </div>
-
-                    <p class="text-[13px] font-bold tracking-wide text-gray-800 mt-1" x-text="docTitle"></p>
-                    <p class="text-[9px] text-gray-400 mt-2">This certifies that</p>
-
-                    <p class="text-2xl font-black text-fran my-1" style="font-family: 'Brush Script MT', cursive;"
-                       x-text="studentName || 'Student Name'"></p>
-
-                    <p class="text-[9px] text-gray-400" x-text="isExternal ? 'participated in' : 'has successfully completed'"></p>
-
-                    <div class="bg-blue-50 rounded-lg px-4 py-1.5 my-2">
-                        <p class="text-[11px] font-bold text-fran" x-text="boxLabel"></p>
-                    </div>
-
-                    {{-- Footer --}}
-                    <div class="flex items-end justify-between w-full mt-auto pt-2">
-                        <div class="text-center">
-                            <div class="w-16 border-b border-gray-300 mb-0.5"></div>
-                            <p class="text-[8px] text-gray-400">Teacher</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="w-7 h-7 mx-auto bg-white rounded grid grid-cols-3 grid-rows-3 gap-px p-0.5">
-                                @foreach([1,0,1,0,1,0,1,0,1] as $cell)<span class="{{ $cell ? 'bg-gray-700' : 'bg-transparent' }}"></span>@endforeach
-                            </div>
-                            <p class="text-[7px] text-gray-400 mt-0.5" x-text="issueDateLabel"></p>
-                        </div>
-                        <div class="text-center">
-                            <div class="w-16 border-b border-gray-300 mb-0.5"></div>
-                            <p class="text-[8px] text-gray-400">Director</p>
-                        </div>
-                    </div>
+            <div class="relative bg-bg-light border border-border rounded-xl overflow-hidden shadow-inner aspect-[1122/793] flex items-center justify-center">
+                <template x-if="previewImage">
+                    <img :src="previewImage" alt="Certificate preview" class="w-full h-full object-contain">
+                </template>
+                <template x-if="!previewImage && !previewLoading">
+                    <p class="text-sm text-gray-400 px-8 text-center" x-text="isExternal ? 'Select a student and competition, then click &quot;Preview Certificate&quot; to see the actual certificate design.' : 'Select a student and click &quot;Preview Certificate&quot; to see the actual certificate design.'"></p>
+                </template>
+                <div x-show="previewLoading" x-cloak class="absolute inset-0 bg-white/70 flex items-center justify-center">
+                    <span class="text-sm text-fran font-semibold">Rendering…</span>
                 </div>
             </div>
             <p class="text-xs text-gray-400 text-center mt-3" x-text="typeLabel + ' · Live preview'"></p>
@@ -315,6 +278,8 @@ function certForm() {
         competitionId: '',
         type: 'level_up',
         issueDate: '{{ now()->toDateString() }}',
+        previewImage: null,
+        previewLoading: false,
 
         get student() { return this.students.find(s => s.id === this.studentId) || null; },
         get isExternal() { return this.student?.type === 'external'; },
@@ -365,6 +330,35 @@ function certForm() {
         onLevelChange() {},
         scrollToPreview() {
             this.$refs.preview?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        },
+        async loadPreview() {
+            if (!this.studentId) return;
+            if (this.isExternal && !this.competitionId) return;
+
+            this.previewLoading = true;
+            try {
+                const res = await fetch('{{ route('franchise.certificates.preview') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    },
+                    body: JSON.stringify({
+                        student_id: this.studentId,
+                        level_id: this.isExternal ? '' : this.levelId,
+                        competition_id: this.isExternal ? this.competitionId : '',
+                        type: this.isExternal ? 'participation' : this.type,
+                        issued_at: this.issueDate,
+                    }),
+                });
+                const data = await res.json();
+                this.previewImage = data.image ?? null;
+            } catch (e) {
+                this.previewImage = null;
+            } finally {
+                this.previewLoading = false;
+            }
         },
     };
 }

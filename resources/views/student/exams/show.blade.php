@@ -72,6 +72,11 @@
             <p class="text-sm font-bold text-amber-700">Exam Not Started Yet</p>
             <p class="text-xs text-amber-600 mt-1">Opens on {{ $exam->scheduled_at_ist->format('d M Y \a\t g:i A') }}</p>
         </div>
+    @elseif(! $levelMatches)
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl py-4 px-5 text-center">
+            <p class="text-sm font-bold text-amber-700">Not Available For Your Level</p>
+            <p class="text-xs text-amber-600 mt-1">This exam is for a different level than your current level.</p>
+        </div>
     @elseif($canAttempt)
         <form method="POST" action="{{ route('student.exams.start', $exam) }}">
             @csrf

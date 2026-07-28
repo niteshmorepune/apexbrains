@@ -159,6 +159,7 @@ class CompetitionPracticeController extends Controller
             'percentage' => $pct,
             'status' => 'submitted',
             'submitted_at' => now(),
+            'answers' => $answers,
         ]);
 
         Cache::forget("cp_attempt_{$attempt->id}_answers");
@@ -173,7 +174,11 @@ class CompetitionPracticeController extends Controller
 
         $attempt->load('level');
 
-        $questions = CompetitionQuestionBank::whereIn('id', $attempt->question_ids ?? [])->get();
+        $questionIds = $attempt->question_ids ?? [];
+        $questions = CompetitionQuestionBank::whereIn('id', $questionIds)
+            ->get()
+            ->sortBy(fn ($q) => array_search($q->id, $questionIds))
+            ->values();
 
         return view('student.competitions.practice.result', compact('attempt', 'questions'));
     }
