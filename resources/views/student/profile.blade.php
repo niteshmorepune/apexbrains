@@ -9,8 +9,12 @@
     {{-- Profile card --}}
     <div class="bg-white rounded-2xl border border-border p-5">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-full bg-stu text-white flex items-center justify-center font-black text-2xl flex-shrink-0">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
+            <div class="w-16 h-16 rounded-full bg-stu text-white flex items-center justify-center font-black text-2xl flex-shrink-0 overflow-hidden">
+                @if($student?->photo_url)
+                    <img src="{{ $student->photo_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                @else
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                @endif
             </div>
             <div class="min-w-0">
                 <p class="font-black text-lg text-gray-900 truncate">{{ $user->name }}</p>

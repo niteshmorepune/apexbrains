@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApexNotification;
 use App\Models\Certificate;
 use App\Models\Competition;
 use App\Models\Student;
@@ -139,6 +140,13 @@ class CertificateController extends Controller
         ]);
 
         AuditLogger::log('certificate_generated', 'Certificate', $certificate->id);
+
+        ApexNotification::notifyStudents(
+            [$student],
+            'certificate_issued',
+            'New Certificate Issued',
+            'Your Level Up certificate is ready — view it in your Certificate Vault.'
+        );
 
         return redirect()->route('franchise.certificates.download', $certificate)
             ->with('success', "Certificate {$certNumber} generated and sent for {$student->full_name}.");

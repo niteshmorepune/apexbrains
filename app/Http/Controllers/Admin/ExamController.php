@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApexNotification;
 use App\Models\Exam;
 use App\Models\Level;
+use App\Models\Student;
 use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,6 +42,24 @@ class ExamController extends Controller
         ]);
 
         AuditLogger::log('exam_created', 'Exam', $exam->id);
+
+        if ($exam->is_active) {
+            $students = Student::where('current_level_id', $exam->level_id)
+                ->where('student_type', 'internal')
+                ->where('is_active', true)
+                ->get();
+
+            $when = $exam->scheduled_at?->timezone('Asia/Kolkata')->format('d M Y, h:i A');
+
+            ApexNotification::notifyStudents(
+                $students,
+                'exam_scheduled',
+                'Upcoming Exam: ' . $exam->title,
+                $when
+                    ? "A new exam \"{$exam->title}\" is scheduled for {$when}. Get ready!"
+                    : "A new exam \"{$exam->title}\" is now available for your level."
+            );
+        }
 
         return redirect()->route('admin.exams.show', $exam)
             ->with('success', "Exam '{$exam->title}' created. Upload a question paper to make it attemptable.");

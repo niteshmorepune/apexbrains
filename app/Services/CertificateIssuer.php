@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ApexNotification;
 use App\Models\Certificate;
 use App\Models\Competition;
 use App\Models\CompetitionRegistration;
@@ -136,6 +137,20 @@ class CertificateIssuer
         ], $attrs));
 
         AuditLogger::log('certificate_generated', 'Certificate', $certificate->id);
+
+        $label = match ($certificate->type) {
+            Certificate::TYPE_CHAMPION => 'Champion',
+            Certificate::TYPE_WINNER => 'Winner',
+            Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => 'Participation',
+            default => 'Level Up',
+        };
+
+        ApexNotification::notifyStudents(
+            [$student],
+            'certificate_issued',
+            'New Certificate Issued',
+            "Your {$label} certificate is ready — view it in your Certificate Vault."
+        );
 
         return $certificate;
     }

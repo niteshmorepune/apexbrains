@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApexNotification;
 use App\Models\Competition;
 use App\Models\CompetitionExamAttempt;
+use App\Models\Student;
 use App\Services\AuditLogger;
 use App\Services\CertificateIssuer;
 use Illuminate\Http\RedirectResponse;
@@ -47,6 +49,24 @@ class CompetitionController extends Controller
 
         $competition = Competition::create($data);
         AuditLogger::log('competition_created', 'Competition', $competition->id);
+
+        if ($competition->is_active) {
+            $studentsQuery = Student::where('is_active', true);
+            $studentsQuery = $competition->is_open_to_external
+                ? $studentsQuery->whereIn('student_type', ['internal', 'external'])
+                : $studentsQuery->where('student_type', 'internal');
+
+            $when = $competition->start_date?->format('d M Y');
+
+            ApexNotification::notifyStudents(
+                $studentsQuery->get(),
+                'competition_scheduled',
+                'New Competition: ' . $competition->title,
+                $when
+                    ? "\"{$competition->title}\" starts on {$when}. Register before the deadline!"
+                    : "\"{$competition->title}\" is now open for registration!"
+            );
+        }
 
         return redirect()->route('admin.competitions.show', $competition)
             ->with('success', "Competition '{$competition->title}' created.");
@@ -92,6 +112,13 @@ class CompetitionController extends Controller
                 $issuer->issueForCompetition($attempt->student, $competition, Auth::id(), null, null, $attempt->paper?->level_id);
             }
         }
+
+        ApexNotification::notifyStudents(
+            $attempts->pluck('student')->filter()->unique('id'),
+            'competition_result',
+            'Results Declared: ' . $competition->title,
+            "Results for \"{$competition->title}\" have been declared. Check your rank now!"
+        );
 
         AuditLogger::log('competition_results_declared', 'Competition', $competition->id);
 

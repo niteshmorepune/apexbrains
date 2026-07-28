@@ -254,7 +254,7 @@ function practicePlayer() {
             if (!text) return [];
             const cleaned = String(text).replace(/=\s*\?/g, '').replace(/\?/g, '');
             const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '-': '−', '–': '−' };
-            const re = /([+\-−–×x*÷/])?\s*(\d+(?:\.\d+)?)/g;
+            const re = /([+\-−–×xX*÷/])?\s*(\d+(?:\.\d+)?)/g;
             const out = [];
             let m, first = true;
             while ((m = re.exec(cleaned)) !== null) {
@@ -337,7 +337,7 @@ function practicePlayer() {
 
         // The bare number shown on the projector (operator glyph stripped).
         numericPart(term) {
-            return String(term).replace(/^[+\-−–×x*÷/]\s*/, '').trim();
+            return String(term).replace(/^[+\-−–×xX*÷/]\s*/, '').trim();
         },
 
         // Speak a single term as it flashes (TTS fallback when no recorded file).
@@ -357,13 +357,13 @@ function practicePlayer() {
         // Spoken rules (abacus dictation):
         //  + (addition)        → not spoken, just the number
         //  − (subtraction)     → "less <n>"
-        //  × (multiplication)  → "multiply by <n>"
-        //  ÷ (division)        → "divide by <n>"
+        //  × (multiplication)  → "multiplied by <n>"
+        //  ÷ (division)        → "divided by <n>"
         spokenForm(term) {
             const t = String(term).trim();
             const n = this.numericPart(t);
-            if (/^[×x*]/.test(t)) return 'multiply by ' + n;
-            if (/^[÷/]/.test(t))  return 'divide by ' + n;
+            if (/^[×xX*]/.test(t)) return 'multiplied by ' + n;
+            if (/^[÷/]/.test(t))   return 'divided by ' + n;
             if (/^[−\-–]/.test(t)) return 'less ' + n;
             return n; // addition or first term — number only
         },

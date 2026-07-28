@@ -135,6 +135,11 @@ class Student extends Model
         return "{$this->first_name} {$this->last_name}";
     }
 
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return $this->photo ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->photo) : null;
+    }
+
     public function isInternal(): bool
     {
         return $this->student_type === 'internal';
