@@ -71,7 +71,7 @@
             // Wait for the dictation to actually finish (capped so a stuck
             // TTS engine can't stall the sequence) before advancing — a
             // fixed timer alone cuts multi-digit numbers and phrases like
-            // "divided by 232" off mid-word.
+            // 'divided by 232' off mid-word.
             Promise.race([
                 this.speak(term),
                 new Promise(resolve => setTimeout(resolve, 8000)),
