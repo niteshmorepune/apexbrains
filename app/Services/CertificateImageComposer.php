@@ -47,18 +47,29 @@ class CertificateImageComposer
             // and a long name both landing dead-center with natural spacing,
             // instead of only the value shifting inside a fixed-width blank.
             Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [
-                ['box' => [170, 685, 1520, 727], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 717],
-                ['box' => [170, 734, 1520, 774], 'text' => 'studying at ' . $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 764],
-                ['box' => [170, 782, 1520, 822], 'text' => 'participating in the ' . $levelName . ' Level Competition', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 812],
-                ['box' => [258, 944, 1050, 980],  'pad' => 20, 'text' => $dateVal,  'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 971],
-                ['box' => [258, 998, 1050, 1034], 'pad' => 20, 'text' => $placeVal, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1026],
+                // The 3 baked placeholder lines' true ink extents (including
+                // tall italic parenthesis swashes) overlap each other, so a
+                // single wipe of the whole block runs first (empty text = mask
+                // only, no draw) before each line is drawn in its own smaller,
+                // non-overlapping band — otherwise masking line 2's own box
+                // would clip line 1's already-drawn descenders, etc.
+                ['box' => [170, 676, 1520, 848], 'text' => ''],
+                ['box' => [170, 690, 1520, 725], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 711],
+                ['box' => [170, 750, 1520, 782], 'text' => 'studying at ' . $franchiseName . ' Center for', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 773],
+                ['box' => [170, 795, 1520, 827], 'text' => 'participating in the ' . $levelName . ' Level Competition', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 818],
+                // Narrower box width than the other fields — "Apex Brains,
+                // India." is centered and sits at nearly this same height, so
+                // the box must stop well short of its left edge (x=707) or
+                // masking the date value would clip into that static line.
+                ['box' => [295, 918, 650, 946],  'pad' => 20, 'text' => $dateVal,  'font' => 'italic', 'size' => 24, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 944],
+                ['box' => [295, 986, 650, 1013], 'pad' => 20, 'text' => $placeVal, 'font' => 'italic', 'size' => 24, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1006],
             ],
             Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [
-                ['box' => [170, 707, 1520, 747], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 737],
-                ['box' => [170, 763, 1520, 803], 'text' => 'has completed ' . $levelName . ' level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 793],
-                ['box' => [170, 879, 1520, 919], 'text' => 'at ' . $franchiseName . ' center.', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 909],
-                ['box' => [378, 925, 1100, 963], 'pad' => 0, 'text' => $dateVal,  'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 953],
-                ['box' => [378, 975, 1100, 1013], 'pad' => 0, 'text' => $placeVal, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1003],
+                ['box' => [170, 643, 1520, 685], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 675],
+                ['box' => [170, 714, 1520, 754], 'text' => 'has completed ' . $levelName . ' level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 744],
+                ['box' => [170, 845, 1520, 894], 'text' => 'at ' . $franchiseName . ' center.', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 870],
+                ['box' => [415, 896, 1150, 930], 'pad' => 15, 'text' => $dateVal,  'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 922],
+                ['box' => [415, 950, 1150, 986], 'pad' => 15, 'text' => $placeVal, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 978],
             ],
             Certificate::TYPE_CHAMPION => [
                 ['box' => [742, 1000, 1520, 1120], 'pad' => 10, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
@@ -87,6 +98,8 @@ class CertificateImageComposer
         return match ($type) {
             Certificate::TYPE_CHAMPION => [250, 249, 246],
             Certificate::TYPE_WINNER => [250, 250, 250],
+            Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [252, 252, 252],
+            Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [248, 244, 244],
             default => [249, 247, 245],
         };
     }
