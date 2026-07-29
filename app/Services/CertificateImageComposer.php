@@ -40,31 +40,25 @@ class CertificateImageComposer
         // the dynamic value ends (+ 'gap' px), so spacing stays natural — a
         // single space — no matter how long or short the value is.
         return match ($type) {
+            // Each of these lines is centered as a single unit in the approved
+            // artwork (static words + the fill-in value together), not a
+            // left-aligned blank — so the whole line is masked and redrawn as
+            // one composed string per render. That's what keeps a short name
+            // and a long name both landing dead-center with natural spacing,
+            // instead of only the value shifting inside a fixed-width blank.
             Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [
-                ['box' => [448, 635, 1442, 692], 'pad' => 8, 'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
-                [
-                    'box' => [400, 695, 1304, 750], 'pad' => 8, 'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left',
-                    'trailing' => ['box' => [1311, 695, 1435, 750], 'text' => 'Centre for', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14],
-                ],
-                [
-                    'box' => [501, 753, 1209, 808], 'pad' => 8, 'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left',
-                    'trailing' => ['box' => [1215, 753, 1434, 808], 'text' => 'Level Competition', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14],
-                ],
-                ['box' => [337, 903, 679, 955],  'pad' => 8, 'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [337, 963, 679, 1015], 'pad' => 9, 'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [170, 685, 1520, 727], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 717],
+                ['box' => [170, 734, 1520, 774], 'text' => 'studying at ' . $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 764],
+                ['box' => [170, 782, 1520, 822], 'text' => 'participating in the ' . $levelName . ' Level Competition', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 812],
+                ['box' => [258, 944, 1050, 980],  'pad' => 20, 'text' => $dateVal,  'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 971],
+                ['box' => [258, 998, 1050, 1034], 'pad' => 20, 'text' => $placeVal, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1026],
             ],
             Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [
-                ['box' => [433, 635, 1427, 694], 'pad' => 9, 'text' => $studentName,   'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'left'],
-                [
-                    'box' => [433, 703, 1197, 760], 'pad' => 9, 'text' => $levelName,     'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left',
-                    'trailing' => ['box' => [1207, 703, 1422, 760], 'text' => 'level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14],
-                ],
-                [
-                    'box' => [899, 751, 1339, 818], 'pad' => 9, 'text' => $franchiseName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'left',
-                    'trailing' => ['box' => [1343, 751, 1422, 818], 'text' => 'center.', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14],
-                ],
-                ['box' => [315, 873, 551, 922],  'pad' => 9,  'text' => $dateVal,       'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
-                ['box' => [316, 926, 550, 975],  'pad' => 15, 'text' => $placeVal,      'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left'],
+                ['box' => [170, 707, 1520, 747], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 737],
+                ['box' => [170, 763, 1520, 803], 'text' => 'has completed ' . $levelName . ' level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 793],
+                ['box' => [170, 879, 1520, 919], 'text' => 'at ' . $franchiseName . ' center.', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 909],
+                ['box' => [378, 925, 1100, 963], 'pad' => 0, 'text' => $dateVal,  'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 953],
+                ['box' => [378, 975, 1100, 1013], 'pad' => 0, 'text' => $placeVal, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1003],
             ],
             Certificate::TYPE_CHAMPION => [
                 ['box' => [742, 1000, 1520, 1120], 'pad' => 10, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
@@ -93,7 +87,7 @@ class CertificateImageComposer
         return match ($type) {
             Certificate::TYPE_CHAMPION => [250, 249, 246],
             Certificate::TYPE_WINNER => [250, 250, 250],
-            default => [248, 244, 241],
+            default => [249, 247, 245],
         };
     }
 
