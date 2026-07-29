@@ -31,16 +31,24 @@ window.ApexSpeak = (function () {
             .trim();
     }
     return {
+        // Returns a Promise that resolves once the utterance finishes (or
+        // immediately if there's nothing to say) so callers that flash a
+        // popup in sync with the audio know when it's actually safe to
+        // advance instead of racing a fixed timer against speech.
         speak: function (text) {
-            if (!window.speechSynthesis) return;
+            if (!window.speechSynthesis) return Promise.resolve();
             var phrase = spoken(text);
-            if (!phrase) return;
+            if (!phrase) return Promise.resolve();
             window.speechSynthesis.cancel();
-            var u = new SpeechSynthesisUtterance(phrase);
-            u.rate = 0.9;
-            u.lang = 'en-IN';
-            if (femaleVoice) u.voice = femaleVoice;
-            window.speechSynthesis.speak(u);
+            return new Promise(function (resolve) {
+                var u = new SpeechSynthesisUtterance(phrase);
+                u.rate = 0.9;
+                u.lang = 'en-IN';
+                if (femaleVoice) u.voice = femaleVoice;
+                u.onend = resolve;
+                u.onerror = resolve;
+                window.speechSynthesis.speak(u);
+            });
         }
     };
 })();

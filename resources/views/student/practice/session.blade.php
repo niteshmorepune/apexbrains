@@ -18,11 +18,12 @@
         display: '',
         finished: false,
         flashTimer: null,
+        speakGen: 0,
         tick() {
             this.elapsed++;
             setTimeout(() => this.tick(), 1000);
         },
-        speak(text) { if (window.ApexSpeak) window.ApexSpeak.speak(text); },
+        speak(text) { return window.ApexSpeak ? window.ApexSpeak.speak(text) : Promise.resolve(); },
         get clock() { const m = Math.floor(this.elapsed/60), s = this.elapsed%60; return m+':'+(s<10?'0':'')+s; },
 
         // 1 Digit Popup — flash each term of the sum on its own, one at a
@@ -44,6 +45,8 @@
         numericPart(term) { return String(term).replace(/^[+\-−–×xX*÷/]\s*/, '').trim(); },
         startFlash() {
             clearTimeout(this.flashTimer);
+            this.speakGen++; // invalidate any in-flight speech from a previous run
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
             this.terms = this.parseTerms(this.questionText);
             this.termIndex = 0;
             this.finished = false;
@@ -58,16 +61,33 @@
             }
             const term = this.terms[this.termIndex];
             this.display = this.numericPart(term);
-            this.speak(term);
+
+            const gen = ++this.speakGen;
             const flashMs = Math.max(400, this.flashSpeed * 1000);
             const gapMs = Math.min(260, flashMs * 0.18);
-            this.flashTimer = setTimeout(() => {
-                this.display = '';
+            const minVisibleMs = flashMs - gapMs;
+            const start = Date.now();
+
+            // Wait for the dictation to actually finish (capped so a stuck
+            // TTS engine can't stall the sequence) before advancing — a
+            // fixed timer alone cuts multi-digit numbers and phrases like
+            // "divided by 232" off mid-word.
+            Promise.race([
+                this.speak(term),
+                new Promise(resolve => setTimeout(resolve, 8000)),
+            ]).then(() => {
+                if (gen !== this.speakGen) return;
+                const remaining = Math.max(0, minVisibleMs - (Date.now() - start));
                 this.flashTimer = setTimeout(() => {
-                    this.termIndex++;
-                    this.showTerm();
-                }, gapMs);
-            }, flashMs - gapMs);
+                    if (gen !== this.speakGen) return;
+                    this.display = '';
+                    this.flashTimer = setTimeout(() => {
+                        if (gen !== this.speakGen) return;
+                        this.termIndex++;
+                        this.showTerm();
+                    }, gapMs);
+                }, remaining);
+            });
         },
      }" x-init="tick(); startFlash()">
 

@@ -220,6 +220,7 @@ function practicePlayer() {
         timer: null,
         flashSize: 18,
         femaleVoice: null,
+        speakGen: 0,
 
         init() {
             this.loadVoice();
@@ -294,26 +295,40 @@ function practicePlayer() {
             // dictation); the operator is conveyed by voice instead.
             const term = this.terms[this.termIndex];
             this.display = this.numericPart(term);
-            this.speak(term);
 
+            const gen = ++this.speakGen;
             const flashMs = Math.max(400, this.state.duration * 1000);
             const gapMs = Math.min(260, flashMs * 0.18); // brief blank so repeats are distinct
+            const minVisibleMs = flashMs - gapMs;
+            const start = Date.now();
 
-            this.timer = setTimeout(() => {
-                if (this.paused) return;
-                this.display = ''; // blank gap
+            // Wait for the dictation to actually finish (capped so a stuck
+            // TTS engine can't stall the sequence) before advancing — a
+            // fixed timer alone cuts multi-digit numbers and phrases like
+            // "divided by 232" off mid-word.
+            Promise.race([
+                this.speak(term),
+                new Promise(resolve => setTimeout(resolve, 8000)),
+            ]).then(() => {
+                if (gen !== this.speakGen || this.paused) return;
+                const remaining = Math.max(0, minVisibleMs - (Date.now() - start));
                 this.timer = setTimeout(() => {
-                    if (this.paused) return;
-                    this.termIndex++;
-                    this.showTerm();
-                }, gapMs);
-            }, flashMs - gapMs);
+                    if (gen !== this.speakGen || this.paused) return;
+                    this.display = ''; // blank gap
+                    this.timer = setTimeout(() => {
+                        if (gen !== this.speakGen || this.paused) return;
+                        this.termIndex++;
+                        this.showTerm();
+                    }, gapMs);
+                }, remaining);
+            });
         },
 
         togglePause() {
             this.paused = !this.paused;
             if (this.paused) {
                 clearTimeout(this.timer);
+                this.speakGen++; // invalidate any in-flight speech continuation
                 window.speechSynthesis?.cancel();
             } else if (!this.finished) {
                 this.showTerm(); // resume current term
@@ -321,6 +336,7 @@ function practicePlayer() {
         },
 
         restart() {
+            this.speakGen++;
             window.speechSynthesis?.cancel();
             this.startSequence();
         },
@@ -340,18 +356,24 @@ function practicePlayer() {
             return String(term).replace(/^[+\-−–×xX*÷/]\s*/, '').trim();
         },
 
-        // Speak a single term as it flashes (TTS fallback when no recorded file).
+        // Speak a single term as it flashes (TTS fallback when no recorded
+        // file). Returns a Promise that resolves once speech finishes so
+        // showTerm() can wait for it instead of racing a fixed timer.
         speak(term) {
-            if (this.audioPath || !this.audioDictation || !term) return;
-            if (!window.speechSynthesis) return;
+            if (this.audioPath || !this.audioDictation || !term) return Promise.resolve();
+            if (!window.speechSynthesis) return Promise.resolve();
             const phrase = this.spokenForm(term);
-            if (!phrase) return;
+            if (!phrase) return Promise.resolve();
             window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(phrase);
-            u.rate = 0.9;
-            u.lang = 'en-IN';
-            if (this.femaleVoice) u.voice = this.femaleVoice;
-            window.speechSynthesis.speak(u);
+            return new Promise(resolve => {
+                const u = new SpeechSynthesisUtterance(phrase);
+                u.rate = 0.9;
+                u.lang = 'en-IN';
+                if (this.femaleVoice) u.voice = this.femaleVoice;
+                u.onend = resolve;
+                u.onerror = resolve;
+                window.speechSynthesis.speak(u);
+            });
         },
 
         // Spoken rules (abacus dictation):
