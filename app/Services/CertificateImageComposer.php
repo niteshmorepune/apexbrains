@@ -53,10 +53,19 @@ class CertificateImageComposer
                 // only, no draw) before each line is drawn in its own smaller,
                 // non-overlapping band — otherwise masking line 2's own box
                 // would clip line 1's already-drawn descenders, etc.
-                ['box' => [170, 676, 1520, 848], 'text' => ''],
-                ['box' => [170, 690, 1520, 725], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 711],
-                ['box' => [170, 750, 1520, 782], 'text' => 'studying at ' . $franchiseName . ' Center for', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 773],
-                ['box' => [170, 795, 1520, 827], 'text' => 'participating in the ' . $levelName . ' Level Competition', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 818],
+                // 'box' stays the full symmetric width so centering math treats
+                // page-center (~838) correctly; 'maskBox' stops at x=1170 — well
+                // short of where the Managing Director signature starts (~1200)
+                // — so erasing/redrawing these lines never wipes into it.
+                ['box' => [170, 676, 1520, 848], 'maskBox' => [170, 676, 1170, 848], 'text' => ''],
+                ['box' => [170, 690, 1520, 725], 'maskBox' => [170, 690, 1170, 725], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 711],
+                // These two run long ("... Center for" / "... Level
+                // Competition") and can graze the signature at full width even
+                // for normal values — box itself (not just maskBox) is capped
+                // at x=1170, still centered on the same ~838 page-center, so
+                // shrink-to-fit engages before text ever reaches the signature.
+                ['box' => [506, 750, 1170, 782], 'text' => 'studying at ' . $franchiseName . ' Center for', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 773],
+                ['box' => [506, 795, 1170, 827], 'text' => 'participating in the ' . $levelName . ' Level Competition', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 818],
                 // Narrower box width than the other fields — "Apex Brains,
                 // India." is centered and sits at nearly this same height, so
                 // the box must stop well short of its left edge (x=707) or
@@ -65,11 +74,20 @@ class CertificateImageComposer
                 ['box' => [295, 986, 650, 1013], 'pad' => 20, 'text' => $placeVal, 'font' => 'italic', 'size' => 24, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1006],
             ],
             Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [
+                // 'box' itself (not just a separate maskBox) is capped at
+                // x=1140 — still centered on the same ~838 page-center — since
+                // the signature starts around x=1155 and this line carries the
+                // franchise name directly, so it needs shrink-to-fit to
+                // actually engage for a long name instead of only being capped
+                // for masking purposes (a wide 'box' with a narrow 'maskBox'
+                // lets long text visually run into the signature even though
+                // masking itself is safe — verified by a long-franchise-name
+                // stress render after the first version of this fix).
                 ['box' => [170, 643, 1520, 685], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 675],
-                ['box' => [170, 714, 1520, 754], 'text' => 'has completed ' . $levelName . ' level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 744],
-                ['box' => [170, 845, 1520, 894], 'text' => 'at ' . $franchiseName . ' center.', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 870],
-                ['box' => [415, 896, 1150, 930], 'pad' => 15, 'text' => $dateVal,  'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 922],
-                ['box' => [415, 950, 1150, 986], 'pad' => 15, 'text' => $placeVal, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 978],
+                ['box' => [536, 714, 1140, 754], 'text' => 'has completed ' . $levelName . ' level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 744],
+                ['box' => [536, 845, 1140, 894], 'text' => 'at ' . $franchiseName . ' center.', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 870],
+                ['box' => [415, 896, 1100, 930], 'pad' => 15, 'text' => $dateVal,  'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 922],
+                ['box' => [415, 950, 1100, 986], 'pad' => 15, 'text' => $placeVal, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 978],
             ],
             Certificate::TYPE_CHAMPION => [
                 ['box' => [742, 1000, 1520, 1120], 'pad' => 10, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
@@ -140,7 +158,14 @@ class CertificateImageComposer
             [$x0, $y0, $x1, $y1] = $field['box'];
             [$mr, $mg, $mb] = $this->maskColorFor($certificate->type);
             $maskColor = imagecolorallocate($im, $mr, $mg, $mb);
-            imagefilledrectangle($im, $x0, $y0, $x1, $y1, $maskColor);
+
+            // 'maskBox' (if present) is the rectangle actually erased — narrower
+            // than 'box' when 'box' has to stay wide/symmetric for center-alignment
+            // math but the artwork has something to the right (e.g. the signature)
+            // that a full-width erase would wipe out. 'box' still drives text
+            // positioning/centering/shrink-to-fit either way.
+            [$mx0, $my0, $mx1, $my1] = $field['maskBox'] ?? $field['box'];
+            imagefilledrectangle($im, $mx0, $my0, $mx1, $my1, $maskColor);
 
             $text = trim((string) $field['text']);
             if ($text === '') {
