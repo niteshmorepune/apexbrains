@@ -178,7 +178,7 @@ function speakQuestion(text, btn) {
         .replace(/\+/g, ' plus ')
         .replace(/[−–-]/g, ' minus ')
         .replace(/[x×*]/gi, ' times ')
-        .replace(/[÷/]/g, ' divided by ')
+        .replace(/[÷/\\]/g, ' divided by ')
         .replace(/=/g, ' equals ')
         .replace(/\?/g, '')
         .replace(/\s+/g, ' ')

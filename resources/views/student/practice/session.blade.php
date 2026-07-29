@@ -31,8 +31,8 @@
         parseTerms(text) {
             if (!text) return [];
             const cleaned = String(text).replace(/=\s*\?|\?/g, '');
-            const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '-': '−', '–': '−' };
-            const re = /([+\-−–×xX*÷/])?\s*(\d+(?:\.\d+)?)/g;
+            const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '\\': '÷', '-': '−', '–': '−' };
+            const re = /([+\-−–×xX*÷/\\])?\s*(\d+(?:\.\d+)?)/g;
             const out = []; let m, first = true;
             while ((m = re.exec(cleaned)) !== null) {
                 let op = m[1] || '';
@@ -42,7 +42,7 @@
             }
             return out.length ? out : [String(text).trim()];
         },
-        numericPart(term) { return String(term).replace(/^[+\-−–×xX*÷/]\s*/, '').trim(); },
+        numericPart(term) { return String(term).replace(/^[+\-−–×xX*÷/\\]\s*/, '').trim(); },
         startFlash() {
             clearTimeout(this.flashTimer);
             this.speakGen++; // invalidate any in-flight speech from a previous run

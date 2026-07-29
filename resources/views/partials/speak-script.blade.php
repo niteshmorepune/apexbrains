@@ -24,7 +24,7 @@ window.ApexSpeak = (function () {
         return String(text == null ? '' : text)
             .replace(/[\n\r]+/g, ' , ')
             .replace(/[×x*]/g, ' multiplied by ')
-            .replace(/[÷\/]/g, ' divided by ')
+            .replace(/[÷\/\\]/g, ' divided by ')
             .replace(/[−–\-]/g, ' less ')
             .replace(/\+/g, ' ')
             .replace(/\s+/g, ' ')
