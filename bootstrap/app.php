@@ -1,9 +1,11 @@
 <?php
 
+use App\Console\Commands\NotifyStartingToday;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\ExternalStudentMiddleware;
 use App\Http\Middleware\FranchiseMiddleware;
 use App\Http\Middleware\InternalStudentMiddleware;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,6 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/external.php'));
         },
     )
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command(NotifyStartingToday::class)->dailyAt('07:00')->timezone('Asia/Kolkata');
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => AdminMiddleware::class,

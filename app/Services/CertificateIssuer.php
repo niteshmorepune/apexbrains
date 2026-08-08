@@ -106,7 +106,7 @@ class CertificateIssuer
             return $existing;
         }
 
-        return $this->create($student, [
+        $certificate = $this->create($student, [
             'competition_id' => $competition->id,
             'level_id'       => $levelId,
             'type'           => $type,
@@ -115,6 +115,19 @@ class CertificateIssuer
             'issued_at'      => now(),
             'issued_by'      => $issuedBy,
         ]);
+
+        $message = $type === Certificate::TYPE_CHAMPION
+            ? "🏆 Congratulations! You're Champion — Rank #{$rank} in \"{$competition->title}\"."
+            : "🎉 You're a Winner — Rank #{$rank} in \"{$competition->title}\". Congratulations!";
+
+        ApexNotification::notifyStudents(
+            [$student],
+            $type === Certificate::TYPE_CHAMPION ? 'competition_champion' : 'competition_winner',
+            $type === Certificate::TYPE_CHAMPION ? "You're a Champion!" : "You're a Winner!",
+            $message
+        );
+
+        return $certificate;
     }
 
     /**
@@ -145,12 +158,17 @@ class CertificateIssuer
             default => 'Level Up',
         };
 
-        ApexNotification::notifyStudents(
-            [$student],
-            'certificate_issued',
-            'New Certificate Issued',
-            "Your {$label} certificate is ready — view it in your Certificate Vault."
-        );
+        // Champion/Winner certs get their own richer congratulatory notification
+        // (fired from issueRanked() once it has the rank in scope) — skip the
+        // generic one here to avoid double-notifying for the same certificate.
+        if (! in_array($certificate->type, [Certificate::TYPE_CHAMPION, Certificate::TYPE_WINNER], true)) {
+            ApexNotification::notifyStudents(
+                [$student],
+                'certificate_issued',
+                'New Certificate Issued',
+                "Your {$label} certificate is ready — view it in your Certificate Vault."
+            );
+        }
 
         return $certificate;
     }

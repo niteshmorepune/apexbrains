@@ -17,6 +17,7 @@ class Student extends Model
         'first_name', 'last_name', 'date_of_birth', 'gender', 'photo',
         'address', 'city', 'pincode', 'enrollment_date', 'is_active',
         'current_level_id', 'monthly_fee', 'notes',
+        'competition_practice_access', 'competition_practice_sessions_allowed',
     ];
 
     protected $casts = [
@@ -24,6 +25,7 @@ class Student extends Model
         'enrollment_date' => 'date',
         'is_active' => 'boolean',
         'monthly_fee' => 'decimal:2',
+        'competition_practice_access' => 'boolean',
     ];
 
     protected static function booted(): void
@@ -108,6 +110,11 @@ class Student extends Model
     public function practiceSessions(): HasMany
     {
         return $this->hasMany(PracticeSession::class);
+    }
+
+    public function competitionPracticeSessionGrants(): HasMany
+    {
+        return $this->hasMany(CompetitionPracticeSessionGrant::class);
     }
 
     /**

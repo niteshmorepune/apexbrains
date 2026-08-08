@@ -12,11 +12,12 @@
     $pct     = round($correct / $total * 100);
     $mins    = $session->created_at && $session->completed_at
         ? (int) ceil($session->completed_at->diffInSeconds($session->created_at, true) / 60) : ($session->duration_minutes ?? 0);
-    $rating = match(true) {
-        $session->accuracy >= 95 => ['label' => 'Excellent!',  'emoji' => '🏆', 'color' => 'text-stu'],
-        $session->accuracy >= 80 => ['label' => 'Very good',   'emoji' => '🏆', 'color' => 'text-logo-amber'],
-        $session->accuracy >= 65 => ['label' => 'Good',        'emoji' => '👍', 'color' => 'text-fran'],
-        default                  => ['label' => 'Keep going',  'emoji' => '💪', 'color' => 'text-gray-500'],
+    $stars = match(true) {
+        ($session->accuracy ?? 0) <= 30 => 1,
+        ($session->accuracy ?? 0) <= 50 => 2,
+        ($session->accuracy ?? 0) <= 70 => 3,
+        ($session->accuracy ?? 0) <= 90 => 4,
+        default => 5,
     };
     $circ = 2 * 3.14159 * 52;
 @endphp
@@ -65,8 +66,7 @@
             <p class="text-xs text-gray-400">Duration</p>
         </div>
         <div class="bg-white rounded-2xl border border-border p-4">
-            <span class="text-lg">{{ $rating['emoji'] }}</span>
-            <p class="text-xl font-black {{ $rating['color'] }} mt-1">{{ $rating['label'] }}</p>
+            <p class="text-lg tracking-widest text-logo-amber">{{ str_repeat('★', $stars) }}{{ str_repeat('☆', 5 - $stars) }}</p>
             <p class="text-xs text-gray-400">Rating</p>
         </div>
     </div>

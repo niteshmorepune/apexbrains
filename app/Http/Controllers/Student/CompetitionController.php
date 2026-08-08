@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApexNotification;
 use App\Models\Competition;
 use App\Models\CompetitionExamAttempt;
 use App\Models\CompetitionQuestionPaper;
@@ -272,6 +273,13 @@ class CompetitionController extends Controller
         ]);
 
         $this->feeService->createFeeFor($registration, $competition);
+
+        ApexNotification::notifyStudents(
+            [$student],
+            'competition_registered',
+            'Competition Registration Confirmed',
+            "You're registered for {$competition->title}. Good luck!"
+        );
 
         return back()->with('success', "Registered for {$competition->title}!");
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\External;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApexNotification;
 use App\Models\CompetitionPracticeAttempt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -22,6 +23,15 @@ class HomeController extends Controller
                 ->get()
             : collect();
 
-        return view('external.home', compact('student', 'recentAttempts'));
+        $unreadNotifications = $student
+            ? ApexNotification::where('franchise_id', $student->franchise_id)
+                ->where(function ($q) use ($student) {
+                    $q->whereNull('student_id')->orWhere('student_id', $student->id);
+                })
+                ->where('is_read', false)
+                ->count()
+            : 0;
+
+        return view('external.home', compact('student', 'recentAttempts', 'unreadNotifications'));
     }
 }

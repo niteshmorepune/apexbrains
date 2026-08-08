@@ -26,6 +26,7 @@ window.ApexSpeak = (function () {
             .replace(/[×x*]/g, ' multiplied by ')
             .replace(/[÷\/\\]/g, ' divided by ')
             .replace(/[−–\-]/g, ' less ')
+            .replace(/%/g, ' percent ')
             .replace(/\+/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();

@@ -1,10 +1,13 @@
 @props([
     'subtitle' => null,
     'subtitleClass' => 'text-gray-400',
-    'size' => 'md', // sm | md | lg
+    'size' => 'md', // sm | md | lg | fran
 ])
 @php
-    $h   = ['sm' => 'h-8', 'md' => 'h-10', 'lg' => 'h-14'][$size] ?? 'h-10';
+    // 'fran' is the Franchise portal sidebar logo, sized 30% larger than
+    // 'sm' (h-8 = 32px) per the client's visibility request — kept as its
+    // own key so 'sm' stays unchanged everywhere else it's used.
+    $h   = ['sm' => 'h-8', 'md' => 'h-10', 'lg' => 'h-14', 'fran' => 'h-[42px]'][$size] ?? 'h-10';
     $src = !empty($appSettings['logo_path'] ?? null)
         ? \Illuminate\Support\Facades\Storage::url($appSettings['logo_path'])
         : asset('images/apex-logo.png');

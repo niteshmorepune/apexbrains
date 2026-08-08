@@ -56,6 +56,15 @@ class PracticeController extends Controller
             return back()->with('error', 'Your level has not been set yet. Please contact your branch.');
         }
 
+        if (! $student->competition_practice_access) {
+            return back()->with('error', 'Competition Practice access has not been enabled for you yet. Please contact your branch.');
+        }
+
+        $sessionsUsed = CompetitionPracticeAttempt::where('student_id', $student->id)->count();
+        if ($sessionsUsed >= $student->competition_practice_sessions_allowed) {
+            return back()->with('error', "You've used all your Competition Practice sessions ({$student->competition_practice_sessions_allowed}). Ask your center to request more.");
+        }
+
         $questions = $this->generator->generateForLevel($student->current_level_id);
 
         if ($questions->isEmpty()) {

@@ -9,6 +9,7 @@
         categoryId: null,
         typeId: null,
         flashSpeed: '2',
+        audioDictation: true,
         get selectedCategory() { return this.categories.find(c => c.id === this.categoryId) || null; },
         get selectedType() {
             const cat = this.selectedCategory;
@@ -99,10 +100,19 @@
                             <p class="text-sm text-gray-500 mb-2">Popup speed — how long each number flashes.</p>
                             <select x-model="flashSpeed"
                                     class="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stu">
-                                @foreach(['3' => '3 Sec', '2.5' => '2.5 Sec', '2' => '2 Sec', '1.5' => '1.5 Sec', '1' => '1 Sec', '0.5' => '0.5 Sec'] as $val => $label)
+                                @foreach(['3' => '3 Sec', '2.5' => '2.5 Sec', '2' => '2 Sec', '1.5' => '1.5 Sec', '1' => '1 Sec', '0.7' => '0.7 Sec', '0.5' => '0.5 Sec', '0.3' => '0.3 Sec', '0.2' => '0.2 Sec'] as $val => $label)
                                     <option value="{{ $val }}">{{ $label }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm text-gray-500">Audio dictation — speak each number aloud.</p>
+                            <button type="button" @click="audioDictation = !audioDictation"
+                                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                                    :class="audioDictation ? 'bg-stu' : 'bg-gray-300'">
+                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                                      :class="audioDictation ? 'translate-x-6' : 'translate-x-1'"></span>
+                            </button>
                         </div>
                         <div class="space-y-3">
                             <p class="text-sm text-gray-500">Choose number of questions.</p>
@@ -111,6 +121,7 @@
                                 <input type="hidden" name="category_id" :value="categoryId">
                                 <input type="hidden" name="type_id" :value="typeId">
                                 <input type="hidden" name="flash_speed_seconds" :value="flashSpeed">
+                                <input type="hidden" name="audio_dictation" :value="audioDictation ? 1 : 0">
                                 @foreach([10, 20, 30] as $count)
                                     <button type="submit" name="count" value="{{ $count }}"
                                             class="w-full bg-white rounded-2xl border border-border p-4 flex items-center justify-between text-left">

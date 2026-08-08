@@ -132,7 +132,10 @@ class FranchiseController extends Controller
             ->where('franchise_id', $franchise->id)
             ->where('is_active', true)
             ->whereNull('deleted_at')
-            ->with('currentLevel')
+            ->with(['currentLevel', 'competitionPracticeSessionGrants' => function ($q) {
+                $q->with('grantedBy:id,name')->latest();
+            }])
+            ->withCount('competitionPracticeAttempts')
             ->orderBy('first_name')
             ->get();
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Franchise;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApexNotification;
 use App\Models\Competition;
 use App\Models\CompetitionRegistration;
 use App\Models\Student;
@@ -103,6 +104,13 @@ class CompetitionRegistrationController extends Controller
         $this->feeService->createFeeFor($registration, $competition);
 
         AuditLogger::log('competition_student_registered', 'CompetitionRegistration', $competition->id);
+
+        ApexNotification::notifyStudents(
+            [$student],
+            'competition_registered',
+            'Competition Registration Confirmed',
+            "You're registered for {$competition->title}. Good luck!"
+        );
 
         return back()->with('success', "{$student->full_name} registered for '{$competition->title}'.");
     }

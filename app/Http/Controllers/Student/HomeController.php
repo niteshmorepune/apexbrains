@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApexNotification;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\PracticeSession;
@@ -108,6 +109,10 @@ class HomeController extends Controller
                 })
             : 0;
 
+        $unreadNotifications = $student
+            ? ApexNotification::where('student_id', $student->id)->where('is_read', false)->count()
+            : 0;
+
         return view('student.home', compact(
             'student',
             'recentAttempts',
@@ -116,7 +121,8 @@ class HomeController extends Controller
             'upcomingExam',
             'streak',
             'bestStreak',
-            'levelProgress'
+            'levelProgress',
+            'unreadNotifications'
         ));
     }
 }

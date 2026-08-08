@@ -72,7 +72,7 @@ class ClassPracticeController extends Controller
             'category_id'               => ['required', 'exists:regular_question_categories,id'],
             'type_id'                   => ['required', 'exists:regular_question_types,id'],
             'total_questions'           => ['required', 'in:10,20,30'],
-            'time_per_question_seconds' => ['required', 'in:0.5,1,1.5,2,2.5,3'],
+            'time_per_question_seconds' => ['required', 'in:0.2,0.3,0.5,0.7,1,1.5,2,2.5,3'],
             'audio_dictation'           => ['nullable', 'boolean'],
             'batch_id'                  => ['nullable', 'exists:batches,id'],
         ]);

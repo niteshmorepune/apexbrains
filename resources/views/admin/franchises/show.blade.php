@@ -193,7 +193,7 @@
         @if($franchiseStudents->isEmpty())
             <div class="px-5 py-10 text-center text-gray-400 text-sm">No students enrolled yet.</div>
         @else
-            <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
+            <div class="overflow-x-auto"><table class="w-full min-w-[860px] text-sm">
                 <thead>
                     <tr class="bg-admin">
                         <th class="text-left px-5 py-3 text-xs font-semibold text-white">Student</th>
@@ -201,6 +201,7 @@
                         <th class="text-center px-4 py-3 text-xs font-semibold text-white">Type</th>
                         <th class="text-center px-4 py-3 text-xs font-semibold text-white">Level</th>
                         <th class="text-center px-4 py-3 text-xs font-semibold text-white">Enrolled</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-white">Competition Practice</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
@@ -231,6 +232,38 @@
                             </td>
                             <td class="px-4 py-2.5 text-center text-xs text-gray-500">
                                 {{ $s->enrollment_date?->format('d M Y') ?? '—' }}
+                            </td>
+                            <td class="px-4 py-2.5">
+                                <div x-data="{ showLog: false }" class="flex items-center justify-center gap-2">
+                                    <form method="POST" action="{{ route('admin.students.competition-practice-access.toggle', $s) }}">
+                                        @csrf
+                                        <button type="submit"
+                                                class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors {{ $s->competition_practice_access ? 'bg-admin' : 'bg-gray-300' }}"
+                                                title="{{ $s->competition_practice_access ? 'Disable access' : 'Enable access' }}">
+                                            <span class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform {{ $s->competition_practice_access ? 'translate-x-5' : 'translate-x-1' }}"></span>
+                                        </button>
+                                    </form>
+                                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ $s->competition_practice_attempts_count }}/{{ $s->competition_practice_sessions_allowed }}</span>
+                                    <form method="POST" action="{{ route('admin.students.competition-practice-access.grant', $s) }}">
+                                        @csrf
+                                        <button type="submit" class="text-[10px] font-semibold text-fran border border-fran-light rounded-full px-2 py-0.5 hover:bg-fran-light whitespace-nowrap">+10</button>
+                                    </form>
+                                    <button type="button" @click="showLog = !showLog" class="text-gray-400 hover:text-gray-600" title="View grant log">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </button>
+                                    <div x-show="showLog" @click.outside="showLog = false" x-cloak
+                                         class="absolute z-10 mt-2 bg-white border border-border rounded-xl shadow-lg p-3 text-left w-64" style="margin-top: 90px;">
+                                        <p class="text-xs font-semibold text-gray-700 mb-2">Session Grant Log</p>
+                                        @forelse($s->competitionPracticeSessionGrants as $grant)
+                                            <p class="text-[11px] text-gray-500 mb-1">
+                                                +{{ $grant->sessions_granted }} by {{ $grant->grantedBy?->name ?? '—' }}
+                                                <span class="block text-gray-400">{{ $grant->created_at?->format('d M Y, h:i A') }}</span>
+                                            </p>
+                                        @empty
+                                            <p class="text-[11px] text-gray-400">No grants yet.</p>
+                                        @endforelse
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

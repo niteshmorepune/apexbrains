@@ -75,7 +75,7 @@
                 <div class="relative">
                     <select name="time_per_question_seconds" required
                             class="w-full appearance-none border border-border rounded-xl px-4 py-3.5 text-base text-gray-700 bg-bg-light focus:outline-none focus:ring-2 focus:ring-fran focus:bg-white">
-                        @foreach(['3' => '3 Sec', '2.5' => '2.5 Sec', '2' => '2 Sec', '1.5' => '1.5 Sec', '1' => '1 Sec', '0.5' => '0.5 Sec'] as $val => $lbl)
+                        @foreach(['3' => '3 Sec', '2.5' => '2.5 Sec', '2' => '2 Sec', '1.5' => '1.5 Sec', '1' => '1 Sec', '0.7' => '0.7 Sec', '0.5' => '0.5 Sec', '0.3' => '0.3 Sec', '0.2' => '0.2 Sec'] as $val => $lbl)
                             <option value="{{ $val }}" @selected(old('time_per_question_seconds', '2') == $val)>{{ $lbl }}</option>
                         @endforeach
                     </select>

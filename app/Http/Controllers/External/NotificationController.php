@@ -13,13 +13,18 @@ class NotificationController extends Controller
     {
         $student = Auth::user()->student()->firstOrFail();
 
-        $notifications = ApexNotification::where('franchise_id', $student->franchise_id)
-            ->where(function ($q) use ($student) {
-                $q->whereNull('student_id')
-                  ->orWhere('student_id', $student->id);
-            })
-            ->latest('created_at')
-            ->paginate(20);
+        $scope = function ($q) use ($student) {
+            $q->where('franchise_id', $student->franchise_id)
+              ->where(function ($q) use ($student) {
+                  $q->whereNull('student_id')->orWhere('student_id', $student->id);
+              });
+        };
+
+        $notifications = ApexNotification::where($scope)->latest('created_at')->paginate(20);
+
+        ApexNotification::where($scope)
+            ->where('is_read', false)
+            ->update(['is_read' => true, 'read_at' => now()]);
 
         return view('external.notifications.index', compact('notifications'));
     }

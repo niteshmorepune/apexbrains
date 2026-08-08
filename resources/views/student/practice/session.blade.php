@@ -13,6 +13,7 @@
         elapsed: {{ $elapsedSeconds }},
         questionText: @js($question['question_text']),
         flashSpeed: {{ (float) ($session->flash_speed_seconds ?? 2) }},
+        audioDictation: {{ ($session->audio_dictation ?? true) ? 'true' : 'false' }},
         terms: [],
         termIndex: 0,
         display: '',
@@ -23,7 +24,7 @@
             this.elapsed++;
             setTimeout(() => this.tick(), 1000);
         },
-        speak(text) { return window.ApexSpeak ? window.ApexSpeak.speak(text) : Promise.resolve(); },
+        speak(text) { return (this.audioDictation && window.ApexSpeak) ? window.ApexSpeak.speak(text) : Promise.resolve(); },
         get clock() { const m = Math.floor(this.elapsed/60), s = this.elapsed%60; return m+':'+(s<10?'0':'')+s; },
 
         // 1 Digit Popup — flash each term of the sum on its own, one at a
@@ -32,7 +33,7 @@
             if (!text) return [];
             const cleaned = String(text).replace(/=\s*\?|\?/g, '');
             const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '\\': '÷', '-': '−', '–': '−' };
-            const re = /([+\-−–×xX*÷/\\])?\s*(\d+(?:\.\d+)?)/g;
+            const re = /([+\-−–×xX*÷/\\%])?\s*(\d+(?:\.\d+)?)/g;
             const out = []; let m, first = true;
             while ((m = re.exec(cleaned)) !== null) {
                 let op = m[1] || '';
@@ -42,7 +43,7 @@
             }
             return out.length ? out : [String(text).trim()];
         },
-        numericPart(term) { return String(term).replace(/^[+\-−–×xX*÷/\\]\s*/, '').trim(); },
+        numericPart(term) { return String(term).replace(/^[+\-−–×xX*÷/\\%]\s*/, '').trim(); },
         startFlash() {
             clearTimeout(this.flashTimer);
             this.speakGen++; // invalidate any in-flight speech from a previous run
@@ -139,7 +140,7 @@
     {{-- Popup display — one number at a time --}}
     <div class="px-4 mt-3">
         <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[180px] flex items-center justify-center">
-            <p class="font-mono font-black text-gray-900 tabular-nums" style="font-size: 56px;" x-text="display"></p>
+            <p class="font-mono font-black text-gray-900 tabular-nums" style="font-size: 67px;" x-text="display"></p>
         </div>
     </div>
 
@@ -155,7 +156,7 @@
                                x-model="selected" @change="$nextTick(() => document.getElementById('answerForm').submit())">
                         <div class="flex items-center gap-3 bg-white border-2 border-border rounded-2xl px-4 py-4 peer-checked:border-stu peer-checked:bg-stu-light">
                             <span class="w-7 h-7 rounded-full bg-bg-mid text-gray-500 flex items-center justify-center text-xs font-bold flex-shrink-0 peer-checked:bg-stu peer-checked:text-white">{{ strtoupper($letter) }}</span>
-                            <span class="text-base font-bold text-gray-800">{{ $option }}</span>
+                            <span class="text-lg font-bold text-gray-800">{{ $option }}</span>
                         </div>
                     </label>
                 @endif

@@ -48,7 +48,8 @@ class PracticeController extends Controller
             'category_id' => ['required', 'exists:regular_question_categories,id'],
             'type_id' => ['required', 'exists:regular_question_types,id'],
             'count' => ['required', 'in:10,20,30'],
-            'flash_speed_seconds' => ['required', 'in:3,2.5,2,1.5,1,0.5'],
+            'flash_speed_seconds' => ['required', 'in:3,2.5,2,1.5,1,0.7,0.5,0.3,0.2'],
+            'audio_dictation' => ['nullable', 'boolean'],
         ]);
 
         $student = Auth::user()->student()->firstOrFail();
@@ -79,6 +80,7 @@ class PracticeController extends Controller
             'type_id' => $data['type_id'],
             'total_questions' => $questions->count(),
             'flash_speed_seconds' => $data['flash_speed_seconds'],
+            'audio_dictation' => $request->boolean('audio_dictation', true),
         ]);
 
         Cache::put("practice_{$session->id}_questions", $questions->values()->toArray(), now()->addHours(2));

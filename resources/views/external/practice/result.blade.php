@@ -4,13 +4,33 @@
 @section('content')
 <x-student-header title="Practice Result" :back="route('external.practice.index')" />
 
+@php
+    $total = count($attempt->question_ids ?? []);
+    $stars = match(true) {
+        $attempt->percentage <= 30 => 1,
+        $attempt->percentage <= 50 => 2,
+        $attempt->percentage <= 70 => 3,
+        $attempt->percentage <= 90 => 4,
+        default => 5,
+    };
+    $motivation = match(true) {
+        $attempt->percentage <= 30 => 'Keep practicing — you\'ll get there!',
+        $attempt->percentage <= 50 => 'Good effort — a little more practice will help.',
+        $attempt->percentage <= 70 => 'Well done! You\'re getting the hang of it.',
+        $attempt->percentage <= 90 => 'Great job! Almost perfect.',
+        default => 'Outstanding! Keep up the excellent work.',
+    };
+@endphp
+
 <div class="px-4 pb-4 space-y-4">
 
     {{-- Score --}}
     <div class="bg-fran rounded-2xl p-6 text-white text-center">
         <p class="text-white/70 text-sm mb-1">{{ $attempt->level?->title }} Competition Practice</p>
-        <p class="text-4xl font-black mb-1">{{ number_format($attempt->percentage, 0) }}%</p>
-        <p class="text-white/70 text-sm">{{ $attempt->score }} of {{ count($attempt->question_ids ?? []) }} correct</p>
+        <p class="text-4xl font-black mb-1">{{ $attempt->score }}/{{ $total }}</p>
+        <p class="text-white/70 text-sm">Total Marks</p>
+        <p class="text-lg mt-2 tracking-widest">{{ str_repeat('★', $stars) }}{{ str_repeat('☆', 5 - $stars) }}</p>
+        <p class="text-white/90 text-sm font-medium mt-1">{{ $motivation }}</p>
 
         <div class="grid grid-cols-3 gap-3 mt-4">
             <div class="bg-white/10 rounded-xl p-3">

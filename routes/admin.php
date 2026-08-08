@@ -22,6 +22,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('franchises/{franchise}/suspend', [\App\Http\Controllers\Admin\FranchiseController::class, 'suspend'])->name('franchises.suspend');
         Route::post('franchises/{franchise}/reject', [\App\Http\Controllers\Admin\FranchiseController::class, 'reject'])->name('franchises.reject');
         Route::post('franchises/{franchise}/reset-password', [\App\Http\Controllers\Admin\FranchiseController::class, 'resetPassword'])->name('franchises.reset-password');
+        Route::post('students/{student}/competition-practice-access/toggle', [\App\Http\Controllers\Admin\CompetitionPracticeAccessController::class, 'toggle'])->name('students.competition-practice-access.toggle');
+        Route::post('students/{student}/competition-practice-access/grant', [\App\Http\Controllers\Admin\CompetitionPracticeAccessController::class, 'grant'])->name('students.competition-practice-access.grant');
 
         // Level management
         Route::resource('levels', \App\Http\Controllers\Admin\LevelController::class);

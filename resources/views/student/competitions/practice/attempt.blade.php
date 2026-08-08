@@ -32,11 +32,11 @@
         <template x-if="questions.length > 0">
             <div>
                 <div class="bg-white rounded-2xl border border-border p-5 mb-4 text-center">
-                    <div class="text-gray-900" style="font-size:30px"
+                    <div class="text-gray-900" style="font-size:36px"
                          x-html="verticalSum(questions[currentIndex]?.question_text)"></div>
                 </div>
 
-                <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
                     <template x-for="opt in ['a','b','c','d']" :key="opt">
                         <template x-if="questions[currentIndex]?.['option_' + opt]">
                             <button @click="selectAnswer(opt)"
@@ -44,14 +44,14 @@
                                         'border-fran bg-fran/5': answers[questions[currentIndex]?.id] === opt,
                                         'border-border bg-white': answers[questions[currentIndex]?.id] !== opt
                                     }"
-                                    class="w-full flex items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left transition-colors">
+                                    class="w-full flex items-center gap-2 rounded-2xl border-2 px-3 py-3.5 text-left transition-colors">
                                 <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                                       :class="{
                                           'bg-fran text-white': answers[questions[currentIndex]?.id] === opt,
                                           'bg-bg-mid text-gray-500': answers[questions[currentIndex]?.id] !== opt
                                       }"
                                       x-text="opt.toUpperCase()"></span>
-                                <span class="text-sm text-gray-700" x-text="questions[currentIndex]?.['option_' + opt]"></span>
+                                <span class="text-base text-gray-700" x-text="questions[currentIndex]?.['option_' + opt]"></span>
                             </button>
                         </template>
                     </template>
@@ -137,12 +137,12 @@ function practiceEngine() {
             if (!text) return '';
             const clean = String(text).replace(/=\s*\?|\?/g, '');
             const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '-': '−', '–': '−' };
-            const re = /([+\-−–×xX*÷/])?\s*(\d+(?:\.\d+)?)/g;
+            const re = /([+\-−–×xX*÷/%])?\s*(\d+(?:\.\d+)?)/g;
             const rows = []; let m, first = true;
             while ((m = re.exec(clean)) !== null) {
                 let op = m[1] || '';
                 if (op && opMap[op]) op = opMap[op];
-                if (first) op = ''; else if (!op) op = '+';
+                if (first || op === '+') op = '';
                 rows.push(`<tr><td style="text-align:right;padding-right:0.6em;color:#9ca3af">${op}</td><td style="text-align:right;font-variant-numeric:tabular-nums">${m[2]}</td></tr>`);
                 first = false;
             }

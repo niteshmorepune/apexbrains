@@ -27,7 +27,7 @@
         {{-- Logo --}}
         <div class="px-4 py-4 border-b border-fran">
             <div class="bg-white rounded-xl px-3 py-2.5 flex items-center justify-center">
-                <x-brand-logo size="sm" />
+                <x-brand-logo size="fran" />
             </div>
             <p class="text-blue-200 text-[11px] mt-2.5 truncate text-center">{{ auth()->user()->franchise->name ?? 'Franchise' }} · Branch Panel</p>
         </div>

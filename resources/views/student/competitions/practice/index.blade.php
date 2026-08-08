@@ -2,7 +2,7 @@
 @section('title', 'Competition Practice')
 
 @section('content')
-<x-student-header title="Competition Practice" :back="route('student.competitions.index')" />
+<x-student-header title="Competition Practice" :back="route('student.practice.index')" />
 <div class="px-4 pb-4 space-y-4">
 
     <div class="bg-fran-light rounded-2xl p-4">

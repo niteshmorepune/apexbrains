@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\StudentParent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,30 +22,43 @@ class LoginController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
+        $data = $request->validate([
+            'identifier' => ['required', 'string'],
+            'password'   => ['required'],
         ]);
 
-        if (! Auth::attempt($credentials)) {
-            return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+        $identifier = trim($data['identifier']);
+        $email = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? $identifier : null;
+
+        if (! $email) {
+            // Not an email — treat it as a mobile number and resolve the
+            // student's account via their parent's phone on file.
+            $parentRecord = StudentParent::where('phone', $identifier)
+                ->whereHas('student.user')
+                ->with('student.user')
+                ->first();
+            $email = $parentRecord?->student?->user?->email;
+        }
+
+        if (! $email || ! Auth::attempt(['email' => $email, 'password' => $data['password']])) {
+            return back()->withErrors(['identifier' => 'Invalid credentials.'])->onlyInput('identifier');
         }
 
         $user = Auth::user();
 
         if ($user->hasRole('super_admin')) {
             Auth::logout();
-            return back()->withErrors(['email' => 'Admin accounts must sign in at /admin/login.'])->onlyInput('email');
+            return back()->withErrors(['identifier' => 'Admin accounts must sign in at /admin/login.'])->onlyInput('identifier');
         }
 
         if ($user->hasRole('franchise_admin')) {
             Auth::logout();
-            return back()->withErrors(['email' => 'Franchise accounts must sign in at /franchise/login.'])->onlyInput('email');
+            return back()->withErrors(['identifier' => 'Franchise accounts must sign in at /franchise/login.'])->onlyInput('identifier');
         }
 
         if (! $user->is_active) {
             Auth::logout();
-            return back()->withErrors(['email' => 'Your account has been deactivated.']);
+            return back()->withErrors(['identifier' => 'Your account has been deactivated.']);
         }
 
         $user->update([

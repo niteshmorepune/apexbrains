@@ -63,9 +63,9 @@
                 @csrf
 
                 <div>
-                    <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Email / Student ID</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                           placeholder="Your email or student ID..."
+                    <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Email / Mobile Number</label>
+                    <input type="text" name="identifier" value="{{ old('identifier') }}" required autofocus
+                           placeholder="Your email or mobile number..."
                            class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent placeholder:text-gray-300 transition">
                 </div>
 
