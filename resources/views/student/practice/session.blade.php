@@ -123,7 +123,7 @@
                 @php $isDone = isset($answered[$i]); $isCur = $i === $index; @endphp
                 <span @if($isCur) id="qCurrent" @endif
                     class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                    {{ $isCur ? 'bg-fran text-white' : ($isDone ? 'bg-stu-light text-stu' : 'bg-white border border-border text-gray-400') }}">
+                    {{ $isCur ? 'bg-fran text-white' : ($isDone ? 'bg-fran-light text-fran' : 'bg-white border border-border text-gray-400') }}">
                     {{ $i + 1 }}
                 </span>
             @endfor
@@ -134,7 +134,7 @@
     <div class="px-4 mt-5 flex items-center justify-between">
         <p class="text-sm text-gray-500">Calculate mentally :</p>
         <button type="button" @click="startFlash()" aria-label="Replay"
-                class="w-9 h-9 -mr-1 rounded-full bg-stu-light text-stu flex items-center justify-center text-lg active:scale-95">🔊</button>
+                class="w-9 h-9 -mr-1 rounded-full bg-fran-light text-fran flex items-center justify-center text-lg active:scale-95">🔊</button>
     </div>
 
     {{-- Popup display — one number at a time --}}
@@ -154,8 +154,8 @@
                     <label class="cursor-pointer">
                         <input type="radio" name="answer" value="{{ $letter }}" class="sr-only peer"
                                x-model="selected" @change="$nextTick(() => document.getElementById('answerForm').submit())">
-                        <div class="flex items-center gap-3 bg-white border-2 border-border rounded-2xl px-4 py-4 peer-checked:border-stu peer-checked:bg-stu-light">
-                            <span class="w-7 h-7 rounded-full bg-bg-mid text-gray-500 flex items-center justify-center text-xs font-bold flex-shrink-0 peer-checked:bg-stu peer-checked:text-white">{{ strtoupper($letter) }}</span>
+                        <div class="flex items-center gap-3 bg-white border-2 border-border rounded-2xl px-4 py-4 peer-checked:border-fran peer-checked:bg-fran-light">
+                            <span class="w-7 h-7 rounded-full bg-bg-mid text-gray-500 flex items-center justify-center text-xs font-bold flex-shrink-0 peer-checked:bg-fran peer-checked:text-white">{{ strtoupper($letter) }}</span>
                             <span class="text-lg font-bold text-gray-800">{{ $option }}</span>
                         </div>
                     </label>

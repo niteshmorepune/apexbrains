@@ -36,7 +36,7 @@
                 'Submit before the timer ends.',
             ] as $i => $rule)
                 <li class="flex items-start gap-3">
-                    <span class="w-6 h-6 rounded-full bg-fran-light text-fran text-xs font-bold flex items-center justify-center flex-shrink-0">{{ $i + 1 }}</span>
+                    <span class="w-6 h-6 rounded-full bg-comp-light text-comp text-xs font-bold flex items-center justify-center flex-shrink-0">{{ $i + 1 }}</span>
                     <span class="text-sm text-gray-600">{{ $rule }}</span>
                 </li>
             @endforeach
@@ -56,8 +56,8 @@
     @if($registration)
         @if($myAttempts->isEmpty())
             @if($notStarted)
-                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center">
-                    <p class="text-sm text-fran font-medium">This competition starts on {{ $competition->start_date->format('d M Y') }}. The exam will open then.</p>
+                <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
+                    <p class="text-sm text-comp font-medium">This competition starts on {{ $competition->start_date->format('d M Y') }}. The exam will open then.</p>
                 </div>
             @elseif($ended)
                 <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
@@ -66,7 +66,7 @@
             @elseif($paper)
                 <form method="POST" action="{{ route('student.competitions.start', $competition) }}">
                     @csrf
-                    <button type="submit" class="w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold">I am Ready — Start Exam</button>
+                    <button type="submit" class="w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold">I am Ready — Start Exam</button>
                 </form>
             @else
                 <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
@@ -74,7 +74,7 @@
                 </div>
             @endif
         @else
-            <a href="{{ route('student.competitions.result', $competition) }}" class="block w-full py-3.5 bg-stu text-white rounded-2xl text-sm font-bold text-center">View My Result</a>
+            <a href="{{ route('student.competitions.result', $competition) }}" class="block w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold text-center">View My Result</a>
         @endif
     @else
         <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">

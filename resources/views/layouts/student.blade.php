@@ -63,10 +63,10 @@
                 <a href="{{ route($item['route']) }}"
                    class="relative flex flex-col items-center justify-center gap-0.5 flex-1">
                     @if($active)
-                        <span class="absolute top-0 h-1 w-8 bg-stu rounded-b-full"></span>
+                        <span class="absolute top-0 h-1 w-8 bg-fran rounded-b-full"></span>
                     @endif
                     <span class="text-xl leading-none {{ $active ? '' : 'opacity-50 grayscale' }}">{{ $item['emoji'] }}</span>
-                    <span class="text-[10px] font-medium {{ $active ? 'text-stu font-bold' : 'text-gray-400' }}">{{ $item['label'] }}</span>
+                    <span class="text-[10px] font-medium {{ $active ? 'text-fran font-bold' : 'text-gray-400' }}">{{ $item['label'] }}</span>
                 </a>
             @endforeach
         </div>

@@ -65,7 +65,7 @@
             <div class="px-4 mt-5 flex items-center justify-between">
                 <p class="text-sm text-gray-500">Calculate mentally :</p>
                 <button type="button" @click="speak()" aria-label="Play audio"
-                        class="w-9 h-9 -mr-1 rounded-full bg-stu-light text-stu flex items-center justify-center text-lg active:scale-95">🔊</button>
+                        class="w-9 h-9 -mr-1 rounded-full bg-fran-light text-fran flex items-center justify-center text-lg active:scale-95">🔊</button>
             </div>
 
             {{-- Big number display --}}
@@ -83,9 +83,9 @@
                         <template x-if="questions[currentIndex]?.['option_' + opt]">
                             <button @click="selectAnswer(opt)"
                                     class="flex items-center gap-3 rounded-2xl border-2 px-4 py-4 text-left"
-                                    :class="answers[questions[currentIndex]?.id] === opt ? 'border-stu bg-stu-light' : 'border-border bg-white'">
+                                    :class="answers[questions[currentIndex]?.id] === opt ? 'border-fran bg-fran-light' : 'border-border bg-white'">
                                 <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                      :class="answers[questions[currentIndex]?.id] === opt ? 'bg-stu text-white' : 'bg-bg-mid text-gray-500'"
+                                      :class="answers[questions[currentIndex]?.id] === opt ? 'bg-fran text-white' : 'bg-bg-mid text-gray-500'"
                                       x-text="opt.toUpperCase()"></span>
                                 <span class="text-base font-bold text-gray-800" x-text="questions[currentIndex]?.['option_' + opt]"></span>
                             </button>
@@ -98,7 +98,7 @@
                  as they are answered; there is no manual back/next navigation. --}}
             <div class="px-4 mt-6 min-h-[52px]">
                 <template x-if="currentIndex === questions.length - 1">
-                    <button @click="confirmSubmit()" class="w-full py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit Exam</button>
+                    <button @click="confirmSubmit()" class="w-full py-3 bg-fran text-white rounded-xl text-sm font-bold">Submit Exam</button>
                 </template>
             </div>
 

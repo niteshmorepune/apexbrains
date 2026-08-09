@@ -15,7 +15,7 @@
             <div class="px-4 pb-4 space-y-3">
                 <button type="button" @click="view = 'exam'"
                         class="w-full bg-white rounded-2xl border border-border p-4 flex items-center gap-3 text-left">
-                    <span class="w-12 h-12 rounded-xl bg-stu-light flex items-center justify-center text-2xl flex-shrink-0">📝</span>
+                    <span class="w-12 h-12 rounded-xl bg-fran-light flex items-center justify-center text-2xl flex-shrink-0">📝</span>
                     <div class="min-w-0">
                         <p class="font-bold text-gray-800">Exam</p>
                         <p class="text-xs text-gray-400 mt-0.5 leading-snug">Evaluate your calculation skills and track your learning progress</p>

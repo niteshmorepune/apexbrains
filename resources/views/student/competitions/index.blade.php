@@ -14,7 +14,7 @@
         @forelse($competitions as $comp)
             <div class="bg-white rounded-2xl border border-border p-4 mb-3">
                 <div class="flex items-start gap-3">
-                    <span class="w-10 h-10 rounded-xl bg-fran-light flex items-center justify-center text-fran flex-shrink-0">📅</span>
+                    <span class="w-10 h-10 rounded-xl bg-comp-light flex items-center justify-center text-comp flex-shrink-0">📅</span>
                     <div class="flex-1 min-w-0">
                         <p class="font-bold text-gray-800 text-sm">{{ $comp->title }}</p>
                         <p class="text-xs text-gray-400 mt-0.5">
@@ -23,7 +23,7 @@
                         </p>
                     </div>
                     @if(in_array($comp->id, $myRegistrationIds))
-                        <a href="{{ route('student.competitions.show', $comp) }}" class="text-[11px] bg-stu-light text-stu px-2.5 py-1 rounded-full font-bold flex-shrink-0">Registered ✓</a>
+                        <a href="{{ route('student.competitions.show', $comp) }}" class="text-[11px] bg-comp-light text-comp px-2.5 py-1 rounded-full font-bold flex-shrink-0">Registered ✓</a>
                     @else
                         <a href="{{ route('student.competitions.show', $comp) }}" class="text-[11px] bg-bg-mid text-gray-500 px-2.5 py-1 rounded-full font-medium flex-shrink-0">View</a>
                     @endif
@@ -56,7 +56,7 @@
                                 </p>
                             </div>
                             @if($completed)
-                                <a href="{{ route('student.competitions.result', $comp) }}" class="text-xs text-fran font-semibold flex-shrink-0">View Report</a>
+                                <a href="{{ route('student.competitions.result', $comp) }}" class="text-xs text-comp font-semibold flex-shrink-0">View Report</a>
                             @endif
                         </div>
                     </div>

@@ -40,7 +40,7 @@
             <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-logo-amber text-xl">🎯</span><div><p class="text-lg font-black text-logo-amber leading-none">{{ $passMark }}%</p><p class="text-xs text-gray-400 mt-1">Pass Mark</p></div></div>
             <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-red-500 text-xl">⏱️</span><div><p class="text-lg font-black text-gray-700 leading-none">{{ $timeMins }}</p><p class="text-xs text-gray-400 mt-1">Time Taken</p></div></div>
             @if($rank)
-                <div class="col-span-2 bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-fran text-xl">🏆</span><div><p class="text-lg font-black text-fran leading-none">#{{ $rank }}</p><p class="text-xs text-gray-400 mt-1">Your Rank</p></div></div>
+                <div class="col-span-2 bg-white rounded-2xl border border-border p-4 flex items-center gap-3"><span class="text-comp text-xl">🏆</span><div><p class="text-lg font-black text-comp leading-none">#{{ $rank }}</p><p class="text-xs text-gray-400 mt-1">Your Rank</p></div></div>
             @endif
         </div>
     @elseif($attempt)
@@ -58,17 +58,17 @@
     @endif
 
     @if($certificate)
-        <div class="bg-stu-light border border-stu/30 rounded-2xl p-4 flex items-center gap-3">
+        <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 flex items-center gap-3">
             <span class="text-2xl">🏅</span>
             <div class="flex-1">
                 <p class="text-sm font-bold text-gray-800">Participation Certificate Ready</p>
                 <p class="text-xs text-gray-500">{{ $certificate->certificate_number }}</p>
             </div>
         </div>
-        <a href="{{ route('student.certificates.pdf', $certificate) }}" class="block w-full py-3.5 bg-stu text-white rounded-2xl text-sm font-bold text-center">Download Certificate</a>
+        <a href="{{ route('student.certificates.pdf', $certificate) }}" class="block w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold text-center">Download Certificate</a>
     @endif
 
-    <a href="{{ route('student.home') }}" class="block w-full py-3.5 bg-fran text-white rounded-2xl text-sm font-bold text-center">Back to Home</a>
+    <a href="{{ route('student.home') }}" class="block w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold text-center">Back to Home</a>
     <a href="{{ route('student.competitions.index') }}" class="block w-full py-3.5 border border-border text-gray-600 rounded-2xl text-sm font-bold text-center">All Competitions</a>
 
 </div>

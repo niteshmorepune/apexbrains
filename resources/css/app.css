@@ -29,6 +29,11 @@
     --color-stu-dark:    #1E9850;
     --color-stu-bg:      #F4F7FE; /* mobile page background (matches Figma) */
 
+    /* Competition Exam accent (student portal — distinct from the blue chrome) */
+    --color-comp:        #8B4A2B;
+    --color-comp-light:  #FBEEE3;
+    --color-comp-dark:   #6B3818;
+
     /* Logo / brand accent */
     --color-logo-red:    #D42B2B;
     --color-logo-amber:  #F5A623;

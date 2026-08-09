@@ -24,7 +24,7 @@
             <div class="px-4 pb-4 space-y-3">
                 <button type="button" @click="type = 'exam'; step = 'category'"
                         class="w-full bg-white rounded-2xl border border-border p-4 flex items-center gap-3 text-left">
-                    <span class="w-12 h-12 rounded-xl bg-stu-light flex items-center justify-center text-2xl flex-shrink-0">📝</span>
+                    <span class="w-12 h-12 rounded-xl bg-fran-light flex items-center justify-center text-2xl flex-shrink-0">📝</span>
                     <div class="min-w-0">
                         <p class="font-bold text-gray-800">Regular Practice</p>
                         <p class="text-xs text-gray-400 mt-0.5 leading-snug">Evaluate your calculation skills and track your learning progress</p>
@@ -99,7 +99,7 @@
                         <div>
                             <p class="text-sm text-gray-500 mb-2">Popup speed — how long each number flashes.</p>
                             <select x-model="flashSpeed"
-                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stu">
+                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-fran">
                                 @foreach(['3' => '3 Sec', '2.5' => '2.5 Sec', '2' => '2 Sec', '1.5' => '1.5 Sec', '1' => '1 Sec', '0.7' => '0.7 Sec', '0.5' => '0.5 Sec', '0.3' => '0.3 Sec', '0.2' => '0.2 Sec'] as $val => $label)
                                     <option value="{{ $val }}">{{ $label }}</option>
                                 @endforeach
@@ -109,7 +109,7 @@
                             <p class="text-sm text-gray-500">Audio dictation — speak each number aloud.</p>
                             <button type="button" @click="audioDictation = !audioDictation"
                                     class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                                    :class="audioDictation ? 'bg-stu' : 'bg-gray-300'">
+                                    :class="audioDictation ? 'bg-fran' : 'bg-gray-300'">
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
                                       :class="audioDictation ? 'translate-x-6' : 'translate-x-1'"></span>
                             </button>

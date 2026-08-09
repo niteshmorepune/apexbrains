@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="flex items-center justify-center mt-5">
-                    <button @click="confirmSubmit()" class="px-5 py-2 border border-green-600 text-green-600 rounded-xl text-sm font-semibold hover:bg-green-50">
+                    <button @click="confirmSubmit()" class="px-5 py-2 border border-fran text-fran rounded-xl text-sm font-semibold hover:bg-fran-light">
                         Submit
                     </button>
                 </div>

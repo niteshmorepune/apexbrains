@@ -19,7 +19,7 @@
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
             <p class="font-bold text-gray-800 mb-2">Time's Up!</p>
             <p class="text-sm text-gray-500 mb-4">Submitting your answers...</p>
-            <div class="w-6 h-6 border-2 border-fran border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div class="w-6 h-6 border-2 border-comp border-t-transparent rounded-full animate-spin mx-auto"></div>
         </div>
     </div>
 
@@ -33,7 +33,7 @@
 
     {{-- Timer pills --}}
     <div class="px-4 flex items-center justify-between">
-        <span class="bg-fran text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="`Q${currentIndex + 1} of ${questions.length}`"></span>
+        <span class="bg-comp text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="`Q${currentIndex + 1} of ${questions.length}`"></span>
         <span class="text-white text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 animate-pulse' : 'bg-red-500'" x-text="formatTime(timeLeft)"></span>
     </div>
 
@@ -51,7 +51,7 @@
                 <div class="flex gap-2 w-max">
                     <template x-for="(q, i) in questions" :key="i">
                         <button @click="currentIndex = i" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                :class="i === currentIndex ? 'bg-fran text-white' : (answers[q.question?.id] ? 'bg-stu-light text-stu' : 'bg-white border border-border text-gray-400')"
+                                :class="i === currentIndex ? 'bg-comp text-white' : (answers[q.question?.id] ? 'bg-comp-light text-comp' : 'bg-white border border-border text-gray-400')"
                                 x-text="i + 1"></button>
                     </template>
                 </div>
@@ -76,9 +76,9 @@
                     <template x-for="opt in ['a','b','c','d']" :key="opt">
                         <template x-if="questions[currentIndex]?.question?.['option_' + opt]">
                             <button @click="selectAnswer(opt)" class="flex items-center gap-3 rounded-2xl border-2 px-4 py-4 text-left"
-                                    :class="answers[questions[currentIndex]?.question?.id] === opt ? 'border-stu bg-stu-light' : 'border-border bg-white'">
+                                    :class="answers[questions[currentIndex]?.question?.id] === opt ? 'border-comp bg-comp-light' : 'border-border bg-white'">
                                 <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                      :class="answers[questions[currentIndex]?.question?.id] === opt ? 'bg-stu text-white' : 'bg-bg-mid text-gray-500'"
+                                      :class="answers[questions[currentIndex]?.question?.id] === opt ? 'bg-comp text-white' : 'bg-bg-mid text-gray-500'"
                                       x-text="opt.toUpperCase()"></span>
                                 <span class="text-base font-bold text-gray-800" x-text="questions[currentIndex]?.question?.['option_' + opt]"></span>
                             </button>
@@ -90,7 +90,7 @@
             {{-- Submit on last question only --}}
             <div class="px-4 mt-5 min-h-[52px]">
                 <template x-if="currentIndex === questions.length - 1">
-                    <button @click="doSubmit()" class="w-full py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit</button>
+                    <button @click="doSubmit()" class="w-full py-3 bg-comp text-white rounded-xl text-sm font-bold">Submit</button>
                 </template>
             </div>
             <div class="pb-6"></div>

@@ -47,7 +47,7 @@
                 @endif
             </a>
             <a href="{{ route('student.profile') }}"
-               class="w-9 h-9 rounded-full bg-stu text-white flex items-center justify-center text-sm font-bold overflow-hidden">
+               class="w-9 h-9 rounded-full bg-fran text-white flex items-center justify-center text-sm font-bold overflow-hidden">
                 @if($student?->photo_url)
                     <img src="{{ $student->photo_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
                 @else
@@ -107,7 +107,7 @@
         <div class="bg-white rounded-2xl border border-border p-4">
             <div class="flex items-center justify-between mb-2">
                 <p class="text-sm font-bold text-gray-800">{{ $lvlTitle }} Progress</p>
-                <span class="text-sm font-bold text-stu">{{ $levelProgress }}%</span>
+                <span class="text-sm font-bold text-fran">{{ $levelProgress }}%</span>
             </div>
             <div class="h-2 bg-bg-mid rounded-full overflow-hidden">
                 <div class="h-full rounded-full transition-all" style="width: {{ max(4, $levelProgress) }}%; background-color: {{ $lvlColor }}"></div>
@@ -124,7 +124,7 @@
         <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Quick Actions</p>
         <div class="grid grid-cols-2 gap-3">
             @foreach([
-                ['route' => 'student.practice.index',     'emoji' => '🎯', 'label' => 'Practice',  'bg' => 'bg-stu-light'],
+                ['route' => 'student.practice.index',     'emoji' => '🎯', 'label' => 'Practice',  'bg' => 'bg-fran-light'],
                 ['route' => 'student.exams.index',        'emoji' => '📝', 'label' => 'My Exams',  'bg' => 'bg-fran-light'],
                 ['route' => 'student.results',            'emoji' => '🏆', 'label' => 'Results',   'bg' => 'bg-amber-50'],
                 ['route' => 'student.certificates.index', 'emoji' => '🎓', 'label' => 'Certificate', 'bg' => 'bg-pink-50'],
