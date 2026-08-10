@@ -7,7 +7,7 @@
     <title>Competition Practice — Apex Brains</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-bg-light font-sans min-h-screen"
+<body class="bg-stu-bg font-sans min-h-screen"
       x-data="practiceEngine()"
       x-init="init()">
 
@@ -31,7 +31,7 @@
     <div class="max-w-lg mx-auto px-4 py-6 space-y-4">
         <template x-if="questions.length > 0">
             <div>
-                <div class="bg-white rounded-2xl border border-border p-5 mb-4 text-center">
+                <div class="bg-stu-bg rounded-2xl border border-border p-5 mb-4 text-center">
                     <div class="text-gray-900" style="font-size:36px"
                          x-html="verticalSum(questions[currentIndex]?.question_text)"></div>
                 </div>
@@ -41,15 +41,11 @@
                         <template x-if="questions[currentIndex]?.['option_' + opt]">
                             <button @click="selectAnswer(opt)"
                                     :class="{
-                                        'border-fran bg-fran/5': answers[questions[currentIndex]?.id] === opt,
-                                        'border-border bg-white': answers[questions[currentIndex]?.id] !== opt
+                                        'border-fran bg-fran-light': answers[questions[currentIndex]?.id] === opt,
+                                        'border-border bg-stu-bg': answers[questions[currentIndex]?.id] !== opt
                                     }"
                                     class="w-full flex items-center gap-2 rounded-2xl border-2 px-3 py-3.5 text-left transition-colors">
-                                <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                      :class="{
-                                          'bg-fran text-white': answers[questions[currentIndex]?.id] === opt,
-                                          'bg-bg-mid text-gray-500': answers[questions[currentIndex]?.id] !== opt
-                                      }"
+                                <span class="w-7 h-7 rounded-full bg-fran text-white flex items-center justify-center text-xs font-bold flex-shrink-0"
                                       x-text="opt.toUpperCase()"></span>
                                 <span class="text-base text-gray-700" x-text="questions[currentIndex]?.['option_' + opt]"></span>
                             </button>

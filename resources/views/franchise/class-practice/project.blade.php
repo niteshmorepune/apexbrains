@@ -292,7 +292,7 @@ function practicePlayer() {
             }
 
             // Show the operator sign for −, ×, ÷ (etc.) so the projector
-            // reads e.g. "−5"; addition stays unsigned ("5"), matching the
+            // reads e.g. −5; addition stays unsigned (5), matching the
             // dictation (+ is spoken as nothing).
             const term = this.terms[this.termIndex];
             this.display = term.startsWith('+') ? this.numericPart(term) : term;

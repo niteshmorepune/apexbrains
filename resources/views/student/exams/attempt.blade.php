@@ -49,13 +49,13 @@
     {{-- Timer pills --}}
     <div class="px-4 flex items-center justify-between">
         <span class="bg-fran text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="`Q${currentIndex + 1} of ${questions.length}`"></span>
-        <span class="text-white text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 animate-pulse' : 'bg-red-500'" x-text="formatTime(timeLeft)"></span>
+        <span class="text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 text-white animate-pulse' : 'bg-fran-light text-fran'" x-text="formatTime(timeLeft)"></span>
     </div>
 
     {{-- Warning --}}
     <div class="px-4 mt-2">
-        <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center">
-            <p class="text-[11px] text-amber-700 font-medium">Warning — Do not switch tabs — exam will be flagged</p>
+        <div class="bg-fran-light border border-fran/20 rounded-lg px-3 py-2 text-center">
+            <p class="text-[11px] text-fran font-medium">Warning — Do not switch tabs — exam will be flagged</p>
         </div>
     </div>
 
@@ -70,7 +70,7 @@
 
             {{-- Big number display --}}
             <div class="px-4 mt-3">
-                <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
+                <div class="bg-stu-bg rounded-2xl border border-border py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
                     <div class="text-gray-900" style="font-size:42px" x-html="verticalSum(questions[currentIndex]?.question_text)"></div>
                 </div>
             </div>
@@ -83,9 +83,8 @@
                         <template x-if="questions[currentIndex]?.['option_' + opt]">
                             <button @click="selectAnswer(opt)"
                                     class="flex items-center gap-3 rounded-2xl border-2 px-4 py-4 text-left"
-                                    :class="answers[questions[currentIndex]?.id] === opt ? 'border-fran bg-fran-light' : 'border-border bg-white'">
-                                <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                      :class="answers[questions[currentIndex]?.id] === opt ? 'bg-fran text-white' : 'bg-bg-mid text-gray-500'"
+                                    :class="answers[questions[currentIndex]?.id] === opt ? 'border-fran bg-fran-light' : 'border-border bg-stu-bg'">
+                                <span class="w-7 h-7 rounded-full bg-fran text-white flex items-center justify-center text-xs font-bold flex-shrink-0"
                                       x-text="opt.toUpperCase()"></span>
                                 <span class="text-base font-bold text-gray-800" x-text="questions[currentIndex]?.['option_' + opt]"></span>
                             </button>

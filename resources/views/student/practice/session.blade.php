@@ -62,7 +62,7 @@
             }
             const term = this.terms[this.termIndex];
             // Show the operator sign for −, ×, ÷ (etc.) so the flash reads
-            // e.g. "−5"; addition stays unsigned ("5"), matching audio (silent +).
+            // e.g. −5; addition stays unsigned (5), matching audio (silent +).
             this.display = term.startsWith('+') ? this.numericPart(term) : term;
 
             const gen = ++this.speakGen;
@@ -108,13 +108,13 @@
     {{-- Timer pills --}}
     <div class="px-4 flex items-center justify-between">
         <span class="bg-fran text-white text-xs font-bold px-3 py-1.5 rounded-full">Q{{ $index + 1 }} of {{ $totalCount }}</span>
-        <span class="bg-gray-500 text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="clock"></span>
+        <span class="bg-fran-light text-fran text-xs font-bold px-3 py-1.5 rounded-full" x-text="clock"></span>
     </div>
 
     {{-- Warning --}}
     <div class="px-4 mt-2">
-        <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center">
-            <p class="text-[11px] text-amber-700 font-medium">Warning — Do not switch tabs — session will be flagged</p>
+        <div class="bg-fran-light border border-fran/20 rounded-lg px-3 py-2 text-center">
+            <p class="text-[11px] text-fran font-medium">Warning — Do not switch tabs — session will be flagged</p>
         </div>
     </div>
 
@@ -125,7 +125,7 @@
                 @php $isDone = isset($answered[$i]); $isCur = $i === $index; @endphp
                 <span @if($isCur) id="qCurrent" @endif
                     class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                    {{ $isCur ? 'bg-fran text-white' : ($isDone ? 'bg-fran-light text-fran' : 'bg-white border border-border text-gray-400') }}">
+                    {{ $isCur ? 'bg-fran text-white' : ($isDone ? 'bg-fran-light text-fran' : 'bg-white border border-fran/40 text-fran') }}">
                     {{ $i + 1 }}
                 </span>
             @endfor
@@ -141,7 +141,7 @@
 
     {{-- Popup display — one number at a time --}}
     <div class="px-4 mt-3">
-        <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[180px] flex items-center justify-center">
+        <div class="bg-stu-bg rounded-2xl border border-border py-10 px-4 text-center min-h-[180px] flex items-center justify-center">
             <p class="font-mono font-black text-gray-900 tabular-nums" style="font-size: 67px;" x-text="display"></p>
         </div>
     </div>
@@ -156,8 +156,8 @@
                     <label class="cursor-pointer">
                         <input type="radio" name="answer" value="{{ $letter }}" class="sr-only peer"
                                x-model="selected" @change="$nextTick(() => document.getElementById('answerForm').submit())">
-                        <div class="flex items-center gap-3 bg-white border-2 border-border rounded-2xl px-4 py-4 peer-checked:border-fran peer-checked:bg-fran-light">
-                            <span class="w-7 h-7 rounded-full bg-bg-mid text-gray-500 flex items-center justify-center text-xs font-bold flex-shrink-0 peer-checked:bg-fran peer-checked:text-white">{{ strtoupper($letter) }}</span>
+                        <div class="flex items-center gap-3 bg-stu-bg border-2 border-border rounded-2xl px-4 py-4 peer-checked:border-fran peer-checked:bg-fran-light">
+                            <span class="w-7 h-7 rounded-full bg-fran text-white flex items-center justify-center text-xs font-bold flex-shrink-0">{{ strtoupper($letter) }}</span>
                             <span class="text-lg font-bold text-gray-800">{{ $option }}</span>
                         </div>
                     </label>
