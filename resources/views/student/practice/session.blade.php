@@ -61,7 +61,9 @@
                 return;
             }
             const term = this.terms[this.termIndex];
-            this.display = this.numericPart(term);
+            // Show the operator sign for −, ×, ÷ (etc.) so the flash reads
+            // e.g. "−5"; addition stays unsigned ("5"), matching audio (silent +).
+            this.display = term.startsWith('+') ? this.numericPart(term) : term;
 
             const gen = ++this.speakGen;
             const flashMs = Math.max(400, this.flashSpeed * 1000);

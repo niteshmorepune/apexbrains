@@ -4,6 +4,11 @@
 @section('content')
 @php
     $total = count($attempt->question_ids ?? []);
+    $correctCount = (int) $attempt->score;
+    $skippedCount = collect($attempt->question_ids ?? [])
+        ->filter(fn ($id) => empty($attempt->answers[$id] ?? null))
+        ->count();
+    $wrongCount = max(0, $total - $correctCount - $skippedCount);
     $stars = match(true) {
         $attempt->percentage <= 30 => 1,
         $attempt->percentage <= 50 => 2,
@@ -24,19 +29,23 @@
     {{-- Score --}}
     <div class="bg-fran rounded-2xl p-6 text-white text-center">
         <p class="text-white/70 text-sm mb-1">{{ $attempt->level?->title }} Competition Practice</p>
-        <p class="text-4xl font-black mb-1">{{ $attempt->score }}/{{ $total }}</p>
+        <p class="text-4xl font-black mb-1">{{ $correctCount }}/{{ $total }}</p>
         <p class="text-white/70 text-sm">Total Marks</p>
         <p class="text-lg mt-2 tracking-widest">{{ str_repeat('★', $stars) }}{{ str_repeat('☆', 5 - $stars) }}</p>
         <p class="text-white/90 text-sm font-medium mt-1">{{ $motivation }}</p>
 
-        <div class="grid grid-cols-3 gap-3 mt-4">
+        <div class="grid grid-cols-2 gap-3 mt-4">
             <div class="bg-white/10 rounded-xl p-3">
-                <p class="font-black text-lg">{{ $attempt->score }}</p>
+                <p class="font-black text-lg">{{ $correctCount }}</p>
                 <p class="text-white/60 text-xs">Correct</p>
             </div>
             <div class="bg-white/10 rounded-xl p-3">
-                <p class="font-black text-lg">{{ count($attempt->question_ids ?? []) - $attempt->score }}</p>
+                <p class="font-black text-lg">{{ $wrongCount }}</p>
                 <p class="text-white/60 text-xs">Wrong</p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-3">
+                <p class="font-black text-lg">{{ $skippedCount }}</p>
+                <p class="text-white/60 text-xs">Skipped</p>
             </div>
             <div class="bg-white/10 rounded-xl p-3">
                 <p class="font-black text-lg">

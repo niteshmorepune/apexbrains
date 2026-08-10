@@ -74,7 +74,7 @@ class CompetitionQuestionBankController extends Controller
 
     public function update(Request $request, CompetitionQuestionBank $question): RedirectResponse
     {
-        $data = $this->validateQuestion($request);
+        $data = $this->validateQuestion($request, $question);
         $data['correct_answer'] = strtolower($data['correct_answer']);
 
         $question->update($data);
@@ -111,17 +111,48 @@ class CompetitionQuestionBankController extends Controller
         return back()->with('success', 'Question rejected.');
     }
 
-    private function validateQuestion(Request $request): array
+    private function validateQuestion(Request $request, ?CompetitionQuestionBank $question = null): array
     {
         return $request->validate([
             'category_id' => ['required', 'exists:competition_question_categories,id'],
             'type_id' => ['required', 'exists:competition_question_types,id'],
-            'question_text' => ['required', 'string', 'max:2000'],
+            'question_text' => [
+                'required', 'string', 'max:2000',
+                function ($attribute, $value, $fail) use ($request, $question) {
+                    $this->failIfDuplicate($request, $question, $value, $fail);
+                },
+            ],
             'option_a' => ['required', 'string', 'max:500'],
             'option_b' => ['required', 'string', 'max:500'],
             'option_c' => ['nullable', 'string', 'max:500'],
             'option_d' => ['nullable', 'string', 'max:500'],
             'correct_answer' => ['required', 'in:A,B,C,D,a,b,c,d'],
         ]);
+    }
+
+    private function failIfDuplicate(Request $request, ?CompetitionQuestionBank $question, string $value, \Closure $fail): void
+    {
+        $categoryId = $request->input('category_id');
+        $typeId = $request->input('type_id');
+        if (! $categoryId || ! $typeId) {
+            return;
+        }
+
+        $normalized = self::normalize($value);
+
+        $duplicate = CompetitionQuestionBank::where('category_id', $categoryId)
+            ->where('type_id', $typeId)
+            ->when($question, fn ($q) => $q->where('id', '!=', $question->id))
+            ->get(['id', 'question_text'])
+            ->first(fn ($row) => self::normalize($row->question_text) === $normalized);
+
+        if ($duplicate) {
+            $fail('This question already exists in the selected category/type. Duplicate questions are not allowed.');
+        }
+    }
+
+    private static function normalize(string $text): string
+    {
+        return strtolower(trim(preg_replace('/\s+/', ' ', $text)));
     }
 }

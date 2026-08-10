@@ -168,6 +168,7 @@ class PracticeController extends Controller
             'percentage' => $pct,
             'status' => 'submitted',
             'submitted_at' => now(),
+            'answers' => $answers,
         ]);
 
         Cache::forget("cp_attempt_{$attempt->id}_answers");

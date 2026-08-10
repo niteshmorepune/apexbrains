@@ -156,7 +156,7 @@ function examEngine() {
             while ((m = re.exec(clean)) !== null) {
                 let op = m[1] || '';
                 if (op && opMap[op]) op = opMap[op];
-                if (first) op = ''; else if (!op) op = '+';
+                if (first || op === '+' || !op) op = '';
                 rows.push(`<tr><td style="text-align:right;padding-right:0.6em;color:#9ca3af">${op}</td><td style="text-align:right;font-variant-numeric:tabular-nums">${m[2]}</td></tr>`);
                 first = false;
             }

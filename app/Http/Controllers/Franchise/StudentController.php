@@ -119,7 +119,7 @@ class StudentController extends Controller
             'pincode'       => ['nullable', 'string', 'max:10'],
             'parent_name'   => ['required', 'string', 'max:100'],
             'parent_relationship' => ['nullable', 'in:father,mother,guardian'],
-            'parent_phone'  => ['required', 'string', 'max:15'],
+            'parent_phone'  => ['required', 'string', 'max:15', Rule::unique('student_parents', 'phone')],
             'parent_whatsapp' => ['nullable', 'string', 'max:15'],
             'parent_email'  => ['nullable', 'email', 'max:150'],
             'current_level_id' => ['required', 'exists:levels,id'],
@@ -131,7 +131,9 @@ class StudentController extends Controller
             $rules['registration_fee']  = ['nullable', 'numeric', 'min:0'];
         }
 
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [
+            'parent_phone.unique' => 'This mobile number is already registered to another student.',
+        ]);
 
         $franchiseId = Auth::user()->franchise_id;
 

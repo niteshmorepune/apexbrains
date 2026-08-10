@@ -42,7 +42,7 @@
                         <span class="text-fran">📅</span>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-semibold text-gray-800">{{ $att->submitted_at?->format('d M, g:i A') }}</p>
-                            <p class="text-xs text-gray-400">{{ $att->level?->title }} · {{ $att->score }} correct</p>
+                            <p class="text-xs text-gray-400">{{ $att->level?->title }} · {{ (int) $att->score }} correct</p>
                         </div>
                         <span class="text-base font-black {{ $att->percentage >= 75 ? 'text-stu' : 'text-logo-amber' }}">
                             {{ number_format($att->percentage, 0) }}%

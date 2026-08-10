@@ -39,7 +39,7 @@
     <div class="grid grid-cols-2 gap-3">
         <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3">
             <span class="text-stu text-xl">✅</span>
-            <div><p class="text-lg font-black text-stu leading-none">{{ $attempt->score }}/{{ $totalQ }}</p><p class="text-xs text-gray-400 mt-1">Correct</p></div>
+            <div><p class="text-lg font-black text-stu leading-none">{{ (int) $attempt->score }}/{{ $totalQ }}</p><p class="text-xs text-gray-400 mt-1">Correct</p></div>
         </div>
         <div class="bg-white rounded-2xl border border-border p-4 flex items-center gap-3">
             <span class="text-red-500 text-xl">❌</span>

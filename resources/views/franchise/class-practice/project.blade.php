@@ -291,10 +291,11 @@ function practicePlayer() {
                 return;
             }
 
-            // Show only the number on screen (operators are hidden during
-            // dictation); the operator is conveyed by voice instead.
+            // Show the operator sign for −, ×, ÷ (etc.) so the projector
+            // reads e.g. "−5"; addition stays unsigned ("5"), matching the
+            // dictation (+ is spoken as nothing).
             const term = this.terms[this.termIndex];
-            this.display = this.numericPart(term);
+            this.display = term.startsWith('+') ? this.numericPart(term) : term;
 
             const gen = ++this.speakGen;
             const flashMs = Math.max(400, this.state.duration * 1000);

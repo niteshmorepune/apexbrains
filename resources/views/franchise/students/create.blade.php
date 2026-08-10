@@ -139,7 +139,8 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Mobile <span class="text-red-500">*</span></label>
                         <input type="text" name="parent_phone" value="{{ old('parent_phone') }}" required
-                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('parent_phone') border-red-400 @enderror">
+                        @error('parent_phone')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">WhatsApp</label>

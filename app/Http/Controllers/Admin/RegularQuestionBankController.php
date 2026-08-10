@@ -83,7 +83,7 @@ class RegularQuestionBankController extends Controller
 
     public function update(Request $request, RegularQuestionBank $question): RedirectResponse
     {
-        $data = $this->validateQuestion($request);
+        $data = $this->validateQuestion($request, $question);
         $data['correct_answer'] = ! empty($data['correct_answer']) ? strtolower($data['correct_answer']) : null;
 
         $question->update($data);
@@ -120,12 +120,17 @@ class RegularQuestionBankController extends Controller
         return back()->with('success', 'Question rejected.');
     }
 
-    private function validateQuestion(Request $request): array
+    private function validateQuestion(Request $request, ?RegularQuestionBank $question = null): array
     {
         return $request->validate([
             'category_id' => ['required', 'exists:regular_question_categories,id'],
             'type_id' => ['required', 'exists:regular_question_types,id'],
-            'question_text' => ['required', 'string', 'max:2000'],
+            'question_text' => [
+                'required', 'string', 'max:2000',
+                function ($attribute, $value, $fail) use ($request, $question) {
+                    $this->failIfDuplicate($request, $question, $value, $fail);
+                },
+            ],
             'answer_format' => ['required', 'in:mcq,audio'],
             'option_a' => ['nullable', 'string', 'max:500'],
             'option_b' => ['nullable', 'string', 'max:500'],
@@ -133,5 +138,31 @@ class RegularQuestionBankController extends Controller
             'option_d' => ['nullable', 'string', 'max:500'],
             'correct_answer' => ['nullable', 'in:A,B,C,D,a,b,c,d'],
         ]);
+    }
+
+    private function failIfDuplicate(Request $request, ?RegularQuestionBank $question, string $value, \Closure $fail): void
+    {
+        $categoryId = $request->input('category_id');
+        $typeId = $request->input('type_id');
+        if (! $categoryId || ! $typeId) {
+            return;
+        }
+
+        $normalized = self::normalize($value);
+
+        $duplicate = RegularQuestionBank::where('category_id', $categoryId)
+            ->where('type_id', $typeId)
+            ->when($question, fn ($q) => $q->where('id', '!=', $question->id))
+            ->get(['id', 'question_text'])
+            ->first(fn ($row) => self::normalize($row->question_text) === $normalized);
+
+        if ($duplicate) {
+            $fail('This question already exists in the selected category/type. Duplicate questions are not allowed.');
+        }
+    }
+
+    private static function normalize(string $text): string
+    {
+        return strtolower(trim(preg_replace('/\s+/', ' ', $text)));
     }
 }

@@ -32,7 +32,7 @@
                             <span class="w-10 h-10 rounded-full bg-bg-light flex items-center justify-center flex-shrink-0 text-base">🏆</span>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-bold text-gray-800 truncate">{{ $attempt->level?->title }} Competition Practice</p>
-                                <p class="text-xs text-gray-400">{{ $attempt->submitted_at?->format('d M Y') }} · {{ $attempt->score }}/{{ count($attempt->question_ids ?? []) }}</p>
+                                <p class="text-xs text-gray-400">{{ $attempt->submitted_at?->format('d M Y') }} · {{ (int) $attempt->score }}/{{ count($attempt->question_ids ?? []) }}</p>
                             </div>
                             <div class="text-right flex-shrink-0">
                                 <span class="text-sm font-bold {{ $attempt->percentage >= 75 ? 'text-stu' : 'text-logo-amber' }}">{{ number_format($attempt->percentage ?? 0, 0) }}%</span>
