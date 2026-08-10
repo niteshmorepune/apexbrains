@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>body{font-family:'Inter',ui-sans-serif,system-ui,sans-serif}[x-cloak]{display:none!important}</style>
 </head>
-<body class="bg-stu-bg min-h-screen" x-data="examEngine()" x-init="init()">
+<body class="bg-white min-h-screen" x-data="examEngine()" x-init="init()">
 
 <div class="max-w-md mx-auto min-h-screen">
 
@@ -34,13 +34,13 @@
     {{-- Timer pills --}}
     <div class="px-4 flex items-center justify-between">
         <span class="bg-comp text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="`Q${currentIndex + 1} of ${questions.length}`"></span>
-        <span class="text-white text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 animate-pulse' : 'bg-red-500'" x-text="formatTime(timeLeft)"></span>
+        <span class="text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 text-white animate-pulse' : 'bg-comp-light text-comp'" x-text="formatTime(timeLeft)"></span>
     </div>
 
     {{-- Warning --}}
     <div class="px-4 mt-2">
-        <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center">
-            <p class="text-[11px] text-amber-700 font-medium">Warning — Do not switch tabs — exam will be flagged</p>
+        <div class="bg-comp-light border border-comp/20 rounded-lg px-3 py-2 text-center">
+            <p class="text-[11px] text-comp font-medium">Warning — Do not switch tabs — exam will be flagged</p>
         </div>
     </div>
 
@@ -51,7 +51,7 @@
                 <div class="flex gap-2 w-max">
                     <template x-for="(q, i) in questions" :key="i">
                         <button @click="currentIndex = i" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                :class="i === currentIndex ? 'bg-comp text-white' : (answers[q.question?.id] ? 'bg-comp-light text-comp' : 'bg-white border border-border text-gray-400')"
+                                :class="i === currentIndex ? 'bg-comp text-white' : (answers[q.question?.id] ? 'bg-comp-light text-comp' : 'bg-white border border-comp/40 text-comp')"
                                 x-text="i + 1"></button>
                     </template>
                 </div>
@@ -64,7 +64,7 @@
 
             {{-- Big number display --}}
             <div class="px-4 mt-3">
-                <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
+                <div class="bg-comp-light rounded-2xl border border-comp/15 py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
                     <div class="text-gray-900" style="font-size:38px" x-html="verticalSum(questions[currentIndex]?.question?.question_text)"></div>
                 </div>
             </div>
@@ -76,9 +76,8 @@
                     <template x-for="opt in ['a','b','c','d']" :key="opt">
                         <template x-if="questions[currentIndex]?.question?.['option_' + opt]">
                             <button @click="selectAnswer(opt)" class="flex items-center gap-3 rounded-2xl border-2 px-4 py-4 text-left"
-                                    :class="answers[questions[currentIndex]?.question?.id] === opt ? 'border-comp bg-comp-light' : 'border-border bg-white'">
-                                <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                      :class="answers[questions[currentIndex]?.question?.id] === opt ? 'bg-comp text-white' : 'bg-bg-mid text-gray-500'"
+                                    :class="answers[questions[currentIndex]?.question?.id] === opt ? 'border-comp bg-comp/15' : 'border-comp/15 bg-comp-light'">
+                                <span class="w-7 h-7 rounded-full bg-comp text-white flex items-center justify-center text-xs font-bold flex-shrink-0"
                                       x-text="opt.toUpperCase()"></span>
                                 <span class="text-base font-bold text-gray-800" x-text="questions[currentIndex]?.question?.['option_' + opt]"></span>
                             </button>

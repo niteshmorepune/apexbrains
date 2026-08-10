@@ -60,8 +60,8 @@
                     <p class="text-sm text-comp font-medium">This competition starts on {{ $competition->start_date->format('d M Y') }}. The exam will open then.</p>
                 </div>
             @elseif($ended)
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-                    <p class="text-sm text-amber-700 font-medium">This competition has ended.</p>
+                <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
+                    <p class="text-sm text-comp font-medium">This competition has ended.</p>
                 </div>
             @elseif($paper)
                 <form method="POST" action="{{ route('student.competitions.start', $competition) }}">
@@ -69,16 +69,16 @@
                     <button type="submit" class="w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold">I am Ready — Start Exam</button>
                 </form>
             @else
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-                    <p class="text-sm text-amber-700 font-medium">The question paper for your level is not available yet</p>
+                <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
+                    <p class="text-sm text-comp font-medium">The question paper for your level is not available yet</p>
                 </div>
             @endif
         @else
             <a href="{{ route('student.competitions.result', $competition) }}" class="block w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold text-center">View My Result</a>
         @endif
     @else
-        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-            <p class="text-sm text-amber-700 font-medium">You are not registered for this competition</p>
+        <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
+            <p class="text-sm text-comp font-medium">You are not registered for this competition</p>
         </div>
     @endif
 
