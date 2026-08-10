@@ -23,6 +23,10 @@ class CertificateImageComposer
         $levelName     = $certificate->level?->title ?? '';
         $placeVal      = $certificate->place ?: ($certificate->franchise?->city ?? '');
         $dateVal       = optional($certificate->issued_at)->format('d F Y');
+        // Participation/Competition certs show the actual competition date
+        // (not the issuance date) — scoped to this variable only so it
+        // doesn't change Level Up/Champion/Winner's existing date behavior.
+        $competitionDateVal = optional($certificate->competition?->start_date ?? $certificate->issued_at)->format('d F Y');
 
         $navyItalic = [28, 46, 99];
         $navyBold   = [18, 24, 47];
@@ -46,32 +50,24 @@ class CertificateImageComposer
             // one composed string per render. That's what keeps a short name
             // and a long name both landing dead-center with natural spacing,
             // instead of only the value shifting inside a fixed-width blank.
+            // 2026-08-10 exact-design replacement (client-supplied reference
+            // PNG "Certificate of Participation" — layout/fonts/colors/border/
+            // logos/signature all baked into public/images/certificates/
+            // participation.png as-is; only these 5 lines are masked+redrawn).
+            // Coordinates calibrated directly against that artwork via pixel
+            // scanning (ink y/x-extent per line) — native canvas is 1491×1055.
             Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [
-                // The 3 baked placeholder lines' true ink extents (including
-                // tall italic parenthesis swashes) overlap each other, so a
-                // single wipe of the whole block runs first (empty text = mask
-                // only, no draw) before each line is drawn in its own smaller,
-                // non-overlapping band — otherwise masking line 2's own box
-                // would clip line 1's already-drawn descenders, etc.
-                // 'box' stays the full symmetric width so centering math treats
-                // page-center (~838) correctly; 'maskBox' stops at x=1170 — well
-                // short of where the Managing Director signature starts (~1200)
-                // — so erasing/redrawing these lines never wipes into it.
-                ['box' => [170, 676, 1520, 848], 'maskBox' => [170, 676, 1170, 848], 'text' => ''],
-                ['box' => [170, 690, 1520, 725], 'maskBox' => [170, 690, 1170, 725], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 711],
-                // These two run long ("... Center for" / "... Level
-                // Competition") and can graze the signature at full width even
-                // for normal values — box itself (not just maskBox) is capped
-                // at x=1170, still centered on the same ~838 page-center, so
-                // shrink-to-fit engages before text ever reaches the signature.
-                ['box' => [506, 750, 1170, 782], 'text' => 'studying at ' . $franchiseName . ' Center for', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 773],
-                ['box' => [506, 795, 1170, 827], 'text' => 'participating in the ' . $levelName . ' Level Competition', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 818],
-                // Narrower box width than the other fields — "Apex Brains,
-                // India." is centered and sits at nearly this same height, so
-                // the box must stop well short of its left edge (x=707) or
-                // masking the date value would clip into that static line.
-                ['box' => [295, 918, 650, 946],  'pad' => 20, 'text' => $dateVal,  'font' => 'italic', 'size' => 24, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 944],
-                ['box' => [295, 986, 650, 1013], 'pad' => 20, 'text' => $placeVal, 'font' => 'italic', 'size' => 24, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1006],
+                ['box' => [280, 596, 1340, 644], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 630],
+                ['box' => [250, 658, 1340, 700], 'text' => 'studying at ' . $franchiseName . ' Center for', 'font' => 'italic', 'size' => 25, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 688],
+                ['box' => [220, 699, 1340, 738], 'text' => 'participating in the ' . $levelName . ' Online Competition', 'font' => 'italic', 'size' => 25, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 726],
+                // Date value only — "Date :" label stays baked into the
+                // artwork. Box is capped at x=630: "Apex Brains, India." (a
+                // separate static line) starts at x≈640 at nearly this same
+                // height, so this must stop short of it or a long date value
+                // would run into that line — shrink-to-fit engages instead.
+                ['box' => [268, 804, 630, 847], 'text' => $competitionDateVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 840],
+                // Place value only — "Place :" label stays baked into the artwork.
+                ['box' => [268, 866, 460, 908], 'text' => $placeVal, 'font' => 'italic', 'size' => 22, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 892],
             ],
             Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [
                 // 'box' itself (not just a separate maskBox) is capped at
