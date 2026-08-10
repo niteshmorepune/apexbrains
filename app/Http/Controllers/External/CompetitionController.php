@@ -70,7 +70,7 @@ class CompetitionController extends Controller
             ->where('student_id', $student->id)
             ->first();
 
-        $paper      = $this->paperForCompetition($competition);
+        $paper      = $this->paperForStudent($competition, $student);
         $myAttempts = CompetitionExamAttempt::where('competition_id', $competition->id)
             ->where('student_id', $student->id)
             ->where('status', 'submitted')
@@ -95,7 +95,7 @@ class CompetitionController extends Controller
             return back()->with('error', 'This competition has ended.');
         }
 
-        $paper = $this->paperForCompetition($competition);
+        $paper = $this->paperForStudent($competition, $student);
 
         if (! $paper || $paper->items()->count() === 0) {
             return back()->with('error', 'No question paper is available for this competition yet. Please contact your branch.');
@@ -235,14 +235,16 @@ class CompetitionController extends Controller
     }
 
     /**
-     * External students have no curriculum level, so they sit the competition's
-     * available paper (the lowest-level active paper) rather than a level match.
+     * The active competition paper for the student's actual registered level —
+     * external students do have a current_level_id (set at registration), so
+     * they sit the same level-matched paper as internal students. No fallback
+     * to another level's paper.
      */
-    protected function paperForCompetition(Competition $competition): ?CompetitionQuestionPaper
+    protected function paperForStudent(Competition $competition, $student): ?CompetitionQuestionPaper
     {
         return CompetitionQuestionPaper::where('competition_id', $competition->id)
             ->where('is_active', true)
-            ->orderBy('level_id')
+            ->where('level_id', $student->current_level_id)
             ->first();
     }
 

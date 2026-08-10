@@ -46,12 +46,13 @@
     <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm md:max-w-md bg-white border-t border-border z-30 safe-bottom">
         <div class="flex justify-around items-stretch h-16">
             @foreach($extNav as $item)
+                @php $activeColor = $item['route'] === 'external.competitions.index' ? 'comp' : 'fran'; @endphp
                 <a href="{{ route($item['route']) }}" class="relative flex flex-col items-center justify-center gap-0.5 flex-1">
                     @if($item['active'])
-                        <span class="absolute top-0 h-1 w-8 bg-fran rounded-b-full"></span>
+                        <span class="absolute top-0 h-1 w-8 bg-{{ $activeColor }} rounded-b-full"></span>
                     @endif
                     <span class="text-xl leading-none {{ $item['active'] ? '' : 'opacity-50 grayscale' }}">{{ $item['emoji'] }}</span>
-                    <span class="text-[10px] font-medium {{ $item['active'] ? 'text-fran font-bold' : 'text-gray-400' }}">{{ $item['label'] }}</span>
+                    <span class="text-[10px] font-medium {{ $item['active'] ? 'text-' . $activeColor . ' font-bold' : 'text-gray-400' }}">{{ $item['label'] }}</span>
                 </a>
             @endforeach
         </div>

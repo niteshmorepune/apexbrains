@@ -4,7 +4,6 @@
 @section('content')
 @php
     $isAnzan = isset($question['question_type']) && in_array($question['question_type'], ['audio', 'anzan']);
-    $diffLabel = ucfirst($session->difficulty ?? 'Practice');
     $elapsedSeconds = (int) abs($session->created_at->diffInSeconds(now()));
 @endphp
 
@@ -102,7 +101,7 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
         </form>
-        <h1 class="flex-1 text-center pr-7 text-[17px] font-bold text-gray-900">{{ $diffLabel }} Practice</h1>
+        <h1 class="flex-1 text-center pr-7 text-[17px] font-bold text-gray-900">Regular Practice</h1>
     </div>
 
     {{-- Timer pills --}}

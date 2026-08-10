@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>body{font-family:'Inter',ui-sans-serif,system-ui,sans-serif}[x-cloak]{display:none!important}</style>
 </head>
-<body class="bg-stu-bg min-h-screen" x-data="examEngine()" x-init="init()">
+<body class="bg-white min-h-screen" x-data="examEngine()" x-init="init()">
 
 <div class="max-w-md mx-auto min-h-screen">
 
@@ -19,7 +19,7 @@
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
             <p class="font-bold text-gray-800 mb-2">Time's Up!</p>
             <p class="text-sm text-gray-500 mb-4">Submitting your answers...</p>
-            <div class="w-6 h-6 border-2 border-fran border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div class="w-6 h-6 border-2 border-comp border-t-transparent rounded-full animate-spin mx-auto"></div>
         </div>
     </div>
 
@@ -33,8 +33,8 @@
 
     {{-- Timer pills --}}
     <div class="px-4 flex items-center justify-between">
-        <span class="bg-fran text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="`Q${currentIndex + 1} of ${questions.length}`"></span>
-        <span class="text-white text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 animate-pulse' : 'bg-red-500'" x-text="formatTime(timeLeft)"></span>
+        <span class="bg-comp text-white text-xs font-bold px-3 py-1.5 rounded-full" x-text="`Q${currentIndex + 1} of ${questions.length}`"></span>
+        <span class="text-xs font-bold px-3 py-1.5 rounded-full" :class="timeLeft <= 60 ? 'bg-red-600 text-white animate-pulse' : 'bg-comp-light text-comp'" x-text="formatTime(timeLeft)"></span>
     </div>
 
     <template x-if="questions.length > 0">
@@ -43,12 +43,12 @@
             <div class="px-4 mt-5 flex items-center justify-between">
                 <p class="text-sm text-gray-500">Calculate mentally :</p>
                 <button type="button" @click="speak()" aria-label="Play audio"
-                        class="w-9 h-9 -mr-1 rounded-full bg-fran-light text-fran flex items-center justify-center text-lg active:scale-95">🔊</button>
+                        class="w-9 h-9 -mr-1 rounded-full bg-comp-light text-comp flex items-center justify-center text-lg active:scale-95">🔊</button>
             </div>
 
             {{-- Big number display --}}
             <div class="px-4 mt-3">
-                <div class="bg-white rounded-2xl border border-border py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
+                <div class="bg-comp-light rounded-2xl border border-comp/15 py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
                     <div class="text-gray-900" style="font-size:38px" x-html="verticalSum(questions[currentIndex]?.question?.question_text)"></div>
                 </div>
             </div>
@@ -60,9 +60,8 @@
                     <template x-for="opt in ['a','b','c','d']" :key="opt">
                         <template x-if="questions[currentIndex]?.question?.['option_' + opt]">
                             <button @click="selectAnswer(opt)" class="flex items-center gap-3 rounded-2xl border-2 px-4 py-4 text-left"
-                                    :class="answers[questions[currentIndex]?.question?.id] === opt ? 'border-fran bg-fran-light' : 'border-border bg-white'">
-                                <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                      :class="answers[questions[currentIndex]?.question?.id] === opt ? 'bg-fran text-white' : 'bg-bg-mid text-gray-500'"
+                                    :class="answers[questions[currentIndex]?.question?.id] === opt ? 'border-comp bg-comp/15' : 'border-comp/15 bg-comp-light'">
+                                <span class="w-7 h-7 rounded-full bg-comp text-white flex items-center justify-center text-xs font-bold flex-shrink-0"
                                       x-text="opt.toUpperCase()"></span>
                                 <span class="text-base font-bold text-gray-800" x-text="questions[currentIndex]?.question?.['option_' + opt]"></span>
                             </button>
@@ -74,7 +73,7 @@
             {{-- Submit appears on the final question — questions advance automatically --}}
             <div class="px-4 mt-6 min-h-[52px]">
                 <template x-if="currentIndex === questions.length - 1">
-                    <button @click="doSubmit()" class="w-full py-3 bg-stu text-white rounded-xl text-sm font-bold">Submit</button>
+                    <button @click="doSubmit()" class="w-full py-3 bg-comp text-white rounded-xl text-sm font-bold">Submit</button>
                 </template>
             </div>
             <p class="text-center text-xs text-gray-400 mt-3 pb-6">

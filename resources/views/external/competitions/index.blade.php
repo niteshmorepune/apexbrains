@@ -20,7 +20,7 @@
                     <span class="ml-auto text-gray-400">🔒</span>
                 </div>
                 <button type="button" @click="view = 'list'" class="w-full bg-white rounded-2xl border border-border p-4 flex items-center gap-3 text-left">
-                    <span class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl flex-shrink-0">🏆</span>
+                    <span class="w-12 h-12 rounded-xl bg-comp-light flex items-center justify-center text-2xl flex-shrink-0">🏆</span>
                     <div class="min-w-0">
                         <p class="font-bold text-gray-800">Competition</p>
                         <p class="text-xs text-gray-400 mt-0.5 leading-snug">Challenge your abilities and compete with top performers</p>
@@ -46,13 +46,13 @@
                     @forelse($openCompetitions as $comp)
                         <a href="{{ route('external.competitions.show', $comp) }}" class="block bg-white rounded-2xl border border-border p-4 mb-3">
                             <div class="flex items-start gap-3">
-                                <span class="w-10 h-10 rounded-xl bg-fran-light flex items-center justify-center text-fran flex-shrink-0">📅</span>
+                                <span class="w-10 h-10 rounded-xl bg-comp-light flex items-center justify-center text-comp flex-shrink-0">📅</span>
                                 <div class="flex-1 min-w-0">
                                     <p class="font-bold text-gray-800 text-sm">{{ $comp->title }}</p>
                                     <p class="text-xs text-gray-400 mt-0.5">@if($comp->start_date){{ $comp->start_date->format('d M Y') }} · @endif @if($comp->fee_amount > 0)₹{{ number_format($comp->fee_amount, 0) }}@else Free @endif</p>
                                 </div>
                                 @if(in_array($comp->id, $registeredIds))
-                                    <span class="text-[11px] bg-stu-light text-stu px-2.5 py-1 rounded-full font-bold flex-shrink-0">Registered ✓</span>
+                                    <span class="text-[11px] bg-comp-light text-comp px-2.5 py-1 rounded-full font-bold flex-shrink-0">Registered ✓</span>
                                 @else
                                     <span class="text-[11px] bg-bg-mid text-gray-500 px-2.5 py-1 rounded-full font-medium flex-shrink-0">View</span>
                                 @endif
@@ -85,7 +85,7 @@
                                             </p>
                                         </div>
                                         @if($participated)
-                                            <a href="{{ route('external.competitions.show', $comp) }}" class="text-xs text-fran font-semibold flex-shrink-0">View Report</a>
+                                            <a href="{{ route('external.competitions.show', $comp) }}" class="text-xs text-comp font-semibold flex-shrink-0">View Report</a>
                                         @endif
                                     </div>
                                 </div>

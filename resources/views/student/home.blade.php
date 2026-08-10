@@ -59,7 +59,7 @@
 
     {{-- Greeting --}}
     <div class="relative mt-3">
-        <p class="text-sm text-gray-500">{{ $greeting }},</p>
+        <p id="greeting" class="text-sm text-gray-500">{{ $greeting }},</p>
         <h1 class="text-2xl font-black text-gray-900 -mt-0.5">{{ $firstName }}!</h1>
         <div class="flex items-center gap-2 mt-1.5">
             @if($lvlTitle)
@@ -186,4 +186,17 @@
 
     </div>{{-- /lower content --}}
 </div>
+
+@push('scripts')
+<script>
+    // Greeting must reflect the student's own device time, not the server's —
+    // the server-rendered value above is just a no-JS fallback.
+    (function () {
+        var h = new Date().getHours();
+        var g = h < 12 ? 'Good morning' : (h < 17 ? 'Good afternoon' : 'Good evening');
+        var el = document.getElementById('greeting');
+        if (el) el.textContent = g + ',';
+    })();
+</script>
+@endpush
 @endsection

@@ -38,7 +38,7 @@
 
     {{-- Greeting --}}
     <div>
-        <h1 class="text-2xl font-black text-gray-900">{{ $greeting }}, {{ $firstName }}!</h1>
+        <h1 class="text-2xl font-black text-gray-900"><span id="greeting">{{ $greeting }}</span>, {{ $firstName }}!</h1>
         <p class="text-sm text-gray-400 mt-0.5">Practice, Improve, Achieve</p>
     </div>
 
@@ -89,4 +89,17 @@
     @endif
 
 </div>
+
+@push('scripts')
+<script>
+    // Greeting must reflect the student's own device time, not the server's —
+    // the server-rendered value above is just a no-JS fallback.
+    (function () {
+        var h = new Date().getHours();
+        var g = h < 12 ? 'Good morning' : (h < 17 ? 'Good afternoon' : 'Good evening');
+        var el = document.getElementById('greeting');
+        if (el) el.textContent = g;
+    })();
+</script>
+@endpush
 @endsection

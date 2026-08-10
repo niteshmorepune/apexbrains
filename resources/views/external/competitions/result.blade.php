@@ -10,9 +10,9 @@
         {{-- Score ring --}}
         <div class="bg-white rounded-2xl border border-border p-6 text-center">
             <div class="w-28 h-28 mx-auto rounded-full flex items-center justify-center"
-                 style="background: conic-gradient(#1A73E8 {{ (float) $attempt->percentage * 3.6 }}deg, #E5EAF1 0deg);">
+                 style="background: conic-gradient(#8B4A2B {{ (float) $attempt->percentage * 3.6 }}deg, #E5EAF1 0deg);">
                 <div class="w-20 h-20 rounded-full bg-white flex flex-col items-center justify-center">
-                    <span class="text-2xl font-black text-fran">{{ number_format($attempt->percentage ?? 0, 0) }}%</span>
+                    <span class="text-2xl font-black text-comp">{{ number_format($attempt->percentage ?? 0, 0) }}%</span>
                     <span class="text-[10px] text-gray-400">Score</span>
                 </div>
             </div>
@@ -31,7 +31,7 @@
             </div>
             @if($rank)
                 <div class="col-span-2 bg-white rounded-2xl border border-border p-3 text-center">
-                    <p class="text-xl font-black text-fran">#{{ $rank }}</p>
+                    <p class="text-xl font-black text-comp">#{{ $rank }}</p>
                     <p class="text-[11px] text-gray-400 mt-0.5">Your Rank</p>
                 </div>
             @endif
@@ -39,7 +39,7 @@
 
         @if($certificate)
             <a href="{{ route('external.certificates.show', $certificate) }}"
-               class="block text-center py-3.5 bg-fran text-white rounded-2xl text-sm font-bold">🎓 View Participation Certificate</a>
+               class="block text-center py-3.5 bg-comp text-white rounded-2xl text-sm font-bold">🎓 View Participation Certificate</a>
         @endif
     @elseif($attempt)
         <div class="bg-white rounded-2xl border border-border p-10 text-center">
