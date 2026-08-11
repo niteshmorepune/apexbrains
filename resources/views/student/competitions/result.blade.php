@@ -31,6 +31,7 @@
             </div>
             <p class="text-base font-bold text-gray-800 mt-3">{{ $competition->title }}</p>
             <span class="inline-block font-bold text-xs px-4 py-1 rounded-full mt-1.5 {{ $passed ? 'bg-stu text-white' : 'bg-red-500 text-white' }}">{{ $passed ? 'PASSED' : 'COMPLETED' }}</span>
+            <p class="text-xs text-gray-400 mt-1.5">Submitted {{ $attempt->submitted_at_ist?->format('d M Y, g:i A') }}</p>
         </div>
 
         {{-- Stats 2x2 --}}

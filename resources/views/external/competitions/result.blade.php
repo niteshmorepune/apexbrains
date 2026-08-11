@@ -7,6 +7,11 @@
 <div class="px-4 pb-4 space-y-4">
 
     @if($attempt && $competition->results_declared_at)
+        @php
+            $durationSec = $attempt->started_at && $attempt->submitted_at
+                ? $attempt->submitted_at->diffInSeconds($attempt->started_at, true) : 0;
+            $timeMins    = $durationSec > 0 ? floor($durationSec / 60) . ':' . str_pad($durationSec % 60, 2, '0', STR_PAD_LEFT) : '—';
+        @endphp
         {{-- Score ring --}}
         <div class="bg-white rounded-2xl border border-border p-6 text-center">
             <div class="w-28 h-28 mx-auto rounded-full flex items-center justify-center"
@@ -17,7 +22,7 @@
                 </div>
             </div>
             <p class="mt-3 font-bold text-gray-800">{{ $competition->title }}</p>
-            <p class="text-xs text-gray-400">Submitted {{ $attempt->submitted_at?->format('d M Y, g:i A') }}</p>
+            <p class="text-xs text-gray-400">Submitted {{ $attempt->submitted_at_ist?->format('d M Y, g:i A') }}</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -29,8 +34,12 @@
                 <p class="text-xl font-black text-gray-800">{{ $attempt->paper?->total_questions ?? '—' }}</p>
                 <p class="text-[11px] text-gray-400 mt-0.5">Questions</p>
             </div>
+            <div class="bg-white rounded-2xl border border-border p-3 text-center {{ $rank ? '' : 'col-span-2' }}">
+                <p class="text-xl font-black text-gray-700">{{ $timeMins }}</p>
+                <p class="text-[11px] text-gray-400 mt-0.5">Time Taken</p>
+            </div>
             @if($rank)
-                <div class="col-span-2 bg-white rounded-2xl border border-border p-3 text-center">
+                <div class="bg-white rounded-2xl border border-border p-3 text-center">
                     <p class="text-xl font-black text-comp">#{{ $rank }}</p>
                     <p class="text-[11px] text-gray-400 mt-0.5">Your Rank</p>
                 </div>

@@ -9,6 +9,7 @@ use App\Models\CompetitionExamAttempt;
 use App\Models\Student;
 use App\Services\AuditLogger;
 use App\Services\CertificateIssuer;
+use App\Services\CompetitionRankingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,10 @@ use Illuminate\View\View;
 
 class CompetitionController extends Controller
 {
+    public function __construct(private CompetitionRankingService $rankingService)
+    {
+    }
+
     public function index(Request $request): View
     {
         $competitions = Competition::withCount(['registrations', 'questionPapers'])
@@ -77,14 +82,18 @@ class CompetitionController extends Controller
         $competition->loadCount('registrations');
         $competition->load(['questionPapers' => fn ($q) => $q->with('level')->withCount('items')->orderBy('level_id')]);
 
-        $attempts = CompetitionExamAttempt::where('competition_id', $competition->id)
-            ->where('status', 'submitted')
-            ->with('student')
-            ->orderByDesc('percentage')
-            ->orderBy('submitted_at')
-            ->get();
+        // Champion/Winner ranks are determined separately per level, so results
+        // are grouped by level here — same ranking service the franchise panel uses.
+        $levels = $this->rankingService->levelsForCompetition($competition);
 
-        return view('admin.competitions.show', compact('competition', 'attempts'));
+        $resultsByLevel = $levels->map(fn ($level) => [
+            'level'  => $level,
+            'ranked' => $this->rankingService->rankedAttemptsByLevel($competition, $level->id),
+        ])->filter(fn ($r) => $r['ranked']->isNotEmpty())->values();
+
+        $attempts = $resultsByLevel->flatMap(fn ($r) => $r['ranked']);
+
+        return view('admin.competitions.show', compact('competition', 'attempts', 'resultsByLevel'));
     }
 
     public function declareResults(Competition $competition): RedirectResponse

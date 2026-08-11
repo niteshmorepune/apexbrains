@@ -10,8 +10,9 @@
     $correct = $session->questions_correct ?? 0;
     $total   = $session->total_questions ?: 1;
     $pct     = round($correct / $total * 100);
-    $mins    = $session->created_at && $session->completed_at
-        ? (int) ceil($session->completed_at->diffInSeconds($session->created_at, true) / 60) : ($session->duration_minutes ?? 0);
+    $timeTaken = $durationSec > 0
+        ? floor($durationSec / 60) . ':' . str_pad($durationSec % 60, 2, '0', STR_PAD_LEFT)
+        : ($session->duration_minutes ? $session->duration_minutes . ':00' : '0:00');
     $stars = match(true) {
         ($session->accuracy ?? 0) <= 30 => 1,
         ($session->accuracy ?? 0) <= 50 => 2,
@@ -62,7 +63,7 @@
         </div>
         <div class="bg-white rounded-2xl border border-border p-4">
             <span class="text-logo-amber text-lg">⏱️</span>
-            <p class="text-xl font-black text-logo-amber mt-1">{{ $mins }} min</p>
+            <p class="text-xl font-black text-logo-amber mt-1">{{ $timeTaken }}</p>
             <p class="text-xs text-gray-400">Duration</p>
         </div>
         <div class="bg-white rounded-2xl border border-border p-4">

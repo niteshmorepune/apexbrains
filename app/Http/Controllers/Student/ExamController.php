@@ -117,21 +117,31 @@ class ExamController extends Controller
             return back()->with('error', 'No question paper is available for this exam yet. Please check back later.');
         }
 
-        $questions = $paper->items()->orderBy('sort_order')->pluck('id')->toArray();
+        // Resume an in-progress attempt rather than starting a duplicate —
+        // a duplicate would reset started_at and understate the real time taken.
+        $attempt = ExamAttempt::where('exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'in_progress')
+            ->latest()
+            ->first();
 
-        $attempt = ExamAttempt::create([
-            'exam_id'        => $exam->id,
-            'student_id'     => $student->id,
-            'franchise_id'   => $student->franchise_id,
-            'attempt_number' => $attemptCount + 1,
-            'question_ids'   => $questions,
-            'started_at'     => now(),
-            'status'         => 'in_progress',
-            'ip_address'     => $request->ip(),
-            'user_agent'     => $request->userAgent(),
-            'tab_switch_count'   => 0,
-            'fullscreen_exit_count' => 0,
-        ]);
+        if (! $attempt) {
+            $questions = $paper->items()->orderBy('sort_order')->pluck('id')->toArray();
+
+            $attempt = ExamAttempt::create([
+                'exam_id'        => $exam->id,
+                'student_id'     => $student->id,
+                'franchise_id'   => $student->franchise_id,
+                'attempt_number' => $attemptCount + 1,
+                'question_ids'   => $questions,
+                'started_at'     => now(),
+                'status'         => 'in_progress',
+                'ip_address'     => $request->ip(),
+                'user_agent'     => $request->userAgent(),
+                'tab_switch_count'   => 0,
+                'fullscreen_exit_count' => 0,
+            ]);
+        }
 
         return redirect()->route('student.exams.attempt', $exam);
     }

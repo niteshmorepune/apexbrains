@@ -226,6 +226,6 @@ class PracticeController extends Controller
             ->avg('accuracy') ?? 0;
         $vsYesterday  = round($session->accuracy - $yesterdayAvg);
 
-        return view('student.practice.results', compact('session', 'avgSpeed', 'chartLabels', 'vsYesterday'));
+        return view('student.practice.results', compact('session', 'avgSpeed', 'durationSec', 'chartLabels', 'vsYesterday'));
     }
 }

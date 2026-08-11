@@ -40,10 +40,8 @@
     <template x-if="questions.length > 0">
         <div>
             {{-- Calculate prompt --}}
-            <div class="px-4 mt-5 flex items-center justify-between">
+            <div class="px-4 mt-5">
                 <p class="text-sm text-gray-500">Calculate mentally :</p>
-                <button type="button" @click="speak()" aria-label="Play audio"
-                        class="w-9 h-9 -mr-1 rounded-full bg-comp-light text-comp flex items-center justify-center text-lg active:scale-95">🔊</button>
             </div>
 
             {{-- Big number display --}}
@@ -87,7 +85,6 @@
 <form id="submitForm" method="POST" action="{{ route('external.competitions.submit', $competition) }}" class="hidden">@csrf</form>
 
 </body>
-@include('partials.speak-script')
 <script>
 function examEngine() {
     return {
@@ -101,13 +98,6 @@ function examEngine() {
 
         init() {
             this.startTimer();
-            this.$nextTick(() => this.speak());
-            this.$watch('currentIndex', () => this.speak());
-        },
-
-        speak() {
-            const q = this.questions[this.currentIndex];
-            if (q?.question && window.ApexSpeak) window.ApexSpeak.speak(q.question.question_text);
         },
 
         startTimer() {

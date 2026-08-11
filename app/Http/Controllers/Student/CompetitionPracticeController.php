@@ -60,6 +60,17 @@ class CompetitionPracticeController extends Controller
             return back()->with('error', 'Competition Practice access has not been enabled for you yet. Please contact your branch.');
         }
 
+        // Resume an in-progress attempt rather than starting a duplicate —
+        // a duplicate would reset started_at and understate the real time taken.
+        $attempt = CompetitionPracticeAttempt::where('student_id', $student->id)
+            ->where('status', 'in_progress')
+            ->latest()
+            ->first();
+
+        if ($attempt) {
+            return redirect()->route('student.competitions.practice.attempt', $attempt);
+        }
+
         $sessionsUsed = CompetitionPracticeAttempt::where('student_id', $student->id)->count();
         if ($sessionsUsed >= $student->competition_practice_sessions_allowed) {
             return back()->with('error', "You've used all your Competition Practice sessions ({$student->competition_practice_sessions_allowed}). Ask your center to request more.");
