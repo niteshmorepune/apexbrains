@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>body{font-family:'Inter',ui-sans-serif,system-ui,sans-serif}[x-cloak]{display:none!important}</style>
 </head>
-<body class="bg-white min-h-screen" x-data="examEngine()" x-init="init()">
+<body class="bg-white min-h-screen" x-data="examEngine()">
 
 <div class="max-w-md mx-auto min-h-screen">
 

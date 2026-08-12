@@ -8,8 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-stu-bg font-sans min-h-screen"
-      x-data="practiceEngine()"
-      x-init="init()">
+      x-data="practiceEngine()">
 
     {{-- Header --}}
     <div class="bg-fran text-white px-4 py-3 flex items-center justify-between sticky top-0 z-20">

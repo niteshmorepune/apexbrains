@@ -12,7 +12,6 @@
 </head>
 <body class="bg-stu-bg min-h-screen"
       x-data="examEngine()"
-      x-init="init()"
       @visibilitychange.document="onVisibilityChange($event)"
       @fullscreenchange.document="onFullscreenChange()">
 
