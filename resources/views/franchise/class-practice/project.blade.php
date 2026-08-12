@@ -3,7 +3,7 @@
 
 @section('content')
 
-<div x-data="practicePlayer()" x-init="init()">
+<div x-data="practicePlayer()">
 
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-[13px] text-gray-400 mb-1">
