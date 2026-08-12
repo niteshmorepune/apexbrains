@@ -125,6 +125,13 @@ class ExamController extends Controller
             ->latest()
             ->first();
 
+        if ($attempt && now()->diffInSeconds($attempt->started_at, true) >= $exam->duration_minutes * 60) {
+            // Abandoned past its own duration — finalize like a normal
+            // timeout instead of silently resuming a stale attempt.
+            $this->doSubmit($attempt, $exam, $student);
+            $attempt = null;
+        }
+
         if (! $attempt) {
             $questions = $paper->items()->orderBy('sort_order')->pluck('id')->toArray();
 

@@ -107,6 +107,13 @@ class CompetitionController extends Controller
             ->latest()
             ->first();
 
+        if ($attempt && now()->diffInSeconds($attempt->started_at, true) >= $attempt->paper->duration_minutes * 60) {
+            // Abandoned past its own duration — finalize like a normal
+            // timeout instead of silently resuming a stale attempt.
+            $this->doSubmit($attempt, $attempt->paper);
+            $attempt = null;
+        }
+
         if (! $attempt) {
             $attempt = CompetitionExamAttempt::create([
                 'paper_id'       => $paper->id,

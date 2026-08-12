@@ -68,7 +68,16 @@ class CompetitionPracticeController extends Controller
             ->first();
 
         if ($attempt) {
-            return redirect()->route('student.competitions.practice.attempt', $attempt);
+            $attemptDurationSeconds = (CompetitionPracticeLevel::where('level_id', $attempt->level_id)->value('duration_minutes') ?? 10) * 60;
+
+            if (now()->diffInSeconds($attempt->started_at, true) < $attemptDurationSeconds) {
+                return redirect()->route('student.competitions.practice.attempt', $attempt);
+            }
+
+            // Abandoned past its own duration (e.g. a killed tab) — finalize it
+            // like a normal timeout instead of silently resuming a stale attempt.
+            $staleQuestions = CompetitionQuestionBank::whereIn('id', $attempt->question_ids ?? [])->get(['id', 'correct_answer']);
+            $this->doSubmit($attempt, $staleQuestions);
         }
 
         $sessionsUsed = CompetitionPracticeAttempt::where('student_id', $student->id)->count();
