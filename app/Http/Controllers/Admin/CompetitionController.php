@@ -44,6 +44,7 @@ class CompetitionController extends Controller
             'registration_deadline'  => ['required', 'date', 'before_or_equal:start_date'],
             'max_participants'       => ['nullable', 'integer', 'min:1'],
             'fee_amount'             => ['required', 'numeric', 'min:0'],
+            'duration_minutes'       => ['nullable', 'integer', 'min:1', 'max:600'],
             'is_open_to_external'    => ['boolean'],
             'is_active'              => ['boolean'],
         ]);
@@ -149,6 +150,7 @@ class CompetitionController extends Controller
             'registration_deadline'  => ['required', 'date', 'before_or_equal:start_date'],
             'max_participants'       => ['nullable', 'integer', 'min:1'],
             'fee_amount'             => ['required', 'numeric', 'min:0'],
+            'duration_minutes'       => ['nullable', 'integer', 'min:1', 'max:600'],
             'is_open_to_external'    => ['boolean'],
             'is_active'              => ['boolean'],
         ]);

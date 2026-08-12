@@ -30,4 +30,19 @@ class CompetitionPracticeAttempt extends Model
     {
         return $this->belongsTo(Student::class);
     }
+
+    /**
+     * started_at/submitted_at are stored as true UTC instants
+     * (config('app.timezone')=UTC), but every panel displays them as if
+     * they were local IST — mirrors CompetitionExamAttempt::getSubmittedAtIstAttribute().
+     */
+    public function getStartedAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->started_at?->copy()->timezone('Asia/Kolkata');
+    }
+
+    public function getSubmittedAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->submitted_at?->copy()->timezone('Asia/Kolkata');
+    }
 }

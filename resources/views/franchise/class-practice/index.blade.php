@@ -88,7 +88,7 @@
                     @endif
                 </div>
                 <div class="text-xs text-gray-400 min-w-[90px] text-right hidden md:block">
-                    {{ $session->created_at->format('d M Y') }}
+                    {{ $session->created_at_ist->format('d M Y') }}
                 </div>
                 <div class="flex items-center gap-2">
                     @if($session->status !== 'ended')

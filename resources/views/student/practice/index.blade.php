@@ -143,7 +143,7 @@
                                 <div class="bg-white rounded-2xl border border-border p-3.5 flex items-center gap-3">
                                     <span class="text-fran">📅</span>
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold text-gray-800">{{ $ps->completed_at?->format('d M, g:i A') ?? 'In progress' }}</p>
+                                        <p class="text-sm font-semibold text-gray-800">{{ $ps->completed_at_ist?->format('d M, g:i A') ?? 'In progress' }}</p>
                                         <p class="text-xs text-gray-400">{{ $ps->category?->name }} — {{ $ps->questions_correct ?? 0 }}/{{ $ps->total_questions }} correct · {{ number_format($ps->accuracy ?? 0, 0) }}% accuracy</p>
                                     </div>
                                     <span class="text-base font-black text-stu">{{ number_format($ps->accuracy ?? 0, 0) }}%</span>

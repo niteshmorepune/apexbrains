@@ -57,6 +57,7 @@
                         <th class="px-5 py-2.5 font-semibold">Rank</th>
                         <th class="px-4 py-2.5 font-semibold">Student</th>
                         <th class="px-4 py-2.5 font-semibold">Score</th>
+                        <th class="px-4 py-2.5 font-semibold">Time Taken</th>
                         <th class="px-4 py-2.5 font-semibold">Submitted</th>
                         <th class="px-4 py-2.5 font-semibold">Certificate</th>
                     </tr>
@@ -76,6 +77,7 @@
                             </td>
                             <td class="px-4 py-3 text-gray-800">{{ $attempt->student?->full_name }}</td>
                             <td class="px-4 py-3 text-gray-500">{{ $attempt->percentage }}%</td>
+                            <td class="px-4 py-3 text-gray-500">{{ $attempt->time_taken ?? '—' }}</td>
                             <td class="px-4 py-3 text-gray-500">{{ $attempt->submitted_at_ist?->format('d M Y, g:i A') }}</td>
                             <td class="px-4 py-3">
                                 @if($issuedType === 'champion')

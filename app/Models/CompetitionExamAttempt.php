@@ -45,4 +45,17 @@ class CompetitionExamAttempt extends Model
     {
         return $this->submitted_at?->copy()->timezone('Asia/Kolkata');
     }
+
+    /**
+     * Time taken to complete the attempt, formatted m:ss. Both timestamps
+     * are absolute UTC instants so the diff is timezone-independent.
+     */
+    public function getTimeTakenAttribute(): ?string
+    {
+        if (!$this->started_at || !$this->submitted_at) {
+            return null;
+        }
+
+        return gmdate('i:s', (int) $this->submitted_at->diffInSeconds($this->started_at, true));
+    }
 }

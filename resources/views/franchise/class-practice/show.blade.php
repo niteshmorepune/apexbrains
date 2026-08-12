@@ -72,13 +72,13 @@
                 @if($session->started_at)
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-500">Started</span>
-                        <span class="text-gray-700">{{ $session->started_at->format('d M, H:i') }}</span>
+                        <span class="text-gray-700">{{ $session->started_at_ist->format('d M, H:i') }}</span>
                     </div>
                 @endif
                 @if($session->ended_at)
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-500">Ended</span>
-                        <span class="text-gray-700">{{ $session->ended_at->format('d M, H:i') }}</span>
+                        <span class="text-gray-700">{{ $session->ended_at_ist->format('d M, H:i') }}</span>
                     </div>
                 @endif
             </div>

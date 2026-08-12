@@ -80,4 +80,24 @@ class ClassPracticeSession extends Model
 
         return $sessionQuestion?->question;
     }
+
+    /**
+     * started_at/created_at are stored as true UTC instants
+     * (config('app.timezone')=UTC), but the franchise panel displays them
+     * as if they were local IST — mirrors CompetitionExamAttempt::getSubmittedAtIstAttribute().
+     */
+    public function getStartedAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->started_at?->copy()->timezone('Asia/Kolkata');
+    }
+
+    public function getCreatedAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->created_at?->copy()->timezone('Asia/Kolkata');
+    }
+
+    public function getEndedAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->ended_at?->copy()->timezone('Asia/Kolkata');
+    }
 }

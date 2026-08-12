@@ -128,7 +128,7 @@ class CompetitionController extends Controller
             ->latest()
             ->first();
 
-        if ($attempt && now()->diffInSeconds($attempt->started_at, true) >= $attempt->paper->duration_minutes * 60) {
+        if ($attempt && now()->diffInSeconds($attempt->started_at, true) >= $competition->effectiveDurationMinutes($attempt->paper) * 60) {
             // Abandoned past its own duration — finalize like a normal
             // timeout instead of silently resuming a stale attempt.
             $this->doSubmit($attempt, $attempt->paper);
@@ -170,7 +170,7 @@ class CompetitionController extends Controller
         $questions = $this->questionPayload($paper);
 
         $savedAnswers    = Cache::get("comp_exam_{$attempt->id}_answers", []);
-        $durationSeconds = $paper->duration_minutes * 60;
+        $durationSeconds = $competition->effectiveDurationMinutes($paper) * 60;
         $elapsed         = now()->diffInSeconds($attempt->started_at, true);
         $remaining       = max(0, $durationSeconds - $elapsed);
 

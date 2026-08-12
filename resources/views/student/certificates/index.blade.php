@@ -7,7 +7,7 @@
     $examCerts = $certificates->whereNotIn('id', $compCerts->pluck('id'));
 @endphp
 
-<div x-data="{ view: 'menu' }">
+<div x-data="{ view: '{{ in_array(request('view'), ['exam', 'competition'], true) ? request('view') : 'menu' }}' }">
 
     {{-- ===== S53: type selector ===== --}}
     <template x-if="view === 'menu'">
@@ -57,7 +57,7 @@
                                     <p class="text-xs text-gray-400">{{ $cert->issued_at?->format('d M Y') }}</p>
                                 </div>
                             </div>
-                            <a href="{{ route('student.certificates.show', $cert) }}" class="block w-full text-center text-sm bg-fran text-white py-2.5 rounded-xl font-bold">View Certificate</a>
+                            <a href="{{ route('student.certificates.show', ['certificate' => $cert, 'view' => $kind]) }}" class="block w-full text-center text-sm bg-fran text-white py-2.5 rounded-xl font-bold">View Certificate</a>
                         </div>
                     @empty
                         <div class="bg-white rounded-2xl border border-border p-10 text-center text-gray-400">

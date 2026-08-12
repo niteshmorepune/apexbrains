@@ -44,6 +44,15 @@
                                placeholder="Leave blank for unlimited"
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran">
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Competition Duration (minutes)</label>
+                        <input type="number" name="duration_minutes" value="{{ old('duration_minutes') }}" min="1" max="600"
+                               placeholder="e.g. 10 — leave blank to use each level paper's own duration"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('duration_minutes') border-red-400 @enderror">
+                        @error('duration_minutes')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        <p class="text-xs text-gray-400 mt-1">How long students get to complete the exam once started. Applies to every level in this competition.</p>
+                    </div>
                 </div>
             </div>
 

@@ -11,7 +11,7 @@ class Competition extends Model
     protected $fillable = [
         'franchise_id', 'title', 'description',
         'start_date', 'end_date', 'registration_deadline', 'max_participants',
-        'fee_amount', 'is_active', 'is_open_to_external', 'created_by',
+        'fee_amount', 'duration_minutes', 'is_active', 'is_open_to_external', 'created_by',
         'results_declared_at',
     ];
 
@@ -20,6 +20,7 @@ class Competition extends Model
         'end_date' => 'date',
         'registration_deadline' => 'date',
         'fee_amount' => 'decimal:2',
+        'duration_minutes' => 'integer',
         'is_active' => 'boolean',
         'is_open_to_external' => 'boolean',
         'results_declared_at' => 'datetime',
@@ -48,5 +49,16 @@ class Competition extends Model
     public function examAttempts(): HasMany
     {
         return $this->hasMany(CompetitionExamAttempt::class);
+    }
+
+    /**
+     * The competition-level duration takes precedence when the admin has
+     * set one; otherwise falls back to the level's question paper duration
+     * (the original, pre-2026-08-12 source of truth) so competitions
+     * created before this field existed keep working unchanged.
+     */
+    public function effectiveDurationMinutes(CompetitionQuestionPaper $paper): int
+    {
+        return $this->duration_minutes ?? $paper->duration_minutes;
     }
 }

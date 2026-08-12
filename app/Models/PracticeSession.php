@@ -40,4 +40,14 @@ class PracticeSession extends Model
     {
         return $this->belongsTo(RegularQuestionType::class, 'type_id');
     }
+
+    /**
+     * completed_at is stored as a true UTC instant (config('app.timezone')=UTC),
+     * but every panel displays it as if it were local IST — mirrors
+     * CompetitionExamAttempt::getSubmittedAtIstAttribute().
+     */
+    public function getCompletedAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->completed_at?->copy()->timezone('Asia/Kolkata');
+    }
 }

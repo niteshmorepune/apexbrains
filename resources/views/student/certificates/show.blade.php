@@ -2,7 +2,7 @@
 @section('title', ($certificate->level?->title ?? '') . ' Certificate')
 
 @section('content')
-<x-student-header :title="($certificate->level?->title ?? '').' Certificate'" :back="route('student.certificates.index')" />
+<x-student-header :title="($certificate->level?->title ?? '').' Certificate'" :back="route('student.certificates.index', in_array(request('view'), ['exam', 'competition'], true) ? ['view' => request('view')] : [])" />
 
 <div class="px-4 pb-4 space-y-4">
 

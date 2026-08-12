@@ -51,6 +51,7 @@
     <h2 class="text-sm font-semibold text-admin mb-4">Details</h2>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div><dt class="text-gray-500 mb-0.5">Open to External</dt><dd>{{ $competition->is_open_to_external ? 'Yes' : 'No' }}</dd></div>
+        <div><dt class="text-gray-500 mb-0.5">Duration</dt><dd>{{ $competition->duration_minutes ? $competition->duration_minutes.' min' : 'Uses each level paper\'s own duration' }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Registration Deadline</dt><dd>{{ $competition->registration_deadline->format('d M Y') }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Start Date</dt><dd>{{ $competition->start_date->format('d M Y') }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">End Date</dt><dd>{{ $competition->end_date->format('d M Y') }}</dd></div>
@@ -145,6 +146,7 @@
                             <th class="py-2 pr-4 font-semibold">Rank</th>
                             <th class="py-2 px-4 font-semibold">Student</th>
                             <th class="py-2 px-4 font-semibold text-center">Score</th>
+                            <th class="py-2 px-4 font-semibold text-center">Time Taken</th>
                             <th class="py-2 pl-4 font-semibold text-center">Submitted</th>
                         </tr>
                     </thead>
@@ -154,6 +156,7 @@
                                 <td class="py-3 pr-4 font-semibold text-admin">#{{ $attempt->rank }}</td>
                                 <td class="py-3 px-4 text-gray-700">{{ $attempt->student?->full_name ?? '—' }}</td>
                                 <td class="py-3 px-4 text-center font-medium text-gray-700">{{ number_format($attempt->percentage, 0) }}%</td>
+                                <td class="py-3 px-4 text-center text-gray-500">{{ $attempt->time_taken ?? '—' }}</td>
                                 <td class="py-3 pl-4 text-center text-gray-500">{{ $attempt->submitted_at_ist?->format('d M Y, g:i A') }}</td>
                             </tr>
                         @endforeach

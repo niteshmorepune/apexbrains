@@ -2,7 +2,7 @@
 @section('title', 'Certificate')
 
 @section('content')
-<x-student-header title="Certificate" :back="route('external.certificates.index')" />
+<x-student-header title="Certificate" :back="route('external.certificates.index', request('view') === 'competition' ? ['view' => 'competition'] : [])" />
 
 <div class="px-4 pb-4 space-y-4">
 
