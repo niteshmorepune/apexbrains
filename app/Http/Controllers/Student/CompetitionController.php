@@ -247,13 +247,7 @@ class CompetitionController extends Controller
         if ($attempt && $competition->results_declared_at) {
             $rank = CompetitionExamAttempt::where('competition_id', $competition->id)
                 ->where('status', 'submitted')
-                ->where(function ($q) use ($attempt) {
-                    $q->where('percentage', '>', $attempt->percentage)
-                      ->orWhere(function ($q2) use ($attempt) {
-                          $q2->where('percentage', $attempt->percentage)
-                             ->where('submitted_at', '<', $attempt->submitted_at);
-                      });
-                })
+                ->betterThan($attempt)
                 ->count() + 1;
         }
 
