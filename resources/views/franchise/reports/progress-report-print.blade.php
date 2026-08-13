@@ -213,7 +213,7 @@
                     @foreach($attempts as $attempt)
                         <tr>
                             <td>{{ $attempt->exam?->title ?? 'Exam #' . $attempt->exam_id }}</td>
-                            <td>{{ $attempt->submitted_at?->format('d M Y') }}</td>
+                            <td>{{ $attempt->submitted_at_ist?->format('d M Y') }}</td>
                             <td class="right">{{ number_format($attempt->percentage, 1) }}%</td>
                             <td class="center {{ $attempt->is_passed ? 'pass' : 'fail' }}">{{ $attempt->is_passed ? 'Passed' : 'Failed' }}</td>
                         </tr>

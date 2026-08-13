@@ -203,7 +203,7 @@
                             <tbody class="divide-y divide-border">
                                 @foreach($displaySessions as $ps)
                                     <tr class="hover:bg-bg-light">
-                                        <td class="px-5 py-3 text-xs text-gray-600">{{ $ps->completed_at->format('d M Y') }}</td>
+                                        <td class="px-5 py-3 text-xs text-gray-600">{{ $ps->completed_at_ist->format('d M Y') }}</td>
                                         <td class="px-4 py-3 text-center text-xs capitalize text-gray-600">{{ $ps->difficulty ?? 'Mixed' }}</td>
                                         <td class="px-4 py-3 text-center text-xs text-gray-600">{{ $ps->questions_correct }}/{{ $ps->total_questions }}</td>
                                         <td class="px-5 py-3 text-right font-bold {{ $ps->accuracy >= 75 ? 'text-stu' : 'text-logo-amber' }}">{{ number_format((float) $ps->accuracy, 0) }}%</td>
@@ -238,7 +238,7 @@
                                 @foreach($submittedAttempts as $att)
                                     <tr class="hover:bg-bg-light">
                                         <td class="px-5 py-3 font-medium text-gray-800">{{ $att->level?->title ?? '—' }}</td>
-                                        <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $att->submitted_at->format('d M Y') }}</td>
+                                        <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $att->submitted_at_ist->format('d M Y') }}</td>
                                         <td class="px-5 py-3 text-right font-bold {{ $att->percentage >= 75 ? 'text-stu' : ($att->percentage >= 50 ? 'text-logo-amber' : 'text-red-500') }}">{{ number_format((float) $att->percentage, 0) }}%</td>
                                     </tr>
                                 @endforeach
@@ -342,7 +342,7 @@
                                     @foreach($attempts->sortByDesc('submitted_at') as $a)
                                         <tr class="hover:bg-bg-light">
                                             <td class="px-5 py-3 font-medium text-gray-800">{{ $a->exam?->title ?? 'Exam #' . $a->exam_id }}</td>
-                                            <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $a->submitted_at?->format('d M Y') }}</td>
+                                            <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $a->submitted_at_ist?->format('d M Y') }}</td>
                                             <td class="px-4 py-3 text-right font-bold {{ $a->percentage >= 75 ? 'text-stu' : ($a->percentage >= 50 ? 'text-logo-amber' : 'text-red-500') }}">{{ number_format((float) $a->percentage, 0) }}%</td>
                                             <td class="px-5 py-3 text-center">
                                                 @if($a->is_passed)

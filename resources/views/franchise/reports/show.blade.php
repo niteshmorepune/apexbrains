@@ -109,7 +109,7 @@
                     @forelse($attempts as $attempt)
                         <tr class="hover:bg-bg-light">
                             <td class="px-5 py-3 font-medium text-gray-800">{{ $attempt->exam?->title ?? 'Exam #' . $attempt->exam_id }}</td>
-                            <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $attempt->submitted_at?->format('d M Y') }}</td>
+                            <td class="px-4 py-3 text-center text-xs text-gray-500">{{ $attempt->submitted_at_ist?->format('d M Y') }}</td>
                             <td class="px-4 py-3 text-right font-bold
                                 {{ $attempt->percentage >= 75 ? 'text-stu' : ($attempt->percentage >= 50 ? 'text-logo-amber' : 'text-red-500') }}">
                                 {{ number_format($attempt->percentage, 1) }}%

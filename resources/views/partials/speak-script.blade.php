@@ -23,7 +23,7 @@ window.ApexSpeak = (function () {
     function spoken(text) {
         return String(text == null ? '' : text)
             .replace(/[\n\r]+/g, ' , ')
-            .replace(/[×x*]/g, ' multiplied by ')
+            .replace(/[×xX*]/g, ' multiplied by ')
             .replace(/[÷\/\\]/g, ' divided by ')
             .replace(/[−–\-]/g, ' less ')
             .replace(/%/g, ' percent ')

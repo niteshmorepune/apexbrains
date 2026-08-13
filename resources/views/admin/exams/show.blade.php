@@ -120,7 +120,7 @@
                         <p class="text-sm font-medium text-gray-800">{{ $attempt->student?->full_name }}</p>
                         <p class="text-xs text-gray-400">
                             Attempt #{{ $attempt->attempt_number }}
-                            · {{ $attempt->submitted_at?->format('d M Y, H:i') }}
+                            · {{ $attempt->submitted_at_ist?->format('d M Y, H:i') }}
                             @if($attempt->tab_switch_count > 0)
                                 · <span class="text-amber-500">{{ $attempt->tab_switch_count }} violation{{ $attempt->tab_switch_count > 1 ? 's' : '' }}</span>
                             @endif

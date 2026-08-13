@@ -73,4 +73,9 @@ class Exam extends Model
     {
         return $this->expires_at?->copy()->timezone('Asia/Kolkata');
     }
+
+    public function getCreatedAtIstAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->created_at?->copy()->timezone('Asia/Kolkata');
+    }
 }

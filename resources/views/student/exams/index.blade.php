@@ -77,7 +77,7 @@
                                         <span class="w-10 h-10 rounded-full bg-bg-light flex items-center justify-center flex-shrink-0">📊</span>
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-bold text-gray-800 truncate">{{ $attempt->exam?->title }}</p>
-                                            <p class="text-xs text-gray-400">{{ $attempt->submitted_at?->format('d M Y') }}</p>
+                                            <p class="text-xs text-gray-400">{{ $attempt->submitted_at_ist?->format('d M Y') }}</p>
                                         </div>
                                         <div class="text-right flex-shrink-0">
                                             <span class="text-xs font-bold px-2 py-0.5 rounded-full {{ $attempt->is_passed ? 'text-stu bg-stu-light' : 'text-red-500 bg-red-50' }}">{{ $attempt->is_passed ? 'Pass' : 'Fail' }} {{ number_format($attempt->percentage, 0) }}%</span>

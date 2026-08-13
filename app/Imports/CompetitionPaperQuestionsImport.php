@@ -37,13 +37,13 @@ class CompetitionPaperQuestionsImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            $optionA = trim((string) ($row['option_a'] ?? '')) ?: null;
-            $optionB = trim((string) ($row['option_b'] ?? '')) ?: null;
-            $optionC = trim((string) ($row['option_c'] ?? '')) ?: null;
-            $optionD = trim((string) ($row['option_d'] ?? '')) ?: null;
+            $optionA = ($v = trim((string) ($row['option_a'] ?? ''))) === '' ? null : $v;
+            $optionB = ($v = trim((string) ($row['option_b'] ?? ''))) === '' ? null : $v;
+            $optionC = ($v = trim((string) ($row['option_c'] ?? ''))) === '' ? null : $v;
+            $optionD = ($v = trim((string) ($row['option_d'] ?? ''))) === '' ? null : $v;
             $correct = strtolower(trim((string) ($row['correct_answer'] ?? '')));
 
-            if (! $optionA || ! $optionB) {
+            if ($optionA === null || $optionB === null) {
                 $this->errors[] = "Row {$line}: needs at least option_a and option_b.";
                 continue;
             }
@@ -54,7 +54,7 @@ class CompetitionPaperQuestionsImport implements ToCollection, WithHeadingRow
             }
 
             $optionFor = ['a' => $optionA, 'b' => $optionB, 'c' => $optionC, 'd' => $optionD];
-            if (empty($optionFor[$correct])) {
+            if ($optionFor[$correct] === null) {
                 $this->errors[] = "Row {$line}: correct_answer '{$correct}' points to an empty option.";
                 continue;
             }

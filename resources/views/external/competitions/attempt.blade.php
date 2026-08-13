@@ -133,8 +133,8 @@ function examEngine() {
         verticalSum(text) {
             if (!text) return '';
             const clean = String(text).replace(/=\s*\?|\?/g, '');
-            const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '-': '−', '–': '−' };
-            const re = /([+\-−–×xX*÷/])?\s*(\d+(?:\.\d+)?)/g;
+            const opMap = { '*': '×', 'x': '×', 'X': '×', '/': '÷', '\\': '÷', '-': '−', '–': '−' };
+            const re = /([+\-−–×xX*÷/\\])?\s*(\d+(?:\.\d+)?)/g;
             const rows = []; let m, first = true;
             while ((m = re.exec(clean)) !== null) {
                 let op = m[1] || '';
