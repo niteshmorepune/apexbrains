@@ -245,10 +245,10 @@ class CompetitionController extends Controller
         }
 
         if ($attempt && $competition->results_declared_at) {
-            $rank = CompetitionExamAttempt::where('competition_id', $competition->id)
+            $rank = $attempt->rank ?? (CompetitionExamAttempt::where('competition_id', $competition->id)
                 ->where('status', 'submitted')
                 ->betterThan($attempt)
-                ->count() + 1;
+                ->count() + 1);
         }
 
         return view('student.competitions.result', compact('competition', 'attempt', 'certificate', 'rank'));
@@ -333,14 +333,17 @@ class CompetitionController extends Controller
             }
         }
 
-        $total = $items->count();
-        $pct   = $total > 0 ? round(($correct / $total) * 100, 2) : 0;
+        $total    = $items->count();
+        $pct      = $total > 0 ? round(($correct / $total) * 100, 2) : 0;
+        $answered = count($answers);
 
         $attempt->update([
-            'score'        => $correct,
-            'percentage'   => $pct,
-            'status'       => 'submitted',
-            'submitted_at' => now(),
+            'score'               => $correct,
+            'percentage'          => $pct,
+            'questions_attempted' => $answered,
+            'wrong_answers'       => $answered - $correct,
+            'status'              => 'submitted',
+            'submitted_at'        => now(),
         ]);
 
         Cache::forget("comp_exam_{$attempt->id}_answers");

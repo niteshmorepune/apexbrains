@@ -13,6 +13,7 @@ use App\Services\CompetitionRankingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class CompetitionController extends Controller
@@ -112,6 +113,13 @@ class CompetitionController extends Controller
             return back()->with('error', 'No submitted attempts yet — nothing to declare.');
         }
 
+        // Finalize ranking for every level before declaring — guarantees each
+        // submitted attempt has a persisted rank even for a level the admin
+        // never opened, so it's frozen and identical everywhere from here on.
+        foreach ($this->rankingService->levelsForCompetition($competition) as $level) {
+            $this->rankingService->rankedAttemptsByLevel($competition, $level->id);
+        }
+
         $competition->update(['results_declared_at' => now()]);
 
         // Backfill safety net — participation certificates are normally issued
@@ -133,6 +141,45 @@ class CompetitionController extends Controller
         AuditLogger::log('competition_results_declared', 'Competition', $competition->id);
 
         return back()->with('success', "Results declared for {$attempts->count()} student(s). Certificates issued.");
+    }
+
+    /**
+     * Move a student's rank up or down within their level, swapping with the
+     * adjacent attempt. Locked once results are declared — no reordering
+     * workflow exists for a declared competition.
+     */
+    public function moveRank(Request $request, Competition $competition, CompetitionExamAttempt $attempt): RedirectResponse
+    {
+        abort_if($competition->results_declared_at, 403, 'Results already declared — ranking is locked.');
+        abort_unless($attempt->competition_id === $competition->id, 404);
+
+        $direction = $request->validate(['direction' => ['required', 'in:up,down']])['direction'];
+
+        $attempt->loadMissing('paper');
+        $levelId = $attempt->paper->level_id;
+
+        // Ensure this level's ranks are seeded (covers a level the admin
+        // hasn't opened this session).
+        $this->rankingService->rankedAttemptsByLevel($competition, $levelId);
+        $attempt->refresh();
+
+        $neighborRank = $direction === 'up' ? $attempt->rank - 1 : $attempt->rank + 1;
+
+        $neighbor = CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('status', 'submitted')
+            ->whereHas('paper', fn ($q) => $q->where('level_id', $levelId))
+            ->where('rank', $neighborRank)
+            ->first();
+
+        if ($neighbor) {
+            DB::transaction(function () use ($attempt, $neighbor) {
+                $currentRank = $attempt->rank;
+                $attempt->update(['rank' => $neighbor->rank]);
+                $neighbor->update(['rank' => $currentRank]);
+            });
+        }
+
+        return back()->with('success', 'Ranking updated.');
     }
 
     public function edit(Competition $competition): View

@@ -140,23 +140,51 @@
         @foreach($resultsByLevel as $r)
             <div class="mb-6 last:mb-0">
                 <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{{ $r['level']->title }}</h3>
-                <div class="overflow-x-auto"><table class="w-full min-w-[480px] text-sm">
+                <div class="overflow-x-auto"><table class="w-full min-w-[760px] text-sm">
                     <thead>
                         <tr class="border-b border-border text-left text-xs text-gray-500">
                             <th class="py-2 pr-4 font-semibold">Rank</th>
                             <th class="py-2 px-4 font-semibold">Student</th>
                             <th class="py-2 px-4 font-semibold text-center">Score</th>
                             <th class="py-2 px-4 font-semibold text-center">Time Taken</th>
+                            <th class="py-2 px-4 font-semibold text-center">Questions Attempted</th>
+                            <th class="py-2 px-4 font-semibold text-center">Correct Answers</th>
+                            <th class="py-2 px-4 font-semibold text-center">Wrong Answers</th>
                             <th class="py-2 pl-4 font-semibold text-center">Submitted</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
                         @foreach($r['ranked'] as $attempt)
                             <tr>
-                                <td class="py-3 pr-4 font-semibold text-admin">#{{ $attempt->rank }}</td>
+                                <td class="py-3 pr-4">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-semibold text-admin">#{{ $attempt->rank }}</span>
+                                        @unless($competition->results_declared_at)
+                                            <span class="flex flex-col leading-none">
+                                                @unless($loop->first)
+                                                    <form method="POST" action="{{ route('admin.competitions.attempts.move-rank', [$competition, $attempt]) }}">
+                                                        @csrf
+                                                        <input type="hidden" name="direction" value="up">
+                                                        <button type="submit" title="Move up" class="text-gray-400 hover:text-admin text-[10px] leading-none">▲</button>
+                                                    </form>
+                                                @endunless
+                                                @unless($loop->last)
+                                                    <form method="POST" action="{{ route('admin.competitions.attempts.move-rank', [$competition, $attempt]) }}">
+                                                        @csrf
+                                                        <input type="hidden" name="direction" value="down">
+                                                        <button type="submit" title="Move down" class="text-gray-400 hover:text-admin text-[10px] leading-none">▼</button>
+                                                    </form>
+                                                @endunless
+                                            </span>
+                                        @endunless
+                                    </div>
+                                </td>
                                 <td class="py-3 px-4 text-gray-700">{{ $attempt->student?->full_name ?? '—' }}</td>
                                 <td class="py-3 px-4 text-center font-medium text-gray-700">{{ number_format($attempt->percentage, 0) }}%</td>
                                 <td class="py-3 px-4 text-center text-gray-500">{{ $attempt->time_taken ?? '—' }}</td>
+                                <td class="py-3 px-4 text-center text-gray-500">{{ $attempt->questions_attempted ?? '—' }}</td>
+                                <td class="py-3 px-4 text-center text-gray-500">{{ $attempt->score ?? '—' }}</td>
+                                <td class="py-3 px-4 text-center text-gray-500">{{ $attempt->wrong_answers ?? '—' }}</td>
                                 <td class="py-3 pl-4 text-center text-gray-500">{{ $attempt->submitted_at_ist?->format('d M Y, g:i A') }}</td>
                             </tr>
                         @endforeach

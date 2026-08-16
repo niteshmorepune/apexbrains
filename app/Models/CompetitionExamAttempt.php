@@ -11,15 +11,18 @@ class CompetitionExamAttempt extends Model
     protected $fillable = [
         'paper_id', 'competition_id', 'student_id', 'score', 'percentage',
         'status', 'started_at', 'submitted_at', 'ip_address', 'user_agent',
-        'tab_switch_count',
+        'tab_switch_count', 'questions_attempted', 'wrong_answers', 'rank',
     ];
 
     protected $casts = [
-        'score'            => 'integer',
-        'percentage'       => 'decimal:2',
-        'tab_switch_count' => 'integer',
-        'started_at'       => 'datetime',
-        'submitted_at'     => 'datetime',
+        'score'                => 'integer',
+        'percentage'           => 'decimal:2',
+        'tab_switch_count'     => 'integer',
+        'questions_attempted'  => 'integer',
+        'wrong_answers'        => 'integer',
+        'rank'                 => 'integer',
+        'started_at'           => 'datetime',
+        'submitted_at'         => 'datetime',
     ];
 
     public function paper(): BelongsTo

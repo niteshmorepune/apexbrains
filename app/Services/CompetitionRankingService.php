@@ -22,31 +22,40 @@ class CompetitionRankingService
     }
 
     /**
-     * Submitted attempts for one level of a competition, ranked (1 = highest)
-     * by percentage, then lower time taken, then earliest submission —
-     * mirrors CompetitionExamAttempt::scopeBetterThan(). Ranking is computed
-     * across ALL franchises (a "Level-wise Top 3" is a national ranking) —
-     * the caller filters to their own franchise's students before generating
-     * certificates.
+     * Submitted attempts for one level of a competition, ranked (1 = highest).
+     * Rank is a persisted column, not a per-request computation, so it can be
+     * durably moved by an admin (see Admin\CompetitionController::moveRank())
+     * and the same final order is then seen everywhere (Franchise Panel,
+     * Student/External result screens, certificates). Any attempt without a
+     * rank yet is seeded here — ordered by percentage desc, then lower time
+     * taken, then earliest submission (mirrors
+     * CompetitionExamAttempt::scopeBetterThan()) — and appended after the
+     * current max rank in this level, so seeding never disturbs ranks an
+     * admin has already manually rearranged. Ranking is computed across ALL
+     * franchises (a "Level-wise Top 3" is a national ranking) — the caller
+     * filters to their own franchise's students before generating certificates.
      *
      * @return Collection<int, CompetitionExamAttempt>
      */
     public function rankedAttemptsByLevel(Competition $competition, int $levelId): Collection
     {
-        $attempts = CompetitionExamAttempt::where('competition_id', $competition->id)
+        $base = fn () => CompetitionExamAttempt::where('competition_id', $competition->id)
             ->where('status', 'submitted')
-            ->whereHas('paper', fn ($q) => $q->where('level_id', $levelId))
-            ->with('student.franchise')
+            ->whereHas('paper', fn ($q) => $q->where('level_id', $levelId));
+
+        $unranked = $base()->whereNull('rank')
             ->orderByDesc('percentage')
             ->orderByRaw(CompetitionExamAttempt::timeTakenSql() . ' ASC')
             ->orderBy('submitted_at')
-            ->get()
-            ->values();
+            ->get();
 
-        foreach ($attempts as $i => $attempt) {
-            $attempt->rank = $i + 1;
+        if ($unranked->isNotEmpty()) {
+            $nextRank = (int) $base()->max('rank') + 1;
+            foreach ($unranked as $attempt) {
+                $attempt->update(['rank' => $nextRank++]);
+            }
         }
 
-        return $attempts;
+        return $base()->with('student.franchise')->orderBy('rank')->get();
     }
 }
