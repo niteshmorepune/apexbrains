@@ -43,65 +43,59 @@ class CertificateImageComposer
         // the old baked words are masked out too and redrawn immediately after
         // the dynamic value ends (+ 'gap' px), so spacing stays natural — a
         // single space — no matter how long or short the value is.
+        //
+        // 2026-08-17 ROUND 4 exact-design replacement: client supplied all 4
+        // templates fresh (blank fill-in versions, new logo+signature already
+        // baked into the artwork by the client) — every field below was
+        // recalibrated from scratch via pixel-scanning + gridded-overlay
+        // crops, native canvas is now level-up.png 1024×1536, participation/
+        // champion/winner.png 1054×1492 (all portrait — see paperConfigFor()
+        // in Certificate.php, updated to match the new portrait aspect ratio).
         return match ($type) {
-            // Each of these lines is centered as a single unit in the approved
-            // artwork (static words + the fill-in value together), not a
-            // left-aligned blank — so the whole line is masked and redrawn as
-            // one composed string per render. That's what keeps a short name
-            // and a long name both landing dead-center with natural spacing,
-            // instead of only the value shifting inside a fixed-width blank.
-            // 2026-08-10 exact-design replacement (client-supplied reference
-            // PNG "Certificate of Participation" — layout/fonts/colors/border/
-            // logos/signature all baked into public/images/certificates/
-            // participation.png as-is; only these 5 lines are masked+redrawn).
-            // Coordinates calibrated directly against that artwork via pixel
-            // scanning (ink y/x-extent per line) — native canvas is 1491×1055.
+            // Level Up / Participation: each line is centered as a single
+            // unit (static words + the fill-in value together) — the whole
+            // line is masked and redrawn as one composed string per render,
+            // so a short name and a long name both land dead-center with
+            // natural spacing.
             Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [
-                ['box' => [280, 596, 1340, 644], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 630],
-                ['box' => [250, 658, 1340, 700], 'text' => 'studying at ' . $franchiseName . ' Center for', 'font' => 'italic', 'size' => 25, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 688],
-                ['box' => [220, 699, 1340, 738], 'text' => 'participating in the ' . $levelName . ' Online Competition', 'font' => 'italic', 'size' => 25, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 726],
-                // Date value only — "Date :" label stays baked into the
-                // artwork. Box is capped at x=630: "Apex Brains, India." (a
-                // separate static line) starts at x≈640 at nearly this same
-                // height, so this must stop short of it or a long date value
-                // would run into that line — shrink-to-fit engages instead.
-                ['box' => [268, 804, 630, 847], 'text' => $competitionDateVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 840],
-                // Place value only — "Place :" label stays baked into the artwork.
-                ['box' => [268, 866, 460, 908], 'text' => $placeVal, 'font' => 'italic', 'size' => 22, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 892],
+                ['box' => [60, 818, 994, 910], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 36, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 865],
+                ['box' => [60, 880, 994, 975], 'text' => 'studying at ' . $franchiseName . ' Center for', 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 938],
+                ['box' => [60, 960, 994, 1055], 'text' => 'participating in the ' . $levelName . ' Online Competition', 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 1018],
+                // Date/Place values only — "Date :"/"Place :" labels stay baked into the artwork.
+                ['box' => [215, 1204, 690, 1240], 'pad' => 8, 'text' => $competitionDateVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1230],
+                ['box' => [215, 1244, 690, 1280], 'pad' => 8, 'text' => $placeVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1270],
             ],
             Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [
-                // 'box' itself (not just a separate maskBox) is capped at
-                // x=1140 — still centered on the same ~838 page-center — since
-                // the signature starts around x=1155 and this line carries the
-                // franchise name directly, so it needs shrink-to-fit to
-                // actually engage for a long name instead of only being capped
-                // for masking purposes (a wide 'box' with a narrow 'maskBox'
-                // lets long text visually run into the signature even though
-                // masking itself is safe — verified by a long-franchise-name
-                // stress render after the first version of this fix).
-                ['box' => [170, 643, 1520, 685], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 32, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 675],
-                ['box' => [536, 714, 1140, 754], 'text' => 'has completed ' . $levelName . ' level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 744],
-                ['box' => [536, 845, 1140, 894], 'text' => 'at ' . $franchiseName . ' center.', 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 870],
-                ['box' => [415, 896, 1100, 930], 'pad' => 15, 'text' => $dateVal,  'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 922],
-                ['box' => [415, 950, 1100, 986], 'pad' => 15, 'text' => $placeVal, 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 978],
+                ['box' => [60, 745, 964, 815], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 38, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 800],
+                ['box' => [60, 838, 964, 903], 'text' => 'has completed ' . $levelName . ' level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 888],
+                ['box' => [60, 985, 964, 1049], 'text' => 'at ' . $franchiseName . ' center.', 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 1033],
+                ['box' => [190, 1148, 700, 1198], 'pad' => 10, 'text' => $dateVal,  'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1183],
+                ['box' => [190, 1205, 700, 1255], 'pad' => 10, 'text' => $placeVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1240],
             ],
+            // Champion / Winner: the static prefixes ("Master / Miss",
+            // "studying at", "has been awarded", "for") stay baked into the
+            // artwork untouched — only the value is masked+drawn, left-aligned
+            // right after where the prefix ends. Unlike Level Up/Participation,
+            // recentering the whole line isn't needed here (matches how the
+            // artwork itself is laid out — confirmed via render-and-compare).
             Certificate::TYPE_CHAMPION => [
-                ['box' => [742, 1000, 1520, 1120], 'pad' => 10, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [725, 1108, 1520, 1221], 'pad' => 9,  'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [555, 755, 994, 815], 'pad' => 6, 'baseline' => 800, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [480, 835, 994, 895], 'pad' => 6, 'baseline' => 880, 'text' => $franchiseName, 'font' => 'bold', 'size' => 30, 'color' => $navyBold, 'align' => 'left'],
                 [
-                    'box' => [779, 1250, 1075, 1334], 'pad' => 11, 'baseline' => 1305, 'text' => 'Champion ' . ($certificate->rank ?: ''), 'font' => 'bold', 'size' => 32, 'color' => $gold, 'align' => 'left',
-                    'trailing' => ['box' => [1089, 1250, 1233, 1334], 'text' => 'Trophy', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'gap' => 14, 'baseline' => 1305],
+                    'box' => [520, 915, 700, 975], 'baseline' => 960, 'text' => 'Champion ' . ($certificate->rank ?: ''), 'font' => 'bold', 'size' => 30, 'color' => $gold, 'align' => 'left',
+                    'trailing' => ['box' => [700, 915, 860, 975], 'text' => 'Trophy', 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'gap' => 10, 'baseline' => 960],
                 ],
-                ['box' => [679, 1372, 1520, 1448], 'pad' => 7, 'baseline' => 1419, 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [285, 1722, 645, 1790],  'text' => $placeVal,      'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
-                ['box' => [285, 1842, 645, 1895],  'text' => $dateVal,       'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
+                ['box' => [455, 995, 994, 1055], 'pad' => 28, 'baseline' => 1040, 'text' => $levelName, 'font' => 'bold', 'size' => 28, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [200, 1200, 690, 1245], 'pad' => 8, 'baseline' => 1228, 'text' => $placeVal, 'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [200, 1240, 690, 1300], 'pad' => 8, 'baseline' => 1285, 'text' => $dateVal,  'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'left'],
             ],
             Certificate::TYPE_WINNER => [
-                ['box' => [742, 1000, 1520, 1120], 'pad' => 10, 'baseline' => 1085, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [725, 1108, 1520, 1221], 'pad' => 9,  'baseline' => 1183, 'text' => $franchiseName, 'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [679, 1372, 1520, 1448], 'pad' => 7, 'baseline' => 1419, 'text' => $levelName,     'font' => 'bold', 'size' => 32, 'color' => $navyBold, 'align' => 'left'],
-                ['box' => [285, 1722, 645, 1790],  'text' => $placeVal,      'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
-                ['box' => [285, 1842, 645, 1895],  'text' => $dateVal,       'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'center'],
+                ['box' => [510, 725, 994, 785], 'pad' => 6, 'baseline' => 768, 'text' => $studentName,   'font' => 'bold', 'size' => 34, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [475, 805, 994, 865], 'pad' => 6, 'baseline' => 848, 'text' => $franchiseName, 'font' => 'bold', 'size' => 30, 'color' => $navyBold, 'align' => 'left'],
+                // "WINNER" (unlike Champion's rank number) never varies per student, so it stays baked into the artwork — no field for it here.
+                ['box' => [440, 965, 994, 1025], 'pad' => 28, 'baseline' => 1008, 'text' => $levelName, 'font' => 'bold', 'size' => 28, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [200, 1170, 690, 1215], 'pad' => 8, 'baseline' => 1198, 'text' => $placeVal, 'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'left'],
+                ['box' => [200, 1210, 690, 1270], 'pad' => 8, 'baseline' => 1255, 'text' => $dateVal,  'font' => 'regular', 'size' => 28, 'color' => $navyBold, 'align' => 'left'],
             ],
             default => [],
         };
@@ -110,23 +104,22 @@ class CertificateImageComposer
     protected function maskColorFor(string $type): array
     {
         return match ($type) {
-            Certificate::TYPE_CHAMPION => [250, 249, 246],
+            Certificate::TYPE_CHAMPION => [246, 244, 243],
             Certificate::TYPE_WINNER => [250, 250, 250],
-            Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [252, 252, 252],
-            Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [248, 244, 244],
+            Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [251, 251, 250],
+            Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [252, 252, 252],
             default => [249, 247, 245],
         };
     }
 
+    /**
+     * All 4 flow templates use a single decorative script font (Vivaldi,
+     * vendored into resources/fonts/certificates/ since no bold/italic
+     * variant exists for it — every 'font' role maps to the same file).
+     */
     protected function fontPath(string $font): string
     {
-        $base = base_path('vendor/dompdf/dompdf/lib/fonts/');
-
-        return match ($font) {
-            'bold' => $base . 'DejaVuSerif-Bold.ttf',
-            'italic' => $base . 'DejaVuSerif-Italic.ttf',
-            default => $base . 'DejaVuSerif.ttf',
-        };
+        return resource_path('fonts/certificates/Vivaldi.ttf');
     }
 
     /**
@@ -141,9 +134,10 @@ class CertificateImageComposer
         $im = @imagecreatefrompng($bgPath);
         if (! $im) {
             // Fall back to a blank canvas matching the expected size so the
-            // PDF still generates even if the artwork file is missing.
-            $isPortrait = in_array($certificate->type, [Certificate::TYPE_CHAMPION, Certificate::TYPE_WINNER], true);
-            $im = imagecreatetruecolor($isPortrait ? 1581 : 1685, $isPortrait ? 2238 : 1191);
+            // PDF still generates even if the artwork file is missing. All 4
+            // templates are portrait as of the 2026-08-17 redesign.
+            $isLevelUp = in_array($certificate->type, [Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION], true);
+            $im = imagecreatetruecolor($isLevelUp ? 1024 : 1054, $isLevelUp ? 1536 : 1492);
             $white = imagecolorallocate($im, 255, 255, 255);
             imagefill($im, 0, 0, $white);
         }

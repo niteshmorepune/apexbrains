@@ -8,10 +8,10 @@
 
     {{-- Certificate preview --}}
     @if($previewUri)
-        @php $isPortrait = in_array($certificate->type, ['champion', 'winner'], true); @endphp
+        @php $isLevelUp = in_array($certificate->type, ['level_up', 'level_completion'], true); @endphp
         <div class="bg-white rounded-2xl border border-border p-3 shadow-sm">
             <img src="{{ $previewUri }}" alt="Certificate preview"
-                 class="w-full h-auto rounded-lg" style="aspect-ratio: {{ $isPortrait ? '1052 / 1490' : '1122 / 793' }};">
+                 class="w-full h-auto rounded-lg" style="aspect-ratio: {{ $isLevelUp ? '995 / 1490' : '1052 / 1490' }};">
         </div>
         <div class="flex justify-center">
             {!! QrCode::size(64)->generate(route('certificate.verify', $certificate->verification_code)) !!}

@@ -44,10 +44,12 @@
         // and handed to dompdf as a single flattened image.
         // Sized 1-2px under the exact 96dpi page conversion — dompdf pushes
         // content to a second page if the box is even fractionally taller
-        // than its actual (sub-pixel) content area.
-        $isPortrait = in_array($type, [Certificate::TYPE_CHAMPION, Certificate::TYPE_WINNER], true);
-        $canvasW    = $isPortrait ? 1052 : 1122;
-        $canvasH    = $isPortrait ? 1490 : 793;
+        // than its actual (sub-pixel) content area. As of the 2026-08-17
+        // redesign all 4 templates are portrait; Level Up's artwork is a
+        // taller aspect ratio than the other 3 (see Certificate::paperConfigFor()).
+        $isLevelUp = in_array($type, [Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION], true);
+        $canvasW   = $isLevelUp ? 995 : 1052;
+        $canvasH   = 1490;
         $composedUri = app(\App\Services\CertificateImageComposer::class)->composeDataUri($certificate);
     @endphp
     <style>

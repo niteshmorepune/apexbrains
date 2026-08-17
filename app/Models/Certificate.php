@@ -154,18 +154,22 @@ class Certificate extends Model
     }
 
     /**
-     * dompdf ->setPaper() arguments for this certificate's type. Champion and
-     * Winner artwork is a taller custom page size (not standard A4), so the
-     * PDF page must match it exactly to reproduce the design without cropping
-     * or letterboxing.
+     * dompdf ->setPaper() arguments for this certificate's type. As of the
+     * 2026-08-17 redesign all 4 flow templates are portrait with a non-A4
+     * aspect ratio, so each uses a custom page size matching its artwork's
+     * exact pixel aspect ratio (not cropping/letterboxing). Champion, Winner,
+     * and Participation/Competition artwork all share the same 1054×1492
+     * (0.7065) ratio; Level Up's is 1024×1536 (0.6667), taller relative to
+     * its width, so it gets its own custom size.
      *
      * @return array{0: string|array, 1?: string}
      */
     public static function paperConfigFor(string $type): array
     {
         return match ($type) {
-            self::TYPE_CHAMPION, self::TYPE_WINNER => [[0, 0, 790.5, 1119]],
-            default => ['a4', 'landscape'],
+            self::TYPE_CHAMPION, self::TYPE_WINNER, self::TYPE_PARTICIPATION, self::TYPE_COMPETITION => [[0, 0, 790.5, 1119]],
+            self::TYPE_LEVEL_UP, self::TYPE_LEVEL_COMPLETION => [[0, 0, 746, 1119]],
+            default => ['a4', 'portrait'],
         };
     }
 }

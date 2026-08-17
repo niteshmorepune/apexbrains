@@ -163,7 +163,7 @@
         <div class="bg-white rounded-2xl border border-border shadow-sm p-6" x-ref="preview">
             <h2 class="text-base font-bold text-gray-900 mb-4">Certificate Preview</h2>
 
-            <div class="relative bg-bg-light border border-border rounded-xl overflow-hidden shadow-inner aspect-[1122/793] flex items-center justify-center">
+            <div class="relative bg-bg-light border border-border rounded-xl overflow-hidden shadow-inner aspect-[1052/1490] flex items-center justify-center">
                 <template x-if="previewImage">
                     <img :src="previewImage" alt="Certificate preview" class="w-full h-full object-contain">
                 </template>
