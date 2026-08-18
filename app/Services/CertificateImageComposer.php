@@ -18,7 +18,10 @@ class CertificateImageComposer
     {
         $type = $certificate->type;
 
-        $studentName   = $certificate->student?->full_name ?? '';
+        // Only the first character is forced to uppercase — the rest of the
+        // name is displayed exactly as stored (so "ARJUN PATIL" is untouched
+        // and "madhuri test test" becomes "Madhuri test test").
+        $studentName   = ucfirst($certificate->student?->full_name ?? '');
         $franchiseName = $certificate->franchise?->name ?? '';
         $levelName     = $certificate->level?->title ?? '';
         $placeVal      = $certificate->place ?: ($certificate->franchise?->city ?? '');
@@ -63,14 +66,23 @@ class CertificateImageComposer
                 ['box' => [60, 960, 994, 1055], 'text' => 'participating in the ' . $levelName . ' Online Competition', 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 1018],
                 // Date/Place values only — "Date :"/"Place :" labels stay baked into the artwork.
                 ['box' => [215, 1204, 690, 1240], 'pad' => 8, 'text' => $competitionDateVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1230],
-                ['box' => [215, 1244, 690, 1280], 'pad' => 8, 'text' => $placeVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1270],
+                // Place sits on its own baked "Place :" line further down than
+                // Date's — pixel-measured against the artwork's own label
+                // baseline (~1293), not the old Date-relative guess (~1270)
+                // that made the value float above its label.
+                ['box' => [215, 1265, 690, 1310], 'pad' => 8, 'text' => $placeVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1293],
             ],
             Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [
                 ['box' => [60, 745, 964, 815], 'text' => 'Master / Miss ' . $studentName, 'font' => 'italic', 'size' => 38, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 800],
                 ['box' => [60, 838, 964, 903], 'text' => 'has completed ' . $levelName . ' level successfully', 'font' => 'italic', 'size' => 30, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 888],
                 ['box' => [60, 985, 964, 1049], 'text' => 'at ' . $franchiseName . ' center.', 'font' => 'italic', 'size' => 28, 'color' => $navyItalic, 'align' => 'center', 'baseline' => 1033],
                 ['box' => [190, 1148, 700, 1198], 'pad' => 10, 'text' => $dateVal,  'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1183],
-                ['box' => [190, 1205, 700, 1255], 'pad' => 10, 'text' => $placeVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1240],
+                // Pixel-measured against the artwork's own "Place :" label
+                // baseline (~1249) — the old baseline (1240) rendered the
+                // value visibly above the label line. Right edge trimmed to
+                // 683 (was 700) — "Managing Director" starts at x≈692 on this
+                // artwork and the old wider box was masking its left stroke.
+                ['box' => [190, 1210, 683, 1268], 'pad' => 10, 'text' => $placeVal, 'font' => 'italic', 'size' => 26, 'color' => $navyItalic, 'align' => 'left', 'baseline' => 1249],
             ],
             // Champion / Winner: the static prefixes ("Master / Miss",
             // "studying at", "has been awarded", "for") stay baked into the
@@ -99,6 +111,64 @@ class CertificateImageComposer
             ],
             default => [],
         };
+    }
+
+    /**
+     * Target rectangle (native artwork pixel space) the Managing Director
+     * signature is drawn into — the same position previously occupied by the
+     * signature baked into each background PNG (pixel-measured against the
+     * 2026-08-17 artwork before it was replaced with a blank-signature
+     * version). Contain-fit + centered, so the signature's own aspect ratio
+     * is preserved rather than stretched.
+     */
+    protected function signatureBoxFor(string $type): array
+    {
+        return match ($type) {
+            Certificate::TYPE_LEVEL_UP, Certificate::TYPE_LEVEL_COMPLETION => [700, 1090, 880, 1215],
+            Certificate::TYPE_PARTICIPATION, Certificate::TYPE_COMPETITION => [730, 1175, 905, 1288],
+            Certificate::TYPE_CHAMPION => [745, 1160, 915, 1278],
+            Certificate::TYPE_WINNER => [760, 1105, 920, 1240],
+            default => [730, 1175, 905, 1288],
+        };
+    }
+
+    /**
+     * Composite the vendored signature image (a transparent PNG, pre-cropped
+     * to its own ink bounding box) onto the certificate, contain-fit within
+     * signatureBoxFor()'s rectangle.
+     */
+    protected function compositeSignature($im, Certificate $certificate): void
+    {
+        $sigPath = public_path('images/certificates/signature.png');
+        $sig = @imagecreatefrompng($sigPath);
+        if (! $sig) {
+            return;
+        }
+
+        [$x0, $y0, $x1, $y1] = $this->signatureBoxFor($certificate->type);
+        $boxW = $x1 - $x0;
+        $boxH = $y1 - $y0;
+
+        $sigW = imagesx($sig);
+        $sigH = imagesy($sig);
+        $scale = min($boxW / $sigW, $boxH / $sigH);
+        $destW = max(1, (int) round($sigW * $scale));
+        $destH = max(1, (int) round($sigH * $scale));
+        $destX = (int) round($x0 + ($boxW - $destW) / 2);
+        $destY = (int) round($y0 + ($boxH - $destH) / 2);
+
+        $resized = imagecreatetruecolor($destW, $destH);
+        imagealphablending($resized, false);
+        imagesavealpha($resized, true);
+        $transparent = imagecolorallocatealpha($resized, 0, 0, 0, 127);
+        imagefill($resized, 0, 0, $transparent);
+        imagecopyresampled($resized, $sig, 0, 0, 0, 0, $destW, $destH, $sigW, $sigH);
+
+        imagealphablending($im, true);
+        imagecopy($im, $resized, $destX, $destY, 0, 0, $destW, $destH);
+
+        imagedestroy($resized);
+        imagedestroy($sig);
     }
 
     protected function maskColorFor(string $type): array
@@ -207,6 +277,8 @@ class CertificateImageComposer
                 imagettftext($im, $trailing['size'], 0, (int) $trailingX, (int) $trailingBaselineY, $trailingColor, $trailingFont, $trailing['text']);
             }
         }
+
+        $this->compositeSignature($im, $certificate);
 
         ob_start();
         imagepng($im);
