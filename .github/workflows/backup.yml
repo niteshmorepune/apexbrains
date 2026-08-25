@@ -1,0 +1,82 @@
+name: Production Backup (manual)
+
+# One-off archival snapshot for the Hostinger transfer — Phase 0 "freeze &
+# snapshot" (see the Apex Brains Handover plan). Manual trigger only; reuses
+# the same SSH secrets as deploy.yml. Pulls files back over plain `ssh ...
+# "cat file"` rather than scp/rsync, which are known to time out from GitHub
+# runners to this Hostinger account (see memory/project_deploy.md).
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Snapshot DB + storage from production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Create DB dump + storage archive on the server
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 5
+          retry_wait_seconds: 30
+          command: |
+            ssh -i ~/.ssh/deploy_key -p "${{ secrets.HOSTINGER_SSH_PORT }}" \
+              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 \
+              "${{ secrets.HOSTINGER_SSH_USERNAME }}@${{ secrets.HOSTINGER_SSH_HOST }}" \
+              'set -e; cd ${{ secrets.DEPLOY_PATH }} && \
+              export $(grep -E "^(DB_HOST|DB_PORT|DB_DATABASE|DB_USERNAME|DB_PASSWORD)=" .env | xargs -d "\n") && \
+              mysqldump -h "$DB_HOST" -P "${DB_PORT:-3306}" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" | gzip > /tmp/apex_db_backup.sql.gz && \
+              tar czf /tmp/apex_storage_backup.tar.gz -C storage/app public'
+
+      - name: Pull DB dump back to the runner
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 5
+          retry_wait_seconds: 30
+          command: |
+            ssh -i ~/.ssh/deploy_key -p "${{ secrets.HOSTINGER_SSH_PORT }}" \
+              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 \
+              "${{ secrets.HOSTINGER_SSH_USERNAME }}@${{ secrets.HOSTINGER_SSH_HOST }}" \
+              "cat /tmp/apex_db_backup.sql.gz" > apex_db_backup.sql.gz
+
+      - name: Pull storage archive back to the runner
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 5
+          retry_wait_seconds: 30
+          command: |
+            ssh -i ~/.ssh/deploy_key -p "${{ secrets.HOSTINGER_SSH_PORT }}" \
+              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 \
+              "${{ secrets.HOSTINGER_SSH_USERNAME }}@${{ secrets.HOSTINGER_SSH_HOST }}" \
+              "cat /tmp/apex_storage_backup.tar.gz" > apex_storage_backup.tar.gz
+
+      - name: Clean up remote temp files
+        if: always()
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "${{ secrets.HOSTINGER_SSH_PORT }}" \
+            -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -o BatchMode=yes -o ConnectTimeout=30 \
+            "${{ secrets.HOSTINGER_SSH_USERNAME }}@${{ secrets.HOSTINGER_SSH_HOST }}" \
+            "rm -f /tmp/apex_db_backup.sql.gz /tmp/apex_storage_backup.tar.gz" || true
+
+      - name: Upload backup as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-brains-freeze-snapshot-${{ github.run_id }}
+          path: |
+            apex_db_backup.sql.gz
+            apex_storage_backup.tar.gz
+          retention-days: 90
