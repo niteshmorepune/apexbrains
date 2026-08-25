@@ -77,6 +77,10 @@ class FranchiseController extends Controller
         $password = $data['password'];
         unset($data['password']);
 
+        // 'state' is nullable in this form but NOT NULL in the DB (default
+        // 'Maharashtra') — an explicit null from a blank field would 500.
+        $data['state'] = $data['state'] ?: 'Maharashtra';
+
         $data['status'] = 'pending';
         $data['slug'] = Str::slug($data['name']) . '-' . Str::random(4);
         // withTrashed() — both franchise_code and franchise_number are unique
@@ -193,10 +197,16 @@ class FranchiseController extends Controller
 
     public function update(Request $request, Franchise $franchise): RedirectResponse
     {
+        $franchiseUser = $franchise->users()->role('franchise_admin')->first();
+
         $data = $request->validate([
             'name'       => ['required', 'string', 'max:150'],
             'owner_name' => ['required', 'string', 'max:100'],
-            'email'      => ['required', 'email', Rule::unique('franchises', 'email')->ignore($franchise->id)->whereNull('deleted_at')],
+            'email'      => [
+                'required', 'email',
+                Rule::unique('franchises', 'email')->ignore($franchise->id)->whereNull('deleted_at'),
+                Rule::unique('users', 'email')->ignore($franchiseUser?->id)->whereNull('deleted_at'),
+            ],
             'phone'      => ['required', 'string', 'max:15'],
             'whatsapp'   => ['nullable', 'string', 'max:15'],
             'address'    => ['required', 'string', 'max:300'],
@@ -207,7 +217,20 @@ class FranchiseController extends Controller
             'pan_number' => ['nullable', 'string', 'max:15'],
         ]);
 
+        // 'state' is nullable in this form but NOT NULL in the DB (default
+        // 'Maharashtra') — an explicit null from a blank field would 500.
+        $data['state'] = $data['state'] ?: 'Maharashtra';
+
         $franchise->update($data);
+
+        // Keep the franchise_admin login account's name/email/phone in sync with
+        // what's shown here — this form is where the client actually edits them.
+        $franchiseUser?->update([
+            'name'  => $data['owner_name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+        ]);
+
         AuditLogger::log('franchise_updated', 'Franchise', $franchise->id);
 
         return redirect()->route('admin.franchises.show', $franchise)
