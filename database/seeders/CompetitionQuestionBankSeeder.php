@@ -46,7 +46,6 @@ class CompetitionQuestionBankSeeder extends Seeder
                         'option_c' => $q['option_c'],
                         'option_d' => $q['option_d'],
                         'correct_answer' => $q['correct_answer'],
-                        'difficulty' => $q['difficulty'],
                         'status' => 'approved',
                         'approved_by' => $admin?->id,
                         'approved_at' => now(),
