@@ -1,0 +1,76 @@
+name: Deploy to Hostinger (Business plan)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, bcmath, fileinfo, pdo_mysql, zip, gd, intl, openssl, sodium, curl
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Commit compiled assets
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add public/build/
+          git diff --staged --quiet || git commit -m "chore: update compiled assets [skip ci]"
+          git push || true
+
+      # This host (Hostinger Business plan, u972656627) has proc_open/exec/symlink
+      # disabled in php.ini, same security hardening as the original account. Two
+      # consequences discovered while provisioning it manually:
+      #   1. Plain `composer install` triggers its post-install `artisan
+      #      package:discover` hook via Symfony's Process (needs proc_open) and
+      #      fails. Fix: `--no-scripts` on install, then run package:discover
+      #      directly through `php artisan` (no subprocess needed that way).
+      #   2. `php artisan storage:link` needs symlink()/exec() — but the symlink
+      #      was already created once by hand during initial setup and persists
+      #      across deploys, so it doesn't need to run here at all.
+      - name: Deploy to Hostinger (Business plan) via SSH
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 25
+          max_attempts: 8
+          retry_wait_seconds: 45
+          command: |
+            install -m 700 -d ~/.ssh
+            printf '%s\n' "${{ secrets.BUSINESS_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            ssh -i ~/.ssh/deploy_key -p "${{ secrets.BUSINESS_SSH_PORT }}" \
+              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 \
+              "${{ secrets.BUSINESS_SSH_USERNAME }}@${{ secrets.BUSINESS_SSH_HOST }}" \
+              "set -e; cd ${{ secrets.BUSINESS_DEPLOY_PATH }} && git fetch origin main && git reset --hard origin/main && composer install --no-dev --optimize-autoloader --no-interaction --no-scripts && php artisan package:discover --ansi && composer dump-autoload --no-scripts --optimize && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:clear && php artisan view:cache && php artisan event:cache && php artisan queue:restart && chmod -R 755 storage bootstrap/cache"
