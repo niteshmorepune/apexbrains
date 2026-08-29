@@ -15,13 +15,6 @@
     Champion = level-wise rank 1–3. Winner = level-wise rank 4–6.
 </p>
 
-@if(session('success'))
-    <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">{{ session('success') }}</div>
-@endif
-@if(session('error'))
-    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{{ session('error') }}</div>
-@endif
-
 @forelse($results as $r)
     @php
         $level = $r['level'];

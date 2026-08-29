@@ -61,7 +61,7 @@ class CompetitionRegistrationController extends Controller
             return back()->with('error', 'This competition is not active.');
         }
 
-        if ($competition->registration_deadline && $competition->registration_deadline->isPast()) {
+        if ($competition->registration_deadline && $competition->registration_deadline->toDateString() < now()->toDateString()) {
             return back()->with('error', 'The registration deadline for this competition has passed.');
         }
 
