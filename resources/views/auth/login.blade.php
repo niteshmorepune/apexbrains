@@ -75,11 +75,8 @@
                            class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent transition">
                 </div>
 
-                <div x-data="{ open: false }">
-                    <button type="button" @click="open = !open" class="text-[11px] text-fran hover:underline -mt-1">Forgot password?</button>
-                    <p x-show="open" x-transition class="text-[11px] text-gray-500 mt-1 bg-blue-50 rounded-lg px-3 py-2">
-                        Please contact your branch administrator to reset your password.
-                    </p>
+                <div>
+                    <a href="{{ route('password.request') }}" class="text-[11px] text-fran hover:underline -mt-1">Forgot password?</a>
                 </div>
 
                 <button type="submit"

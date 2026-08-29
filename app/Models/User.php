@@ -60,4 +60,9 @@ class User extends Authenticatable
     {
         return $this->hasRole('franchise_admin');
     }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }

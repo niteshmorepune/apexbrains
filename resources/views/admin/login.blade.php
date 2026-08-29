@@ -63,36 +63,36 @@
                     </div>
                 @endif
 
-                <div x-data="{ showForgot: false }">
-                    <form method="POST" action="{{ route('admin.login.post') }}" class="space-y-4">
-                        @csrf
+                @if(session('status'))
+                    <div class="mb-4 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                        <p class="text-[12px] text-green-600 font-medium">{{ session('status') }}</p>
+                    </div>
+                @endif
 
-                        <div>
-                            <label class="block text-[11px] font-medium text-gray-600 mb-1.5">Email Address</label>
-                            <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                                   placeholder="admin@apexbrains.in"
-                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent placeholder:text-gray-300 transition">
+                <form method="POST" action="{{ route('admin.login.post') }}" class="space-y-4">
+                    @csrf
+
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-600 mb-1.5">Email Address</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required autofocus
+                               placeholder="admin@apexbrains.in"
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent placeholder:text-gray-300 transition">
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-[11px] font-medium text-gray-600">Password</label>
+                            <a href="{{ route('password.request') }}" class="text-[12px] text-fran hover:underline">Forgot password?</a>
                         </div>
+                        <input type="password" name="password" required
+                               class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent transition">
+                    </div>
 
-                        <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-[11px] font-medium text-gray-600">Password</label>
-                                <button type="button" @click="showForgot = !showForgot" class="text-[12px] text-fran hover:underline">Forgot password?</button>
-                            </div>
-                            <input type="password" name="password" required
-                                   class="w-full border border-border rounded-xl px-3 py-2.5 text-[12px] bg-white focus:outline-none focus:ring-2 focus:ring-fran focus:border-transparent transition">
-                        </div>
-
-                        <p x-show="showForgot" x-transition class="text-[11px] text-gray-500 bg-blue-50 rounded-lg px-3 py-2">
-                            To reset your password, contact the system administrator.
-                        </p>
-
-                        <button type="submit"
-                                class="w-full bg-fran text-white rounded-full py-3 text-[12px] font-bold hover:bg-fran-dark transition-colors shadow-sm mt-2">
-                            Sign In to Admin Portal
-                        </button>
-                    </form>
-                </div>
+                    <button type="submit"
+                            class="w-full bg-fran text-white rounded-full py-3 text-[12px] font-bold hover:bg-fran-dark transition-colors shadow-sm mt-2">
+                        Sign In to Admin Portal
+                    </button>
+                </form>
 
                 <p class="text-center text-[11px] text-gray-400 mt-5">SSL Encrypted | ISO 9001:2015</p>
             </div>
