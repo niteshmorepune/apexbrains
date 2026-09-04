@@ -134,6 +134,59 @@
             </div>
         </div>
 
+        {{-- Leaderboard --}}
+        <div class="bg-white rounded-xl border border-border overflow-hidden">
+            <button @click="open = open === 'leaderboard' ? null : 'leaderboard'"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.trophy')</svg>
+                    </div>
+                    <span class="font-semibold text-admin">Leaderboard</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'leaderboard' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'leaderboard'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
+                <p><span class="font-semibold text-admin">Global Leaderboard:</span> ranks students across every franchise, filterable by level and by exam/practice/competition performance — a national view franchise admins don't get (their own reports are scoped to their own students only).</p>
+            </div>
+        </div>
+
+        {{-- Resource Library --}}
+        <div class="bg-white rounded-xl border border-border overflow-hidden">
+            <button @click="open = open === 'resources' ? null : 'resources'"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.file-text')</svg>
+                    </div>
+                    <span class="font-semibold text-admin">Resource Library</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'resources' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'resources'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
+                <p><span class="font-semibold text-admin">Upload a resource:</span> Resource Library → Upload. PDFs and images shared here (optionally tagged to a Level) become downloadable to every franchise — use it for teacher notes, syllabus references, or printable practice sheets.</p>
+                <p><span class="font-semibold text-admin">Remove a resource:</span> delete it from the same page; it immediately stops being available to franchises.</p>
+            </div>
+        </div>
+
+        {{-- Audit Log --}}
+        <div class="bg-white rounded-xl border border-border overflow-hidden">
+            <button @click="open = open === 'audit' ? null : 'audit'"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.file-text')</svg>
+                    </div>
+                    <span class="font-semibold text-admin">Audit Log</span>
+                </div>
+                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'audit' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div x-show="open === 'audit'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
+                <p><span class="font-semibold text-admin">What it records:</span> a permanent, uneditable trail of key actions across the platform (franchise approvals, question edits, settings changes, result declarations, and more) — who did it and when. Filter by action type or date range, and export to Excel/CSV for your own records.</p>
+                <p class="text-xs text-gray-400">Entries can never be edited or deleted, by design — it's the platform's own record of what happened.</p>
+            </div>
+        </div>
+
         {{-- Settings --}}
         <div class="bg-white rounded-xl border border-border overflow-hidden">
             <button @click="open = open === 'settings' ? null : 'settings'"
@@ -167,32 +220,8 @@
             </button>
             <div x-show="open === 'profile'" x-collapse class="border-t border-border px-6 pb-5 pt-4 space-y-3 text-sm text-text-muted">
                 <p><span class="font-semibold text-admin">Open your profile:</span> Click your name/avatar in the sidebar footer or the avatar in the top bar. You can update your name, email, phone, and change your password.</p>
+                <p><span class="font-semibold text-admin">Forgot your password?</span> On the login screen, click <em>Forgot password?</em> and enter your email — a reset link is sent to it. No need to contact support for this.</p>
                 <p><span class="font-semibold text-admin">Sign out:</span> Use the sign-out icon next to your name in the sidebar, or the Sign Out button on your profile page. You'll be returned to the admin login screen.</p>
-            </div>
-        </div>
-
-        {{-- Demo credentials --}}
-        <div class="bg-white rounded-xl border border-border overflow-hidden">
-            <button @click="open = open === 'demo' ? null : 'demo'"
-                    class="w-full flex items-center justify-between px-6 py-4 text-left">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">@include('components.icons.user')</svg>
-                    </div>
-                    <span class="font-semibold text-admin">Demo Accounts</span>
-                </div>
-                <svg class="w-4 h-4 text-text-muted transition-transform" :class="open === 'demo' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <div x-show="open === 'demo'" x-collapse class="border-t border-border px-6 pb-5 pt-4 text-sm text-text-muted">
-                <div class="overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
-                    <thead><tr class="text-left text-admin font-semibold border-b border-border"><th class="pb-2">Email</th><th class="pb-2">Role</th><th class="pb-2">Password</th></tr></thead>
-                    <tbody class="divide-y divide-border">
-                        <tr class="py-2"><td class="py-2">admin@apexbrains.in</td><td>Super Admin</td><td class="font-mono">password</td></tr>
-                        <tr class="py-2"><td class="py-2">kothrud@apexbrains.in</td><td>Franchise Admin</td><td class="font-mono">password</td></tr>
-                        <tr class="py-2"><td class="py-2">arjun@student.in</td><td>Internal Student</td><td class="font-mono">password</td></tr>
-                        <tr class="py-2"><td class="py-2">external@test.in</td><td>External Student</td><td class="font-mono">password</td></tr>
-                    </tbody>
-                </table></div>
             </div>
         </div>
 
