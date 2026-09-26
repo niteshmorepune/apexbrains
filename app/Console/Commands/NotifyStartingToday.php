@@ -25,7 +25,10 @@ class NotifyStartingToday extends Command
     private function notifyCompetitions(): void
     {
         $competitions = Competition::where('is_active', true)
-            ->whereDate('start_date', today('Asia/Kolkata'))
+            ->whereBetween('start_date', [
+                today('Asia/Kolkata')->utc(),
+                today('Asia/Kolkata')->endOfDay()->utc(),
+            ])
             ->get();
 
         foreach ($competitions as $competition) {
@@ -42,7 +45,7 @@ class NotifyStartingToday extends Command
                 $students,
                 'competition_starting_today',
                 'Competition Starts Today: ' . $competition->title,
-                "\"{$competition->title}\" starts today. Good luck!"
+                "\"{$competition->title}\" starts today at {$competition->start_date_ist->format('h:i A')}. Good luck!"
             );
         }
     }

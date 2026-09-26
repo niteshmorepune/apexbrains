@@ -18,7 +18,7 @@
                     <div class="flex-1 min-w-0">
                         <p class="font-bold text-gray-800 text-sm">{{ $comp->title }}</p>
                         <p class="text-xs text-gray-400 mt-0.5">
-                            @if($comp->start_date){{ $comp->start_date->format('d M Y') }} · @endif
+                            @if($comp->start_date){{ $comp->windowStartLabel() }} · @endif @if($comp->isExamOpen())<span class="text-comp font-bold">Active</span> · @endif
                             @if($comp->fee_amount > 0)₹{{ number_format($comp->fee_amount, 0) }}@else Free @endif
                         </p>
                     </div>
@@ -51,7 +51,7 @@
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-bold text-gray-800 truncate">{{ $comp->title }}</p>
                                 <p class="text-xs text-gray-400">
-                                    {{ $comp->end_date?->format('d M Y') }}
+                                    {{ $comp->end_date_ist?->format('d M Y') }}
                                     @if($completed) · Completed ✓ @elseif($registered) · Participated @endif
                                 </p>
                             </div>

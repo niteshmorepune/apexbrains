@@ -258,7 +258,7 @@
                                             <p class="text-xs text-gray-400 mt-0.5">
                                                 Registered {{ ($reg->registration_date ?? $reg->created_at)?->format('d M Y') }}
                                                 @if($reg->competition?->start_date)
-                                                    · Held {{ $reg->competition->start_date->format('d M Y') }}
+                                                    · Held {{ $reg->competition->start_date_ist->format('d M Y') }}
                                                 @endif
                                             </p>
                                         </div>

@@ -23,7 +23,7 @@
                 </div>
                 <div class="flex items-center gap-4 mt-1.5 text-xs text-gray-500 flex-wrap">
                     @if($competition->start_date)
-                        <span>{{ $competition->start_date->format('d M Y') }} – {{ $competition->end_date?->format('d M Y') }}</span>
+                        <span>{{ $competition->windowStartLabel() }} – {{ $competition->windowEndLabel() }}</span>
                     @endif
                     @if($competition->registration_deadline)
                         <span>Deadline: <span class="text-fran font-medium">{{ $competition->registration_deadline->format('d M Y') }}</span></span>

@@ -70,21 +70,22 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Start Date <span class="text-red-500">*</span>
+                            Start Date &amp; Time <span class="text-red-500">*</span>
                         </label>
-                        <input type="date" name="start_date" value="{{ old('start_date') }}" required
+                        <input type="datetime-local" name="start_date" value="{{ old('start_date') }}" required
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('start_date') border-red-400 @enderror">
                         @error('start_date')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            End Date <span class="text-red-500">*</span>
+                            End Date &amp; Time <span class="text-red-500">*</span>
                         </label>
-                        <input type="date" name="end_date" value="{{ old('end_date') }}" required
+                        <input type="datetime-local" name="end_date" value="{{ old('end_date') }}" required
                                class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error('end_date') border-red-400 @enderror">
                         @error('end_date')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                 </div>
+                <p class="text-xs text-gray-400 mt-3">Times are in IST. Students can start the Competition Exam only between the Start and End date &amp; time.</p>
             </div>
 
             {{-- Settings --}}

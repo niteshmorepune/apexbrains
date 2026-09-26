@@ -53,8 +53,8 @@
         <div><dt class="text-gray-500 mb-0.5">Open to External</dt><dd>{{ $competition->is_open_to_external ? 'Yes' : 'No' }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Duration</dt><dd>{{ $competition->duration_minutes ? $competition->duration_minutes.' min' : 'Uses each level paper\'s own duration' }}</dd></div>
         <div><dt class="text-gray-500 mb-0.5">Registration Deadline</dt><dd>{{ $competition->registration_deadline->format('d M Y') }}</dd></div>
-        <div><dt class="text-gray-500 mb-0.5">Start Date</dt><dd>{{ $competition->start_date->format('d M Y') }}</dd></div>
-        <div><dt class="text-gray-500 mb-0.5">End Date</dt><dd>{{ $competition->end_date->format('d M Y') }}</dd></div>
+        <div><dt class="text-gray-500 mb-0.5">Start Date &amp; Time (IST)</dt><dd>{{ $competition->windowStartLabel() }}</dd></div>
+        <div><dt class="text-gray-500 mb-0.5">End Date &amp; Time (IST)</dt><dd>{{ $competition->windowEndLabel() }}</dd></div>
         @if($competition->description)
             <div class="col-span-2"><dt class="text-gray-500 mb-0.5">Description</dt><dd>{{ $competition->description }}</dd></div>
         @endif

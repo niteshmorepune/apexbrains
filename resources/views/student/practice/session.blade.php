@@ -141,7 +141,7 @@
     {{-- Popup display — one number at a time --}}
     <div class="px-4 mt-3">
         <div class="bg-stu-bg rounded-2xl border border-border py-10 px-4 text-center min-h-[180px] flex items-center justify-center">
-            <p class="font-mono font-black text-gray-900 tabular-nums" style="font-size: 67px;" x-text="display"></p>
+            <p class="font-mono font-black text-gray-900 tabular-nums" style="font-size: 67px; min-height: 1.5em;" x-text="display"></p>
         </div>
     </div>
 
@@ -171,6 +171,7 @@
 
 @push('scripts')
 @include('partials.speak-script')
+@include('partials.stable-attempt-screen')
 <script>
     // Keep the active question pill centered in the horizontally-scrolling strip.
     (function () {

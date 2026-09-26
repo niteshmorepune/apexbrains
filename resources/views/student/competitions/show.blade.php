@@ -11,9 +11,10 @@
         <span class="text-3xl">🏆</span>
         <p class="font-black text-gray-900 text-lg mt-1">{{ $competition->title }}</p>
         <div class="flex items-center justify-center gap-3 text-xs text-gray-500 mt-2">
-            @if($competition->start_date)<span>📅 {{ $competition->start_date->format('d M Y') }}</span>@endif
-            @if($competition->start_date)<span>🕐 {{ $competition->start_date->format('g:i A') }}</span>@endif
+            @if($competition->start_date)<span>📅 {{ $competition->start_date_ist->format('d M Y') }}</span>@endif
+            @if($competition->start_date)<span>🕐 {{ $competition->start_date_ist->format('h:i A') }}@if($competition->end_date) – {{ $competition->end_date_ist->isSameDay($competition->start_date_ist) ? $competition->end_date_ist->format('h:i A') : $competition->windowEndLabel() }}@endif</span>@endif
         </div>
+        @include('partials.competition-exam-status', ['competition' => $competition])
     </div>
 
     {{-- Stats 2x2 --}}
@@ -43,31 +44,30 @@
         </ol>
     </div>
 
-    @if(session('error'))
-        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl px-4 py-3">{{ session('error') }}</div>
-    @endif
-
     {{-- CTA --}}
     @php
-        $today = now()->toDateString();
-        $notStarted = $competition->start_date && $competition->start_date->toDateString() > $today;
-        $ended      = $competition->end_date && $competition->end_date->toDateString() < $today;
+        $examStatus = $competition->examStatus();
+        $notStarted = $examStatus === \App\Models\Competition::STATUS_NOT_STARTED;
+        $ended      = $examStatus === \App\Models\Competition::STATUS_ENDED;
     @endphp
     @if($registration)
         @if($myAttempts->isEmpty())
             @if($notStarted)
                 <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
-                    <p class="text-sm text-comp font-medium">This competition starts on {{ $competition->start_date->format('d M Y') }}. The exam will open then.</p>
+                    <p class="text-sm text-comp font-medium">The exam opens on {{ $competition->windowStartLabel() }} (IST) and closes on {{ $competition->windowEndLabel() }}.</p>
                 </div>
             @elseif($ended)
                 <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
-                    <p class="text-sm text-comp font-medium">This competition has ended.</p>
+                    <p class="text-sm text-comp font-medium">This competition has ended. The exam closed on {{ $competition->windowEndLabel() }} (IST).</p>
                 </div>
             @elseif($paper)
                 <form method="POST" action="{{ route('student.competitions.start', $competition) }}">
                     @csrf
                     <button type="submit" class="w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold">I am Ready — Start Exam</button>
                 </form>
+                @if($competition->end_date)
+                    <p class="text-center text-xs text-gray-500 -mt-2">Exam closes on {{ $competition->windowEndLabel() }} (IST)</p>
+                @endif
             @else
                 <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
                     <p class="text-sm text-comp font-medium">The question paper for your level is not available yet</p>

@@ -26,7 +26,7 @@
     $competitionData = $competitions->map(fn ($c) => [
         'id'    => (string) $c->id,
         'title' => $c->title,
-        'date'  => $c->start_date?->format('d M Y'),
+        'date'  => $c->start_date_ist?->format('d M Y'),
     ])->values();
 @endphp
 

@@ -77,7 +77,7 @@
         $isParticipation = $certificate->type === 'competition';
         $competition = $certificate->competition;
         $compTitle   = $competition?->title ?? 'Apex Brains Competition';
-        $compDate    = $competition?->start_date?->format('d F Y');
+        $compDate    = $competition?->start_date_ist?->format('d F Y');
 
         $levelLine = $certificate->level
             ? ($certificate->level->title ?: 'Abacus Mental Math')

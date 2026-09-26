@@ -49,7 +49,7 @@
                                 <span class="w-10 h-10 rounded-xl bg-comp-light flex items-center justify-center text-comp flex-shrink-0">📅</span>
                                 <div class="flex-1 min-w-0">
                                     <p class="font-bold text-gray-800 text-sm">{{ $comp->title }}</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">@if($comp->start_date){{ $comp->start_date->format('d M Y') }} · @endif @if($comp->fee_amount > 0)₹{{ number_format($comp->fee_amount, 0) }}@else Free @endif</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">@if($comp->start_date){{ $comp->windowStartLabel() }} · @endif @if($comp->isExamOpen())<span class="text-comp font-bold">Active</span> · @endif @if($comp->fee_amount > 0)₹{{ number_format($comp->fee_amount, 0) }}@else Free @endif</p>
                                 </div>
                                 @if(in_array($comp->id, $registeredIds))
                                     <span class="text-[11px] bg-comp-light text-comp px-2.5 py-1 rounded-full font-bold flex-shrink-0">Registered ✓</span>
@@ -80,7 +80,7 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-bold text-gray-800 truncate">{{ $comp->title }}</p>
                                             <p class="text-xs text-gray-400">
-                                                {{ $comp->end_date?->format('d M Y') }}
+                                                {{ $comp->end_date_ist?->format('d M Y') }}
                                                 @if($completed) · Completed ✓ @elseif($participated) · Participated @endif
                                             </p>
                                         </div>

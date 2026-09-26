@@ -31,7 +31,7 @@
         <template x-if="questions.length > 0">
             <div>
                 <div class="bg-stu-bg rounded-2xl border border-border p-5 mb-4 text-center">
-                    <div class="text-gray-900" style="font-size:36px"
+                    <div class="text-gray-900" style="font-size:36px" x-ref="qDisplay"
                          x-html="verticalSum(questions[currentIndex]?.question_text)"></div>
                 </div>
 
@@ -67,6 +67,8 @@
 
 </body>
 
+@include('partials.stable-attempt-screen')
+
 <script>
 function practiceEngine() {
     return {
@@ -77,6 +79,7 @@ function practiceEngine() {
 
         init() {
             this.startTimer();
+            this.$nextTick(() => ApexStable.reserveHeight(this.$refs.qDisplay, this.questions.map(q => this.verticalSum(q.question_text))));
         },
 
         startTimer() {

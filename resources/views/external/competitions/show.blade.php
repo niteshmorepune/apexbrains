@@ -11,18 +11,19 @@
         <span class="text-3xl">🏆</span>
         <p class="font-black text-gray-900 text-lg mt-1">{{ $competition->title }}</p>
         <div class="flex items-center justify-center gap-3 text-xs text-gray-500 mt-2">
-            @if($competition->start_date)<span>📅 {{ $competition->start_date->format('d M Y') }}</span>@endif
+            @if($competition->start_date)<span>📅 {{ $competition->start_date_ist->format('d M Y') }}</span>@endif
             @if($competition->fee_amount > 0)<span>💳 ₹{{ number_format($competition->fee_amount, 0) }}</span>@else<span>🎟️ Free entry</span>@endif
         </div>
         @if($competition->description)
             <p class="text-xs text-gray-400 mt-2">{{ $competition->description }}</p>
         @endif
+        @include('partials.competition-exam-status', ['competition' => $competition])
     </div>
 
     {{-- Stats --}}
     <div class="grid grid-cols-2 gap-3">
-        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">📅 Start</p><p class="text-base font-black text-gray-800 mt-1">{{ $competition->start_date?->format('d M') ?? 'TBA' }}</p></div>
-        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🏁 End</p><p class="text-base font-black text-gray-800 mt-1">{{ $competition->end_date?->format('d M') ?? 'TBA' }}</p></div>
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">📅 Start</p><p class="text-base font-black text-gray-800 mt-1">{{ $competition->start_date_ist?->format('d M') ?? 'TBA' }}</p>@if($competition->start_date)<p class="text-xs text-gray-500">{{ $competition->start_date_ist->format('h:i A') }}</p>@endif</div>
+        <div class="bg-white rounded-2xl border border-border p-4"><p class="text-xs text-gray-400">🏁 End</p><p class="text-base font-black text-gray-800 mt-1">{{ $competition->end_date_ist?->format('d M') ?? 'TBA' }}</p>@if($competition->end_date)<p class="text-xs text-gray-500">{{ $competition->end_date_ist->format('h:i A') }}</p>@endif</div>
         <div class="bg-white rounded-2xl border border-border p-4 col-span-2"><p class="text-xs text-gray-400">🎟️ Entry</p><p class="text-base font-black text-gray-800 mt-1">@if($competition->fee_amount > 0)₹{{ number_format($competition->fee_amount, 0) }}@else Free @endif</p></div>
     </div>
 
@@ -45,37 +46,36 @@
         </ol>
     </div>
 
-    @if(session('error'))
-        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl px-4 py-3">{{ session('error') }}</div>
-    @endif
-
     {{-- Registration status + exam CTA --}}
     @php
-        $today = now()->toDateString();
-        $notStarted = $competition->start_date && $competition->start_date->toDateString() > $today;
-        $ended      = $competition->end_date && $competition->end_date->toDateString() < $today;
+        $examStatus = $competition->examStatus();
+        $notStarted = $examStatus === \App\Models\Competition::STATUS_NOT_STARTED;
+        $ended      = $examStatus === \App\Models\Competition::STATUS_ENDED;
     @endphp
     @if($myRegistration)
         <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
             <p class="text-comp font-bold text-sm">✓ You are registered</p>
-            @if($competition->start_date)<p class="text-gray-500 text-xs mt-1">Competition date: {{ $competition->start_date->format('d M Y') }}</p>@endif
+            @if($competition->start_date)<p class="text-gray-500 text-xs mt-1">Exam window: {{ $competition->windowLabel() }} (IST)</p>@endif
         </div>
 
         @if($myAttempts->isNotEmpty())
             <a href="{{ route('external.competitions.result', $competition) }}" class="block w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold text-center">View My Result</a>
         @elseif($notStarted)
             <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
-                <p class="text-sm text-comp font-medium">This competition starts on {{ $competition->start_date->format('d M Y') }}. The exam will open then.</p>
+                <p class="text-sm text-comp font-medium">The exam opens on {{ $competition->windowStartLabel() }} (IST) and closes on {{ $competition->windowEndLabel() }}.</p>
             </div>
         @elseif($ended)
             <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
-                <p class="text-sm text-comp font-medium">This competition has ended.</p>
+                <p class="text-sm text-comp font-medium">This competition has ended. The exam closed on {{ $competition->windowEndLabel() }} (IST).</p>
             </div>
         @elseif($paper)
             <form method="POST" action="{{ route('external.competitions.start', $competition) }}">
                 @csrf
                 <button type="submit" class="w-full py-3.5 bg-comp text-white rounded-2xl text-sm font-bold">I am Ready — Start Exam</button>
             </form>
+            @if($competition->end_date)
+                <p class="text-center text-xs text-gray-500 -mt-2">Exam closes on {{ $competition->windowEndLabel() }} (IST)</p>
+            @endif
         @else
             <div class="bg-comp-light border border-comp/30 rounded-2xl p-4 text-center">
                 <p class="text-sm text-comp font-medium">The question paper is not available yet.</p>

@@ -44,8 +44,8 @@
                         @endif
                     </td>
                     <td class="px-4 py-3 text-center text-xs text-gray-600">
-                        <p>{{ $c->start_date->format('d M Y') }}</p>
-                        <p class="text-gray-400">to {{ $c->end_date->format('d M Y') }}</p>
+                        <p>{{ $c->start_date_ist->format('d M Y, h:i A') }}</p>
+                        <p class="text-gray-400">to {{ $c->end_date_ist->format('d M Y, h:i A') }}</p>
                     </td>
                     <td class="px-4 py-3 text-center font-medium text-admin">{{ $c->registrations_count }}</td>
                     <td class="px-4 py-3 text-center">

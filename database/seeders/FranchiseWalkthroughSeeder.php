@@ -280,8 +280,8 @@ class FranchiseWalkthroughSeeder extends Seeder
             ['franchise_id' => $fid, 'title' => 'Apex Abacus Championship — Demo'],
             [
                 'description'           => 'Demo competition for the franchise walkthrough.',
-                'start_date'            => now()->addDays(20)->toDateString(),
-                'end_date'              => now()->addDays(20)->toDateString(),
+                'start_date'            => now('Asia/Kolkata')->addDays(20)->startOfDay()->utc(),
+                'end_date'              => now('Asia/Kolkata')->addDays(20)->endOfDay()->utc(),
                 'registration_deadline' => now()->addDays(10)->toDateString(),
                 'fee_amount'            => 500,
                 'is_active'             => true,

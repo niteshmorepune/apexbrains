@@ -145,8 +145,8 @@ class StudentWalkthroughSeeder extends Seeder
             ['title' => 'Global Abacus Masters Cup', 'franchise_id' => $fid],
             [
                 'description' => 'Annual national-level abacus championship.',
-                'start_date' => now()->addDays(10)->toDateString(),
-                'end_date' => now()->addDays(10)->toDateString(),
+                'start_date' => now('Asia/Kolkata')->addDays(10)->startOfDay()->utc(),
+                'end_date' => now('Asia/Kolkata')->addDays(10)->endOfDay()->utc(),
                 'registration_deadline' => now()->addDays(5)->toDateString(),
                 'fee_amount' => 0, 'is_active' => true, 'is_open_to_external' => true,
                 'created_by' => $admin?->id,
@@ -196,8 +196,8 @@ class StudentWalkthroughSeeder extends Seeder
                 ['title' => $title, 'franchise_id' => $fid],
                 [
                     'description' => 'Past competition.',
-                    'start_date' => now()->subDays($daysAgo)->toDateString(),
-                    'end_date' => now()->subDays($daysAgo)->toDateString(),
+                    'start_date' => now('Asia/Kolkata')->subDays($daysAgo)->startOfDay()->utc(),
+                    'end_date' => now('Asia/Kolkata')->subDays($daysAgo)->endOfDay()->utc(),
                     'registration_deadline' => now()->subDays($daysAgo + 5)->toDateString(),
                     'fee_amount' => 0, 'is_active' => true, 'is_open_to_external' => true,
                     'created_by' => $admin?->id,

@@ -29,7 +29,7 @@ class CertificateImageComposer
         // Participation/Competition certs show the actual competition date
         // (not the issuance date) — scoped to this variable only so it
         // doesn't change Level Up/Champion/Winner's existing date behavior.
-        $competitionDateVal = optional($certificate->competition?->start_date ?? $certificate->issued_at)->format('d F Y');
+        $competitionDateVal = optional($certificate->competition?->start_date_ist ?? $certificate->issued_at)->format('d F Y');
 
         $navyItalic = [28, 46, 99];
         $navyBold   = [18, 24, 47];

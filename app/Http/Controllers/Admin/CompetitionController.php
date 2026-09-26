@@ -41,7 +41,7 @@ class CompetitionController extends Controller
             'title'                  => ['required', 'string', 'max:200'],
             'description'            => ['nullable', 'string'],
             'start_date'             => ['required', 'date'],
-            'end_date'               => ['required', 'date', 'after_or_equal:start_date'],
+            'end_date'               => ['required', 'date', 'after:start_date'],
             'registration_deadline'  => ['required', 'date', 'before_or_equal:start_date'],
             'max_participants'       => ['nullable', 'integer', 'min:1'],
             'fee_amount'             => ['required', 'numeric', 'min:0'],
@@ -54,7 +54,7 @@ class CompetitionController extends Controller
         $data['is_active']          = $request->boolean('is_active', true);
         $data['is_open_to_external'] = $request->boolean('is_open_to_external', true);
 
-        $competition = Competition::create($data);
+        $competition = Competition::create($this->windowToUtc($data));
         AuditLogger::log('competition_created', 'Competition', $competition->id);
 
         if ($competition->is_active) {
@@ -63,7 +63,7 @@ class CompetitionController extends Controller
                 ? $studentsQuery->whereIn('student_type', ['internal', 'external'])
                 : $studentsQuery->where('student_type', 'internal');
 
-            $when = $competition->start_date?->format('d M Y');
+            $when = $competition->windowStartLabel();
 
             ApexNotification::notifyStudents(
                 $studentsQuery->get(),
@@ -193,7 +193,7 @@ class CompetitionController extends Controller
             'title'                  => ['required', 'string', 'max:200'],
             'description'            => ['nullable', 'string'],
             'start_date'             => ['required', 'date'],
-            'end_date'               => ['required', 'date', 'after_or_equal:start_date'],
+            'end_date'               => ['required', 'date', 'after:start_date'],
             'registration_deadline'  => ['required', 'date', 'before_or_equal:start_date'],
             'max_participants'       => ['nullable', 'integer', 'min:1'],
             'fee_amount'             => ['required', 'numeric', 'min:0'],
@@ -205,11 +205,25 @@ class CompetitionController extends Controller
         $data['is_active']           = $request->boolean('is_active');
         $data['is_open_to_external'] = $request->boolean('is_open_to_external');
 
-        $competition->update($data);
+        $competition->update($this->windowToUtc($data));
         AuditLogger::log('competition_updated', 'Competition', $competition->id);
 
         return redirect()->route('admin.competitions.show', $competition)
             ->with('success', 'Competition updated.');
+    }
+
+    /**
+     * The datetime-local inputs carry no timezone — the admin enters IST
+     * wall-clock time, but the app stores/compares in UTC (same as
+     * ExamController). Convert so start/end are true UTC instants.
+     */
+    private function windowToUtc(array $data): array
+    {
+        foreach (['start_date', 'end_date'] as $field) {
+            $data[$field] = \Illuminate\Support\Carbon::parse($data[$field], 'Asia/Kolkata')->setTimezone('UTC');
+        }
+
+        return $data;
     }
 
     public function destroy(Competition $competition): RedirectResponse

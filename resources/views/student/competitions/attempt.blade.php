@@ -65,7 +65,7 @@
             {{-- Big number display --}}
             <div class="px-4 mt-3">
                 <div class="bg-comp-light rounded-2xl border border-comp/15 py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
-                    <div class="text-gray-900" style="font-size:38px" x-html="verticalSum(questions[currentIndex]?.question?.question_text)"></div>
+                    <div class="text-gray-900" style="font-size:38px" x-ref="qDisplay" x-html="verticalSum(questions[currentIndex]?.question?.question_text)"></div>
                 </div>
             </div>
 
@@ -101,6 +101,7 @@
 <form id="submitForm" method="POST" action="{{ route('student.competitions.submit', $competition) }}" class="hidden">@csrf</form>
 
 </body>
+@include('partials.stable-attempt-screen')
 <script>
 function examEngine() {
     return {
@@ -112,7 +113,10 @@ function examEngine() {
         get elapsed() { return this.durationSeconds - this.timeLeft; },
         timeUp: false,
 
-        init() { this.startTimer(); },
+        init() {
+            this.startTimer();
+            this.$nextTick(() => ApexStable.reserveHeight(this.$refs.qDisplay, this.questions.map(q => this.verticalSum(q.question?.question_text))));
+        },
 
         startTimer() {
             const tick = setInterval(() => {

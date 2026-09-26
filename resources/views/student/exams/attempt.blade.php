@@ -70,7 +70,7 @@
             {{-- Big number display --}}
             <div class="px-4 mt-3">
                 <div class="bg-stu-bg rounded-2xl border border-border py-10 px-4 text-center min-h-[170px] flex items-center justify-center">
-                    <div class="text-gray-900" style="font-size:42px" x-html="verticalSum(questions[currentIndex]?.question_text)"></div>
+                    <div class="text-gray-900" style="font-size:42px" x-ref="qDisplay" x-html="verticalSum(questions[currentIndex]?.question_text)"></div>
                 </div>
             </div>
 
@@ -116,6 +116,7 @@
 
 </body>
 @include('partials.speak-script')
+@include('partials.stable-attempt-screen')
 <script>
 function examEngine() {
     return {
@@ -131,6 +132,7 @@ function examEngine() {
 
         init() {
             this.startTimer();
+            this.$nextTick(() => ApexStable.reserveHeight(this.$refs.qDisplay, this.questions.map(q => this.verticalSum(q.question_text))));
             this.requestFullscreen();
             this.$nextTick(() => this.speak());
             // Read each new question aloud as it appears.

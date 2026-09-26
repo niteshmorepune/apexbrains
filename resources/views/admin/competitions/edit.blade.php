@@ -52,19 +52,20 @@
                 <h2 class="text-sm font-bold text-admin mb-4">Dates</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     @foreach([
-                        'registration_deadline' => 'Registration Deadline',
-                        'start_date'            => 'Start Date',
-                        'end_date'              => 'End Date',
-                    ] as $field => $label)
+                        'registration_deadline' => ['Registration Deadline', 'date', $competition->registration_deadline?->format('Y-m-d')],
+                        'start_date'            => ['Start Date & Time', 'datetime-local', $competition->start_date_ist?->format('Y-m-d\TH:i')],
+                        'end_date'              => ['End Date & Time', 'datetime-local', $competition->end_date_ist?->format('Y-m-d\TH:i')],
+                    ] as $field => [$label, $type, $current])
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $label }} <span class="text-red-500">*</span></label>
-                            <input type="date" name="{{ $field }}"
-                                   value="{{ old($field, $competition->$field?->format('Y-m-d')) }}" required
+                            <input type="{{ $type }}" name="{{ $field }}"
+                                   value="{{ old($field, $current) }}" required
                                    class="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fran @error($field) border-red-400 @enderror">
                             @error($field)<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
                     @endforeach
                 </div>
+                <p class="text-xs text-gray-400 mt-3">Times are in IST. Students can start the Competition Exam only between the Start and End date &amp; time.</p>
             </div>
 
             {{-- Settings --}}

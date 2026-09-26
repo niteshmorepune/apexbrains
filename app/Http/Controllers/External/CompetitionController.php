@@ -35,13 +35,13 @@ class CompetitionController extends Controller
             ->pluck('competition_id')
             ->toArray();
 
-        $today = now()->toDateString();
+        $now   = now();
 
         $openCompetitions = Competition::where('is_open_to_external', true)
             ->where('is_active', true)
             ->whereNotIn('id', $mySubmittedCompetitionIds)
-            ->where(function ($q) use ($today) {
-                $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
+            ->where(function ($q) use ($now) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', $now);
             })
             ->orderBy('start_date')
             ->get();
@@ -49,8 +49,8 @@ class CompetitionController extends Controller
         $registeredIds = $myRegistrations->pluck('competition_id')->toArray();
 
         $pastCompetitions = Competition::where('is_open_to_external', true)
-            ->where(function ($q) use ($today, $mySubmittedCompetitionIds) {
-                $q->where('end_date', '<', $today)
+            ->where(function ($q) use ($now, $mySubmittedCompetitionIds) {
+                $q->where('end_date', '<', $now)
                   ->orWhereIn('id', $mySubmittedCompetitionIds);
             })
             ->orderByDesc('end_date')
@@ -70,6 +70,8 @@ class CompetitionController extends Controller
             ->where('student_id', $student->id)
             ->first();
 
+        $this->finalizeIfWindowClosed($competition, $student);
+
         $paper      = $this->paperForStudent($competition, $student);
         $myAttempts = CompetitionExamAttempt::where('competition_id', $competition->id)
             ->where('student_id', $student->id)
@@ -87,12 +89,9 @@ class CompetitionController extends Controller
             return back()->with('error', 'You are not registered for this competition. Ask your branch to register you.');
         }
 
-        $today = now()->toDateString();
-        if ($competition->start_date && $competition->start_date->toDateString() > $today) {
-            return back()->with('error', 'This competition has not started yet. It opens on ' . $competition->start_date->format('d M Y') . '.');
-        }
-        if ($competition->end_date && $competition->end_date->toDateString() < $today) {
-            return back()->with('error', 'This competition has ended.');
+        // Exam window (exact start/end date + time) — enforced here, not just in the UI.
+        if ($message = $competition->examUnavailableMessage()) {
+            return redirect()->route('external.competitions.show', $competition)->with('error', $message);
         }
 
         $paper = $this->paperForStudent($competition, $student);
@@ -145,6 +144,11 @@ class CompetitionController extends Controller
             return redirect()->route('external.competitions.show', $competition);
         }
 
+        if ($competition->examStatus() === Competition::STATUS_NOT_STARTED) {
+            return redirect()->route('external.competitions.show', $competition)
+                ->with('error', $competition->examUnavailableMessage());
+        }
+
         $paper     = $attempt->paper;
         $questions = $paper->items()
             ->orderBy('sort_order')
@@ -155,7 +159,14 @@ class CompetitionController extends Controller
         $durationSeconds = $competition->effectiveDurationMinutes($paper) * 60;
         $remaining       = max(0, $durationSeconds - now()->diffInSeconds($attempt->started_at, true));
 
-        if ($remaining === 0) {
+        // Never run past the competition's end time: the countdown (and its
+        // auto-submit) stops when the exam window closes, even mid-duration.
+        $untilEnd = $competition->secondsUntilEnd();
+        if ($untilEnd !== null) {
+            $remaining = min($remaining, $untilEnd);
+        }
+
+        if ($remaining <= 0) {
             return $this->doSubmit($attempt, $paper);
         }
 
@@ -173,6 +184,10 @@ class CompetitionController extends Controller
             ->where('status', 'in_progress')
             ->latest()
             ->firstOrFail();
+
+        if (! $competition->acceptsAnswers()) {
+            return response()->json(['saved' => false, 'message' => $competition->examUnavailableMessage()], 403);
+        }
 
         $data = $request->validate([
             'question_id'     => ['required', 'integer'],
@@ -247,6 +262,24 @@ class CompetitionController extends Controller
             ->where('is_active', true)
             ->where('level_id', $student->current_level_id)
             ->first();
+    }
+
+    /**
+     * Once the exam window has closed, an attempt still marked in-progress
+     * (student closed the tab mid-exam) is finalized with its saved answers,
+     * so it shows as a result instead of a startable exam.
+     */
+    protected function finalizeIfWindowClosed(Competition $competition, $student): void
+    {
+        if ($competition->examStatus() !== Competition::STATUS_ENDED) {
+            return;
+        }
+
+        CompetitionExamAttempt::where('competition_id', $competition->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'in_progress')
+            ->get()
+            ->each(fn ($attempt) => $this->doSubmit($attempt, $attempt->paper));
     }
 
     protected function isRegistered(Competition $competition, $student): bool
